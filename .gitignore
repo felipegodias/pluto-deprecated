@@ -1,0 +1,5 @@
+.vs
+conan/
+bin/
+lib/
+out/
