@@ -1,9 +1,9 @@
 # Pluto Engine
 ## Requirements
-* [https://conan.io/](Conan)
-* [https://cmake.org/](CMake 3.4)
+* [Conan](https://conan.io/)
+* [CMake 3.4](https://cmake.org/)
 ## Libraries
-* [https://github.com/g-truc/glm](glm 0.9.9.0)
+* [glm 0.9.9.0](https://github.com/g-truc/glm)
 ## Install Libraries
 ```bash
 $ mkdir conan
