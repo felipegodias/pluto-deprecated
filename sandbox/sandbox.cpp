@@ -3,6 +3,6 @@
 int main(int argc, char* argv[])
 {
     const Pluto::Root pluto("", "", "");
-    pluto.Run();
-    return 0;
+    const int code = pluto.Run();
+    return code;
 }

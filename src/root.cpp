@@ -1,30 +1,36 @@
 #include <pluto/root.h>
 #include <glm/glm.hpp>
 #include <iostream>
-#include <utility>
 
 namespace Pluto
 {
     class Root::Impl
     {
-    private:
-        std::string configFileName;
-        std::string logFileName;
-        std::string assetsDirectoryName;
-
     public:
-        Impl(std::string configFileName, std::string logFileName,
-             std::string assetsDirectoryName)
-            : configFileName(std::move(configFileName)),
-              logFileName(std::move(logFileName)),
-              assetsDirectoryName(std::move(assetsDirectoryName))
+        Impl(const std::string& configFileName, const std::string& logFileName,
+             const std::string& assetsDirectoryName)
         {
+            std::cout << "Pluto Engine startup..." << std::endl;
         }
 
-        void Run()
+        Impl(const Impl& other) = delete;
+
+        Impl(Impl&& other) noexcept = delete;
+
+        ~Impl()
+        {
+            std::cout << "Pluto Engine shutdown..." << std::endl;
+        }
+
+        Impl& operator=(const Impl& other) = delete;
+
+        Impl& operator=(Impl&& other) noexcept = delete;
+
+        int Run() const
         {
             const glm::vec3 vec(1, 2, 3);
             std::cout << vec.x << " " << vec.y << " " << vec.z << " pluto!" << std::endl;
+            return 0;
         }
     };
 
@@ -36,8 +42,8 @@ namespace Pluto
 
     Root::~Root() = default;
 
-    void Root::Run() const
+    int Root::Run() const
     {
-        impl->Run();
+        return impl->Run();
     }
 }

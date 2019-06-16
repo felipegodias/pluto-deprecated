@@ -26,6 +26,6 @@ namespace Pluto
 
         Root& operator=(Root&& other) noexcept = delete;
 
-        void Run() const;
+        int Run() const;
     };
 }
