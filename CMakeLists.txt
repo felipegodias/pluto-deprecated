@@ -19,13 +19,14 @@ set(PLUTO_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(PLUTO_SOURCE_FILES "")
 add_subdirectory(src)
 
-add_executable(pluto ${PLUTO_SOURCE_FILES})
-#add_library(pluto SHARED ${PLUTO_SOURCE_FILES})
+add_library(pluto SHARED ${PLUTO_SOURCE_FILES})
 
 set_target_properties(pluto PROPERTIES
     CXX_STANDARD 17
     CXX_EXTENSIONS OFF
 )
+
+target_compile_definitions(pluto PRIVATE PLUTO_DLL_EXPORT)
 
 target_link_libraries(pluto PRIVATE ${CONAN_LIBS})
 
@@ -36,3 +37,5 @@ target_include_directories(pluto PUBLIC
 target_include_directories(pluto PRIVATE
     $<BUILD_INTERFACE:${PLUTO_SOURCE_DIR}>
 )
+
+add_subdirectory(sandbox)

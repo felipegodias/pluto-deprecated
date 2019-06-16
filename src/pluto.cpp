@@ -4,15 +4,9 @@
 
 namespace pluto
 {
-    void print()
+    void Pluto::run()
     {
         const glm::vec3 vec(1, 2, 3);
         std::cout << vec.x << " " << vec.y << " " << vec.z << " pluto!" << std::endl;
     }
-}
-
-int main()
-{
-    pluto::print();
-    return 0;
 }

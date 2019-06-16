@@ -1,6 +1,12 @@
 #pragma once
 
+#include "api.h"
+
 namespace pluto
 {
-    void print();
+    class PLUTO_API Pluto
+    {
+    public:
+        void run();
+    };
 }
