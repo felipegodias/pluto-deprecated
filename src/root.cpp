@@ -1,6 +1,5 @@
 #include <pluto/root.h>
 #include <pluto/log/log_manager.h>
-#include <glm/glm.hpp>
 #include <iostream>
 
 namespace pluto
@@ -16,10 +15,6 @@ namespace pluto
         {
             std::cout << "Pluto Engine startup..." << std::endl;
             logManager = LogManager::Factory::Create(logFileName);
-
-            logManager->LogInfo("info");
-            logManager->LogWarning("warning");
-            logManager->LogError("error");
         }
 
         Impl(const Impl& other) = delete;
@@ -38,8 +33,7 @@ namespace pluto
 
         int Run() const
         {
-            const glm::vec3 vec(1, 2, 3);
-            std::cout << vec.x << " " << vec.y << " " << vec.z << " pluto!" << std::endl;
+            logManager->LogInfo("Hello Pluto!");
             return 0;
         }
     };
