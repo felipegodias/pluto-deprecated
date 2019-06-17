@@ -1,16 +1,25 @@
 #include <pluto/root.h>
+#include <pluto/log/log_manager.h>
 #include <glm/glm.hpp>
 #include <iostream>
 
-namespace Pluto
+namespace pluto
 {
     class Root::Impl
     {
+    private:
+        std::unique_ptr<LogManager> logManager;
+
     public:
         Impl(const std::string& configFileName, const std::string& logFileName,
              const std::string& assetsDirectoryName)
         {
             std::cout << "Pluto Engine startup..." << std::endl;
+            logManager = LogManager::Factory::Create(logFileName);
+
+            logManager->LogInfo("info");
+            logManager->LogWarning("warning");
+            logManager->LogError("error");
         }
 
         Impl(const Impl& other) = delete;
@@ -20,6 +29,7 @@ namespace Pluto
         ~Impl()
         {
             std::cout << "Pluto Engine shutdown..." << std::endl;
+            logManager.reset();
         }
 
         Impl& operator=(const Impl& other) = delete;

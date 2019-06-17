@@ -1,5 +1,9 @@
 [requires]
 glm/0.9.9.0@g-truc/stable
+glew/2.1.0@bincrafters/stable
+glfw/3.2.1@bincrafters/stable
+fmt/5.3.0@bincrafters/stable
+spdlog/1.3.1@bincrafters/stable
 
 [generators]
-cmakes
+cmake

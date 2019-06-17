@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 
-namespace Pluto
+namespace pluto
 {
     class PLUTO_API Root
     {
