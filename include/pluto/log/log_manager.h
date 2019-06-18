@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../di/singleton.h"
+#include "../di/base_factory.h"
 #include <string>
 #include <memory>
 
@@ -9,10 +10,11 @@ namespace pluto
     class PLUTO_API LogManager final : public ISingleton
     {
     public:
-        class Factory
+        class Factory final : public BaseFactory
         {
         public:
-            static std::unique_ptr<LogManager> Create(const std::string& logFileName);
+            explicit Factory(DiContainer& diContainer);
+            std::unique_ptr<LogManager> Create(const std::string& logFileName);
         };
 
     private:

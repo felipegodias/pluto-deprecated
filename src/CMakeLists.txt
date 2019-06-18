@@ -9,6 +9,7 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/config/config_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/config/config_manager.cpp
     # ./log
+    ${CMAKE_CURRENT_SOURCE_DIR}/log/log_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/log/log_manager.cpp
 )
 

@@ -39,6 +39,10 @@ namespace pluto
         }
     };
 
+    LogManager::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    {
+    }
+
     std::unique_ptr<LogManager> LogManager::Factory::Create(const std::string& logFileName)
     {
         return std::make_unique<LogManager>(std::make_unique<Impl>(logFileName));

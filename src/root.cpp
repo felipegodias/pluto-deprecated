@@ -1,8 +1,8 @@
 #include <pluto/root.h>
 #include <pluto/di/di_container.h>
 #include <pluto/log/log_manager.h>
+#include <pluto/log/log_installer.h>
 #include <pluto/config/config_installer.h>
-#include <iostream>
 
 namespace pluto
 {
@@ -17,17 +17,18 @@ namespace pluto
              const std::string& assetsDirectoryName)
         {
             diContainer = std::make_unique<DiContainer>();
-            logManager = &diContainer->AddSingleton<LogManager>(LogManager::Factory::Create(logFileName));
 
+            LogInstaller::Install(logFileName, *diContainer);
             ConfigInstaller::Install(configFileName, *diContainer);
 
+            logManager = &diContainer->Resolve<LogManager>();
             logManager->LogInfo("Pluto Engine Initialized!");
         }
 
         ~Impl()
         {
             ConfigInstaller::Uninstall(*diContainer);
-            diContainer->RemoveSingleton<LogManager>();
+            LogInstaller::Uninstall(*diContainer);
         }
 
         int Run() const
