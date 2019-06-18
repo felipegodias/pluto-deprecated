@@ -1,4 +1,4 @@
-#include <pluto/base_factory.h>
+#include <pluto/di/base_factory.h>
 
 namespace pluto
 {

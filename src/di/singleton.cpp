@@ -1,4 +1,4 @@
-#include <pluto/singleton.h>
+#include <pluto/di/singleton.h>
 
 namespace pluto
 {

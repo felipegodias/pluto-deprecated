@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../singleton.h"
-#include "../base_factory.h"
+#include "../di/singleton.h"
+#include "../di/base_factory.h"
 #include <memory>
 #include <string>
 

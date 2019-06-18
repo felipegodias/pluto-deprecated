@@ -1,6 +1,6 @@
 #include <pluto/config/config_installer.h>
 #include <pluto/config/config_manager.h>
-#include <pluto/di_container.h>
+#include <pluto/di/di_container.h>
 
 namespace pluto
 {

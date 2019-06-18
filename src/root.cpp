@@ -1,5 +1,5 @@
 #include <pluto/root.h>
-#include <pluto/di_container.h>
+#include <pluto/di/di_container.h>
 #include <pluto/log/log_manager.h>
 #include <pluto/config/config_installer.h>
 #include <iostream>
