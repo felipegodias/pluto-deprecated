@@ -5,6 +5,10 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/di/base_factory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/di/di_container.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/di/singleton.cpp
+    # ./event
+    ${CMAKE_CURRENT_SOURCE_DIR}/event/base_event.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/event/event_installer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/event/event_manager.cpp
     # ./config
     ${CMAKE_CURRENT_SOURCE_DIR}/config/config_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/config/config_manager.cpp
