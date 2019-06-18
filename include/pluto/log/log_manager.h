@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../api.h"
+#include "../singleton.h"
 #include <string>
 #include <memory>
 
 namespace pluto
 {
-    class PLUTO_API LogManager
+    class PLUTO_API LogManager final : public ISingleton
     {
     public:
         class Factory

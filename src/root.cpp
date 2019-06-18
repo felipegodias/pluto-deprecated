@@ -1,4 +1,5 @@
 #include <pluto/root.h>
+#include <pluto/di_container.h>
 #include <pluto/log/log_manager.h>
 #include <iostream>
 
@@ -7,19 +8,22 @@ namespace pluto
     class Root::Impl
     {
     private:
-        std::unique_ptr<LogManager> logManager;
+        std::unique_ptr<DiContainer> diContainer;
+        LogManager* logManager;
 
     public:
         Impl(const std::string& configFileName, const std::string& logFileName,
              const std::string& assetsDirectoryName)
         {
-            logManager = LogManager::Factory::Create(logFileName);
+            diContainer = std::make_unique<DiContainer>();
+            logManager = &diContainer->AddSingleton<LogManager>(LogManager::Factory::Create(logFileName));
             logManager->LogInfo("Pluto Engine Initialized!");
         }
 
         ~Impl()
         {
-            logManager.reset();
+            LogManager& logManager = diContainer->Resolve<LogManager>();
+            diContainer->RemoveSingleton<LogManager>();
         }
 
         int Run() const
