@@ -13,23 +13,14 @@ namespace pluto
         Impl(const std::string& configFileName, const std::string& logFileName,
              const std::string& assetsDirectoryName)
         {
-            std::cout << "Pluto Engine startup..." << std::endl;
             logManager = LogManager::Factory::Create(logFileName);
+            logManager->LogInfo("Pluto Engine Initialized!");
         }
-
-        Impl(const Impl& other) = delete;
-
-        Impl(Impl&& other) noexcept = delete;
 
         ~Impl()
         {
-            std::cout << "Pluto Engine shutdown..." << std::endl;
             logManager.reset();
         }
-
-        Impl& operator=(const Impl& other) = delete;
-
-        Impl& operator=(Impl&& other) noexcept = delete;
 
         int Run() const
         {

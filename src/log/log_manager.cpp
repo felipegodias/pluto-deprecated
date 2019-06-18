@@ -15,6 +15,12 @@ namespace pluto
             spdlog::set_pattern("%^[%T] %n: %v%$");
             logger = spdlog::stdout_color_mt("Pluto Engine");
             logger->set_level(spdlog::level::trace);
+            LogInfo("LogManager Initialized!");
+        }
+
+        ~Impl()
+        {
+            LogInfo("LogManager Terminated!");
         }
 
         void LogInfo(const std::string& message) const
