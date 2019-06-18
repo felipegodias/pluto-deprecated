@@ -57,7 +57,7 @@ namespace pluto
 
     std::unique_ptr<ConfigManager> ConfigManager::Factory::Create(const std::string& configFileName)
     {
-        auto& logManager = diContainer.Resolve<LogManager>();
+        auto& logManager = diContainer.GetSingleton<LogManager>();
         return std::make_unique<ConfigManager>(std::make_unique<Impl>(configFileName, logManager));
     }
 

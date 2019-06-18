@@ -16,7 +16,7 @@ namespace pluto
         std::unordered_map<std::type_index, std::unique_ptr<Singleton>> singletons;
 
     public:
-        template <typename T>
+        template <typename T, IsSingleton<T>  = 0>
         T& AddSingleton(std::unique_ptr<T> instance)
         {
             T* ptr = instance.get();
@@ -24,14 +24,14 @@ namespace pluto
             return *ptr;
         }
 
-        template <typename T>
+        template <typename T, IsSingleton<T>  = 0>
         void RemoveSingleton()
         {
             singletons.erase(typeid(T));
         }
 
-        template <typename T>
-        T& Resolve() const
+        template <typename T, IsSingleton<T>  = 0>
+        T& GetSingleton() const
         {
             Singleton& singleton = *singletons.at(typeid(T));
             return static_cast<T&>(singleton);
@@ -44,37 +44,37 @@ namespace pluto
 
     DiContainer::~DiContainer() = default;
 
-    template <typename T>
+    template <typename T, IsSingleton<T>>
     T& DiContainer::AddSingleton(std::unique_ptr<T> instance)
     {
         return impl->AddSingleton(std::move(instance));
     }
 
-    template <typename T>
+    template <typename T, IsSingleton<T>>
     void DiContainer::RemoveSingleton()
     {
         impl->RemoveSingleton<T>();
     }
 
-    template <typename T>
-    T& DiContainer::Resolve() const
+    template <typename T, IsSingleton<T>>
+    T& DiContainer::GetSingleton() const
     {
-        return impl->Resolve<T>();
+        return impl->GetSingleton<T>();
     }
 
     template LogManager& DiContainer::AddSingleton(std::unique_ptr<LogManager> instance);
     template void DiContainer::RemoveSingleton<LogManager>();
-    template LogManager& DiContainer::Resolve() const;
+    template LogManager& DiContainer::GetSingleton() const;
 
     template ConfigManager& DiContainer::AddSingleton(std::unique_ptr<ConfigManager> instance);
     template void DiContainer::RemoveSingleton<ConfigManager>();
-    template ConfigManager& DiContainer::Resolve() const;
+    template ConfigManager& DiContainer::GetSingleton() const;
 
     template FileManager& DiContainer::AddSingleton(std::unique_ptr<FileManager> instance);
     template void DiContainer::RemoveSingleton<FileManager>();
-    template FileManager& DiContainer::Resolve() const;
+    template FileManager& DiContainer::GetSingleton() const;
 
     template EventManager& DiContainer::AddSingleton(std::unique_ptr<EventManager> instance);
     template void DiContainer::RemoveSingleton<EventManager>();
-    template EventManager& DiContainer::Resolve() const;
+    template EventManager& DiContainer::GetSingleton() const;
 }

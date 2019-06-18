@@ -25,7 +25,7 @@ namespace pluto
             FileInstaller::Install(*diContainer);
             EventInstaller::Install(*diContainer);
 
-            logManager = &diContainer->Resolve<LogManager>();
+            logManager = &diContainer->GetSingleton<LogManager>();
             logManager->LogInfo("Pluto Engine Initialized!");
         }
 

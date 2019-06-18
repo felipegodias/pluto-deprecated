@@ -110,7 +110,7 @@ namespace pluto
 
     std::unique_ptr<FileManager> FileManager::Factory::Create() const
     {
-        auto& logManager = diContainer.Resolve<LogManager>();
+        auto& logManager = diContainer.GetSingleton<LogManager>();
         return std::make_unique<FileManager>(std::make_unique<Impl>(logManager));
     }
 
