@@ -12,7 +12,7 @@ namespace pluto
     class DiContainer::Impl
     {
     private:
-        std::unordered_map<std::type_index, std::unique_ptr<ISingleton>> singletons;
+        std::unordered_map<std::type_index, std::unique_ptr<Singleton>> singletons;
 
     public:
         template <typename T>
@@ -32,7 +32,7 @@ namespace pluto
         template <typename T>
         T& Resolve() const
         {
-            ISingleton& singleton = *singletons.at(typeid(T));
+            Singleton& singleton = *singletons.at(typeid(T));
             return static_cast<T&>(singleton);
         }
     };

@@ -7,10 +7,10 @@
 
 namespace pluto
 {
-    class PLUTO_API LogManager final : public ISingleton
+    class PLUTO_API LogManager final : public Singleton
     {
     public:
-        class Factory final : public BaseFactory
+        class PLUTO_API Factory final : public BaseFactory
         {
         public:
             explicit Factory(DiContainer& diContainer);

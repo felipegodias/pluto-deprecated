@@ -2,5 +2,5 @@
 
 namespace pluto
 {
-    ISingleton::~ISingleton() = default;
+    Singleton::~Singleton() = default;
 }

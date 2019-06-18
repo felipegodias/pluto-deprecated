@@ -9,7 +9,7 @@
 
 namespace pluto
 {
-    class PLUTO_API FileManager final : public ISingleton
+    class PLUTO_API FileManager final : public Singleton
     {
     public:
         class PLUTO_API Factory final : public BaseFactory

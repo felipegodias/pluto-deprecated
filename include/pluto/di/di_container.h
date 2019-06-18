@@ -5,7 +5,7 @@
 
 namespace pluto
 {
-    class ISingleton;
+    class Singleton;
 
     class PLUTO_API DiContainer
     {

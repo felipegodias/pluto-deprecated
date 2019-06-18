@@ -16,15 +16,7 @@ namespace pluto
         Root(const std::string& configFileName, const std::string& logFileName,
              const std::string& assetsDirectoryName);
 
-        Root(const Root& other) = delete;
-
-        Root(Root&& other) noexcept = delete;
-
         ~Root();
-
-        Root& operator=(const Root& other) = delete;
-
-        Root& operator=(Root&& other) noexcept = delete;
 
         int Run() const;
     };

@@ -4,9 +4,9 @@
 
 namespace pluto
 {
-    class PLUTO_API ISingleton
+    class PLUTO_API Singleton
     {
     public:
-        virtual ~ISingleton() = 0;
+        virtual ~Singleton() = 0;
     };
 }

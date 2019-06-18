@@ -6,7 +6,7 @@ namespace pluto
 {
     class DiContainer;
 
-    class PLUTO_API BaseFactory : public ISingleton
+    class PLUTO_API BaseFactory : public Singleton
     {
     protected:
         DiContainer& diContainer;
