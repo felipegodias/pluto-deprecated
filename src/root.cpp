@@ -3,6 +3,8 @@
 #include <pluto/log/log_manager.h>
 #include <pluto/log/log_installer.h>
 #include <pluto/config/config_installer.h>
+#include <pluto/file/file_installer.h>
+#include <pluto/file/file_manager.h>
 
 namespace pluto
 {
@@ -20,6 +22,7 @@ namespace pluto
 
             LogInstaller::Install(logFileName, *diContainer);
             ConfigInstaller::Install(configFileName, *diContainer);
+            FileInstaller::Install(*diContainer);
 
             logManager = &diContainer->Resolve<LogManager>();
             logManager->LogInfo("Pluto Engine Initialized!");
@@ -27,6 +30,7 @@ namespace pluto
 
         ~Impl()
         {
+            FileInstaller::Uninstall(*diContainer);
             ConfigInstaller::Uninstall(*diContainer);
             LogInstaller::Uninstall(*diContainer);
         }

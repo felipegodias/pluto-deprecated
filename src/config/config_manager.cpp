@@ -13,7 +13,7 @@ namespace pluto
         std::unordered_map<std::string, std::string> config;
 
     public:
-        explicit Impl(const std::string& configFileName, LogManager& logManager) : logManager(logManager)
+        Impl(const std::string& configFileName, LogManager& logManager) : logManager(logManager)
         {
             config.emplace("appName", "Pluto");
             config.emplace("defaultScreenWidth", "800");

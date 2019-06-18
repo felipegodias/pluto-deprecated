@@ -2,6 +2,7 @@
 #include <pluto/di/singleton.h>
 #include <pluto/log/log_manager.h>
 #include <pluto/config/config_manager.h>
+#include <pluto/file/file_manager.h>
 
 #include <unordered_map>
 #include <typeindex>
@@ -67,4 +68,8 @@ namespace pluto
     template ConfigManager& DiContainer::AddSingleton(std::unique_ptr<ConfigManager> instance);
     template void DiContainer::RemoveSingleton<ConfigManager>();
     template ConfigManager& DiContainer::Resolve() const;
+
+    template FileManager& DiContainer::AddSingleton(std::unique_ptr<FileManager> instance);
+    template void DiContainer::RemoveSingleton<FileManager>();
+    template FileManager& DiContainer::Resolve() const;
 }
