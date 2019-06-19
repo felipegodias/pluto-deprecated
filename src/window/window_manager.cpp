@@ -14,18 +14,15 @@ namespace pluto
         GLFWwindow* window;
 
     public:
-        explicit Impl(const ConfigManager& configManager, LogManager& logManager) : logManager(logManager)
+        explicit Impl(const std::string& screenTitle, const size_t screenWidth, const size_t screenHeight,
+                      LogManager& logManager) : logManager(logManager)
         {
             if (!glfwInit())
             {
                 throw std::runtime_error("Failed to initialize GLFW!");
             }
 
-            const int screenWidth = configManager.GetInt("screenWidth", 640);
-            const int screenHeight = configManager.GetInt("screenHeight", 480);
-            const std::string appName = configManager.GetString("appName", "Unknown");
-
-            window = glfwCreateWindow(screenWidth, screenHeight, appName.c_str(), nullptr, nullptr);
+            window = glfwCreateWindow(screenWidth, screenHeight, screenTitle.c_str(), nullptr, nullptr);
             if (!window)
             {
                 glfwTerminate();
@@ -78,8 +75,12 @@ namespace pluto
     std::unique_ptr<WindowManager> WindowManager::Factory::Create() const
     {
         auto& configManager = diContainer.GetSingleton<ConfigManager>();
+        const int screenWidth = configManager.GetInt("screenWidth", 640);
+        const int screenHeight = configManager.GetInt("screenHeight", 480);
+        const std::string appName = configManager.GetString("appName", "Unknown");
+
         auto& logManager = diContainer.GetSingleton<LogManager>();
-        return std::make_unique<WindowManager>(std::make_unique<Impl>(configManager, logManager));
+        return std::make_unique<WindowManager>(std::make_unique<Impl>(appName, screenWidth, screenHeight, logManager));
     }
 
     WindowManager::WindowManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
