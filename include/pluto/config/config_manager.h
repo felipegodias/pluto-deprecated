@@ -27,9 +27,9 @@ namespace pluto
         explicit ConfigManager(std::unique_ptr<Impl> impl);
         ~ConfigManager();
 
-        bool GetBool(const std::string& key) const;
-        int GetInt(const std::string& key) const;
-        float GetFloat(const std::string& key) const;
-        std::string GetString(const std::string& key) const;
+        bool GetBool(const std::string& key, bool defaultValue) const;
+        int GetInt(const std::string& key, int defaultValue) const;
+        float GetFloat(const std::string& key, float defaultValue) const;
+        std::string GetString(const std::string& key, const std::string& defaultValue) const;
     };
 }

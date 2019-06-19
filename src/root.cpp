@@ -11,6 +11,7 @@
 #include <pluto/event/event_manager.h>
 #include <pluto/event/on_startup_event.h>
 #include <pluto/window/window_manager.h>
+#include <GLFW/glfw3.h>
 
 namespace pluto
 {
@@ -50,6 +51,7 @@ namespace pluto
         {
             auto& windowManager = diContainer->GetSingleton<WindowManager>();
             while (windowManager.IsOpen()) {
+                glfwPollEvents();
             }
             return 0;
         }

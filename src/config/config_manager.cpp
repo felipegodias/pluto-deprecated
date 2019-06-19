@@ -16,8 +16,8 @@ namespace pluto
         Impl(const std::string& configFileName, LogManager& logManager) : logManager(logManager)
         {
             config.emplace("appName", "Pluto");
-            config.emplace("defaultScreenWidth", "800");
-            config.emplace("defaultScreenHeight", "600");
+            config.emplace("screenWidth", "1280");
+            config.emplace("screenHeight", "720");
 
             logManager.LogInfo("ConfigManager Initialized!");
         }
@@ -27,27 +27,48 @@ namespace pluto
             logManager.LogInfo("ConfigManager Terminated!");
         }
 
-        bool GetBool(const std::string& key) const
+        bool GetBool(const std::string& key, const bool defaultValue) const
         {
-            const std::string value = GetString(key);
-            return std::stoi(value) != 0;
+            const auto& it = config.find(key);
+            if (it == config.end())
+            {
+                return defaultValue;
+            }
+
+            return std::stoi(it->second) != 0;
         }
 
-        int GetInt(const std::string& key) const
+        int GetInt(const std::string& key, const int defaultValue) const
         {
-            const std::string value = GetString(key);
-            return std::stoi(value);
+            const auto& it = config.find(key);
+            if (it == config.end())
+            {
+                return defaultValue;
+            }
+
+            return std::stoi(it->second);
         }
 
-        float GetFloat(const std::string& key) const
+        float GetFloat(const std::string& key, const float defaultValue) const
         {
-            const std::string value = GetString(key);
-            return std::stof(value);
+            const auto& it = config.find(key);
+            if (it == config.end())
+            {
+                return defaultValue;
+            }
+
+            return std::stof(it->second);
         }
 
-        std::string GetString(const std::string& key) const
+        std::string GetString(const std::string& key, const std::string& defaultValue) const
         {
-            return config.at(key);
+            const auto& it = config.find(key);
+            if (it == config.end())
+            {
+                return defaultValue;
+            }
+
+            return it->second;
         }
     };
 
@@ -67,23 +88,23 @@ namespace pluto
 
     ConfigManager::~ConfigManager() = default;
 
-    bool ConfigManager::GetBool(const std::string& key) const
+    bool ConfigManager::GetBool(const std::string& key, const bool defaultValue) const
     {
-        return impl->GetBool(key);
+        return impl->GetBool(key, defaultValue);
     }
 
-    int ConfigManager::GetInt(const std::string& key) const
+    int ConfigManager::GetInt(const std::string& key, const int defaultValue) const
     {
-        return impl->GetInt(key);
+        return impl->GetInt(key, defaultValue);
     }
 
-    float ConfigManager::GetFloat(const std::string& key) const
+    float ConfigManager::GetFloat(const std::string& key, const float defaultValue) const
     {
-        return impl->GetFloat(key);
+        return impl->GetFloat(key, defaultValue);
     }
 
-    std::string ConfigManager::GetString(const std::string& key) const
+    std::string ConfigManager::GetString(const std::string& key, const std::string& defaultValue) const
     {
-        return impl->GetString(key);
+        return impl->GetString(key, defaultValue);
     }
 }
