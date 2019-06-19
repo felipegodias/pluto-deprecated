@@ -4,6 +4,7 @@
 #include <pluto/config/config_manager.h>
 #include <pluto/file/file_manager.h>
 #include <pluto/event/event_manager.h>
+#include <pluto/window/window_manager.h>
 
 #include <unordered_map>
 #include <typeindex>
@@ -77,4 +78,8 @@ namespace pluto
     template EventManager& DiContainer::AddSingleton(std::unique_ptr<EventManager> instance);
     template void DiContainer::RemoveSingleton<EventManager>();
     template EventManager& DiContainer::GetSingleton() const;
+
+    template WindowManager& DiContainer::AddSingleton(std::unique_ptr<WindowManager> instance);
+    template void DiContainer::RemoveSingleton<WindowManager>();
+    template WindowManager& DiContainer::GetSingleton() const;
 }

@@ -18,6 +18,9 @@ list(APPEND PLUTO_SOURCE_FILES
     # ./log
     ${CMAKE_CURRENT_SOURCE_DIR}/log/log_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/log/log_manager.cpp
+    # ./window
+    ${CMAKE_CURRENT_SOURCE_DIR}/window/window_installer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/window/window_manager.cpp
 )
 
 set(PLUTO_SOURCE_FILES ${PLUTO_SOURCE_FILES} PARENT_SCOPE)

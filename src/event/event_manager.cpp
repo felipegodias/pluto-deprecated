@@ -122,7 +122,7 @@ namespace pluto
         impl->Dispatch(event);
     }
 
-    //template void EventManager::Subscribe(const std::string& tag, const EventListener<OnStartupEvent>& listener);
+    template void EventManager::Subscribe(const std::string& tag, const EventListener<OnStartupEvent>& listener);
     template void EventManager::Unsubscribe<OnStartupEvent>(const std::string& tag);
     template void EventManager::Dispatch(const OnStartupEvent& event) const;
 }

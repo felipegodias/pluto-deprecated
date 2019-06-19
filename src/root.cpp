@@ -1,12 +1,16 @@
 #include <pluto/root.h>
 #include <pluto/di/di_container.h>
-#include <pluto/log/log_manager.h>
+
 #include <pluto/log/log_installer.h>
 #include <pluto/config/config_installer.h>
 #include <pluto/file/file_installer.h>
 #include <pluto/event/event_installer.h>
+#include <pluto/window/window_installer.h>
+
+#include <pluto/log/log_manager.h>
 #include <pluto/event/event_manager.h>
 #include <pluto/event/on_startup_event.h>
+#include <pluto/window/window_manager.h>
 
 namespace pluto
 {
@@ -25,6 +29,7 @@ namespace pluto
             ConfigInstaller::Install(configFileName, *diContainer);
             FileInstaller::Install(*diContainer);
             EventInstaller::Install(*diContainer);
+            WindowInstaller::Install(*diContainer);
 
             auto& logManager = diContainer->GetSingleton<LogManager>();
             logManager.LogInfo("Pluto Engine Initialized!");
@@ -34,6 +39,7 @@ namespace pluto
 
         ~Impl()
         {
+            WindowInstaller::Uninstall(*diContainer);
             EventInstaller::Uninstall(*diContainer);
             FileInstaller::Uninstall(*diContainer);
             ConfigInstaller::Uninstall(*diContainer);
@@ -42,6 +48,9 @@ namespace pluto
 
         int Run() const
         {
+            auto& windowManager = diContainer->GetSingleton<WindowManager>();
+            while (windowManager.IsOpen()) {
+            }
             return 0;
         }
     };
