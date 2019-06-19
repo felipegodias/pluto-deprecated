@@ -1,6 +1,9 @@
 #include <pluto/event/event_manager.h>
 #include <pluto/log/log_manager.h>
 #include <pluto/di/di_container.h>
+
+#include <pluto/event/on_startup_event.h>
+
 #include <memory>
 #include <typeindex>
 #include <vector>
@@ -10,15 +13,15 @@ namespace pluto
 {
     class EventManager::Impl
     {
-        struct Listener final
+        struct EventListenerData final
         {
             std::string tag;
 
-            EventListener<BaseEvent>& func;
+            EventListener<BaseEvent> callback;
         };
 
         LogManager& logManager;
-        std::unordered_map<std::type_index, std::vector<Listener>> listeners;
+        std::unordered_map<std::type_index, std::vector<EventListenerData>> listeners;
 
     public:
         explicit Impl(LogManager& logManager) : logManager(logManager)
@@ -38,15 +41,14 @@ namespace pluto
             const auto it = listeners.find(type);
             if (it == listeners.end())
             {
-                std::vector<Listener> listeners;
-                listeners.emplace(type, listeners);
+                listeners.emplace(type, std::vector<EventListenerData>());
             }
-            const auto invoker = [listener](const BaseEvent& x)
+            const auto callback = [listener](const BaseEvent& x)
             {
                 listener(static_cast<const T&>(x));
             };
             auto& vec = listeners[type];
-            vec.push_back({tag, invoker});
+            vec.push_back({tag, callback});
         }
 
         template <typename T, IsEvent<T>  = 0>
@@ -81,7 +83,7 @@ namespace pluto
             }
             for (auto& listener : it->second)
             {
-                listener.func(event);
+                listener.callback(event);
             }
         }
     };
@@ -119,4 +121,8 @@ namespace pluto
     {
         impl->Dispatch(event);
     }
+
+    //template void EventManager::Subscribe(const std::string& tag, const EventListener<OnStartupEvent>& listener);
+    template void EventManager::Unsubscribe<OnStartupEvent>(const std::string& tag);
+    template void EventManager::Dispatch(const OnStartupEvent& event) const;
 }

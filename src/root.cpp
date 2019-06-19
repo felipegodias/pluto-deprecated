@@ -5,6 +5,8 @@
 #include <pluto/config/config_installer.h>
 #include <pluto/file/file_installer.h>
 #include <pluto/event/event_installer.h>
+#include <pluto/event/event_manager.h>
+#include <pluto/event/on_startup_event.h>
 
 namespace pluto
 {
@@ -12,7 +14,6 @@ namespace pluto
     {
     private:
         std::unique_ptr<DiContainer> diContainer;
-        LogManager* logManager;
 
     public:
         Impl(const std::string& configFileName, const std::string& logFileName,
@@ -25,8 +26,10 @@ namespace pluto
             FileInstaller::Install(*diContainer);
             EventInstaller::Install(*diContainer);
 
-            logManager = &diContainer->GetSingleton<LogManager>();
-            logManager->LogInfo("Pluto Engine Initialized!");
+            auto& logManager = diContainer->GetSingleton<LogManager>();
+            logManager.LogInfo("Pluto Engine Initialized!");
+            auto& eventManager = diContainer->GetSingleton<EventManager>();
+            eventManager.Dispatch(OnStartupEvent());
         }
 
         ~Impl()
@@ -39,7 +42,6 @@ namespace pluto
 
         int Run() const
         {
-            logManager->LogInfo("Hello Pluto!");
             return 0;
         }
     };
