@@ -14,8 +14,8 @@ namespace pluto
         GLFWwindow* window;
 
     public:
-        explicit Impl(const std::string& screenTitle, const size_t screenWidth, const size_t screenHeight,
-                      LogManager& logManager) : logManager(logManager)
+        Impl(const std::string& screenTitle, const size_t screenWidth, const size_t screenHeight,
+              LogManager& logManager) : logManager(logManager)
         {
             if (!glfwInit())
             {
