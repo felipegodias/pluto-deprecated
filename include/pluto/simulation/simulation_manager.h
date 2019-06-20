@@ -8,14 +8,14 @@ namespace pluto
 {
     enum class KeyCode;
 
-    class PLUTO_API InputManager final : public Singleton
+    class PLUTO_API SimulationManager final : public Singleton
     {
     public:
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
             explicit Factory(DiContainer& diContainer);
-            std::unique_ptr<InputManager> Create() const;
+            std::unique_ptr<SimulationManager> Create() const;
         };
 
     private:
@@ -23,13 +23,10 @@ namespace pluto
         std::unique_ptr<Impl> impl;
 
     public:
-        explicit InputManager(std::unique_ptr<Impl> impl);
-        ~InputManager();
+        explicit SimulationManager(std::unique_ptr<Impl> impl);
+        ~SimulationManager();
 
-        bool AnyKey() const;
-        bool AnyKeyDown() const;
-        bool GetKey(KeyCode keyCode) const;
-        bool GetKeyDown(KeyCode keyCode) const;
-        bool GetKeyUp(KeyCode keyCode) const;
+        float GetDeltaTime() const;
+        void Run();
     };
 }

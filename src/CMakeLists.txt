@@ -21,6 +21,9 @@ list(APPEND PLUTO_SOURCE_FILES
     # ./log
     ${CMAKE_CURRENT_SOURCE_DIR}/log/log_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/log/log_manager.cpp
+    # ./simulation
+    ${CMAKE_CURRENT_SOURCE_DIR}/simulation/simulation_installer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/simulation/simulation_manager.cpp
     # ./window
     ${CMAKE_CURRENT_SOURCE_DIR}/window/window_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/window/window_manager.cpp

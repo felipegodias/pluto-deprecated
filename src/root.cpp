@@ -7,6 +7,7 @@
 #include <pluto/event/event_installer.h>
 #include <pluto/window/window_installer.h>
 #include <pluto/input/input_installer.h>
+#include <pluto/simulation/simulation_installer.h>
 
 #include <pluto/log/log_manager.h>
 #include <pluto/event/event_manager.h>
@@ -14,8 +15,9 @@
 #include <pluto/window/window_manager.h>
 #include <pluto/input/input_manager.h>
 #include <pluto/input/key_code.h>
+#include <pluto/simulation/simulation_manager.h>
 
-#include <GLFW/glfw3.h>
+#include <sstream>
 
 namespace pluto
 {
@@ -36,15 +38,18 @@ namespace pluto
             EventInstaller::Install(*diContainer);
             WindowInstaller::Install(*diContainer);
             InputInstaller::Install(*diContainer);
+            SimulationInstaller::Install(*diContainer);
 
             auto& logManager = diContainer->GetSingleton<LogManager>();
             logManager.LogInfo("Pluto Engine Initialized!");
+
             auto& eventManager = diContainer->GetSingleton<EventManager>();
             eventManager.Dispatch(OnStartupEvent());
         }
 
         ~Impl()
         {
+            SimulationInstaller::Uninstall(*diContainer);
             InputInstaller::Uninstall(*diContainer);
             WindowInstaller::Uninstall(*diContainer);
             EventInstaller::Uninstall(*diContainer);
@@ -56,12 +61,10 @@ namespace pluto
         int Run() const
         {
             auto& windowManager = diContainer->GetSingleton<WindowManager>();
-            auto& logManager = diContainer->GetSingleton<LogManager>();
-            auto& inputManager = diContainer->GetSingleton<InputManager>();
-            while (windowManager.IsOpen()) {
-                glfwPollEvents();
-                std::string str = inputManager.GetKey(KeyCode::A) ? "true" : "false";
-                logManager.LogInfo(str);
+            auto& simulationManager = diContainer->GetSingleton<SimulationManager>();
+            while (windowManager.IsOpen())
+            {
+                simulationManager.Run();
             }
             return 0;
         }

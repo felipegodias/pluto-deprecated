@@ -3,6 +3,9 @@
 #include <pluto/di/di_container.h>
 
 #include <pluto/event/on_startup_event.h>
+#include <pluto/simulation/on_pre_update_event.h>
+#include <pluto/simulation/on_update_event.h>
+#include <pluto/simulation/on_post_update_event.h>
 
 #include <memory>
 #include <typeindex>
@@ -116,7 +119,7 @@ namespace pluto
         impl->Unsubscribe<T>(tag);
     }
 
-    template <typename T, IsEvent<T>  = 0>
+    template <typename T, IsEvent<T>>
     void EventManager::Dispatch(const T& event) const
     {
         impl->Dispatch(event);
@@ -125,4 +128,16 @@ namespace pluto
     template void EventManager::Subscribe(const std::string& tag, const EventListener<OnStartupEvent>& listener);
     template void EventManager::Unsubscribe<OnStartupEvent>(const std::string& tag);
     template void EventManager::Dispatch(const OnStartupEvent& event) const;
+
+    template void EventManager::Subscribe(const std::string& tag, const EventListener<OnPreUpdateEvent>& listener);
+    template void EventManager::Unsubscribe<OnPreUpdateEvent>(const std::string& tag);
+    template void EventManager::Dispatch(const OnPreUpdateEvent& event) const;
+
+    template void EventManager::Subscribe(const std::string& tag, const EventListener<OnUpdateEvent>& listener);
+    template void EventManager::Unsubscribe<OnUpdateEvent>(const std::string& tag);
+    template void EventManager::Dispatch(const OnUpdateEvent& event) const;
+
+    template void EventManager::Subscribe(const std::string& tag, const EventListener<OnPostUpdateEvent>& listener);
+    template void EventManager::Unsubscribe<OnPostUpdateEvent>(const std::string& tag);
+    template void EventManager::Dispatch(const OnPostUpdateEvent& event) const;
 }

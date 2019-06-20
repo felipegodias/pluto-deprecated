@@ -6,6 +6,7 @@
 #include <pluto/event/event_manager.h>
 #include <pluto/window/window_manager.h>
 #include <pluto/input/input_manager.h>
+#include <pluto/simulation/simulation_manager.h>
 
 #include <unordered_map>
 #include <typeindex>
@@ -87,4 +88,8 @@ namespace pluto
     template InputManager& DiContainer::AddSingleton(std::unique_ptr<InputManager> instance);
     template void DiContainer::RemoveSingleton<InputManager>();
     template InputManager& DiContainer::GetSingleton() const;
+
+    template SimulationManager& DiContainer::AddSingleton(std::unique_ptr<SimulationManager> instance);
+    template void DiContainer::RemoveSingleton<SimulationManager>();
+    template SimulationManager& DiContainer::GetSingleton() const;
 }

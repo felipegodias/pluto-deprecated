@@ -3,6 +3,10 @@
 #include <pluto/log/log_manager.h>
 #include <pluto/window/window_manager.h>
 #include <pluto/di/di_container.h>
+
+#include <pluto/event/event_manager.h>
+#include <pluto/simulation/on_pre_update_event.h>
+
 #include <unordered_set>
 #include <GLFW/glfw3.h>
 
@@ -11,16 +15,26 @@ namespace pluto
     class InputManager::Impl
     {
     private:
+        const std::string onPreUpdateEventTag = "InputManager::OnPreUpdateEvent::OnPreUpdate";
+
         LogManager& logManager;
+        EventManager& eventManager;
 
         std::unordered_set<KeyCode> keys;
         std::unordered_set<KeyCode> keysDown;
         std::unordered_set<KeyCode> keysUp;
 
     public:
-        Impl(LogManager& logManager, GLFWwindow* window) : logManager(logManager)
+        Impl(LogManager& logManager, EventManager& eventManager, GLFWwindow* window) : logManager(logManager),
+                                                                                       eventManager(eventManager)
         {
             static Impl* instance = this;
+
+            eventManager.Subscribe<OnPreUpdateEvent>(onPreUpdateEventTag, [&](const OnPreUpdateEvent& event)
+            {
+                OnPreUpdate(event);
+            });
+
             glfwSetKeyCallback(window, [](GLFWwindow* window, const int key, const int scanCode, const int action,
                                           const int mods)
             {
@@ -39,6 +53,7 @@ namespace pluto
 
         ~Impl()
         {
+            eventManager.Unsubscribe<OnPreUpdateEvent>(onPreUpdateEventTag);
             logManager.LogInfo("InputManager terminated!");
         }
 
@@ -68,15 +83,24 @@ namespace pluto
         }
 
     private:
+        void OnPreUpdate(const OnPreUpdateEvent& event)
+        {
+            keysDown.clear();
+            keysUp.clear();
+            glfwPollEvents();
+        }
+
         void HandleKeyCode(const KeyCode keyCode, const int action)
         {
             if (action == GLFW_PRESS)
             {
                 keys.emplace(keyCode);
+                keysDown.emplace(keyCode);
             }
             else if (action == GLFW_RELEASE)
             {
                 keys.erase(keyCode);
+                keysUp.emplace(keyCode);
             }
         }
 
@@ -104,9 +128,10 @@ namespace pluto
     std::unique_ptr<InputManager> InputManager::Factory::Create() const
     {
         auto& logManager = diContainer.GetSingleton<LogManager>();
+        auto& eventManager = diContainer.GetSingleton<EventManager>();
         auto& windowManager = diContainer.GetSingleton<WindowManager>();
         auto window = static_cast<GLFWwindow*>(windowManager.GetNativeWindow());
-        return std::make_unique<InputManager>(std::make_unique<Impl>(logManager, window));
+        return std::make_unique<InputManager>(std::make_unique<Impl>(logManager, eventManager, window));
     }
 
     InputManager::InputManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
