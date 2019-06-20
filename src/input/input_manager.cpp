@@ -15,7 +15,7 @@ namespace pluto
     class InputManager::Impl
     {
     private:
-        const std::string onPreUpdateEventTag = "InputManager::OnPreUpdateEvent::OnPreUpdate";
+        static inline const std::string ON_PRE_UPDATE_EVENT_TAG = "InputManager::OnPreUpdateEvent::OnPreUpdate";
 
         LogManager& logManager;
         EventManager& eventManager;
@@ -30,7 +30,7 @@ namespace pluto
         {
             static Impl* instance = this;
 
-            eventManager.Subscribe<OnPreUpdateEvent>(onPreUpdateEventTag, [&](const OnPreUpdateEvent& event)
+            eventManager.Subscribe<OnPreUpdateEvent>(ON_PRE_UPDATE_EVENT_TAG, [&](const OnPreUpdateEvent& event)
             {
                 OnPreUpdate(event);
             });
@@ -53,7 +53,7 @@ namespace pluto
 
         ~Impl()
         {
-            eventManager.Unsubscribe<OnPreUpdateEvent>(onPreUpdateEventTag);
+            eventManager.Unsubscribe<OnPreUpdateEvent>(ON_PRE_UPDATE_EVENT_TAG);
             logManager.LogInfo("InputManager terminated!");
         }
 
