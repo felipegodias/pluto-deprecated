@@ -15,7 +15,7 @@ namespace pluto
 
     public:
         Impl(const std::string& screenTitle, const size_t screenWidth, const size_t screenHeight,
-              LogManager& logManager) : logManager(logManager)
+             LogManager& logManager) : logManager(logManager)
         {
             if (!glfwInit())
             {
@@ -66,6 +66,11 @@ namespace pluto
         {
             glfwSetWindowSize(window, width, height);
         }
+
+        void* GetNativeWindow() const
+        {
+            return window;
+        }
     };
 
     WindowManager::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
@@ -112,5 +117,10 @@ namespace pluto
     void WindowManager::SetSize(const size_t width, const size_t height)
     {
         impl->SetSize(width, height);
+    }
+
+    void* WindowManager::GetNativeWindow() const
+    {
+        return impl->GetNativeWindow();
     }
 }

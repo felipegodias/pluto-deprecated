@@ -6,7 +6,7 @@
 
 namespace pluto
 {
-    enum KeyCode;
+    enum class KeyCode;
     class Vector2;
 
     class PLUTO_API InputManager final : public Singleton
@@ -26,13 +26,6 @@ namespace pluto
     public:
         explicit InputManager(std::unique_ptr<Impl> impl);
         ~InputManager();
-
-        Vector2 GetMousePosition() const;
-        float GetMouseScrollDelta() const;
-
-        bool GetMouseButton(int button) const;
-        bool GetMouseButtonDown(int button) const;
-        bool GetMouseButtonUp(int button) const;
 
         bool AnyKey() const;
         bool AnyKeyDown() const;

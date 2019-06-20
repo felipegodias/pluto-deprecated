@@ -29,5 +29,6 @@ namespace pluto
         size_t GetWidth() const;
         size_t GetHeight() const;
         void SetSize(size_t width, size_t height);
+        void* GetNativeWindow() const;
     };
 }

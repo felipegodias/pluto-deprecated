@@ -2,9 +2,9 @@
 
 namespace pluto
 {
-    enum KeyCode
+    enum class KeyCode
     {
-        Unknown = -1,
+        Unknown = 0,
         Space = 32,
         Apostrophe = 39,
         Comma = 44,
@@ -122,6 +122,9 @@ namespace pluto
         RightControl = 345,
         RightAlt = 346,
         RightSuper = 347,
-        Menu = 348
+        Menu = 348,
+        MouseButton0 = 500,
+        MouseButton1 = 501,
+        MouseButton2 = 502,
     };
 }
