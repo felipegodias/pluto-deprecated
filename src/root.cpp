@@ -13,11 +13,7 @@
 #include <pluto/event/event_manager.h>
 #include <pluto/event/on_startup_event.h>
 #include <pluto/window/window_manager.h>
-#include <pluto/input/input_manager.h>
-#include <pluto/input/key_code.h>
 #include <pluto/simulation/simulation_manager.h>
-
-#include <sstream>
 
 namespace pluto
 {
