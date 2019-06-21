@@ -7,6 +7,8 @@
 #include <pluto/event/event_manager.h>
 #include <pluto/simulation/on_pre_update_event.h>
 
+#include <pluto/math/vector2.h>
+
 #include <unordered_set>
 #include <GLFW/glfw3.h>
 
@@ -24,9 +26,18 @@ namespace pluto
         std::unordered_set<KeyCode> keysDown;
         std::unordered_set<KeyCode> keysUp;
 
+        double mousePositionX;
+        double mousePositionY;
+        double mouseScrollDeltaX;
+        double mouseScrollDeltaY;
+
     public:
         Impl(LogManager& logManager, EventManager& eventManager, GLFWwindow* window) : logManager(logManager),
-                                                                                       eventManager(eventManager)
+                                                                                       eventManager(eventManager),
+                                                                                       mousePositionX(0),
+                                                                                       mousePositionY(0),
+                                                                                       mouseScrollDeltaX(0),
+                                                                                       mouseScrollDeltaY(0)
         {
             static Impl* instance = this;
 
@@ -47,6 +58,18 @@ namespace pluto
                 {
                     instance->HandleMouseButton(button, action);
                 });
+
+            glfwSetCursorPosCallback(window, [](GLFWwindow* window, const double posX, const double posY)
+            {
+                instance->mousePositionX = posX;
+                instance->mousePositionY = posY;
+            });
+
+            glfwSetScrollCallback(window, [](GLFWwindow* window, const double xOffset, const double yOffset)
+            {
+                instance->mouseScrollDeltaX = xOffset;
+                instance->mouseScrollDeltaY = yOffset;
+            });
 
             logManager.LogInfo("InputManager initialized!");
         }
@@ -82,9 +105,21 @@ namespace pluto
             return keysUp.find(keyCode) != keysUp.end();
         }
 
+        Vector2 GetMousePosition() const
+        {
+            return Vector2(static_cast<float>(mousePositionX), static_cast<float>(mousePositionY));
+        }
+
+        Vector2 GetMouseScrollDelta() const
+        {
+            return Vector2(static_cast<float>(mouseScrollDeltaX), static_cast<float>(mouseScrollDeltaY));
+        }
+
     private:
         void OnPreUpdate(const OnPreUpdateEvent& event)
         {
+            mouseScrollDeltaX = 0;
+            mouseScrollDeltaY = 0;
             keysDown.clear();
             keysUp.clear();
             glfwPollEvents();
@@ -163,5 +198,15 @@ namespace pluto
     bool InputManager::GetKeyUp(const KeyCode keyCode) const
     {
         return impl->GetKeyUp(keyCode);
+    }
+
+    Vector2 InputManager::GetMousePosition() const
+    {
+        return impl->GetMousePosition();
+    }
+
+    Vector2 InputManager::GetMouseScrollDelta() const
+    {
+        return impl->GetMouseScrollDelta();
     }
 }

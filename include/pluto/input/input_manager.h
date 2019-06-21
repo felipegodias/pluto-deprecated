@@ -6,6 +6,7 @@
 
 namespace pluto
 {
+    class Vector2;
     enum class KeyCode;
 
     class PLUTO_API InputManager final : public Singleton
@@ -31,5 +32,8 @@ namespace pluto
         bool GetKey(KeyCode keyCode) const;
         bool GetKeyDown(KeyCode keyCode) const;
         bool GetKeyUp(KeyCode keyCode) const;
+
+        Vector2 GetMousePosition() const;
+        Vector2 GetMouseScrollDelta() const;
     };
 }
