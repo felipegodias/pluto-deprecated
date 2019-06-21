@@ -15,6 +15,8 @@
 #include <pluto/window/window_manager.h>
 #include <pluto/simulation/simulation_manager.h>
 
+#include <pluto/math/vector2.h>
+
 namespace pluto
 {
     class Root::Impl
@@ -38,6 +40,9 @@ namespace pluto
 
             auto& logManager = diContainer->GetSingleton<LogManager>();
             logManager.LogInfo("Pluto Engine Initialized!");
+
+            Vector2 b = Vector2::RIGHT * 2;
+            Vector2 c = Vector2::ClampMagnitude(b, 1, 1.5);
 
             auto& eventManager = diContainer->GetSingleton<EventManager>();
             eventManager.Dispatch(OnStartupEvent());

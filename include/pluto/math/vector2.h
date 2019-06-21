@@ -23,7 +23,7 @@ namespace pluto
                 float x, y;
             };
 
-            float v[2];
+            float v[2]{};
         };
 
         Vector2();
@@ -31,20 +31,26 @@ namespace pluto
         Vector2(float x, float y);
         Vector2(const Vector2& other);
         Vector2(Vector2&& other) noexcept;
-        Vector2(const Vector3& other);
+
         ~Vector2();
 
         Vector2& operator=(const Vector2& other);
         Vector2& operator=(Vector2&& other) noexcept;
-        Vector2& operator+(const Vector2& other);
-        Vector2& operator-(const Vector2& other);
-        Vector2& operator*(float d);
-        Vector2& operator/(float d);
-        Vector2& operator==(const Vector2& other);
+
+        Vector2& operator+=(const Vector2& other);
+        Vector2& operator-=(const Vector2& other);
+        Vector2& operator*=(float d);
+        Vector2& operator/=(float d);
+
+        Vector2 operator+(const Vector2& rhs) const;
+        Vector2 operator-(const Vector2& rhs) const;
+        Vector2 operator*(float d) const;
+        Vector2 operator/(float d) const;
+        bool operator==(const Vector2& rhs) const;
 
         float GetMagnitude() const;
         float GetSqrMagnitude() const;
-        float GetNormalized() const;
+        Vector2 GetNormalized() const;
 
         static float Angle(const Vector2& from, const Vector2& to);
         static float Distance(const Vector2& from, const Vector2& to);
@@ -53,8 +59,8 @@ namespace pluto
         static Vector2 Min(const Vector2& lhs, const Vector2& rhs);
         static float Dot(const Vector2& lhs, const Vector2& rhs);
         static Vector2 Scale(const Vector2& lhs, const Vector2& rhs);
-        static Vector2 ClampMagnitude(const Vector2& vector, float maxLength);
-        static Vector2 Perpendicular(const Vector2& inDirection);
-        static Vector2 Reflect(const Vector2& inDirection, Vector2 inNormal);
+        static Vector2 ClampMagnitude(const Vector2& vector, float minLength, float maxLength);
+        static Vector2 Perpendicular(const Vector2& direction);
+        static Vector2 Reflect(const Vector2& direction, const Vector2& normal);
     };
 }
