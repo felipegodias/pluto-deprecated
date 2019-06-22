@@ -3,8 +3,34 @@
 #include <pluto/math/vector4.h>
 #include <stdexcept>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+#include <glm/gtx/compatibility.hpp>
+#include <glm/gtx/norm.hpp>
+#include <glm/gtx/vector_angle.hpp>
+
 namespace pluto
 {
+    inline glm::vec3& ToGlm(Vector3& v)
+    {
+        return reinterpret_cast<glm::vec3&>(v);
+    }
+
+    inline const glm::vec3& ToGlm(const Vector3& v)
+    {
+        return reinterpret_cast<const glm::vec3&>(v);
+    }
+
+    inline Vector3& FromGlm(glm::vec3& v)
+    {
+        return reinterpret_cast<Vector3&>(v);
+    }
+
+    inline const Vector3& FromGlm(const glm::vec3& v)
+    {
+        return reinterpret_cast<const Vector3&>(v);
+    }
+
     const Vector3 Vector3::ZERO = Vector3(0);
     const Vector3 Vector3::ONE = Vector3(1);
     const Vector3 Vector3::RIGHT = Vector3(1, 0, 0);
@@ -165,5 +191,76 @@ namespace pluto
     {
         os << "[" << vector.x << "," << vector.y << "," << vector.z << "]";
         return os;
+    }
+
+    float Vector3::GetMagnitude() const
+    {
+        return length(ToGlm(*this));
+    }
+
+    float Vector3::GetSqrMagnitude() const
+    {
+        return length2(ToGlm(*this));
+    }
+
+    Vector3 Vector3::GetNormalized() const
+    {
+        return FromGlm(normalize(ToGlm(*this)));
+    }
+
+    float Vector3::Angle(const Vector3& from, const Vector3& to)
+    {
+        return angle(normalize(ToGlm(from)), normalize(ToGlm(to)));
+    }
+
+    float Vector3::Distance(const Vector3& from, const Vector3& to)
+    {
+        return distance(ToGlm(from), ToGlm(to));
+    }
+
+    Vector3 Vector3::Cross(const Vector3& from, const Vector3& to)
+    {
+        return FromGlm(cross(ToGlm(from), ToGlm(to)));
+    }
+
+    Vector3 Vector3::Lerp(const Vector3& from, const Vector3& to, const float t)
+    {
+        return FromGlm(lerp(ToGlm(from), ToGlm(to), t));
+    }
+
+    Vector3 Vector3::Slerp(const Vector3& from, const Vector3& to, const float t)
+    {
+        return FromGlm(slerp(ToGlm(from), ToGlm(to), t));
+    }
+
+    Vector3 Vector3::Max(const Vector3& lhs, const Vector3& rhs)
+    {
+        return FromGlm(max(ToGlm(lhs), ToGlm(rhs)));
+    }
+
+    Vector3 Vector3::Min(const Vector3& lhs, const Vector3& rhs)
+    {
+        return FromGlm(min(ToGlm(lhs), ToGlm(rhs)));
+    }
+
+    float Vector3::Dot(const Vector3& lhs, const Vector3& rhs)
+    {
+        return dot(ToGlm(lhs), ToGlm(rhs));
+    }
+
+    Vector3 Vector3::Scale(const Vector3& lhs, const Vector3& rhs)
+    {
+        return Vector3(lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z);
+    }
+
+    Vector3 Vector3::ClampMagnitude(const Vector3& vector, const float minLength, const float maxLength)
+    {
+        const glm::vec3& norm = normalize(ToGlm(vector));
+        return FromGlm(clamp(ToGlm(vector), norm * minLength, norm * maxLength));
+    }
+
+    Vector3 Vector3::Reflect(const Vector3& direction, const Vector3& normal)
+    {
+        return FromGlm(reflect(ToGlm(direction), ToGlm(normal)));
     }
 }

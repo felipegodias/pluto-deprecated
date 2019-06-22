@@ -3,8 +3,34 @@
 #include <pluto/math/vector3.h>
 #include <stdexcept>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+#include <glm/gtx/compatibility.hpp>
+#include <glm/gtx/norm.hpp>
+#include <glm/gtx/vector_angle.hpp>
+
 namespace pluto
 {
+    inline glm::vec4& ToGlm(Vector4& v)
+    {
+        return reinterpret_cast<glm::vec4&>(v);
+    }
+
+    inline const glm::vec4& ToGlm(const Vector4& v)
+    {
+        return reinterpret_cast<const glm::vec4&>(v);
+    }
+
+    inline Vector4& FromGlm(glm::vec4& v)
+    {
+        return reinterpret_cast<Vector4&>(v);
+    }
+
+    inline const Vector4& FromGlm(const glm::vec4& v)
+    {
+        return reinterpret_cast<const Vector4&>(v);
+    }
+
     const Vector4 Vector4::ZERO = Vector4(0);
     const Vector4 Vector4::ONE = Vector4(1);
 
@@ -169,5 +195,50 @@ namespace pluto
     {
         os << "[" << vector.x << "," << vector.y << "," << vector.z << "," << vector.w << "]";
         return os;
+    }
+
+    float Vector4::GetMagnitude() const
+    {
+        return length(ToGlm(*this));
+    }
+
+    float Vector4::GetSqrMagnitude() const
+    {
+        return length2(ToGlm(*this));
+    }
+
+    Vector4 Vector4::GetNormalized() const
+    {
+        return FromGlm(normalize(ToGlm(*this)));
+    }
+
+    float Vector4::Distance(const Vector4& from, const Vector4& to)
+    {
+        return distance(ToGlm(from), ToGlm(to));
+    }
+
+    Vector4 Vector4::Lerp(const Vector4& from, const Vector4& to, const float t)
+    {
+        return FromGlm(lerp(ToGlm(from), ToGlm(to), t));
+    }
+
+    Vector4 Vector4::Max(const Vector4& lhs, const Vector4& rhs)
+    {
+        return FromGlm(max(ToGlm(lhs), ToGlm(rhs)));
+    }
+
+    Vector4 Vector4::Min(const Vector4& lhs, const Vector4& rhs)
+    {
+        return FromGlm(min(ToGlm(lhs), ToGlm(rhs)));
+    }
+
+    float Vector4::Dot(const Vector4& lhs, const Vector4& rhs)
+    {
+        return dot(ToGlm(lhs), ToGlm(rhs));
+    }
+
+    Vector4 Vector4::Scale(const Vector4& lhs, const Vector4& rhs)
+    {
+        return Vector4(lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z, lhs.w * rhs.w);
     }
 }

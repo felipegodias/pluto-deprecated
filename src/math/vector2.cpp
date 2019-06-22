@@ -2,13 +2,14 @@
 #include <pluto/math/vector3.h>
 #include <pluto/math/vector4.h>
 
+#include <stdexcept>
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtx/compatibility.hpp>
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/vector_angle.hpp>
 #include <glm/gtx/perpendicular.hpp>
-#include <stdexcept>
 
 namespace pluto
 {

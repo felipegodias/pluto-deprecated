@@ -50,5 +50,21 @@ namespace pluto
         bool operator!=(const Vector3& rhs) const;
         float operator[](int index) const;
         friend std::ostream& operator<<(std::ostream& os, const Vector3& vector);
+
+        float GetMagnitude() const;
+        float GetSqrMagnitude() const;
+        Vector3 GetNormalized() const;
+
+        static float Angle(const Vector3& from, const Vector3& to);
+        static float Distance(const Vector3& from, const Vector3& to);
+        static Vector3 Cross(const Vector3& from, const Vector3& to);
+        static Vector3 Lerp(const Vector3& from, const Vector3& to, float t);
+        static Vector3 Slerp(const Vector3& from, const Vector3& to, float t);
+        static Vector3 Max(const Vector3& lhs, const Vector3& rhs);
+        static Vector3 Min(const Vector3& lhs, const Vector3& rhs);
+        static float Dot(const Vector3& lhs, const Vector3& rhs);
+        static Vector3 Scale(const Vector3& lhs, const Vector3& rhs);
+        static Vector3 ClampMagnitude(const Vector3& vector, float minLength, float maxLength);
+        static Vector3 Reflect(const Vector3& direction, const Vector3& normal);
     };
 }
