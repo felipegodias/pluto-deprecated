@@ -1,4 +1,6 @@
 #include <pluto/math/vector2.h>
+#include <pluto/math/vector3.h>
+#include <pluto/math/vector4.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -36,13 +38,23 @@ namespace pluto
     const Vector2 Vector2::UP = Vector2(0, 1);
     const Vector2 Vector2::DOWN = Vector2(0, -1);
 
-    Vector2::Vector2() = default;
+    Vector2::Vector2() : x(0), y(0)
+    {
+    }
 
     Vector2::Vector2(const float scalar) : x(scalar), y(scalar)
     {
     }
 
     Vector2::Vector2(const float x, const float y) : x(x), y(y)
+    {
+    }
+
+    Vector2::Vector2(const Vector3& other) : x(other.x), y(other.y)
+    {
+    }
+
+    Vector2::Vector2(const Vector4& other) : x(other.x), y(other.y)
     {
     }
 
@@ -56,39 +68,53 @@ namespace pluto
 
     Vector2::~Vector2() = default;
 
-    Vector2& Vector2::operator=(const Vector2& other)
+    Vector2& Vector2::operator=(const Vector2& rhs)
     {
-        if (this == &other)
+        if (this == &rhs)
         {
             return *this;
         }
-        x = other.x;
-        y = other.y;
+        x = rhs.x;
+        y = rhs.y;
         return *this;
     }
 
-    Vector2& Vector2::operator=(Vector2&& other) noexcept
+    Vector2& Vector2::operator=(const Vector3& rhs)
     {
-        if (this == &other)
+        x = rhs.x;
+        y = rhs.y;
+        return *this;
+    }
+
+    Vector2& Vector2::operator=(const Vector4& rhs)
+    {
+        x = rhs.x;
+        y = rhs.y;
+        return *this;
+    }
+
+    Vector2& Vector2::operator=(Vector2&& rhs) noexcept
+    {
+        if (this == &rhs)
         {
             return *this;
         }
-        x = other.x;
-        y = other.y;
+        x = rhs.x;
+        y = rhs.y;
         return *this;
     }
 
-    Vector2& Vector2::operator+=(const Vector2& other)
+    Vector2& Vector2::operator+=(const Vector2& rhs)
     {
-        x += other.x;
-        y += other.y;
+        x += rhs.x;
+        y += rhs.y;
         return *this;
     }
 
-    Vector2& Vector2::operator-=(const Vector2& other)
+    Vector2& Vector2::operator-=(const Vector2& rhs)
     {
-        x -= other.x;
-        y -= other.y;
+        x -= rhs.x;
+        y -= rhs.y;
         return *this;
     }
 
