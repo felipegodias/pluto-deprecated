@@ -8,6 +8,7 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/vector_angle.hpp>
 #include <glm/gtx/perpendicular.hpp>
+#include <stdexcept>
 
 namespace pluto
 {
@@ -155,6 +156,30 @@ namespace pluto
     bool Vector2::operator==(const Vector2& rhs) const
     {
         return x == rhs.x && y == rhs.y;
+    }
+
+    bool Vector2::operator!=(const Vector2& rhs) const
+    {
+        return !(*this == rhs);
+    }
+
+    float Vector2::operator[](const int index) const
+    {
+        switch (index)
+        {
+        case 0:
+            return x;
+        case 1:
+            return y;
+        default:
+            throw std::out_of_range("");
+        }
+    }
+
+    std::ostream& operator<<(std::ostream& os, const Vector2& vector)
+    {
+        os << "[" << vector.x << "," << vector.y << "]";
+        return os;
     }
 
     float Vector2::GetMagnitude() const

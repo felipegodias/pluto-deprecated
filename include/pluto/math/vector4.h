@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../api.h"
+#include <ostream>
 
 namespace pluto
 {
@@ -13,15 +14,7 @@ namespace pluto
         static const Vector4 ZERO;
         static const Vector4 ONE;
 
-        union
-        {
-            struct
-            {
-                float x, y, z, w;
-            };
-
-            float v[4]{};
-        };
+        float x, y, z, w;
 
         Vector4();
         explicit Vector4(float scalar);
@@ -48,5 +41,8 @@ namespace pluto
         Vector4 operator*(float d) const;
         Vector4 operator/(float d) const;
         bool operator==(const Vector4& rhs) const;
+        bool operator!=(const Vector4& rhs) const;
+        float operator[](int index) const;
+        friend std::ostream& operator<<(std::ostream& os, const Vector4& vector);
     };
 }

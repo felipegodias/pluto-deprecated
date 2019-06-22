@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../api.h"
+#include <ostream>
 
 namespace pluto
 {
@@ -17,15 +18,7 @@ namespace pluto
         static const Vector2 UP;
         static const Vector2 DOWN;
 
-        union
-        {
-            struct
-            {
-                float x, y;
-            };
-
-            float v[2]{};
-        };
+        float x, y;
 
         Vector2();
         explicit Vector2(float scalar);
@@ -51,7 +44,11 @@ namespace pluto
         Vector2 operator-(const Vector2& rhs) const;
         Vector2 operator*(float d) const;
         Vector2 operator/(float d) const;
+
         bool operator==(const Vector2& rhs) const;
+        bool operator!=(const Vector2& rhs) const;
+        float operator[](int index) const;
+        friend std::ostream& operator<<(std::ostream& os, const Vector2& vector);
 
         float GetMagnitude() const;
         float GetSqrMagnitude() const;

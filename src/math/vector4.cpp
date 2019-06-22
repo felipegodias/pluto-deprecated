@@ -1,6 +1,7 @@
 #include <pluto/math/vector4.h>
 #include <pluto/math/vector2.h>
 #include <pluto/math/vector3.h>
+#include <stdexcept>
 
 namespace pluto
 {
@@ -140,5 +141,33 @@ namespace pluto
     bool Vector4::operator==(const Vector4& rhs) const
     {
         return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w;
+    }
+
+    bool Vector4::operator!=(const Vector4& rhs) const
+    {
+        return !(*this == rhs);
+    }
+
+    float Vector4::operator[](const int index) const
+    {
+        switch (index)
+        {
+        case 0:
+            return x;
+        case 1:
+            return y;
+        case 2:
+            return z;
+        case 3:
+            return w;
+        default:
+            throw std::out_of_range("");
+        }
+    }
+
+    std::ostream& operator<<(std::ostream& os, const Vector4& vector)
+    {
+        os << "[" << vector.x << "," << vector.y << "," << vector.z << "," << vector.w << "]";
+        return os;
     }
 }
