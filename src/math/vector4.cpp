@@ -2,6 +2,7 @@
 #include <pluto/math/vector2.h>
 #include <pluto/math/vector3.h>
 #include <stdexcept>
+#include <limits>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -166,7 +167,8 @@ namespace pluto
 
     bool Vector4::operator==(const Vector4& rhs) const
     {
-        return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w;
+        constexpr float e = std::numeric_limits<float>::epsilon();
+        return abs(x - rhs.x) <= e && abs(y - rhs.y) <= e && abs(z - rhs.z) <= e && abs(w - rhs.w) <= e;
     }
 
     bool Vector4::operator!=(const Vector4& rhs) const
