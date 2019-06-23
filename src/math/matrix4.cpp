@@ -1,4 +1,6 @@
 #include <pluto/math/matrix4.h>
+#include <pluto/math/vector2.h>
+#include <pluto/math/vector3.h>
 #include <pluto/math/vector4.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -277,6 +279,16 @@ namespace pluto
     Matrix4 Matrix4::GetTranspose() const
     {
         return FromGlm(transpose(ToGlm(*this)));
+    }
+
+    Vector2 Matrix4::MultiplyPoint(const Vector2& point) const
+    {
+        return Vector2(*this * Vector4(point));
+    }
+
+    Vector3 Matrix4::MultiplyPoint(const Vector3& point) const
+    {
+        return Vector3(*this * Vector4(point));
     }
 
     Matrix4 Matrix4::Frustum(const float left, const float right, const float bottom, const float top, const float near,

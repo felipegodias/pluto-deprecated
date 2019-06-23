@@ -5,6 +5,7 @@
 
 namespace pluto
 {
+    class Vector2;
     class Vector3;
     class Vector4;
     class Quaternion;
@@ -46,6 +47,8 @@ namespace pluto
         float GetDeterminant() const;
         Matrix4 GetInverse() const;
         Matrix4 GetTranspose() const;
+        Vector2 MultiplyPoint(const Vector2& point) const;
+        Vector3 MultiplyPoint(const Vector3& point) const;
 
         static Matrix4 Frustum(float left, float right, float bottom, float top, float near, float far);
         static Matrix4 LookAt(const Vector3& from, const Vector3& to, const Vector3& up);
