@@ -35,9 +35,7 @@ namespace pluto
         Matrix4 operator*(const Matrix4& rhs) const;
         Vector4 operator*(const Vector4& rhs) const;
 
-        bool operator==(const Matrix4& rhs) const;
-        bool operator!=(const Matrix4& rhs) const;
-        float operator[](int row, int column) const;
+        float operator[](int index) const;
         friend std::ostream& operator<<(std::ostream& os, const Matrix4& matrix);
 
         Vector4 GetRow(int index) const;
