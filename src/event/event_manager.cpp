@@ -44,7 +44,7 @@ namespace pluto
             const auto it = listeners.find(type);
             if (it == listeners.end())
             {
-                listeners.emplace(type, std::vector<EventListenerData>());
+                listeners[type] = std::vector<EventListenerData>();
             }
             const auto callback = [listener](const BaseEvent& x)
             {

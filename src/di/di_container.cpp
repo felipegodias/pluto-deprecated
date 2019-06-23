@@ -23,7 +23,7 @@ namespace pluto
         T& AddSingleton(std::unique_ptr<T> instance)
         {
             T* ptr = instance.get();
-            singletons.emplace(typeid(T), std::move(instance));
+            singletons[typeid(T)] = std::move(instance);
             return *ptr;
         }
 
