@@ -38,6 +38,12 @@ namespace pluto
         return reinterpret_cast<const Vector3&>(v);
     }
 
+    const Quaternion Quaternion::IDENTITY = Quaternion(0, 0, 0, 1);
+
+    Quaternion::Quaternion() : Quaternion(IDENTITY)
+    {
+    }
+
     Quaternion::Quaternion(const float x, const float y, const float z, const float w) : x(x), y(y), z(z), w(w)
     {
     }

@@ -14,6 +14,7 @@ namespace pluto
 
         float x, y, z, w;
 
+        Quaternion();
         Quaternion(float x, float y, float z, float w);
         Quaternion(const Quaternion& other);
         Quaternion(Quaternion&& other) noexcept;
