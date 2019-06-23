@@ -60,7 +60,7 @@ namespace pluto
 
     Quaternion& Quaternion::operator=(const Quaternion& rhs)
     {
-        if (*this == rhs)
+        if (this == &rhs)
         {
             return *this;
         }
@@ -74,7 +74,7 @@ namespace pluto
 
     Quaternion& Quaternion::operator=(Quaternion&& rhs) noexcept
     {
-        if (*this == rhs)
+        if (this == &rhs)
         {
             return *this;
         }
