@@ -1,5 +1,6 @@
 list(APPEND PLUTO_SOURCE_FILES
     # ./
+    ${CMAKE_CURRENT_SOURCE_DIR}/guid.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/root.cpp
     # ./di
     ${CMAKE_CURRENT_SOURCE_DIR}/di/base_factory.cpp
