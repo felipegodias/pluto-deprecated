@@ -22,6 +22,7 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/log/log_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/log/log_manager.cpp
     # ./math
+    ${CMAKE_CURRENT_SOURCE_DIR}/math/quaternion.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/vector2.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/vector3.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/vector4.cpp

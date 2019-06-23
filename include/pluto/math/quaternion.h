@@ -37,10 +37,9 @@ namespace pluto
         Quaternion GetNormalized() const;
         Quaternion GetInverse() const;
 
-        static float Angle(const Quaternion& lhs, const Quaternion& rhs);
         static float Dot(const Quaternion& lhs, const Quaternion& rhs);
-        static float Euler(const Vector3& eulerAngles);
-        static float Lerp(const Quaternion& lhs, const Quaternion& rhs, float t);
-        static float Slerp(const Quaternion& lhs, const Quaternion& rhs, float t);
+        static Quaternion Euler(const Vector3& eulerAngles);
+        static Quaternion Lerp(const Quaternion& lhs, const Quaternion& rhs, float t);
+        static Quaternion Slerp(const Quaternion& lhs, const Quaternion& rhs, float t);
     };
 }
