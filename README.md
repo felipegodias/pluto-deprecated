@@ -9,9 +9,10 @@
 * [glfw 3.2.1](https://github.com/glfw/glfw)
 * [fmt 5.3.0](https://github.com/fmtlib/fmt)
 * [spdlog 1.3.1](https://github.com/gabime/spdlog)
+* [boost 1.70.0](https://github.com/boostorg/boost)
 #### Install Libraries
 ```bash
 $ mkdir conan
 $ cd conan
-$ conan install .. -b
+$ conan install -s build_type=Debug ..
 ```
