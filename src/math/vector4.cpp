@@ -35,7 +35,7 @@ namespace pluto
     const Vector4 Vector4::ZERO = Vector4(0);
     const Vector4 Vector4::ONE = Vector4(1);
 
-    Vector4::Vector4() : x(0), y(0), z(0), w(0)
+    Vector4::Vector4() : Vector4(ZERO)
     {
     }
 

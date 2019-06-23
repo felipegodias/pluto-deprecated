@@ -41,7 +41,7 @@ namespace pluto
     const Vector2 Vector2::UP = Vector2(0, 1);
     const Vector2 Vector2::DOWN = Vector2(0, -1);
 
-    Vector2::Vector2() : x(0), y(0)
+    Vector2::Vector2() : Vector2(ZERO)
     {
     }
 

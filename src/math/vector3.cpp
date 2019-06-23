@@ -41,7 +41,7 @@ namespace pluto
     const Vector3 Vector3::FORWARD = Vector3(0, 0, 1);
     const Vector3 Vector3::BACK = Vector3(0, 0, -1);
 
-    Vector3::Vector3() : x(0), y(0), z(0)
+    Vector3::Vector3() : Vector3(ZERO)
     {
     }
 
