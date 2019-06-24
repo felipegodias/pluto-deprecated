@@ -121,6 +121,10 @@ namespace pluto
         impl->SetName(std::move(name));
     }
 
+    void MeshAsset::Dump(std::ofstream& ofs)
+    {
+    }
+
     const std::vector<Vector3>& MeshAsset::GetPositions() const
     {
         return impl->GetPositions();

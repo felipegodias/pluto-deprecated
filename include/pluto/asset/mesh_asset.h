@@ -38,6 +38,7 @@ namespace pluto
         const Guid& GetId() const override;
         const std::string& GetName() const override;
         void SetName(std::string name) override;
+        void Dump(std::ofstream& ofs) override;
 
         const std::vector<Vector3>& GetPositions() const;
         void SetPositions(std::vector<Vector3> positions);
