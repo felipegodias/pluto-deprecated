@@ -10,6 +10,7 @@
 * [fmt 5.3.0](https://github.com/fmtlib/fmt)
 * [spdlog 1.3.1](https://github.com/gabime/spdlog)
 * [boost 1.70.0](https://github.com/boostorg/boost)
+* [yaml-cpp 0.6.2](https://github.com/jbeder/yaml-cpp)
 #### Install Libraries
 ```bash
 $ mkdir conan
