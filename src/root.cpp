@@ -23,7 +23,7 @@
 #include <pluto/math/vector4.h>
 #include <pluto/math/quaternion.h>
 #include <pluto/math/matrix4.h>
-#include <pluto/asset/mesh_asset.h>
+#include <pluto/asset/text_asset.h>
 #include <sstream>
 #include <iostream>
 #include <fmt/format.h>
@@ -56,9 +56,18 @@ namespace pluto
             auto& eventManager = diContainer->GetSingleton<EventManager>();
             eventManager.Dispatch(OnStartupEvent());
 
-            auto& assetManager = diContainer->GetSingleton<AssetManager>();
-            MeshAsset& mesh = assetManager.Load<MeshAsset>("foo");
-            mesh = assetManager.Load<MeshAsset>("foo");
+            auto& factory = diContainer->GetSingleton<TextAsset::Factory>();
+            std::unique_ptr<TextAsset> textAsset = factory.Create();
+            
+            textAsset->SetName("foo");
+            textAsset->SetText("bar");
+
+            std::ofstream ofs("text_asset.txt", std::ios::binary);
+            textAsset->Dump(ofs);
+            ofs.close();
+            std::ifstream ifs("text_asset.txt", std::ios::binary);
+
+            std::unique_ptr<TextAsset> textAsset2 = factory.Create(ifs);
         }
 
         ~Impl()
