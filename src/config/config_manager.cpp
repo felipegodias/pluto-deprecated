@@ -1,9 +1,11 @@
 #include <pluto/config/config_manager.h>
+#include <pluto/file/file_manager.h>
 #include <pluto/log/log_manager.h>
 #include <pluto/di/di_container.h>
 
 #include <unordered_map>
 #include <string>
+#include <fstream>
 #include <yaml-cpp/yaml.h>
 
 namespace pluto
@@ -15,18 +17,23 @@ namespace pluto
         std::unordered_map<std::string, std::string> config;
 
     public:
-        Impl(const std::string& configFileName, LogManager& logManager) : logManager(logManager)
+        Impl(std::ifstream& configFile, LogManager& logManager) : logManager(
+            logManager)
         {
-            YAML::Node configFile = YAML::LoadFile(configFileName);
-            for (YAML::const_iterator it = configFile.begin(); it != configFile.end(); ++it)
+            if (configFile.is_open())
             {
-                if (!it->second.IsScalar())
+                YAML::Node configYaml = YAML::Load(configFile);
+                for (YAML::const_iterator it = configYaml.begin(); it != configYaml.end(); ++it)
                 {
-                    continue;
-                }
+                    if (!it->second.IsScalar())
+                    {
+                        continue;
+                    }
 
-                config[it->first.as<std::string>()] = it->second.as<std::string>();
+                    config[it->first.as<std::string>()] = it->second.as<std::string>();
+                }
             }
+
             logManager.LogInfo("ConfigManager Initialized!");
         }
 
@@ -86,8 +93,15 @@ namespace pluto
 
     std::unique_ptr<ConfigManager> ConfigManager::Factory::Create(const std::string& configFileName)
     {
+        auto& fileManager = diContainer.GetSingleton<FileManager>();
+        std::ifstream configFile;
+        if (fileManager.Exists(configFileName))
+        {
+            configFile = fileManager.OpenRead(configFileName);
+        }
+
         auto& logManager = diContainer.GetSingleton<LogManager>();
-        return std::make_unique<ConfigManager>(std::make_unique<Impl>(configFileName, logManager));
+        return std::make_unique<ConfigManager>(std::make_unique<Impl>(configFile, logManager));
     }
 
     ConfigManager::ConfigManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))

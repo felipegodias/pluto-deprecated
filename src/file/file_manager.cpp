@@ -64,16 +64,27 @@ namespace pluto
             return GetEntries(path, searchPattern, false, true, std::filesystem::recursive_directory_iterator(path));
         }
 
-        std::ifstream ReadFile(const std::string& path) const
+        std::fstream Open(const std::string& path) const
+        {
+            std::fstream file(path, std::ifstream::binary);
+            return file;
+        }
+
+        std::ifstream OpenRead(const std::string& path) const
         {
             std::ifstream file(path, std::ifstream::binary);
             return file;
         }
 
-        std::ofstream CreateFile(const std::string& path) const
+        std::ofstream OpenWrite(const std::string& path) const
         {
             std::ofstream file(path, std::ifstream::binary);
             return file;
+        }
+
+        void Delete(const std::string& path) const
+        {
+            std::filesystem::remove_all(path);
         }
 
     private:
@@ -170,13 +181,23 @@ namespace pluto
         return impl->GetFiles(path, searchPattern, searchOptions);
     }
 
-    std::ifstream FileManager::ReadFile(const std::string& path) const
+    std::fstream FileManager::Open(const std::string& path) const
     {
-        return impl->ReadFile(path);
+        return impl->Open(path);
     }
 
-    std::ofstream FileManager::CreateFile(const std::string& path) const
+    std::ifstream FileManager::OpenRead(const std::string& path) const
     {
-        return impl->CreateFile(path);
+        return impl->OpenRead(path);
+    }
+
+    std::ofstream FileManager::OpenWrite(const std::string& path) const
+    {
+        return impl->OpenWrite(path);
+    }
+
+    void FileManager::Delete(const std::string& path) const
+    {
+        return impl->Delete(path);
     }
 }

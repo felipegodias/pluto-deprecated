@@ -58,8 +58,12 @@ namespace pluto
             const std::string& searchPattern,
             SearchOptions searchOptions) const;
 
-        std::ifstream ReadFile(const std::string& path) const;
+        std::fstream Open(const std::string& path) const;
 
-        std::ofstream CreateFile(const std::string& path) const;
+        std::ifstream OpenRead(const std::string& path) const;
+
+        std::ofstream OpenWrite(const std::string& path) const;
+
+        void Delete(const std::string& path) const;
     };
 }

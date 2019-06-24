@@ -60,9 +60,10 @@ namespace pluto
                 throw std::runtime_error("");
             }
 
-            std::ifstream file = fileManager.ReadFile(physicalFilePath);
+            std::ifstream file = fileManager.OpenRead(physicalFilePath);
             const auto& factory = static_cast<const typename T::Factory&>(factories.at(typeid(T)));
             std::unique_ptr<T> asset = factory.Create(file);
+            file.close();
             return Register(std::move(asset));
         }
 
