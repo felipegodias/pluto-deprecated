@@ -3,7 +3,7 @@
 
 int main(int argc, char* argv[])
 {
-    const pluto::Root pluto("", "", "assets");
+    const pluto::Root pluto("", "sandbox.log", "assets");
     int exitCode;
     try
     {

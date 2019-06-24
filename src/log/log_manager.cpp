@@ -1,19 +1,25 @@
 #include <pluto/log/log_manager.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <fmt/ostream.h>
+#include <boost/stacktrace.hpp>
 
 namespace pluto
 {
     class LogManager::Impl
     {
     private:
-        std::shared_ptr<spdlog::logger> logger;
+        std::unique_ptr<spdlog::logger> logger;
 
     public:
         explicit Impl(const std::string& logFileName)
         {
             spdlog::set_pattern("%^[%T] %n: %v%$");
-            logger = spdlog::stdout_color_mt("Pluto Engine");
+            const auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+            const auto fileSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logFileName);
+            spdlog::sinks_init_list sinkList{consoleSink, fileSink};
+            logger = std::make_unique<spdlog::logger>("Pluto Engine", sinkList);
             logger->set_level(spdlog::level::trace);
             LogInfo("LogManager Initialized!");
         }
@@ -25,17 +31,17 @@ namespace pluto
 
         void LogInfo(const std::string& message) const
         {
-            logger->info(message);
+            logger->info(fmt::format("{0}\n{1}", message, boost::stacktrace::stacktrace()));
         }
 
         void LogWarning(const std::string& message) const
         {
-            logger->warn(message);
+            logger->warn(fmt::format("{0}\n{1}", message, boost::stacktrace::stacktrace()));
         }
 
         void LogError(const std::string& message) const
         {
-            logger->error(message);
+            logger->error(fmt::format("{0}\n{1}", message, boost::stacktrace::stacktrace()));
         }
     };
 
