@@ -4,6 +4,8 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/root.cpp
     # ./asset
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/asset.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/asset/asset_manager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/asset/asset_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/mesh.cpp
     # ./di
     ${CMAKE_CURRENT_SOURCE_DIR}/di/base_factory.cpp

@@ -8,14 +8,25 @@
 #include <pluto/window/window_installer.h>
 #include <pluto/input/input_installer.h>
 #include <pluto/simulation/simulation_installer.h>
+#include <pluto/asset/asset_installer.h>
 
 #include <pluto/log/log_manager.h>
+#include <pluto/input/input_manager.h>
+#include <pluto/input/key_code.h>
 #include <pluto/event/event_manager.h>
 #include <pluto/event/on_startup_event.h>
 #include <pluto/window/window_manager.h>
 #include <pluto/simulation/simulation_manager.h>
+#include <pluto/asset/asset_manager.h>
 
-#include <pluto/math/vector2.h>
+#include <pluto/math/vector3.h>
+#include <pluto/math/vector4.h>
+#include <pluto/math/quaternion.h>
+#include <pluto/math/matrix4.h>
+#include <pluto/asset/mesh.h>
+#include <sstream>
+#include <iostream>
+#include <fmt/format.h>
 
 namespace pluto
 {
@@ -26,7 +37,7 @@ namespace pluto
 
     public:
         Impl(const std::string& configFileName, const std::string& logFileName,
-             const std::string& assetsDirectoryName)
+             const std::string& assetsRootDir)
         {
             diContainer = std::make_unique<DiContainer>();
 
@@ -37,19 +48,22 @@ namespace pluto
             WindowInstaller::Install(*diContainer);
             InputInstaller::Install(*diContainer);
             SimulationInstaller::Install(*diContainer);
+            AssetInstaller::Install(assetsRootDir, *diContainer);
 
             auto& logManager = diContainer->GetSingleton<LogManager>();
             logManager.LogInfo("Pluto Engine Initialized!");
 
-            Vector2 b = Vector2::RIGHT * 2;
-            Vector2 c = Vector2::ClampMagnitude(b, 1, 1.5);
-
             auto& eventManager = diContainer->GetSingleton<EventManager>();
             eventManager.Dispatch(OnStartupEvent());
+
+            auto& assetManager = diContainer->GetSingleton<AssetManager>();
+            Mesh& mesh = assetManager.Load<Mesh>("foo");
+            mesh = assetManager.Load<Mesh>("foo");
         }
 
         ~Impl()
         {
+            AssetInstaller::Uninstall(*diContainer);
             SimulationInstaller::Uninstall(*diContainer);
             InputInstaller::Uninstall(*diContainer);
             WindowInstaller::Uninstall(*diContainer);
@@ -72,8 +86,8 @@ namespace pluto
     };
 
     Root::Root(const std::string& configFileName, const std::string& logFileName,
-               const std::string& assetsDirectoryName) : impl(
-        std::make_unique<Impl>(configFileName, logFileName, assetsDirectoryName))
+               const std::string& assetsRootDir) : impl(
+        std::make_unique<Impl>(configFileName, logFileName, assetsRootDir))
     {
     }
 

@@ -86,7 +86,8 @@ namespace pluto
 
     std::unique_ptr<Mesh> Mesh::Factory::Create(std::ifstream& ifs) const
     {
-        return Create();
+        // TODO: Remove test code.
+        return std::make_unique<Mesh>(std::make_unique<Impl>(Guid("b798360e-7add-4a10-9045-301ee55dd228"), ""));
     }
 
     Mesh::Mesh(std::unique_ptr<Impl> impl) : impl(std::move(impl))
