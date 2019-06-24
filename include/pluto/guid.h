@@ -2,6 +2,7 @@
 
 #include "api.h"
 #include <array>
+#include <string>
 #include <ostream>
 
 namespace pluto
@@ -14,6 +15,7 @@ namespace pluto
     public:
         Guid();
         explicit Guid(const std::array<uint8_t, 16>& data);
+        explicit Guid(const std::string& guid);
 
         Guid(const Guid& other);
         Guid(Guid&& other) noexcept;

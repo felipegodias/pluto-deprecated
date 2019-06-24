@@ -6,6 +6,7 @@
 namespace pluto
 {
     static boost::uuids::random_generator uuidRandomGenerator;
+    static boost::uuids::string_generator uuidStringGenerator;
 
     inline boost::uuids::uuid& ToBoost(Guid& v)
     {
@@ -35,6 +36,12 @@ namespace pluto
 
     Guid::Guid(const std::array<uint8_t, 16>& data) : data(data)
     {
+    }
+
+    Guid::Guid(const std::string& guid)
+    {
+        const boost::uuids::uuid uuid = uuidStringGenerator(guid);
+        *this = FromBoost(uuid);
     }
 
     Guid::Guid(const Guid& other) : data(other.data)
@@ -79,9 +86,9 @@ namespace pluto
 
     std::ostream& operator<<(std::ostream& os, const Guid& guid)
     {
+        os << to_string(ToBoost(guid));
         return os;
     }
-
 }
 
 size_t std::hash<pluto::Guid>::operator()(const pluto::Guid& guid) const noexcept
