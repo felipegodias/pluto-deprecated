@@ -23,7 +23,7 @@
 #include <pluto/math/vector4.h>
 #include <pluto/math/quaternion.h>
 #include <pluto/math/matrix4.h>
-#include <pluto/asset/mesh.h>
+#include <pluto/asset/mesh_asset.h>
 #include <sstream>
 #include <iostream>
 #include <fmt/format.h>
@@ -57,8 +57,8 @@ namespace pluto
             eventManager.Dispatch(OnStartupEvent());
 
             auto& assetManager = diContainer->GetSingleton<AssetManager>();
-            Mesh& mesh = assetManager.Load<Mesh>("foo");
-            mesh = assetManager.Load<Mesh>("foo");
+            MeshAsset& mesh = assetManager.Load<MeshAsset>("foo");
+            mesh = assetManager.Load<MeshAsset>("foo");
         }
 
         ~Impl()

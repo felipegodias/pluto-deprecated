@@ -10,16 +10,16 @@ namespace pluto
     class Vector2;
     class Vector3;
 
-    class PLUTO_API Mesh final : public Asset
+    class PLUTO_API MeshAsset final : public Asset
     {
     public:
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
             explicit Factory(DiContainer& diContainer);
-            std::unique_ptr<Mesh> Create() const;
-            std::unique_ptr<Mesh> Create(const Mesh& original) const;
-            std::unique_ptr<Mesh> Create(std::ifstream& ifs) const;
+            std::unique_ptr<MeshAsset> Create() const;
+            std::unique_ptr<MeshAsset> Create(const MeshAsset& original) const;
+            std::unique_ptr<MeshAsset> Create(std::ifstream& ifs) const;
         };
 
     private:
@@ -27,13 +27,13 @@ namespace pluto
         std::unique_ptr<Impl> impl;
 
     public:
-        explicit Mesh(std::unique_ptr<Impl> impl);
-        Mesh(const Mesh& other) = delete;
-        Mesh(Mesh&& other) noexcept = delete;
-        ~Mesh() override;
+        explicit MeshAsset(std::unique_ptr<Impl> impl);
+        MeshAsset(const MeshAsset& other) = delete;
+        MeshAsset(MeshAsset&& other) noexcept = delete;
+        ~MeshAsset() override;
 
-        Mesh& operator=(const Mesh& rhs);
-        Mesh& operator=(Mesh&& rhs) noexcept = delete;
+        MeshAsset& operator=(const MeshAsset& rhs);
+        MeshAsset& operator=(MeshAsset&& rhs) noexcept = delete;
 
         const Guid& GetId() const override;
         const std::string& GetName() const override;

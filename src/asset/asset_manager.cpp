@@ -4,10 +4,9 @@
 #include <pluto/di/base_factory.h>
 #include <pluto/guid.h>
 #include <pluto/asset/asset.h>
-#include <pluto/asset/mesh.h>
+#include <pluto/asset/mesh_asset.h>
 
 #include <string>
-#include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <memory>
 #include <typeindex>
@@ -26,11 +25,11 @@ namespace pluto
         std::unordered_map<Guid, std::unique_ptr<Asset>> loadedAssets;
 
     public:
-        Impl(std::string assetsRootDir, const FileManager& fileManager, const Mesh::Factory& meshFactory) :
+        Impl(std::string assetsRootDir, const FileManager& fileManager, const MeshAsset::Factory& meshFactory) :
             assetsRootDir(std::move(assetsRootDir)), fileManager(fileManager)
         {
-            factories.emplace(typeid(Mesh), meshFactory);
-            
+            factories.emplace(typeid(MeshAsset), meshFactory);
+
             // TODO: Remove test code.
             manifest.emplace("foo", Guid("b798360e-7add-4a10-9045-301ee55dd228"));
             manifest.emplace("bar", Guid("f85e4413-a94d-4442-9eaf-1678f16af981"));
@@ -107,7 +106,7 @@ namespace pluto
     std::unique_ptr<AssetManager> AssetManager::Factory::Create(std::string assetsRootDir) const
     {
         const auto& fileManager = diContainer.GetSingleton<FileManager>();
-        const auto& meshFactory = diContainer.GetSingleton<Mesh::Factory>();
+        const auto& meshFactory = diContainer.GetSingleton<MeshAsset::Factory>();
         return std::make_unique<AssetManager>(
             std::make_unique<Impl>(std::move(assetsRootDir), fileManager, meshFactory));
     }
@@ -146,6 +145,7 @@ namespace pluto
         return impl->GetLoadedAssets();
     }
 
-    template Mesh& AssetManager::Load(const std::string& path);
-    template Mesh& AssetManager::Load(const Guid& guid);
+    template MeshAsset& AssetManager::Load(const std::string& path);
+    template MeshAsset& AssetManager::Load(const Guid& guid);
+    template MeshAsset& AssetManager::Register(std::unique_ptr<MeshAsset> asset);
 }

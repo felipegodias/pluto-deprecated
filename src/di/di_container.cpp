@@ -8,7 +8,7 @@
 #include <pluto/input/input_manager.h>
 #include <pluto/simulation/simulation_manager.h>
 #include <pluto/asset/asset_manager.h>
-#include <pluto/asset/mesh.h>
+#include <pluto/asset/mesh_asset.h>
 
 #include <unordered_map>
 #include <typeindex>
@@ -99,7 +99,7 @@ namespace pluto
     template void DiContainer::RemoveSingleton<AssetManager>();
     template AssetManager& DiContainer::GetSingleton() const;
 
-    template Mesh::Factory& DiContainer::AddSingleton(std::unique_ptr<Mesh::Factory> instance);
-    template void DiContainer::RemoveSingleton<Mesh::Factory>();
-    template Mesh::Factory& DiContainer::GetSingleton() const;
+    template MeshAsset::Factory& DiContainer::AddSingleton(std::unique_ptr<MeshAsset::Factory> instance);
+    template void DiContainer::RemoveSingleton<MeshAsset::Factory>();
+    template MeshAsset::Factory& DiContainer::GetSingleton() const;
 }
