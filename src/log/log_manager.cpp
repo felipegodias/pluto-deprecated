@@ -31,17 +31,17 @@ namespace pluto
 
         void LogInfo(const std::string& message) const
         {
-            logger->info(fmt::format("{0}\n{1}", message, boost::stacktrace::stacktrace()));
+            logger->info(fmt::format("{0}\n{1}", message, boost::stacktrace::stacktrace(4, 999)));
         }
 
         void LogWarning(const std::string& message) const
         {
-            logger->warn(fmt::format("{0}\n{1}", message, boost::stacktrace::stacktrace()));
+            logger->warn(fmt::format("{0}\n{1}", message, boost::stacktrace::stacktrace(4, 999)));
         }
 
         void LogError(const std::string& message) const
         {
-            logger->error(fmt::format("{0}\n{1}", message, boost::stacktrace::stacktrace()));
+            logger->error(fmt::format("{0}\n{1}", message, boost::stacktrace::stacktrace(4, 999)));
         }
     };
 
