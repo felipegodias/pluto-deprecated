@@ -17,7 +17,6 @@ namespace pluto
     class AssetManager::Impl
     {
     private:
-        std::string assetsRootDir;
         const FileManager& fileManager;
 
         std::unordered_map<std::string, Guid> manifest;
@@ -25,8 +24,7 @@ namespace pluto
         std::unordered_map<Guid, std::unique_ptr<Asset>> loadedAssets;
 
     public:
-        Impl(std::string assetsRootDir, const FileManager& fileManager, const MeshAsset::Factory& meshFactory) :
-            assetsRootDir(std::move(assetsRootDir)), fileManager(fileManager)
+        Impl(const FileManager& fileManager, const MeshAsset::Factory& meshFactory) : fileManager(fileManager)
         {
             factories.emplace(typeid(MeshAsset), meshFactory);
 
@@ -56,7 +54,7 @@ namespace pluto
                 return static_cast<T&>(*it->second);
             }
 
-            const std::string physicalFilePath = fmt::format("{0}/{1}", assetsRootDir, guid);
+            const std::string physicalFilePath = fmt::format("assets/{0}", guid);
             if (!fileManager.Exists(physicalFilePath))
             {
                 throw std::runtime_error("");
@@ -103,12 +101,11 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<AssetManager> AssetManager::Factory::Create(std::string assetsRootDir) const
+    std::unique_ptr<AssetManager> AssetManager::Factory::Create() const
     {
         const auto& fileManager = diContainer.GetSingleton<FileManager>();
         const auto& meshFactory = diContainer.GetSingleton<MeshAsset::Factory>();
-        return std::make_unique<AssetManager>(
-            std::make_unique<Impl>(std::move(assetsRootDir), fileManager, meshFactory));
+        return std::make_unique<AssetManager>(std::make_unique<Impl>(fileManager, meshFactory));
     }
 
     AssetManager::AssetManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))

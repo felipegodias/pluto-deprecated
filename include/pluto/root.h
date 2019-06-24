@@ -14,7 +14,7 @@ namespace pluto
 
     public:
         Root(const std::string& configFileName, const std::string& logFileName,
-             const std::string& assetsRootDir);
+             const std::string& dataDirectoryName);
 
         ~Root();
 

@@ -3,7 +3,7 @@
 
 int main(int argc, char* argv[])
 {
-    const pluto::Root pluto("config.yml", "sandbox.log", "assets");
+    const pluto::Root pluto("config.yml", "sandbox.log", "C:/Users/felipe.dias/Repos/sandbox");
     int exitCode;
     try
     {

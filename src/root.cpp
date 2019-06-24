@@ -1,9 +1,9 @@
 #include <pluto/root.h>
 #include <pluto/di/di_container.h>
 
+#include <pluto/file/file_installer.h>
 #include <pluto/log/log_installer.h>
 #include <pluto/config/config_installer.h>
-#include <pluto/file/file_installer.h>
 #include <pluto/event/event_installer.h>
 #include <pluto/window/window_installer.h>
 #include <pluto/input/input_installer.h>
@@ -37,37 +37,24 @@ namespace pluto
 
     public:
         Impl(const std::string& configFileName, const std::string& logFileName,
-             const std::string& assetsRootDir)
+             const std::string& dataDirectoryName)
         {
             diContainer = std::make_unique<DiContainer>();
 
+            FileInstaller::Install(dataDirectoryName, *diContainer);
             LogInstaller::Install(logFileName, *diContainer);
             ConfigInstaller::Install(configFileName, *diContainer);
-            FileInstaller::Install(*diContainer);
             EventInstaller::Install(*diContainer);
             WindowInstaller::Install(*diContainer);
             InputInstaller::Install(*diContainer);
             SimulationInstaller::Install(*diContainer);
-            AssetInstaller::Install(assetsRootDir, *diContainer);
+            AssetInstaller::Install(*diContainer);
 
             auto& logManager = diContainer->GetSingleton<LogManager>();
             logManager.LogInfo("Pluto Engine Initialized!");
 
             auto& eventManager = diContainer->GetSingleton<EventManager>();
             eventManager.Dispatch(OnStartupEvent());
-
-            auto& factory = diContainer->GetSingleton<TextAsset::Factory>();
-            std::unique_ptr<TextAsset> textAsset = factory.Create();
-            
-            textAsset->SetName("foo");
-            textAsset->SetText("bar");
-
-            std::ofstream ofs("text_asset.txt", std::ios::binary);
-            textAsset->Dump(ofs);
-            ofs.close();
-            std::ifstream ifs("text_asset.txt", std::ios::binary);
-
-            std::unique_ptr<TextAsset> textAsset2 = factory.Create(ifs);
         }
 
         ~Impl()
@@ -77,9 +64,9 @@ namespace pluto
             InputInstaller::Uninstall(*diContainer);
             WindowInstaller::Uninstall(*diContainer);
             EventInstaller::Uninstall(*diContainer);
-            FileInstaller::Uninstall(*diContainer);
             ConfigInstaller::Uninstall(*diContainer);
             LogInstaller::Uninstall(*diContainer);
+            FileInstaller::Uninstall(*diContainer);
         }
 
         int Run() const
@@ -95,8 +82,8 @@ namespace pluto
     };
 
     Root::Root(const std::string& configFileName, const std::string& logFileName,
-               const std::string& assetsRootDir) : impl(
-        std::make_unique<Impl>(configFileName, logFileName, assetsRootDir))
+               const std::string& dataDirectoryName) : impl(
+        std::make_unique<Impl>(configFileName, logFileName, dataDirectoryName))
     {
     }
 

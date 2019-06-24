@@ -10,7 +10,7 @@ namespace pluto
     class PLUTO_API AssetInstaller
     {
     public:
-        static void Install(std::string assetsDirectoryName, DiContainer& diContainer);
+        static void Install(DiContainer& diContainer);
         static void Uninstall(DiContainer& diContainer);
     };
 }

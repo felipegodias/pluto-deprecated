@@ -1,6 +1,7 @@
 #include <pluto/file/file_manager.h>
 #include <pluto/log/log_manager.h>
 #include <pluto/di/di_container.h>
+#include <iostream>
 #include <filesystem>
 #include <regex>
 
@@ -8,18 +9,20 @@ namespace pluto
 {
     class FileManager::Impl
     {
-    private:
-        LogManager& logManager;
-
     public:
-        explicit Impl(LogManager& logManager) : logManager(logManager)
+        explicit Impl(const std::string& dataDirectoryName)
         {
-            logManager.LogInfo("FileManager Initialized!");
+            if (!dataDirectoryName.empty())
+            {
+                std::filesystem::current_path(dataDirectoryName);
+            }
+
+            std::cout << "FileManager initialized!" << std::endl;
         }
 
         ~Impl()
         {
-            logManager.LogInfo("FileManager Terminated!");
+            std::cout << "FileManager terminated!" << std::endl;
         }
 
         bool Exists(const std::string& path) const
@@ -108,10 +111,9 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<FileManager> FileManager::Factory::Create() const
+    std::unique_ptr<FileManager> FileManager::Factory::Create(const std::string& dataDirectoryName) const
     {
-        auto& logManager = diContainer.GetSingleton<LogManager>();
-        return std::make_unique<FileManager>(std::make_unique<Impl>(logManager));
+        return std::make_unique<FileManager>(std::make_unique<Impl>(dataDirectoryName));
     }
 
     FileManager::FileManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))

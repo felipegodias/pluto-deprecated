@@ -21,7 +21,7 @@ namespace pluto
         {
         public:
             explicit Factory(DiContainer& diContainer);
-            std::unique_ptr<AssetManager> Create(std::string assetsRootDir) const;
+            std::unique_ptr<AssetManager> Create() const;
         };
 
     private:

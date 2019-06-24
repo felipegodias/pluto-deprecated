@@ -6,13 +6,13 @@
 
 namespace pluto
 {
-    void AssetInstaller::Install(std::string assetsDirectoryName, DiContainer& diContainer)
+    void AssetInstaller::Install(DiContainer& diContainer)
     {
         diContainer.AddSingleton(std::make_unique<MeshAsset::Factory>(diContainer));
         diContainer.AddSingleton(std::make_unique<TextAsset::Factory>(diContainer));
 
         const AssetManager::Factory factory(diContainer);
-        diContainer.AddSingleton(factory.Create(std::move(assetsDirectoryName)));
+        diContainer.AddSingleton(factory.Create());
     }
 
     void AssetInstaller::Uninstall(DiContainer& diContainer)

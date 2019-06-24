@@ -16,7 +16,7 @@ namespace pluto
         {
         public:
             explicit Factory(DiContainer& diContainer);
-            std::unique_ptr<FileManager> Create() const;
+            std::unique_ptr<FileManager> Create(const std::string& dataDirectoryName) const;
         };
 
         enum SearchOptions

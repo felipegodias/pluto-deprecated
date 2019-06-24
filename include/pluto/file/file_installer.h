@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../api.h"
+#include <string>
 
 namespace pluto
 {
@@ -9,7 +10,7 @@ namespace pluto
     class PLUTO_API FileInstaller
     {
     public:
-        static void Install(DiContainer& diContainer);
+        static void Install(const std::string& dataDirectoryName, DiContainer& diContainer);
         static void Uninstall(DiContainer& diContainer);
     };
 }
