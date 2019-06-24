@@ -1,8 +1,10 @@
 #include <pluto/config/config_manager.h>
 #include <pluto/log/log_manager.h>
 #include <pluto/di/di_container.h>
+
 #include <unordered_map>
 #include <string>
+#include <yaml-cpp/yaml.h>
 
 namespace pluto
 {
@@ -15,10 +17,16 @@ namespace pluto
     public:
         Impl(const std::string& configFileName, LogManager& logManager) : logManager(logManager)
         {
-            config.emplace("appName", "Pluto");
-            config.emplace("screenWidth", "1280");
-            config.emplace("screenHeight", "720");
+            YAML::Node configFile = YAML::LoadFile(configFileName);
+            for (YAML::const_iterator it = configFile.begin(); it != configFile.end(); ++it)
+            {
+                if (!it->second.IsScalar())
+                {
+                    continue;
+                }
 
+                config[it->first.as<std::string>()] = it->second.as<std::string>();
+            }
             logManager.LogInfo("ConfigManager Initialized!");
         }
 
