@@ -26,13 +26,13 @@ namespace pluto
     class PLUTO_API TextAsset final : public Asset
     {
     public:
-        class PLUTO_API Factory final : public BaseFactory
+        class PLUTO_API Factory final : public BaseFactory 
         {
         public:
             explicit Factory(DiContainer& diContainer);
             std::unique_ptr<TextAsset> Create() const;
             std::unique_ptr<TextAsset> Create(const TextAsset& original) const;
-            std::unique_ptr<TextAsset> Create(std::ifstream& ifs) const;
+            std::unique_ptr<TextAsset> Create(std::istream& is) const;
         };
 
     private:
@@ -51,7 +51,7 @@ namespace pluto
         const Guid& GetId() const override;
         const std::string& GetName() const override;
         void SetName(std::string name) override;
-        void Dump(std::ofstream& ofs) override;
+        void Dump(std::ostream& os) override;
 
         const std::string& GetText() const;
         void SetText(std::string text);

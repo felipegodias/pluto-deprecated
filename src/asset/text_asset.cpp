@@ -31,21 +31,21 @@ namespace pluto
             this->name = std::move(name);
         }
 
-        void Dump(std::ofstream& ofs)
+        void Dump(std::ostream& os)
         {
-            ofs.write(reinterpret_cast<char*>(&guid), sizeof(Guid));
+            os.write(reinterpret_cast<char*>(&guid), sizeof(Guid));
             uint8_t serializerVersion = 1;
-            ofs.write(reinterpret_cast<char*>(&serializerVersion), sizeof(uint8_t));
+            os.write(reinterpret_cast<char*>(&serializerVersion), sizeof(uint8_t));
             uint8_t assetType = 1;
-            ofs.write(reinterpret_cast<char*>(&assetType), sizeof(uint8_t));
-            ofs.write(reinterpret_cast<char*>(&guid), sizeof(Guid));
+            os.write(reinterpret_cast<char*>(&assetType), sizeof(uint8_t));
+            os.write(reinterpret_cast<char*>(&guid), sizeof(Guid));
             uint8_t assetNameLength = name.size();
-            ofs.write(reinterpret_cast<char*>(&assetNameLength), sizeof(uint8_t));
-            ofs.write(reinterpret_cast<char*>(name.data()), assetNameLength);
+            os.write(reinterpret_cast<char*>(&assetNameLength), sizeof(uint8_t));
+            os.write(reinterpret_cast<char*>(name.data()), assetNameLength);
             int textLength = text.size();
-            ofs.write(reinterpret_cast<char*>(&textLength), sizeof(int));
-            ofs.write(reinterpret_cast<char*>(text.data()), textLength);
-            ofs.flush();
+            os.write(reinterpret_cast<char*>(&textLength), sizeof(int));
+            os.write(reinterpret_cast<char*>(text.data()), textLength);
+            os.flush();
         }
 
         const std::string& GetText() const
@@ -76,24 +76,24 @@ namespace pluto
         return textAsset;
     }
 
-    std::unique_ptr<TextAsset> TextAsset::Factory::Create(std::ifstream& ifs) const
+    std::unique_ptr<TextAsset> TextAsset::Factory::Create(std::istream& is) const
     {
         Guid signature;
-        ifs.read(reinterpret_cast<char*>(&signature), sizeof(Guid));
+        is.read(reinterpret_cast<char*>(&signature), sizeof(Guid));
         uint8_t serializerVersion;
-        ifs.read(reinterpret_cast<char*>(&serializerVersion), sizeof(uint8_t));
+        is.read(reinterpret_cast<char*>(&serializerVersion), sizeof(uint8_t));
         uint8_t assetType;
-        ifs.read(reinterpret_cast<char*>(&assetType), sizeof(uint8_t));
+        is.read(reinterpret_cast<char*>(&assetType), sizeof(uint8_t));
         Guid assetId;
-        ifs.read(reinterpret_cast<char*>(&assetId), sizeof(Guid));
+        is.read(reinterpret_cast<char*>(&assetId), sizeof(Guid));
         uint8_t assetNameLength;
-        ifs.read(reinterpret_cast<char*>(&assetNameLength), sizeof(uint8_t));
+        is.read(reinterpret_cast<char*>(&assetNameLength), sizeof(uint8_t));
         std::string assetName(assetNameLength, ' ');
-        ifs.read(reinterpret_cast<char*>(assetName.data()), assetNameLength);
+        is.read(reinterpret_cast<char*>(assetName.data()), assetNameLength);
         int textLength;
-        ifs.read(reinterpret_cast<char*>(&textLength), sizeof(int));
+        is.read(reinterpret_cast<char*>(&textLength), sizeof(int));
         std::string text(assetNameLength, ' ');
-        ifs.read(reinterpret_cast<char*>(text.data()), textLength);
+        is.read(reinterpret_cast<char*>(text.data()), textLength);
 
         auto textAsset = std::make_unique<TextAsset>(std::make_unique<Impl>(assetId));
         textAsset->SetName(assetName);
@@ -134,9 +134,9 @@ namespace pluto
         impl->SetName(std::move(name));
     }
 
-    void TextAsset::Dump(std::ofstream& ofs)
+    void TextAsset::Dump(std::ostream& os)
     {
-        impl->Dump(ofs);
+        impl->Dump(os);
     }
 
     const std::string& TextAsset::GetText() const

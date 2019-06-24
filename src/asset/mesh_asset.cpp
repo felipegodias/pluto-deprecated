@@ -84,7 +84,7 @@ namespace pluto
         return instance;
     }
 
-    std::unique_ptr<MeshAsset> MeshAsset::Factory::Create(std::ifstream& ifs) const
+    std::unique_ptr<MeshAsset> MeshAsset::Factory::Create(std::istream& is) const
     {
         // TODO: Remove test code.
         return std::make_unique<MeshAsset>(std::make_unique<Impl>(Guid("b798360e-7add-4a10-9045-301ee55dd228"), ""));
@@ -121,7 +121,7 @@ namespace pluto
         impl->SetName(std::move(name));
     }
 
-    void MeshAsset::Dump(std::ofstream& ofs)
+    void MeshAsset::Dump(std::ostream& os)
     {
     }
 
