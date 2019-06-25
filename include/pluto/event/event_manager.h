@@ -9,6 +9,8 @@
 
 namespace pluto
 {
+    class Guid;
+
     template <typename T>
     using IsEvent = std::enable_if_t<std::is_base_of_v<BaseEvent, T>, int>;
 
@@ -34,10 +36,10 @@ namespace pluto
         ~EventManager();
 
         template <typename T, IsEvent<T>  = 0>
-        void Subscribe(const std::string& tag, const EventListener<T>& listener);
+        Guid Subscribe(const EventListener<T>& listener);
 
         template <typename T, IsEvent<T>  = 0>
-        void Unsubscribe(const std::string& tag);
+        void Unsubscribe(const Guid& guid);
 
         template <typename T, IsEvent<T>  = 0>
         void Dispatch(const T& event) const;

@@ -2,6 +2,8 @@
 #include <pluto/log/log_manager.h>
 #include <pluto/di/di_container.h>
 
+#include <pluto/guid.h>
+
 #include <pluto/event/on_startup_event.h>
 #include <pluto/simulation/on_pre_update_event.h>
 #include <pluto/simulation/on_update_event.h>
@@ -18,8 +20,7 @@ namespace pluto
     {
         struct EventListenerData final
         {
-            std::string tag;
-
+            Guid guid;
             EventListener<BaseEvent> callback;
         };
 
@@ -38,7 +39,7 @@ namespace pluto
         }
 
         template <typename T, IsEvent<T>  = 0>
-        void Subscribe(const std::string& tag, const EventListener<T>& listener)
+        Guid Subscribe(const EventListener<T>& listener)
         {
             const std::type_index type = typeid(T);
             const auto it = listeners.find(type);
@@ -51,20 +52,24 @@ namespace pluto
                 listener(static_cast<const T&>(x));
             };
             auto& vec = listeners[type];
-            vec.push_back({tag, callback});
+            Guid guid = Guid::New();
+            vec.push_back({ guid, callback });
+            return guid;
         }
 
         template <typename T, IsEvent<T>  = 0>
-        void Unsubscribe(const std::string& tag)
+        void Unsubscribe(const Guid& guid)
         {
             const auto it = listeners.find(typeid(T));
             if (it == listeners.end())
             {
                 return;
             }
+
+            // TODO: Improve here, this can perform badly when a given event is listen in lot of places. e.g. OnUpdateEvent.
             for (auto i = it->second.begin(); i != it->second.end(); ++i)
             {
-                if (i->tag == tag)
+                if (i->guid == guid)
                 {
                     it->second.erase(i);
                     break;
@@ -108,15 +113,15 @@ namespace pluto
     EventManager::~EventManager() = default;
 
     template <typename T, IsEvent<T>>
-    void EventManager::Subscribe(const std::string& tag, const EventListener<T>& listener)
+    Guid EventManager::Subscribe(const EventListener<T>& listener)
     {
-        impl->Subscribe(tag, listener);
+        return impl->Subscribe(listener);
     }
 
     template <typename T, IsEvent<T>>
-    void EventManager::Unsubscribe(const std::string& tag)
+    void EventManager::Unsubscribe(const Guid& guid)
     {
-        impl->Unsubscribe<T>(tag);
+        impl->Unsubscribe<T>(guid);
     }
 
     template <typename T, IsEvent<T>>
@@ -125,19 +130,19 @@ namespace pluto
         impl->Dispatch(event);
     }
 
-    template void EventManager::Subscribe(const std::string& tag, const EventListener<OnStartupEvent>& listener);
-    template void EventManager::Unsubscribe<OnStartupEvent>(const std::string& tag);
+    template Guid EventManager::Subscribe(const EventListener<OnStartupEvent>& listener);
+    template void EventManager::Unsubscribe<OnStartupEvent>(const Guid& guid);
     template void EventManager::Dispatch(const OnStartupEvent& event) const;
 
-    template void EventManager::Subscribe(const std::string& tag, const EventListener<OnPreUpdateEvent>& listener);
-    template void EventManager::Unsubscribe<OnPreUpdateEvent>(const std::string& tag);
+    template Guid EventManager::Subscribe(const EventListener<OnPreUpdateEvent>& listener);
+    template void EventManager::Unsubscribe<OnPreUpdateEvent>(const Guid& guid);
     template void EventManager::Dispatch(const OnPreUpdateEvent& event) const;
 
-    template void EventManager::Subscribe(const std::string& tag, const EventListener<OnUpdateEvent>& listener);
-    template void EventManager::Unsubscribe<OnUpdateEvent>(const std::string& tag);
+    template Guid EventManager::Subscribe(const EventListener<OnUpdateEvent>& listener);
+    template void EventManager::Unsubscribe<OnUpdateEvent>(const Guid& guid);
     template void EventManager::Dispatch(const OnUpdateEvent& event) const;
 
-    template void EventManager::Subscribe(const std::string& tag, const EventListener<OnPostUpdateEvent>& listener);
-    template void EventManager::Unsubscribe<OnPostUpdateEvent>(const std::string& tag);
+    template Guid EventManager::Subscribe(const EventListener<OnPostUpdateEvent>& listener);
+    template void EventManager::Unsubscribe<OnPostUpdateEvent>(const Guid& guid);
     template void EventManager::Dispatch(const OnPostUpdateEvent& event) const;
 }

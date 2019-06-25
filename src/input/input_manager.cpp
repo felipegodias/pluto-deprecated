@@ -7,6 +7,7 @@
 #include <pluto/event/event_manager.h>
 #include <pluto/simulation/on_pre_update_event.h>
 
+#include <pluto/guid.h>
 #include <pluto/math/vector2.h>
 
 #include <unordered_set>
@@ -17,8 +18,6 @@ namespace pluto
     class InputManager::Impl
     {
     private:
-        static inline const std::string ON_PRE_UPDATE_EVENT_TAG = "InputManager::OnPreUpdateEvent::OnPreUpdate";
-
         LogManager& logManager;
         EventManager& eventManager;
 
@@ -31,6 +30,8 @@ namespace pluto
         double mouseScrollDeltaX;
         double mouseScrollDeltaY;
 
+        Guid onPreUpdateEventGuid;
+
     public:
         Impl(LogManager& logManager, EventManager& eventManager, GLFWwindow* window) : logManager(logManager),
                                                                                        eventManager(eventManager),
@@ -41,7 +42,7 @@ namespace pluto
         {
             static Impl* instance = this;
 
-            eventManager.Subscribe<OnPreUpdateEvent>(ON_PRE_UPDATE_EVENT_TAG, [&](const OnPreUpdateEvent& event)
+            onPreUpdateEventGuid = eventManager.Subscribe<OnPreUpdateEvent>([&](const OnPreUpdateEvent& event)
             {
                 OnPreUpdate(event);
             });
@@ -76,7 +77,7 @@ namespace pluto
 
         ~Impl()
         {
-            eventManager.Unsubscribe<OnPreUpdateEvent>(ON_PRE_UPDATE_EVENT_TAG);
+            eventManager.Unsubscribe<OnPreUpdateEvent>(onPreUpdateEventGuid);
             logManager.LogInfo("InputManager terminated!");
         }
 
