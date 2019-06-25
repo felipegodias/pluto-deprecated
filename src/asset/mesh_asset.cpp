@@ -71,7 +71,7 @@ namespace pluto
 
     std::unique_ptr<MeshAsset> MeshAsset::Factory::Create() const
     {
-        return std::make_unique<MeshAsset>(std::make_unique<Impl>(Guid(), ""));
+        return std::make_unique<MeshAsset>(std::make_unique<Impl>(Guid::New(), ""));
     }
 
     std::unique_ptr<MeshAsset> MeshAsset::Factory::Create(const MeshAsset& original) const
