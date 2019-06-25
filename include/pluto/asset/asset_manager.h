@@ -32,13 +32,16 @@ namespace pluto
         explicit AssetManager(std::unique_ptr<Impl> impl);
         ~AssetManager();
 
+        void LoadPackage(const std::string& name);
+
         template <typename T, IsAsset<T>  = 0>
         T& Load(const std::string& path);
 
         template <typename T, IsAsset<T>  = 0>
         T& Load(const Guid& guid);
 
-        void Unload(const Asset& asset);
+        template <typename T, IsAsset<T>  = 0>
+        void Unload(const T& asset);
 
         template <typename T, IsAsset<T>  = 0>
         T& Register(std::unique_ptr<T> asset);
