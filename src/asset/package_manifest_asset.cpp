@@ -140,7 +140,7 @@ namespace pluto
 
     std::unique_ptr<PackageManifestAsset> PackageManifestAsset::Factory::Create() const
     {
-        return std::make_unique<PackageManifestAsset>(std::make_unique<Impl>(Guid()));
+        return std::make_unique<PackageManifestAsset>(std::make_unique<Impl>(Guid::New()));
     }
 
     std::unique_ptr<PackageManifestAsset> PackageManifestAsset::Factory::Create(

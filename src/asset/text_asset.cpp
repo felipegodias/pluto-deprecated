@@ -65,7 +65,7 @@ namespace pluto
 
     std::unique_ptr<TextAsset> TextAsset::Factory::Create() const
     {
-        return std::make_unique<TextAsset>(std::make_unique<Impl>(Guid()));
+        return std::make_unique<TextAsset>(std::make_unique<Impl>(Guid::New()));
     }
 
     std::unique_ptr<TextAsset> TextAsset::Factory::Create(const TextAsset& original) const

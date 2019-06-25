@@ -30,8 +30,6 @@ namespace pluto
 
     Guid::Guid() : data()
     {
-        const boost::uuids::uuid uuid = uuidRandomGenerator();
-        *this = FromBoost(uuid);
     }
 
     Guid::Guid(const std::array<uint8_t, 16>& data) : data(data)
@@ -88,6 +86,12 @@ namespace pluto
     {
         os << to_string(ToBoost(guid));
         return os;
+    }
+
+    Guid Guid::New()
+    {
+        const boost::uuids::uuid uuid = uuidRandomGenerator();
+        return FromBoost(uuid);
     }
 }
 
