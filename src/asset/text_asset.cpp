@@ -92,7 +92,7 @@ namespace pluto
         is.read(reinterpret_cast<char*>(assetName.data()), assetNameLength);
         int textLength;
         is.read(reinterpret_cast<char*>(&textLength), sizeof(int));
-        std::string text(assetNameLength, ' ');
+        std::string text(textLength, ' ');
         is.read(reinterpret_cast<char*>(text.data()), textLength);
 
         auto textAsset = std::make_unique<TextAsset>(std::make_unique<Impl>(assetId));
