@@ -121,7 +121,7 @@ namespace pluto
         impl->SetName(std::move(name));
     }
 
-    void MeshAsset::Dump(std::ostream& os)
+    void MeshAsset::Dump(std::ostream& os) const
     {
     }
 

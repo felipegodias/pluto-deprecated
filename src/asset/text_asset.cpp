@@ -31,20 +31,20 @@ namespace pluto
             this->name = std::move(name);
         }
 
-        void Dump(std::ostream& os)
+        void Dump(std::ostream& os) const
         {
-            os.write(reinterpret_cast<char*>(&guid), sizeof(Guid));
+            os.write(reinterpret_cast<const char*>(&guid), sizeof(Guid));
             uint8_t serializerVersion = 1;
             os.write(reinterpret_cast<char*>(&serializerVersion), sizeof(uint8_t));
             uint8_t assetType = 1;
             os.write(reinterpret_cast<char*>(&assetType), sizeof(uint8_t));
-            os.write(reinterpret_cast<char*>(&guid), sizeof(Guid));
+            os.write(reinterpret_cast<const char*>(&guid), sizeof(Guid));
             uint8_t assetNameLength = name.size();
             os.write(reinterpret_cast<char*>(&assetNameLength), sizeof(uint8_t));
-            os.write(reinterpret_cast<char*>(name.data()), assetNameLength);
+            os.write(reinterpret_cast<const char*>(name.data()), assetNameLength);
             int textLength = text.size();
             os.write(reinterpret_cast<char*>(&textLength), sizeof(int));
-            os.write(reinterpret_cast<char*>(text.data()), textLength);
+            os.write(reinterpret_cast<const char*>(text.data()), textLength);
             os.flush();
         }
 
@@ -134,7 +134,7 @@ namespace pluto
         impl->SetName(std::move(name));
     }
 
-    void TextAsset::Dump(std::ostream& os)
+    void TextAsset::Dump(std::ostream& os) const
     {
         impl->Dump(os);
     }

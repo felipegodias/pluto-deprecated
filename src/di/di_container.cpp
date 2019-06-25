@@ -8,6 +8,7 @@
 #include <pluto/input/input_manager.h>
 #include <pluto/simulation/simulation_manager.h>
 #include <pluto/asset/asset_manager.h>
+#include <pluto/asset/package_manifest_asset.h>
 #include <pluto/asset/text_asset.h>
 #include <pluto/asset/mesh_asset.h>
 
@@ -99,6 +100,11 @@ namespace pluto
     template AssetManager& DiContainer::AddSingleton(std::unique_ptr<AssetManager> instance);
     template void DiContainer::RemoveSingleton<AssetManager>();
     template AssetManager& DiContainer::GetSingleton() const;
+
+    template PackageManifestAsset::Factory& DiContainer::AddSingleton(
+        std::unique_ptr<PackageManifestAsset::Factory> instance);
+    template void DiContainer::RemoveSingleton<PackageManifestAsset::Factory>();
+    template PackageManifestAsset::Factory& DiContainer::GetSingleton() const;
 
     template TextAsset::Factory& DiContainer::AddSingleton(std::unique_ptr<TextAsset::Factory> instance);
     template void DiContainer::RemoveSingleton<TextAsset::Factory>();

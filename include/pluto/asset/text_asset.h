@@ -9,19 +9,19 @@ namespace pluto
 {
     /*
      * File layout in disk. (Version 1)
-     * +--------+---------------------------+
-     * | Size   | Description               |
-     * +--------+---------------------------+
-     * | 16     | File signature.           |
-     * | 1      | Serializer version.       |
-     * | 1      | Asset type.               |
-     * | 16     | Asset unique identifier.  |
-     * | 1      | Asset name length.        |
-     * | Custom | Asset name.               |
-     * +--------+---------------------------+
-     * | 4      | Text length.              |
-     * | Custom | Text.                     |
-     * +--------+---------------------------+
+     * +------+------------------------------+
+     * | Size | Description                  |
+     * +------+------------------------------+
+     * | 16   | File signature.              |
+     * | 1    | Serializer version.          |
+     * | 1    | Asset type.                  |
+     * | 16   | Asset unique identifier.     |
+     * | 1    | Asset name length.           |
+     * | *    | Asset name.                  |
+     * +------+------------------------------+
+     * | 4    | Text length.                 |
+     * | *    | Text.                        |
+     * +------+------------------------------+
      */
     class PLUTO_API TextAsset final : public Asset
     {
@@ -51,7 +51,7 @@ namespace pluto
         const Guid& GetId() const override;
         const std::string& GetName() const override;
         void SetName(std::string name) override;
-        void Dump(std::ostream& os) override;
+        void Dump(std::ostream& os) const override;
 
         const std::string& GetText() const;
         void SetText(std::string text);
