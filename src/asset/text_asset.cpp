@@ -1,9 +1,20 @@
 #include <pluto/asset/text_asset.h>
 #include <pluto/guid.h>
+#include <pluto/math/vector2.h>
 #include <vector>
 
 namespace pluto
 {
+    inline void Write(std::ostream& os, const void* ptr, const std::streamsize count)
+    {
+        os.write(reinterpret_cast<const char*>(ptr), count);
+    }
+
+    inline void Read(std::istream& is, void* ptr, const std::streamsize count)
+    {
+        is.read(reinterpret_cast<char*>(ptr), count);
+    }
+
     class TextAsset::Impl
     {
     private:
@@ -14,6 +25,10 @@ namespace pluto
     public:
         explicit Impl(Guid guid) : guid(std::move(guid))
         {
+            Vector2<int> a;
+            Vector2<float> b;
+
+            bool c = a == b;
         }
 
         const Guid& GetId() const
@@ -33,18 +48,18 @@ namespace pluto
 
         void Dump(std::ostream& os) const
         {
-            os.write(reinterpret_cast<const char*>(&guid), sizeof(Guid));
+            Write(os, &guid, sizeof(Guid));
             uint8_t serializerVersion = 1;
-            os.write(reinterpret_cast<char*>(&serializerVersion), sizeof(uint8_t));
+            Write(os, &serializerVersion, sizeof(uint8_t));
             uint8_t assetType = 1;
-            os.write(reinterpret_cast<char*>(&assetType), sizeof(uint8_t));
-            os.write(reinterpret_cast<const char*>(&guid), sizeof(Guid));
+            Write(os, &assetType, sizeof(uint8_t));
+            Write(os, &guid, sizeof(Guid));
             uint8_t assetNameLength = name.size();
-            os.write(reinterpret_cast<char*>(&assetNameLength), sizeof(uint8_t));
-            os.write(reinterpret_cast<const char*>(name.data()), assetNameLength);
+            Write(os, &assetNameLength, sizeof(uint8_t));
+            Write(os, name.data(), assetNameLength);
             int textLength = text.size();
-            os.write(reinterpret_cast<char*>(&textLength), sizeof(int));
-            os.write(reinterpret_cast<const char*>(text.data()), textLength);
+            Write(os, &textLength, sizeof(int));
+            Write(os, text.data(), textLength);
             os.flush();
         }
 
@@ -79,21 +94,21 @@ namespace pluto
     std::unique_ptr<TextAsset> TextAsset::Factory::Create(std::istream& is) const
     {
         Guid signature;
-        is.read(reinterpret_cast<char*>(&signature), sizeof(Guid));
+        Read(is, &signature, sizeof(Guid));
         uint8_t serializerVersion;
-        is.read(reinterpret_cast<char*>(&serializerVersion), sizeof(uint8_t));
+        Read(is, &serializerVersion, sizeof(uint8_t));
         uint8_t assetType;
-        is.read(reinterpret_cast<char*>(&assetType), sizeof(uint8_t));
+        Read(is, &assetType, sizeof(uint8_t));
         Guid assetId;
-        is.read(reinterpret_cast<char*>(&assetId), sizeof(Guid));
+        Read(is, &assetId, sizeof(Guid));
         uint8_t assetNameLength;
-        is.read(reinterpret_cast<char*>(&assetNameLength), sizeof(uint8_t));
+        Read(is, &assetNameLength, sizeof(uint8_t));
         std::string assetName(assetNameLength, ' ');
-        is.read(reinterpret_cast<char*>(assetName.data()), assetNameLength);
+        Read(is, assetName.data(), assetNameLength);
         int textLength;
-        is.read(reinterpret_cast<char*>(&textLength), sizeof(int));
+        Read(is, &textLength, sizeof(int));
         std::string text(textLength, ' ');
-        is.read(reinterpret_cast<char*>(text.data()), textLength);
+        Read(is, text.data(), textLength);
 
         auto textAsset = std::make_unique<TextAsset>(std::make_unique<Impl>(assetId));
         textAsset->SetName(assetName);
