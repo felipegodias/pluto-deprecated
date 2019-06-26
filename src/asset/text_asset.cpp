@@ -1,6 +1,5 @@
 #include <pluto/asset/text_asset.h>
 #include <pluto/guid.h>
-#include <pluto/math/vector2.h>
 #include <vector>
 
 namespace pluto
@@ -25,10 +24,6 @@ namespace pluto
     public:
         explicit Impl(Guid guid) : guid(std::move(guid))
         {
-            Vector2<int> a;
-            Vector2<float> b;
-
-            bool c = a == b;
         }
 
         const Guid& GetId() const
