@@ -6,6 +6,7 @@
 namespace pluto
 {
     class Vector2;
+    class Vector3Int;
     class Vector4;
 
     class PLUTO_API Vector3
@@ -27,6 +28,7 @@ namespace pluto
         Vector3(float x, float y, float z);
         Vector3(const Vector2& other);
         Vector3(const Vector3& other);
+        Vector3(const Vector3Int& other);
         Vector3(const Vector4& other);
         Vector3(Vector3&& other) noexcept;
 
@@ -34,6 +36,7 @@ namespace pluto
 
         Vector3& operator=(const Vector2& rhs);
         Vector3& operator=(const Vector3& rhs);
+        Vector3& operator=(const Vector3Int& rhs);
         Vector3& operator=(const Vector4& rhs);
         Vector3& operator=(Vector3&& rhs) noexcept;
 

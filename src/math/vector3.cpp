@@ -1,5 +1,6 @@
 #include <pluto/math/vector3.h>
 #include <pluto/math/vector2.h>
+#include <pluto/math/vector3int.h>
 #include <pluto/math/vector4.h>
 #include <stdexcept>
 #include <limits>
@@ -45,7 +46,7 @@ namespace pluto
     {
     }
 
-    Vector3::Vector3(const float scalar) : x(scalar), y(scalar), z(scalar)
+    Vector3::Vector3(const float scalar) : Vector3(scalar, scalar, scalar)
     {
     }
 
@@ -53,19 +54,24 @@ namespace pluto
     {
     }
 
-    Vector3::Vector3(const Vector2& other) : x(other.x), y(other.y), z(0)
+    Vector3::Vector3(const Vector2& other) : Vector3(other.x, other.y, 0)
     {
     }
 
-    Vector3::Vector3(const Vector3& other) : x(other.x), y(other.y), z(other.z)
+    Vector3::Vector3(const Vector3& other) : Vector3(other.x, other.y, other.z)
     {
     }
 
-    Vector3::Vector3(const Vector4& other) : x(other.x), y(other.y), z(other.z)
+    Vector3::Vector3(const Vector3Int& other) : Vector3(static_cast<float>(other.x), static_cast<float>(other.y),
+                                                        static_cast<float>(other.z))
     {
     }
 
-    Vector3::Vector3(Vector3&& other) noexcept : x(other.x), y(other.y), z(other.z)
+    Vector3::Vector3(const Vector4& other) : Vector3(other.x, other.y, other.z)
+    {
+    }
+
+    Vector3::Vector3(Vector3&& other) noexcept : Vector3(other.x, other.y, other.z)
     {
     }
 
@@ -88,6 +94,14 @@ namespace pluto
         x = rhs.x;
         y = rhs.y;
         z = rhs.z;
+        return *this;
+    }
+
+    Vector3& Vector3::operator=(const Vector3Int& rhs)
+    {
+        x = static_cast<float>(rhs.x);
+        y = static_cast<float>(rhs.y);
+        z = static_cast<float>(rhs.z);
         return *this;
     }
 
