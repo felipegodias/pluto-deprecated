@@ -9,19 +9,19 @@ namespace pluto
 {
     /*
      * File layout in disk. (Version 1)
-     * +------+------------------------------+
-     * | Size | Description                  |
-     * +------+------------------------------+
-     * | 16   | File signature.              |
-     * | 1    | Serializer version.          |
-     * | 1    | Asset type.                  |
-     * | 16   | Asset unique identifier.     |
-     * | 1    | Asset name length.           |
-     * | *    | Asset name.                  |
-     * +------+------------------------------+
-     * | 4    | Text length.                 |
-     * | *    | Text.                        |
-     * +------+------------------------------+
+     * +------------+------+------------------------------+
+     * | Type       | Size | Description                  |
+     * +------------+------+------------------------------+
+     * | GUID       | 16   | File signature.              |
+     * | uint8_t    | 1    | Serializer version.          |
+     * | uint8_t    | 1    | Asset type.                  |
+     * | GUID       | 16   | Asset unique identifier.     |
+     * | uint8_t    | 1    | Asset name length.           |
+     * | string     | *    | Asset name.                  |
+     * +------------+------+------------------------------+
+     * | int        | 4    | Text length.                 |
+     * | string     | *    | Text.                        |
+     * +------------+------+------------------------------+
      */
     class PLUTO_API TextAsset final : public Asset
     {
