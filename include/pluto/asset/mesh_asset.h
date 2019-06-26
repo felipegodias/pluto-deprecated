@@ -9,7 +9,38 @@ namespace pluto
 {
     class Vector2;
     class Vector3;
+    class Vector3Int;
 
+    /*
+     * File layout in disk. (Version 1)
+     * +----------+------+------------------------------+
+     * | Type     | Size | Description                  |
+     * +----------+------+------------------------------+
+     * | GUID     | 16   | File signature.              |
+     * | uint8_t  | 1    | Serializer version.          |
+     * | uint8_t  | 1    | Asset type.                  |
+     * | GUID     | 16   | Asset unique identifier.     |
+     * | uint8_t  | 1    | Asset name length.           |
+     * | string   | *    | Asset name.                  |
+     * +----------+------+------------------------------+
+     * | uint16_t | 2    | Positions count.             |
+     * +==========+======+==============================+
+     * | float    | 4    | Position X.                  |
+     * | float    | 4    | Position Y.                  |
+     * | float    | 4    | Position Z.                  |
+     * +----------+------+------------------------------+
+     * | uint16_t | 2    | UVs count.                   |
+     * +==========+======+==============================+
+     * | float    | 4    | UV X.                        |
+     * | float    | 4    | UV Y.                        |
+     * +----------+------+------------------------------+
+     * | uint16_t | 2    | Triangles count.             |
+     * +==========+======+==============================+
+     * | int      | 4    | Triangle X.                  |
+     * | int      | 4    | Triangle Y.                  |
+     * | int      | 4    | Triangle Z.                  |
+     * +----------+------+------------------------------+
+     */
     class PLUTO_API MeshAsset final : public Asset
     {
     public:
@@ -29,11 +60,11 @@ namespace pluto
     public:
         explicit MeshAsset(std::unique_ptr<Impl> impl);
         MeshAsset(const MeshAsset& other) = delete;
-        MeshAsset(MeshAsset&& other) noexcept = delete;
+        MeshAsset(MeshAsset&& other) noexcept;
         ~MeshAsset() override;
 
         MeshAsset& operator=(const MeshAsset& rhs);
-        MeshAsset& operator=(MeshAsset&& rhs) noexcept = delete;
+        MeshAsset& operator=(MeshAsset&& rhs) noexcept;
 
         const Guid& GetId() const override;
         const std::string& GetName() const override;
@@ -44,7 +75,7 @@ namespace pluto
         void SetPositions(std::vector<Vector3> positions);
         const std::vector<Vector2>& GetUVs() const;
         void SetUVs(std::vector<Vector2> uvs);
-        const std::vector<int>& GetTriangles() const;
-        void SetTriangles(std::vector<int> triangles);
+        const std::vector<Vector3Int>& GetTriangles() const;
+        void SetTriangles(std::vector<Vector3Int> triangles);
     };
 }

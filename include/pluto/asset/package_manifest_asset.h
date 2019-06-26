@@ -28,7 +28,7 @@ namespace pluto
      * | 16   | Asset guid.                  |
      * | 2    | Asset path length.           |
      * | *    | Asset path.                  |
-     * +======+==============================+
+     * +------+------------------------------+
      */
     class PLUTO_API PackageManifestAsset final : public Asset
     {

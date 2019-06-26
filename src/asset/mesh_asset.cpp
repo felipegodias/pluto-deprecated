@@ -2,9 +2,20 @@
 #include <pluto/guid.h>
 #include <pluto/math/vector2.h>
 #include <pluto/math/vector3.h>
+#include <pluto/math/vector3int.h>
 
 namespace pluto
 {
+    inline void Write(std::ostream& os, const void* ptr, const std::streamsize count)
+    {
+        os.write(reinterpret_cast<const char*>(ptr), count);
+    }
+
+    inline void Read(std::istream& is, void* ptr, const std::streamsize count)
+    {
+        is.read(reinterpret_cast<char*>(ptr), count);
+    }
+
     class MeshAsset::Impl
     {
     private:
@@ -12,10 +23,10 @@ namespace pluto
         std::string name;
         std::vector<Vector3> positions;
         std::vector<Vector2> uvs;
-        std::vector<int> triangles;
+        std::vector<Vector3Int> triangles;
 
     public:
-        Impl(Guid guid, std::string name) : guid(std::move(guid)), name(std::move(name))
+        explicit Impl(Guid guid) : guid(std::move(guid))
         {
         }
 
@@ -32,6 +43,33 @@ namespace pluto
         void SetName(std::string name)
         {
             this->name = std::move(name);
+        }
+
+        void Dump(std::ostream& os) const
+        {
+            Write(os, &guid, sizeof(Guid));
+            uint8_t serializerVersion = 1;
+            Write(os, &serializerVersion, sizeof(uint8_t));
+            uint8_t assetType = 2;
+            Write(os, &assetType, sizeof(uint8_t));
+            Write(os, &guid, sizeof(Guid));
+            uint8_t assetNameLength = name.size();
+            Write(os, &assetNameLength, sizeof(uint8_t));
+            Write(os, name.data(), assetNameLength);
+
+            uint16_t positionsCount = positions.size();
+            Write(os, &positionsCount, sizeof(uint16_t));
+            Write(os, positions.data(), sizeof(Vector3) * positionsCount);
+
+            uint16_t uvsCount = uvs.size();
+            Write(os, &uvsCount, sizeof(uint16_t));
+            Write(os, uvs.data(), sizeof(Vector2) * uvsCount);
+
+            uint16_t trianglesCount = triangles.size();
+            Write(os, &trianglesCount, sizeof(uint16_t));
+            Write(os, triangles.data(), sizeof(Vector3Int) * trianglesCount);
+
+            os.flush();
         }
 
         const std::vector<Vector3>& GetPositions() const
@@ -54,14 +92,22 @@ namespace pluto
             this->uvs = std::move(uvs);
         }
 
-        const std::vector<int>& GetTriangles() const
+        const std::vector<Vector3Int>& GetTriangles() const
         {
             return triangles;
         }
 
-        void SetTriangles(std::vector<int> triangles)
+        void SetTriangles(std::vector<Vector3Int> triangles)
         {
             this->triangles = std::move(triangles);
+        }
+
+        void Clone(const Impl& other)
+        {
+            name = other.name;
+            positions = other.positions;
+            uvs = other.uvs;
+            triangles = other.triangles;
         }
     };
 
@@ -71,7 +117,7 @@ namespace pluto
 
     std::unique_ptr<MeshAsset> MeshAsset::Factory::Create() const
     {
-        return std::make_unique<MeshAsset>(std::make_unique<Impl>(Guid::New(), ""));
+        return std::make_unique<MeshAsset>(std::make_unique<Impl>(Guid::New()));
     }
 
     std::unique_ptr<MeshAsset> MeshAsset::Factory::Create(const MeshAsset& original) const
@@ -86,11 +132,50 @@ namespace pluto
 
     std::unique_ptr<MeshAsset> MeshAsset::Factory::Create(std::istream& is) const
     {
-        // TODO: Remove test code.
-        return std::make_unique<MeshAsset>(std::make_unique<Impl>(Guid("b798360e-7add-4a10-9045-301ee55dd228"), ""));
+        Guid signature;
+        Read(is, &signature, sizeof(Guid));
+        uint8_t serializerVersion;
+        Read(is, &serializerVersion, sizeof(uint8_t));
+        uint8_t assetType;
+        Read(is, &assetType, sizeof(uint8_t));
+        Guid assetId;
+        Read(is, &assetId, sizeof(Guid));
+
+        auto meshAsset = std::make_unique<MeshAsset>(std::make_unique<Impl>(assetId));
+
+        uint8_t assetNameLength;
+        Read(is, &assetNameLength, sizeof(uint8_t));
+        std::string assetName(assetNameLength, ' ');
+        Read(is, assetName.data(), assetNameLength);
+        meshAsset->SetName(assetName);
+
+        uint16_t positionsCount;
+        Read(is, &positionsCount, sizeof(uint16_t));
+
+        std::vector<Vector3> positions(positionsCount);
+        Read(is, positions.data(), sizeof(Vector3) * positionsCount);
+        meshAsset->SetPositions(std::move(positions));
+
+        uint16_t uvsCount;
+        Read(is, &uvsCount, sizeof(uint16_t));
+        std::vector<Vector2> uvs(uvsCount);
+        Read(is, uvs.data(), sizeof(Vector2) * uvsCount);
+        meshAsset->SetUVs(std::move(uvs));
+
+        uint16_t trianglesCount;
+        Read(is, &trianglesCount, sizeof(uint16_t));
+        std::vector<Vector3Int> triangles(trianglesCount);
+        Read(is, triangles.data(), sizeof(Vector3Int) * trianglesCount);
+        meshAsset->SetTriangles(std::move(triangles));
+
+        return meshAsset;
     }
 
     MeshAsset::MeshAsset(std::unique_ptr<Impl> impl) : impl(std::move(impl))
+    {
+    }
+
+    MeshAsset::MeshAsset(MeshAsset&& other) noexcept : MeshAsset(std::move(other.impl))
     {
     }
 
@@ -103,6 +188,18 @@ namespace pluto
             return *this;
         }
 
+        impl->Clone(*rhs.impl);
+        return *this;
+    }
+
+    MeshAsset& MeshAsset::operator=(MeshAsset&& rhs) noexcept
+    {
+        if (this == &rhs)
+        {
+            return *this;
+        }
+
+        impl = std::move(rhs.impl);
         return *this;
     }
 
@@ -123,6 +220,7 @@ namespace pluto
 
     void MeshAsset::Dump(std::ostream& os) const
     {
+        impl->Dump(os);
     }
 
     const std::vector<Vector3>& MeshAsset::GetPositions() const
@@ -145,12 +243,12 @@ namespace pluto
         impl->SetUVs(std::move(uvs));
     }
 
-    const std::vector<int>& MeshAsset::GetTriangles() const
+    const std::vector<Vector3Int>& MeshAsset::GetTriangles() const
     {
         return impl->GetTriangles();
     }
 
-    void MeshAsset::SetTriangles(std::vector<int> triangles)
+    void MeshAsset::SetTriangles(std::vector<Vector3Int> triangles)
     {
         impl->SetTriangles(std::move(triangles));
     }
