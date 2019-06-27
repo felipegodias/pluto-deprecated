@@ -13,22 +13,22 @@ namespace pluto
 
     /*
      * File layout in disk. (Version 1)
-     * +------------+------+------------------------------+
-     * | Type       | Size | Description                  |
-     * +------------+------+------------------------------+
-     * | GUID       | 1    | File signature.              |
-     * | uint8_t    | 1    | Serializer version.          |
-     * | uint8_t    | 1    | Asset type.                  |
-     * | GUID       | 16   | Asset unique identifier.     |
-     * | uint8_t    | 1    | Asset name length.           |
-     * | string     | *    | Asset name.                  |
-     * +------------+------+------------------------------+
-     * | uint16_t   | 2    | Assets count.                |
-     * +============+======+==============================+
-     * | GUID       | 16   | Asset guid.                  |
-     * | uint16_t   | 2    | Asset path length.           |
-     * | string     | *    | Asset path.                  |
-     * +------------+------+------------------------------+
+     * +--------------+------+------------------------------+
+     * | Type         | Size | Description                  |
+     * +--------------+------+------------------------------+
+     * | GUID         | 1    | File signature.              |
+     * | uint8_t      | 1    | Serializer version.          |
+     * | uint8_t      | 1    | Asset type.                  |
+     * | GUID         | 16   | Asset unique identifier.     |
+     * | uint8_t      | 1    | Asset name length.           |
+     * | string       | *    | Asset name.                  |
+     * +--------------+------+------------------------------+
+     * | uint16_t     | 2    | Assets count.                |
+     * +==============+======+==============================+
+     * | GUID         | 16   | Asset guid.                  |
+     * | uint16_t     | 2    | Asset path length.           |
+     * | string       | *    | Asset path.                  |
+     * +--------------+------+------------------------------+
      */
     class PLUTO_API PackageManifestAsset final : public Asset
     {
