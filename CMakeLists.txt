@@ -28,7 +28,7 @@ set_target_properties(pluto PROPERTIES
 
 target_compile_definitions(pluto PRIVATE PLUTO_DLL_EXPORT)
 
-target_link_libraries(pluto PRIVATE ${CONAN_LIBS})
+target_link_libraries(pluto PUBLIC ${CONAN_LIBS})
 
 target_include_directories(pluto PUBLIC
     $<BUILD_INTERFACE:${PLUTO_INCLUDE_DIR}>
@@ -39,3 +39,4 @@ target_include_directories(pluto PRIVATE
 )
 
 add_subdirectory(sandbox)
+add_subdirectory(tools/pluto_asset_manager)
