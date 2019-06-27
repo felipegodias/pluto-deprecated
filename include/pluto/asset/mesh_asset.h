@@ -13,28 +13,23 @@ namespace pluto
 
     /*
      * File layout in disk. (Version 1)
-     * +------------+------+------------------------------+
-     * | Type       | Size | Description                  |
-     * +------------+------+------------------------------+
-     * | GUID       | 16   | File signature.              |
-     * | uint8_t    | 1    | Serializer version.          |
-     * | uint8_t    | 1    | Asset type.                  |
-     * | GUID       | 16   | Asset unique identifier.     |
-     * | uint8_t    | 1    | Asset name length.           |
-     * | string     | *    | Asset name.                  |
-     * +------------+------+------------------------------+
-     * | uint16_t   | 2    | Positions count.             |
-     * +============+======+==============================+
-     * | Vector3    | 12   | Position.                    |
-     * +------------+------+------------------------------+
-     * | uint16_t   | 2    | UVs count.                   |
-     * +============+======+==============================+
-     * | Vector2    | 8    | UV.                          |
-     * +------------+------+------------------------------+
-     * | uint16_t   | 2    | Triangles count.             |
-     * +============+======+==============================+
-     * | Vector3Int | 12   | Triangle.                    |
-     * +------------+------+------------------------------+
+     * +--------------+------+------------------------------+
+     * | Type         | Size | Description                  |
+     * +--------------+------+------------------------------+
+     * | GUID         | 16   | File signature.              |
+     * | uint8_t      | 1    | Serializer version.          |
+     * | uint8_t      | 1    | Asset type.                  |
+     * | GUID         | 16   | Asset unique identifier.     |
+     * | uint8_t      | 1    | Asset name length.           |
+     * | string       | *    | Asset name.                  |
+     * +--------------+------+------------------------------+
+     * | uint16_t     | 2    | Positions count.             |
+     * | Vector3[]    | 12   | Position.                    |
+     * | uint16_t     | 2    | UVs count.                   |
+     * | Vector2[]    | 8    | UV.                          |
+     * | uint16_t     | 2    | Triangles count.             |
+     * | Vector3Int[] | 12   | Triangle.                    |
+     * +--------------+------+------------------------------+
      */
     class PLUTO_API MeshAsset final : public Asset
     {
