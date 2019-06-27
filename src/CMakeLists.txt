@@ -8,6 +8,7 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/asset_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/mesh_asset.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/package_manifest_asset.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/asset/shader_asset.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/text_asset.cpp
     # ./di
     ${CMAKE_CURRENT_SOURCE_DIR}/di/base_factory.cpp

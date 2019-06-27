@@ -11,6 +11,7 @@
 #include <pluto/asset/package_manifest_asset.h>
 #include <pluto/asset/text_asset.h>
 #include <pluto/asset/mesh_asset.h>
+#include <pluto/asset/shader_asset.h>
 
 #include <unordered_map>
 #include <typeindex>
@@ -113,4 +114,8 @@ namespace pluto
     template MeshAsset::Factory& DiContainer::AddSingleton(std::unique_ptr<MeshAsset::Factory> instance);
     template void DiContainer::RemoveSingleton<MeshAsset::Factory>();
     template MeshAsset::Factory& DiContainer::GetSingleton() const;
+
+    template ShaderAsset::Factory& DiContainer::AddSingleton(std::unique_ptr<ShaderAsset::Factory> instance);
+    template void DiContainer::RemoveSingleton<ShaderAsset::Factory>();
+    template ShaderAsset::Factory& DiContainer::GetSingleton() const;
 }

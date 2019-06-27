@@ -7,6 +7,7 @@
 #include <pluto/asset/package_manifest_asset.h>
 #include <pluto/asset/text_asset.h>
 #include <pluto/asset/mesh_asset.h>
+#include <pluto/asset/shader_asset.h>
 
 #include <string>
 #include <fmt/ostream.h>
@@ -232,4 +233,9 @@ namespace pluto
     template MeshAsset& AssetManager::Load(const Guid& guid);
     template MeshAsset& AssetManager::Register(std::unique_ptr<MeshAsset> asset);
     template void AssetManager::Unload(const MeshAsset& asset);
+
+    template ShaderAsset& AssetManager::Load(const std::string& path);
+    template ShaderAsset& AssetManager::Load(const Guid& guid);
+    template ShaderAsset& AssetManager::Register(std::unique_ptr<ShaderAsset> asset);
+    template void AssetManager::Unload(const ShaderAsset& asset);
 }
