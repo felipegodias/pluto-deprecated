@@ -7,6 +7,9 @@
 
 namespace pluto
 {
+    class FileWriter;
+    class FileReader;
+
     /*
      * File layout in disk. (Version 1)
      * +--------------+------+------------------------------+
@@ -26,13 +29,14 @@ namespace pluto
     class PLUTO_API TextAsset final : public Asset
     {
     public:
-        class PLUTO_API Factory final : public BaseFactory 
+        class PLUTO_API Factory final : public BaseFactory
         {
         public:
             explicit Factory(DiContainer& diContainer);
             std::unique_ptr<TextAsset> Create() const;
             std::unique_ptr<TextAsset> Create(const TextAsset& original) const;
             std::unique_ptr<TextAsset> Create(std::istream& is) const;
+            std::unique_ptr<TextAsset> Create(FileReader& fileReader) const;
         };
 
     private:
@@ -52,6 +56,7 @@ namespace pluto
         const std::string& GetName() const override;
         void SetName(std::string name) override;
         void Dump(std::ostream& os) const override;
+        void Dump(FileWriter& fileWriter) const;
 
         const std::string& GetText() const;
         void SetText(std::string text);
