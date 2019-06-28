@@ -25,6 +25,7 @@ namespace pluto
         bool operator==(const Guid& rhs) const;
         bool operator!=(const Guid& rhs) const;
         friend PLUTO_API std::ostream& operator<<(std::ostream& os, const Guid& guid);
+        std::string Str() const;
 
         static Guid New();
     };

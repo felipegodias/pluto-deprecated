@@ -1,8 +1,10 @@
 #include <pluto/math/vector4.h>
 #include <pluto/math/vector2.h>
 #include <pluto/math/vector3.h>
+
 #include <stdexcept>
 #include <limits>
+#include <sstream>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -212,6 +214,13 @@ namespace pluto
     Vector4 Vector4::GetNormalized() const
     {
         return FromGlm(normalize(ToGlm(*this)));
+    }
+
+    std::string Vector4::Str() const
+    {
+        std::stringstream ss;
+        ss << *this;
+        return ss.str();
     }
 
     float Vector4::Distance(const Vector4& from, const Vector4& to)

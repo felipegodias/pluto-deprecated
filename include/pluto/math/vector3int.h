@@ -33,6 +33,7 @@ namespace pluto
         bool operator==(const Vector3Int& rhs) const;
         bool operator!=(const Vector3Int& rhs) const;
         int operator[](int index) const;
-        friend std::ostream& operator<<(std::ostream& os, const Vector3Int& vector);
+        friend PLUTO_API std::ostream& operator<<(std::ostream& os, const Vector3Int& vector);
+        std::string Str() const;
     };
 }

@@ -37,7 +37,7 @@ namespace pluto
         Vector4 operator*(const Vector4& rhs) const;
 
         float operator[](int index) const;
-        friend std::ostream& operator<<(std::ostream& os, const Matrix4& matrix);
+        friend PLUTO_API std::ostream& operator<<(std::ostream& os, const Matrix4& matrix);
 
         Vector4 GetRow(int index) const;
         void SetRow(int index, const Vector4& row);
@@ -49,6 +49,7 @@ namespace pluto
         Matrix4 GetTranspose() const;
         Vector2 MultiplyPoint(const Vector2& point) const;
         Vector3 MultiplyPoint(const Vector3& point) const;
+        std::string Str() const;
 
         static Matrix4 Frustum(float left, float right, float bottom, float top, float near, float far);
         static Matrix4 LookAt(const Vector3& from, const Vector3& to, const Vector3& up);

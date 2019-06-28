@@ -3,6 +3,8 @@
 #include <pluto/math/vector3.h>
 #include <pluto/math/vector4.h>
 
+#include <sstream>
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtx/vector_angle.hpp>
@@ -289,6 +291,13 @@ namespace pluto
     Vector3 Matrix4::MultiplyPoint(const Vector3& point) const
     {
         return Vector3(*this * Vector4(point));
+    }
+
+    std::string Matrix4::Str() const
+    {
+        std::stringstream ss;
+        ss << *this;
+        return ss.str();
     }
 
     Matrix4 Matrix4::Frustum(const float left, const float right, const float bottom, const float top, const float near,

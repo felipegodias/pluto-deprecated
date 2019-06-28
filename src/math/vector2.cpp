@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 #include <limits>
+#include <sstream>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -198,6 +199,13 @@ namespace pluto
     Vector2 Vector2::GetNormalized() const
     {
         return FromGlm(normalize(ToGlm(*this)));
+    }
+
+    std::string Vector2::Str() const
+    {
+        std::stringstream ss;
+        ss << *this;
+        return ss.str();
     }
 
     float Vector2::Angle(const Vector2& from, const Vector2& to)

@@ -43,11 +43,12 @@ namespace pluto
         bool operator==(const Vector4& rhs) const;
         bool operator!=(const Vector4& rhs) const;
         float operator[](int index) const;
-        friend std::ostream& operator<<(std::ostream& os, const Vector4& vector);
+        friend PLUTO_API std::ostream& operator<<(std::ostream& os, const Vector4& vector);
 
         float GetMagnitude() const;
         float GetSqrMagnitude() const;
         Vector4 GetNormalized() const;
+        std::string Str() const;
 
         static float Distance(const Vector4& from, const Vector4& to);
         static Vector4 Lerp(const Vector4& from, const Vector4& to, float t);

@@ -3,6 +3,8 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_hash.hpp>
 
+#include <sstream>
+
 namespace pluto
 {
     static boost::uuids::random_generator uuidRandomGenerator;
@@ -86,6 +88,13 @@ namespace pluto
     {
         os << to_string(ToBoost(guid));
         return os;
+    }
+
+    std::string Guid::Str() const
+    {
+        std::stringstream ss;
+        ss << *this;
+        return ss.str();
     }
 
     Guid Guid::New()

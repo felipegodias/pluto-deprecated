@@ -2,8 +2,10 @@
 #include <pluto/math/vector2.h>
 #include <pluto/math/vector3int.h>
 #include <pluto/math/vector4.h>
+
 #include <stdexcept>
 #include <limits>
+#include <sstream>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -222,6 +224,13 @@ namespace pluto
     Vector3 Vector3::GetNormalized() const
     {
         return FromGlm(normalize(ToGlm(*this)));
+    }
+
+    std::string Vector3::Str() const
+    {
+        std::stringstream ss;
+        ss << *this;
+        return ss.str();
     }
 
     float Vector3::Angle(const Vector3& from, const Vector3& to)

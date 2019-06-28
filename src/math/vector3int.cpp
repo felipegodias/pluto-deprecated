@@ -1,5 +1,7 @@
 #include <pluto/math/vector3int.h>
 
+#include <sstream>
+
 namespace pluto
 {
     Vector3Int::Vector3Int() : Vector3Int(0)
@@ -79,5 +81,12 @@ namespace pluto
     {
         os << "[" << vector.x << "," << vector.y << "," << vector.z << "]";
         return os;
+    }
+
+    std::string Vector3Int::Str() const
+    {
+        std::stringstream ss;
+        ss << *this;
+        return ss.str();
     }
 }

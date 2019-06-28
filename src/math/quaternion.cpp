@@ -1,6 +1,8 @@
 #include <pluto/math/quaternion.h>
 #include <pluto/math/vector3.h>
 
+#include <sstream>
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -153,6 +155,13 @@ namespace pluto
     Quaternion Quaternion::GetInverse() const
     {
         return FromGlm(inverse(ToGlm(*this)));
+    }
+
+    std::string Quaternion::Str() const
+    {
+        std::stringstream ss;
+        ss << *this;
+        return ss.str();
     }
 
     float Quaternion::Dot(const Quaternion& lhs, const Quaternion& rhs)
