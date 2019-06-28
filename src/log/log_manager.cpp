@@ -1,6 +1,8 @@
 #include <pluto/log/log_manager.h>
 #include <pluto/file/file_manager.h>
+#include <pluto/file/file_writer.h>
 #include <pluto/di/di_container.h>
+
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/ostream_sink.h>
@@ -13,14 +15,14 @@ namespace pluto
     {
     private:
         std::unique_ptr<spdlog::logger> logger;
-        std::unique_ptr<std::ofstream> logFile;
+        std::unique_ptr<FileWriter> logFile;
 
     public:
-        explicit Impl(std::unique_ptr<std::ofstream> logFile) : logFile(std::move(logFile))
+        explicit Impl(std::unique_ptr<FileWriter> logFile) : logFile(std::move(logFile))
         {
             spdlog::set_pattern("%^[%T] %n: %v%$");
             const auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-            const auto fileSink = std::make_shared<spdlog::sinks::ostream_sink_mt>(*this->logFile);
+            const auto fileSink = std::make_shared<spdlog::sinks::ostream_sink_mt>(this->logFile->GetStream());
             spdlog::sinks_init_list sinkList{consoleSink, fileSink};
             logger = std::make_unique<spdlog::logger>("Pluto Engine", sinkList);
             logger->set_level(spdlog::level::trace);
@@ -55,7 +57,7 @@ namespace pluto
     std::unique_ptr<LogManager> LogManager::Factory::Create(const std::string& logFileName)
     {
         auto& fileManager = diContainer.GetSingleton<FileManager>();
-        auto logFile = std::make_unique<std::ofstream>(fileManager.OpenWrite(logFileName));
+        auto logFile = fileManager.OpenWrite(logFileName);
         return std::make_unique<LogManager>(std::make_unique<Impl>(std::move(logFile)));
     }
 

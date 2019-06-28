@@ -1,5 +1,7 @@
 #include <pluto/asset/asset_manager.h>
 #include <pluto/file/file_manager.h>
+#include <pluto/file/file_reader.h>
+
 #include <pluto/di/di_container.h>
 #include <pluto/di/base_factory.h>
 #include <pluto/guid.h>
@@ -158,9 +160,9 @@ namespace pluto
                 throw std::runtime_error("");
             }
 
-            std::ifstream file = fileManager.OpenRead(physicalFilePath);
+            const std::unique_ptr<FileReader> file = fileManager.OpenRead(physicalFilePath);
             const auto& factory = static_cast<const typename T::Factory&>(factories.at(typeid(T)));
-            std::unique_ptr<T> asset = factory.Create(file);
+            std::unique_ptr<T> asset = factory.Create(file->GetStream());
             return Register(std::move(asset));
         }
     };

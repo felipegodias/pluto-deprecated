@@ -1,6 +1,8 @@
 #include <pluto/file/file_manager.h>
-#include <pluto/log/log_manager.h>
+#include <pluto/file/file_reader.h>
+#include <pluto/file/file_writer.h>
 #include <pluto/di/di_container.h>
+
 #include <iostream>
 #include <filesystem>
 #include <regex>
@@ -9,8 +11,14 @@ namespace pluto
 {
     class FileManager::Impl
     {
+    private:
+        FileReader::Factory& fileReaderFactory;
+        FileWriter::Factory& fileWriterFactory;
+
     public:
-        explicit Impl(const std::string& dataDirectoryName)
+        explicit Impl(const std::string& dataDirectoryName, FileReader::Factory& fileReaderFactory,
+                      FileWriter::Factory& fileWriterFactory) : fileReaderFactory(fileReaderFactory),
+                                                                fileWriterFactory(fileWriterFactory)
         {
             if (!dataDirectoryName.empty())
             {
@@ -64,22 +72,14 @@ namespace pluto
             return GetEntries(path, searchPattern, false, true, std::filesystem::recursive_directory_iterator(path));
         }
 
-        std::fstream Open(const std::string& path) const
+        std::unique_ptr<FileReader> OpenRead(const std::string& path) const
         {
-            std::fstream file(path, std::ifstream::binary);
-            return file;
+            return fileReaderFactory.Create(std::ifstream(path, std::ifstream::binary));
         }
 
-        std::ifstream OpenRead(const std::string& path) const
+        std::unique_ptr<FileWriter> OpenWrite(const std::string& path) const
         {
-            std::ifstream file(path, std::ifstream::binary);
-            return file;
-        }
-
-        std::ofstream OpenWrite(const std::string& path) const
-        {
-            std::ofstream file(path, std::ifstream::binary);
-            return file;
+            return fileWriterFactory.Create(std::ofstream(path, std::ifstream::binary));
         }
 
         void Delete(const std::string& path) const
@@ -124,7 +124,10 @@ namespace pluto
 
     std::unique_ptr<FileManager> FileManager::Factory::Create(const std::string& dataDirectoryName) const
     {
-        return std::make_unique<FileManager>(std::make_unique<Impl>(dataDirectoryName));
+        auto& fileReaderFactory = diContainer.GetSingleton<FileReader::Factory>();
+        auto& fileWriterFactory = diContainer.GetSingleton<FileWriter::Factory>();
+        return std::make_unique<FileManager>(
+            std::make_unique<Impl>(dataDirectoryName, fileReaderFactory, fileWriterFactory));
     }
 
     FileManager::FileManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
@@ -181,17 +184,12 @@ namespace pluto
         return impl->GetFiles(path, searchPattern, searchOptions);
     }
 
-    std::fstream FileManager::Open(const std::string& path) const
-    {
-        return impl->Open(path);
-    }
-
-    std::ifstream FileManager::OpenRead(const std::string& path) const
+    std::unique_ptr<FileReader> FileManager::OpenRead(const std::string& path) const
     {
         return impl->OpenRead(path);
     }
 
-    std::ofstream FileManager::OpenWrite(const std::string& path) const
+    std::unique_ptr<FileWriter> FileManager::OpenWrite(const std::string& path) const
     {
         return impl->OpenWrite(path);
     }

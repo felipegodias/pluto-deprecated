@@ -9,13 +9,16 @@
 
 namespace pluto
 {
+    class FileWriter;
+    class FileReader;
+
     class PLUTO_API FileManager final : public Singleton
     {
     public:
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
-            explicit Factory(DiContainer& diContainer);
+            explicit Factory(DiContainer & diContainer);
             std::unique_ptr<FileManager> Create(const std::string& dataDirectoryName) const;
         };
 
@@ -58,11 +61,9 @@ namespace pluto
             const std::string& searchPattern,
             SearchOptions searchOptions) const;
 
-        std::fstream Open(const std::string& path) const;
+        std::unique_ptr<FileReader> OpenRead(const std::string& path) const;
 
-        std::ifstream OpenRead(const std::string& path) const;
-
-        std::ofstream OpenWrite(const std::string& path) const;
+        std::unique_ptr<FileWriter> OpenWrite(const std::string& path) const;
 
         void Delete(const std::string& path) const;
     };

@@ -3,6 +3,8 @@
 #include <pluto/log/log_manager.h>
 #include <pluto/config/config_manager.h>
 #include <pluto/file/file_manager.h>
+#include <pluto/file/file_reader.h>
+#include <pluto/file/file_writer.h>
 #include <pluto/event/event_manager.h>
 #include <pluto/window/window_manager.h>
 #include <pluto/input/input_manager.h>
@@ -81,6 +83,14 @@ namespace pluto
     template FileManager& DiContainer::AddSingleton(std::unique_ptr<FileManager> instance);
     template void DiContainer::RemoveSingleton<FileManager>();
     template FileManager& DiContainer::GetSingleton() const;
+
+    template FileReader::Factory& DiContainer::AddSingleton(std::unique_ptr<FileReader::Factory> instance);
+    template void DiContainer::RemoveSingleton<FileReader::Factory>();
+    template FileReader::Factory& DiContainer::GetSingleton() const;
+
+    template FileWriter::Factory& DiContainer::AddSingleton(std::unique_ptr<FileWriter::Factory> instance);
+    template void DiContainer::RemoveSingleton<FileWriter::Factory>();
+    template FileWriter::Factory& DiContainer::GetSingleton() const;
 
     template EventManager& DiContainer::AddSingleton(std::unique_ptr<EventManager> instance);
     template void DiContainer::RemoveSingleton<EventManager>();

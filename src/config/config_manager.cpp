@@ -1,5 +1,6 @@
 #include <pluto/config/config_manager.h>
 #include <pluto/file/file_manager.h>
+#include <pluto/file/file_reader.h>
 #include <pluto/log/log_manager.h>
 #include <pluto/di/di_container.h>
 
@@ -17,12 +18,12 @@ namespace pluto
         std::unordered_map<std::string, std::string> config;
 
     public:
-        Impl(std::ifstream& configFile, LogManager& logManager) : logManager(
+        Impl(FileReader* configFile, LogManager& logManager) : logManager(
             logManager)
         {
-            if (configFile.is_open())
+            if (configFile == nullptr)
             {
-                YAML::Node configYaml = YAML::Load(configFile);
+                YAML::Node configYaml = YAML::Load(configFile->GetStream());
                 for (YAML::const_iterator it = configYaml.begin(); it != configYaml.end(); ++it)
                 {
                     if (!it->second.IsScalar())
@@ -94,14 +95,14 @@ namespace pluto
     std::unique_ptr<ConfigManager> ConfigManager::Factory::Create(const std::string& configFileName)
     {
         auto& fileManager = diContainer.GetSingleton<FileManager>();
-        std::ifstream configFile;
+        std::unique_ptr<FileReader> configFile;
         if (fileManager.Exists(configFileName))
         {
             configFile = fileManager.OpenRead(configFileName);
         }
 
         auto& logManager = diContainer.GetSingleton<LogManager>();
-        return std::make_unique<ConfigManager>(std::make_unique<Impl>(configFile, logManager));
+        return std::make_unique<ConfigManager>(std::make_unique<Impl>(configFile.get(), logManager));
     }
 
     ConfigManager::ConfigManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
