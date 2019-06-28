@@ -21,7 +21,7 @@ namespace pluto
         Impl(FileReader* configFile, LogManager& logManager) : logManager(
             logManager)
         {
-            if (configFile == nullptr)
+            if (configFile != nullptr)
             {
                 YAML::Node configYaml = YAML::Load(configFile->GetStream());
                 for (YAML::const_iterator it = configYaml.begin(); it != configYaml.end(); ++it)
