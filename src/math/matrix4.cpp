@@ -51,41 +51,50 @@ namespace pluto
         return reinterpret_cast<const Vector4F&>(v);
     }
 
-    const Matrix4 Matrix4::IDENTITY = Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-    const Matrix4 Matrix4::ZERO = Matrix4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    const Matrix4 Matrix4::IDENTITY = Matrix4(std::array<float, 16>{
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    });
+
+    const Matrix4 Matrix4::ZERO = Matrix4({});
 
     Matrix4::Matrix4() : Matrix4(IDENTITY)
     {
     }
 
+    Matrix4::Matrix4(const std::array<float, 16>& data) : data(data)
+    {
+    }
+
     Matrix4::Matrix4(const float x0, const float y0, const float z0, const float w0, const float x1, const float y1,
                      const float z1, const float w1, const float x2, const float y2, const float z2, const float w2,
-                     const float x3, const float y3, const float z3, const float w3) : x0(x0), y0(y0), z0(z0), w0(w0),
-                                                                                       x1(x1), y1(y1), z1(z1), w1(w1),
-                                                                                       x2(x2), y2(y2), z2(z2), w2(w2),
-                                                                                       x3(x3), y3(y3), z3(z3), w3(w3)
+                     const float x3, const float y3, const float z3, const float w3)
+        : Matrix4(std::array<float, 16>{
+            x0, y0, z0, w0,
+            x1, y1, z1, w1,
+            x2, y2, z2, w2,
+            x3, y3, z3, w3
+        })
     {
     }
 
     Matrix4::Matrix4(const Vector4F& row0, const Vector4F& row1, const Vector4F& row2, const Vector4F& row3) :
-        x0(row0.x), y0(row0.y), z0(row0.z), w0(row0.w),
-        x1(row1.x), y1(row1.y), z1(row1.z), w1(row1.w),
-        x2(row2.x), y2(row2.y), z2(row2.z), w2(row2.w),
-        x3(row3.x), y3(row3.y), z3(row3.z), w3(row3.w)
+        Matrix4(std::array<float, 16>{
+            row0.x, row0.y, row0.z, row0.w,
+            row1.x, row1.y, row1.z, row1.w,
+            row2.x, row2.y, row2.z, row2.w,
+            row3.x, row3.y, row3.z, row3.w
+        })
     {
     }
 
-    Matrix4::Matrix4(const Matrix4& other) : x0(other.x0), y0(other.y0), z0(other.z0), w0(other.w0),
-                                             x1(other.x1), y1(other.y1), z1(other.z1), w1(other.w1),
-                                             x2(other.x2), y2(other.y2), z2(other.z2), w2(other.w2),
-                                             x3(other.x3), y3(other.y3), z3(other.z3), w3(other.w3)
+    Matrix4::Matrix4(const Matrix4& other) : Matrix4(other.data)
     {
     }
 
-    Matrix4::Matrix4(Matrix4&& other) noexcept : x0(other.x0), y0(other.y0), z0(other.z0), w0(other.w0),
-                                                 x1(other.x1), y1(other.y1), z1(other.z1), w1(other.w1),
-                                                 x2(other.x2), y2(other.y2), z2(other.z2), w2(other.w2),
-                                                 x3(other.x3), y3(other.y3), z3(other.z3), w3(other.w3)
+    Matrix4::Matrix4(Matrix4&& other) noexcept : Matrix4(other.data)
     {
     }
 
@@ -98,7 +107,7 @@ namespace pluto
             return *this;
         }
 
-        *this = FromGlm(ToGlm(rhs));
+        data = rhs.data;
         return *this;
     }
 
@@ -109,7 +118,7 @@ namespace pluto
             return *this;
         }
 
-        *this = FromGlm(ToGlm(rhs));
+        data = rhs.data;
         return *this;
     }
 
@@ -130,43 +139,12 @@ namespace pluto
 
     float Matrix4::operator[](const int index) const
     {
-        switch (index)
+        if (index > 15)
         {
-        case 0:
-            return x0;
-        case 1:
-            return y0;
-        case 2:
-            return z0;
-        case 3:
-            return w0;
-        case 4:
-            return x1;
-        case 5:
-            return y1;
-        case 6:
-            return z1;
-        case 7:
-            return w1;
-        case 8:
-            return x2;
-        case 9:
-            return y2;
-        case 10:
-            return z2;
-        case 11:
-            return w2;
-        case 12:
-            return x3;
-        case 13:
-            return y3;
-        case 14:
-            return z3;
-        case 15:
-            return w3;
-        default:
             throw std::out_of_range("");
         }
+
+        return data[index];
     }
 
     std::ostream& operator<<(std::ostream& os, const Matrix4& matrix)
@@ -176,96 +154,48 @@ namespace pluto
 
     Vector4F Matrix4::GetRow(const int index) const
     {
-        switch (index)
+        if (index > 3)
         {
-        case 0:
-            return Vector4F(x0, y0, z0, w0);
-        case 1:
-            return Vector4F(x1, y1, z1, w1);
-        case 2:
-            return Vector4F(x2, y2, z2, w2);
-        case 3:
-            return Vector4F(x3, y3, z3, w3);
-        default:
             throw std::out_of_range("");
         }
+
+        return Vector4F(data[index * 4], data[index * 4 + 1], data[index * 4 + 2], data[index * 4 + 3]);
     }
 
     void Matrix4::SetRow(const int index, const Vector4F& value)
     {
-        switch (index)
+        if (index > 3)
         {
-        case 0:
-            x0 = value.x;
-            y0 = value.y;
-            z0 = value.z;
-            w0 = value.w;
-            break;
-        case 1:
-            x1 = value.x;
-            y1 = value.y;
-            z1 = value.z;
-            w1 = value.w;
-        case 2:
-            x2 = value.x;
-            y2 = value.y;
-            z2 = value.z;
-            w2 = value.w;
-        case 3:
-            x3 = value.x;
-            y3 = value.y;
-            z3 = value.z;
-            w3 = value.w;
-        default:
             throw std::out_of_range("");
         }
+
+        data[index * 4] = value.x;
+        data[index * 4 + 1] = value.y;
+        data[index * 4 + 2] = value.z;
+        data[index * 4 + 3] = value.w;
     }
 
     Vector4F Matrix4::GetColumn(const int index) const
     {
-        switch (index)
+        if (index > 3)
         {
-        case 0:
-            return Vector4F(x0, x1, x2, x3);
-        case 1:
-            return Vector4F(y0, y1, y2, y3);
-        case 2:
-            return Vector4F(z0, z1, z2, z3);
-        case 3:
-            return Vector4F(w0, w1, w2, w3);
-        default:
             throw std::out_of_range("");
         }
+
+        return Vector4F(data[index * 4], data[(index + 1) * 4], data[(index + 2) * 4], data[(index + 3) * 4]);
     }
 
     void Matrix4::SetColumn(const int index, const Vector4F& value)
     {
-        switch (index)
+        if (index > 3)
         {
-        case 0:
-            x0 = value.x;
-            x1 = value.y;
-            x2 = value.z;
-            x3 = value.w;
-            break;
-        case 1:
-            y0 = value.x;
-            y1 = value.y;
-            y2 = value.z;
-            y3 = value.w;
-        case 2:
-            z0 = value.x;
-            z1 = value.y;
-            z2 = value.z;
-            z3 = value.w;
-        case 3:
-            w0 = value.x;
-            w1 = value.y;
-            w2 = value.z;
-            w3 = value.w;
-        default:
             throw std::out_of_range("");
         }
+
+        data[index * 4] = value.x;
+        data[(index + 1) * 4] = value.y;
+        data[(index + 2) * 4] = value.z;
+        data[(index + 3) * 4] = value.w;
     }
 
     float Matrix4::GetDeterminant() const

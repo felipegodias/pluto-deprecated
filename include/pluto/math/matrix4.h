@@ -2,6 +2,7 @@
 
 #include "../api.h"
 #include <ostream>
+#include <array>
 
 namespace pluto
 {
@@ -16,12 +17,11 @@ namespace pluto
         static const Matrix4 IDENTITY;
         static const Matrix4 ZERO;
 
-        float x0, y0, z0, w0;
-        float x1, y1, z1, w1;
-        float x2, y2, z2, w2;
-        float x3, y3, z3, w3;
+        std::array<float, 16> data;
 
         Matrix4();
+        explicit Matrix4(const std::array<float, 16>& data);
+
         Matrix4(float x0, float y0, float z0, float w0, float x1, float y1, float z1, float w1, float x2, float y2,
                 float z2, float w2, float x3, float y3, float z3, float w3);
         Matrix4(const Vector4F& row0, const Vector4F& row1, const Vector4F& row2, const Vector4F& row3);
