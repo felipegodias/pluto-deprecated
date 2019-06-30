@@ -25,11 +25,11 @@ namespace pluto
      * | string       | *    | Asset name.                  |
      * +--------------+------+------------------------------+
      * | uint16_t     | 2    | Positions count.             |
-     * | Vector3F[]    | 12   | Position.                    |
+     * | Vector3F[]   | 12   | Position.                    |
      * | uint16_t     | 2    | UVs count.                   |
-     * | Vector2F[]    | 8    | UV.                          |
+     * | Vector2F[]   | 8    | UV.                          |
      * | uint16_t     | 2    | Triangles count.             |
-     * | Vector3I[] | 12   | Triangle.                    |
+     * | Vector3I[]   | 12   | Triangle.                    |
      * +--------------+------+------------------------------+
      */
     class PLUTO_API MeshAsset final : public Asset
