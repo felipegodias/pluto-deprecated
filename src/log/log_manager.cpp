@@ -3,12 +3,12 @@
 #include <pluto/file/file_writer.h>
 #include <pluto/di/di_container.h>
 #include <pluto/exception.h>
+#include <pluto/stack_trace.h>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/ostream_sink.h>
 #include <fmt/ostream.h>
-#include <boost/stacktrace.hpp>
 
 namespace pluto
 {
@@ -52,17 +52,17 @@ namespace pluto
 
         void LogInfo(const std::string& message) const
         {
-            logger->info(fmt::format("{0}\n{1}", message, boost::stacktrace::stacktrace(4, 999)));
+            logger->info(fmt::format("{0}\n{1}", message, StackTrace(5)));
         }
 
         void LogWarning(const std::string& message) const
         {
-            logger->warn(fmt::format("{0}\n{1}", message, boost::stacktrace::stacktrace(4, 999)));
+            logger->warn(fmt::format("{0}\n{1}", message, StackTrace(5)));
         }
 
         void LogError(const std::string& message) const
         {
-            logger->error(fmt::format("{0}\n{1}", message, boost::stacktrace::stacktrace(4, 999)));
+            logger->error(fmt::format("{0}\n{1}", message, StackTrace(5)));
         }
 
         void LogException(const Exception& exception)

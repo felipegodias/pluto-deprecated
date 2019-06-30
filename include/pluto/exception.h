@@ -7,6 +7,8 @@
 
 namespace pluto
 {
+    class StackTrace;
+
     class PLUTO_API Exception final : public std::exception
     {
     private:
@@ -23,7 +25,7 @@ namespace pluto
         Exception& operator=(Exception&& rhs) noexcept;
 
         char const* what() const override;
-        const std::string& GetStackTrace() const;
+        const StackTrace& GetStackTrace() const;
 
         static void Throw(const std::exception& e);
     };
