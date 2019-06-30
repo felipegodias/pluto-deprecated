@@ -11,6 +11,7 @@ namespace pluto
 {
     class FileWriter;
     class FileReader;
+    class Regex;
 
     class PLUTO_API FileManager final : public Singleton
     {
@@ -18,7 +19,7 @@ namespace pluto
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
-            explicit Factory(DiContainer & diContainer);
+            explicit Factory(DiContainer& diContainer);
             std::unique_ptr<FileManager> Create(const std::string& dataDirectoryName) const;
         };
 
@@ -45,21 +46,21 @@ namespace pluto
 
         std::vector<std::string> GetDirectories(const std::string& path) const;
 
-        std::vector<std::string> GetDirectories(const std::string& path, const std::string& searchPattern) const;
+        std::vector<std::string> GetDirectories(const std::string& path, SearchOptions searchOptions) const;
 
-        std::vector<std::string> GetDirectories(
-            const std::string& path,
-            const std::string& searchPattern,
-            SearchOptions searchOptions) const;
+        std::vector<std::string> GetDirectories(const std::string& path, const Regex& regex) const;
+
+        std::vector<std::string> GetDirectories(const std::string& path, const Regex& regex,
+                                                SearchOptions searchOptions) const;
 
         std::vector<std::string> GetFiles(const std::string& path) const;
 
-        std::vector<std::string> GetFiles(const std::string& path, const std::string& searchPattern) const;
+        std::vector<std::string> GetFiles(const std::string& path, SearchOptions searchOptions) const;
 
-        std::vector<std::string> GetFiles(
-            const std::string& path,
-            const std::string& searchPattern,
-            SearchOptions searchOptions) const;
+        std::vector<std::string> GetFiles(const std::string& path, const Regex& regex) const;
+
+        std::vector<std::string> GetFiles(const std::string& path, const Regex& regex,
+                                          SearchOptions searchOptions) const;
 
         std::unique_ptr<FileReader> OpenRead(const std::string& path) const;
 
