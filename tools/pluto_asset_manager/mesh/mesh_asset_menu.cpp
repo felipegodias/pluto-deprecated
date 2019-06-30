@@ -70,48 +70,30 @@ namespace pluto
     void PrintPositions(const MeshAsset& meshAsset)
     {
         const std::vector<Vector3F>& positions = meshAsset.GetPositions();
-        if (positions.empty())
+        std::cout << "Positions: " << std::endl;
+        for (const auto& position : positions)
         {
-            std::cout << "Positions: Empty" << std::endl;
-            return;
-        }
-
-        std::cout << "Positions: " << positions[0] << std::endl;
-        for (int i = 1; i < positions.size(); ++i)
-        {
-            std::cout << "           " << positions[i] << std::endl;
+            std::cout << position << std::endl;
         }
     }
 
     void PrintUVs(const MeshAsset& meshAsset)
     {
         const std::vector<Vector2F>& uvs = meshAsset.GetUVs();
-        if (uvs.empty())
+        std::cout << "UVs: " << std::endl;
+        for (const auto& uv : uvs)
         {
-            std::cout << "UVs: Empty" << std::endl;
-            return;
-        }
-
-        std::cout << "UVs: " << uvs[0] << std::endl;
-        for (int i = 1; i < uvs.size(); ++i)
-        {
-            std::cout << "     " << uvs[i] << std::endl;
+            std::cout << uv << std::endl;
         }
     }
 
     void PrintTriangles(const MeshAsset& meshAsset)
     {
         const std::vector<Vector3I>& triangles = meshAsset.GetTriangles();
-        if (triangles.empty())
+        std::cout << "Triangles: " << std::endl;
+        for (const auto& triangle : triangles)
         {
-            std::cout << "Triangles: Empty" << std::endl;
-            return;
-        }
-
-        std::cout << "Triangles: " << triangles[0] << std::endl;
-        for (int i = 1; i < triangles.size(); ++i)
-        {
-            std::cout << "           " << triangles[i] << std::endl;
+            std::cout << triangle << std::endl;
         }
     }
 
