@@ -16,7 +16,7 @@ namespace pluto
         {
         public:
             explicit Factory(DiContainer& diContainer);
-            std::unique_ptr<ConfigManager> Create(const std::string& configFileName);
+            std::unique_ptr<ConfigManager> Create(const std::string& configFileName) const;
         };
 
     private:

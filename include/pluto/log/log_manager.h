@@ -14,7 +14,7 @@ namespace pluto
         {
         public:
             explicit Factory(DiContainer& diContainer);
-            std::unique_ptr<LogManager> Create(const std::string& logFileName);
+            std::unique_ptr<LogManager> Create(const std::string& logFileName) const;
         };
 
     private:

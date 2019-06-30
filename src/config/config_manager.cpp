@@ -92,7 +92,7 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<ConfigManager> ConfigManager::Factory::Create(const std::string& configFileName)
+    std::unique_ptr<ConfigManager> ConfigManager::Factory::Create(const std::string& configFileName) const
     {
         auto& fileManager = diContainer.GetSingleton<FileManager>();
         std::unique_ptr<FileReader> configFile;

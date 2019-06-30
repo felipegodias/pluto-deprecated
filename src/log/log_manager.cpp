@@ -54,7 +54,7 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<LogManager> LogManager::Factory::Create(const std::string& logFileName)
+    std::unique_ptr<LogManager> LogManager::Factory::Create(const std::string& logFileName) const
     {
         auto& fileManager = diContainer.GetSingleton<FileManager>();
         auto logFile = fileManager.OpenWrite(logFileName);
