@@ -1,16 +1,17 @@
 #pragma once
 
 #include "../api.h"
-#include <string>
+#include <memory>
 
 namespace pluto
 {
     class DiContainer;
+    class FileWriter;
 
     class PLUTO_API LogInstaller
     {
     public:
-        static void Install(const std::string& logFileName, DiContainer& diContainer);
+        static void Install(std::unique_ptr<FileWriter> logFile, DiContainer& diContainer);
         static void Uninstall(DiContainer& diContainer);
     };
 }

@@ -30,8 +30,6 @@
 #include <pluto/file/file_reader.h>
 #include <pluto/file/file_writer.h>
 
-#include <sstream>
-
 #include <fmt/format.h>
 
 namespace pluto
@@ -48,8 +46,18 @@ namespace pluto
             diContainer = std::make_unique<DiContainer>();
 
             FileInstaller::Install(dataDirectoryName, *diContainer);
-            LogInstaller::Install(logFileName, *diContainer);
-            ConfigInstaller::Install(configFileName, *diContainer);
+            auto& fileManager = diContainer->GetSingleton<FileManager>();
+
+            std::unique_ptr<FileWriter> logFile = fileManager.OpenWrite(logFileName);
+            LogInstaller::Install(std::move(logFile), *diContainer);
+
+            std::unique_ptr<FileReader> configFile;
+            if (fileManager.Exists(configFileName))
+            {
+                configFile = fileManager.OpenRead(configFileName);
+            }
+            ConfigInstaller::Install(configFile.get(), *diContainer);
+
             EventInstaller::Install(*diContainer);
             WindowInstaller::Install(*diContainer);
             InputInstaller::Install(*diContainer);
@@ -64,24 +72,6 @@ namespace pluto
 
             auto& assetManager = diContainer->GetSingleton<AssetManager>();
             assetManager.LoadPackage("main");
-
-            auto& factory = diContainer->GetSingleton<MeshAsset::Factory>();
-            std::unique_ptr<MeshAsset> mesh = factory.Create();
-            std::vector<Vector3> positions{{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {9, 10, 11}};
-            mesh->SetPositions(std::move(positions));
-
-            const std::vector<Vector2> uvs{{12, 13}, {14, 15}, {16, 17}};
-            mesh->SetUVs(uvs);
-
-            const std::vector<Vector3Int> triangles{{18, 19, 20}, {21, 22, 23}};
-            mesh->SetTriangles(triangles);
-
-            auto& fileManager = diContainer->GetSingleton<FileManager>();
-            const auto fileWriter = fileManager.OpenWrite("quad.out");
-            mesh->Dump(*fileWriter);
-
-            const auto fileReader = fileManager.OpenRead("quad.out");
-            std::unique_ptr<MeshAsset> meshB = factory.Create(*fileReader);
         }
 
         ~Impl()

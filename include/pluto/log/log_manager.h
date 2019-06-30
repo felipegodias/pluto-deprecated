@@ -7,6 +7,8 @@
 
 namespace pluto
 {
+    class FileWriter;
+
     class PLUTO_API LogManager final : public Singleton
     {
     public:
@@ -14,7 +16,7 @@ namespace pluto
         {
         public:
             explicit Factory(DiContainer& diContainer);
-            std::unique_ptr<LogManager> Create(const std::string& logFileName) const;
+            std::unique_ptr<LogManager> Create(std::unique_ptr<FileWriter> logFile) const;
         };
 
     private:

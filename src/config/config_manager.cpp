@@ -6,7 +6,6 @@
 
 #include <unordered_map>
 #include <string>
-#include <fstream>
 #include <yaml-cpp/yaml.h>
 
 namespace pluto
@@ -92,17 +91,10 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<ConfigManager> ConfigManager::Factory::Create(const std::string& configFileName) const
+    std::unique_ptr<ConfigManager> ConfigManager::Factory::Create(FileReader* configFile) const
     {
-        auto& fileManager = diContainer.GetSingleton<FileManager>();
-        std::unique_ptr<FileReader> configFile;
-        if (fileManager.Exists(configFileName))
-        {
-            configFile = fileManager.OpenRead(configFileName);
-        }
-
         auto& logManager = diContainer.GetSingleton<LogManager>();
-        return std::make_unique<ConfigManager>(std::make_unique<Impl>(configFile.get(), logManager));
+        return std::make_unique<ConfigManager>(std::make_unique<Impl>(configFile, logManager));
     }
 
     ConfigManager::ConfigManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))

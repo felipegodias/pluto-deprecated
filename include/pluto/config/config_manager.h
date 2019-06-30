@@ -8,6 +8,7 @@
 namespace pluto
 {
     class DiContainer;
+    class FileReader;
 
     class PLUTO_API ConfigManager final : public Singleton
     {
@@ -16,7 +17,7 @@ namespace pluto
         {
         public:
             explicit Factory(DiContainer& diContainer);
-            std::unique_ptr<ConfigManager> Create(const std::string& configFileName) const;
+            std::unique_ptr<ConfigManager> Create(FileReader* configFile) const;
         };
 
     private:

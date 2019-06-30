@@ -4,10 +4,10 @@
 
 namespace pluto
 {
-    void ConfigInstaller::Install(const std::string& configFileName, DiContainer& diContainer)
+    void ConfigInstaller::Install(FileReader* configFile, DiContainer& diContainer)
     {
         const ConfigManager::Factory factory(diContainer);
-        diContainer.AddSingleton(factory.Create(configFileName));
+        diContainer.AddSingleton(factory.Create(configFile));
     }
 
     void ConfigInstaller::Uninstall(DiContainer& diContainer)

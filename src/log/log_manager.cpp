@@ -16,16 +16,32 @@ namespace pluto
     private:
         std::unique_ptr<spdlog::logger> logger;
         std::unique_ptr<FileWriter> logFile;
+        std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> consoleSink;
+        std::shared_ptr<spdlog::sinks::ostream_sink_mt> fileSink;
+
 
     public:
-        explicit Impl(std::unique_ptr<FileWriter> logFile) : logFile(std::move(logFile))
+        explicit Impl(std::unique_ptr<FileWriter> logFile)
         {
             spdlog::set_pattern("%^[%T] %n: %v%$");
-            const auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-            const auto fileSink = std::make_shared<spdlog::sinks::ostream_sink_mt>(this->logFile->GetStream());
-            spdlog::sinks_init_list sinkList{consoleSink, fileSink};
+
+            consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+            spdlog::sinks_init_list sinkList;
+            if (logFile == nullptr)
+            {
+                sinkList = spdlog::sinks_init_list{consoleSink};
+            }
+            else
+            {
+                std::ofstream& ofs = logFile->GetStream();
+                fileSink = std::make_shared<spdlog::sinks::ostream_sink_mt>(ofs);
+                sinkList = spdlog::sinks_init_list{consoleSink, fileSink};
+                this->logFile = std::move(logFile);
+            }
+
             logger = std::make_unique<spdlog::logger>("Pluto Engine", sinkList);
             logger->set_level(spdlog::level::trace);
+
             LogInfo("LogManager Initialized!");
         }
 
@@ -54,10 +70,8 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<LogManager> LogManager::Factory::Create(const std::string& logFileName) const
+    std::unique_ptr<LogManager> LogManager::Factory::Create(std::unique_ptr<FileWriter> logFile) const
     {
-        auto& fileManager = diContainer.GetSingleton<FileManager>();
-        auto logFile = fileManager.OpenWrite(logFileName);
         return std::make_unique<LogManager>(std::make_unique<Impl>(std::move(logFile)));
     }
 
