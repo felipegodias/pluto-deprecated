@@ -27,6 +27,7 @@ namespace pluto
      * | uint8_t      | 1    | Destination blend factor.    |
      * | uint8_t      | 1    | ZTest.                       |
      * | uint8_t      | 1    | Culling mode.                |
+     * | uint32_t     | 4    | Program binary format.       |
      * | uint32_t     | 4    | Program binary size.         |
      * | uint8_t[]    | *    | Program binary bytes.        |
      * +--------------+------+------------------------------+
@@ -86,6 +87,31 @@ namespace pluto
             Last = FrontAndBack
         };
 
+        class Property
+        {
+        public:
+            enum class Type
+            {
+                Bool = 0,
+                Int = 1,
+                Float = 2,
+                Vector2I = 3,
+                Vector2F = 4,
+                Vector3I = 5,
+                Vector3F = 6,
+                Vector4I = 7,
+                Vector4F = 8,
+                Matrix2X2 = 9,
+                Matrix3X3 = 10,
+                Matrix4X4 = 11,
+                Sampler2D = 12
+            };
+
+            uint8_t id;
+            std::string name;
+            Type type;
+        };
+
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
@@ -127,6 +153,12 @@ namespace pluto
 
         CullMode GetCullMode() const;
         void SetCullMode(CullMode value);
+
+        const std::vector<Property>& GetProperties() const;
+        void SetProperties(std::vector<Property> value);
+
+        uint32_t GetBinaryFormat() const;
+        void SetBinaryFormat(uint32_t value);
 
         const std::vector<uint8_t>& GetBinary() const;
         void SetBinary(std::vector<uint8_t> value);

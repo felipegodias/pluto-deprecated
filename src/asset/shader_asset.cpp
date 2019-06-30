@@ -16,12 +16,14 @@ namespace pluto
         BlendFactor dstBlendFactor;
         ZTest zTest;
         CullMode cullMode;
+        uint32_t binaryFormat;
+        std::vector<Property> properties;
         std::vector<uint8_t> binary;
 
     public:
         explicit Impl(Guid guid) : guid(std::move(guid)), blendFunction(BlendFunction::Default),
                                    srcBlendFactor(BlendFactor::Default), dstBlendFactor(BlendFactor::Default),
-                                   zTest(ZTest::Default), cullMode(CullMode::Default)
+                                   zTest(ZTest::Default), cullMode(CullMode::Default), binaryFormat(0)
         {
         }
 
@@ -122,6 +124,26 @@ namespace pluto
         void SetCullMode(const CullMode value)
         {
             cullMode = value;
+        }
+
+        const std::vector<Property>& GetProperties() const
+        {
+            return properties;
+        }
+
+        void SetProperties(std::vector<Property> value)
+        {
+            properties = std::move(value);
+        }
+
+        uint32_t GetBinaryFormat() const
+        {
+            return binaryFormat;
+        }
+
+        void SetBinaryFormat(const uint32_t value)
+        {
+            binaryFormat = value;
         }
 
         const std::vector<uint8_t>& GetBinary() const
@@ -310,6 +332,26 @@ namespace pluto
     void ShaderAsset::SetCullMode(const CullMode value)
     {
         impl->SetCullMode(value);
+    }
+
+    const std::vector<ShaderAsset::Property>& ShaderAsset::GetProperties() const
+    {
+        return impl->GetProperties();
+    }
+
+    void ShaderAsset::SetProperties(std::vector<Property> value)
+    {
+        impl->SetProperties(std::move(value));
+    }
+
+    uint32_t ShaderAsset::GetBinaryFormat() const
+    {
+        return impl->GetBinaryFormat();
+    }
+
+    void ShaderAsset::SetBinaryFormat(const uint32_t value)
+    {
+        impl->SetBinaryFormat(value);
     }
 
     const std::vector<uint8_t>& ShaderAsset::GetBinary() const
