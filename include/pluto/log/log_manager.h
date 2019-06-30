@@ -8,6 +8,7 @@
 namespace pluto
 {
     class FileWriter;
+    class Exception;
 
     class PLUTO_API LogManager final : public Singleton
     {
@@ -29,5 +30,6 @@ namespace pluto
         void LogInfo(const std::string& message);
         void LogWarning(const std::string& message);
         void LogError(const std::string& message);
+        void LogException(const Exception& exception);
     };
 }

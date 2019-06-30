@@ -1,5 +1,8 @@
 #include <pluto/exception.h>
+
 #include <boost/stacktrace.hpp>
+
+#include <sstream>
 
 namespace pluto
 {
@@ -12,8 +15,15 @@ namespace pluto
     public:
         explicit Impl(const std::exception& innerException) : innerException(innerException)
         {
-            const boost::stacktrace::stacktrace st;
-            stackTrace = std::string(st.begin(), st.end());
+            const boost::stacktrace::stacktrace st(5, 999);
+            std::stringstream ss;
+            ss << st;
+            stackTrace = ss.str();
+        }
+
+        Impl(const std::exception& innerException, std::string stackTrace) : innerException(innerException),
+                                                                             stackTrace(std::move(stackTrace))
+        {
         }
 
         char const* What() const

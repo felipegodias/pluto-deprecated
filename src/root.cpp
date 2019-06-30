@@ -25,12 +25,19 @@
 #include <pluto/math/vector2f.h>
 #include <pluto/math/vector3f.h>
 #include <pluto/math/vector3i.h>
+#include <pluto/math/matrix4.h>
+#include <glm/glm.hpp>
 
 #include <pluto/file/file_manager.h>
 #include <pluto/file/file_reader.h>
 #include <pluto/file/file_writer.h>
 
 #include <fmt/format.h>
+#include <chrono>
+#include <iostream>
+#include <regex>
+#include <pluto/stop_watch.h>
+#include <pluto/exception.h>
 
 namespace pluto
 {
@@ -66,12 +73,6 @@ namespace pluto
 
             auto& logManager = diContainer->GetSingleton<LogManager>();
             logManager.LogInfo("Pluto Engine Initialized!");
-
-            auto& eventManager = diContainer->GetSingleton<EventManager>();
-            eventManager.Dispatch(OnStartupEvent());
-
-            auto& assetManager = diContainer->GetSingleton<AssetManager>();
-            assetManager.LoadPackage("main");
         }
 
         ~Impl()
@@ -90,9 +91,26 @@ namespace pluto
         {
             auto& windowManager = diContainer->GetSingleton<WindowManager>();
             auto& simulationManager = diContainer->GetSingleton<SimulationManager>();
+            auto& logManager = diContainer->GetSingleton<LogManager>();
+
+            {
+                // TODO: Move to simulation manager.
+                auto& eventManager = diContainer->GetSingleton<EventManager>();
+                eventManager.Dispatch(OnStartupEvent());
+                auto& assetManager = diContainer->GetSingleton<AssetManager>();
+                assetManager.LoadPackage("main");
+            }
+
             while (windowManager.IsOpen())
             {
-                simulationManager.Run();
+                try
+                {
+                    simulationManager.Run();
+                }
+                catch (const Exception& e)
+                {
+                    logManager.LogException(e);
+                }
             }
             return 0;
         }

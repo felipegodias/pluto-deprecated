@@ -10,6 +10,7 @@
 #include <pluto/asset/text_asset.h>
 #include <pluto/asset/mesh_asset.h>
 #include <pluto/asset/shader_asset.h>
+#include <pluto/exception.h>
 
 #include <string>
 #include <fmt/ostream.h>
@@ -41,7 +42,7 @@ namespace pluto
         {
             if (manifests.find(name) != manifests.end())
             {
-                throw std::runtime_error("");
+                Exception::Throw(std::runtime_error("err..."));
             }
 
             const std::string physicalFilePath = fmt::format("packages/{0}/{0}", name);

@@ -2,6 +2,7 @@
 #include <pluto/file/file_manager.h>
 #include <pluto/file/file_writer.h>
 #include <pluto/di/di_container.h>
+#include <pluto/exception.h>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -18,7 +19,6 @@ namespace pluto
         std::unique_ptr<FileWriter> logFile;
         std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> consoleSink;
         std::shared_ptr<spdlog::sinks::ostream_sink_mt> fileSink;
-
 
     public:
         explicit Impl(std::unique_ptr<FileWriter> logFile)
@@ -64,6 +64,11 @@ namespace pluto
         {
             logger->error(fmt::format("{0}\n{1}", message, boost::stacktrace::stacktrace(4, 999)));
         }
+
+        void LogException(const Exception& exception)
+        {
+            logger->error(fmt::format("{0}\n{1}", exception.what(), exception.GetStackTrace()));
+        }
     };
 
     LogManager::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
@@ -94,5 +99,10 @@ namespace pluto
     void LogManager::LogError(const std::string& message)
     {
         impl->LogError(message);
+    }
+
+    void LogManager::LogException(const Exception& exception)
+    {
+        impl->LogException(exception);
     }
 }
