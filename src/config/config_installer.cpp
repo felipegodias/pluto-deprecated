@@ -6,7 +6,7 @@ namespace pluto
 {
     void ConfigInstaller::Install(const std::string& configFileName, DiContainer& diContainer)
     {
-        ConfigManager::Factory factory(diContainer);
+        const ConfigManager::Factory factory(diContainer);
         diContainer.AddSingleton(factory.Create(configFileName));
     }
 

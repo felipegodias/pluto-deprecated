@@ -40,9 +40,9 @@ namespace pluto
         friend PLUTO_API std::ostream& operator<<(std::ostream& os, const Matrix4& matrix);
 
         Vector4 GetRow(int index) const;
-        void SetRow(int index, const Vector4& row);
+        void SetRow(int index, const Vector4& value);
         Vector4 GetColumn(int index) const;
-        void SetColumn(int index, const Vector4& column);
+        void SetColumn(int index, const Vector4& value);
 
         float GetDeterminant() const;
         Matrix4 GetInverse() const;

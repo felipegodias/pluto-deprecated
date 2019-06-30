@@ -32,9 +32,9 @@ namespace pluto
             return name;
         }
 
-        void SetName(std::string name)
+        void SetName(std::string value)
         {
-            this->name = std::move(name);
+            name = std::move(value);
         }
 
         void Dump(FileWriter& fileWriter) const
@@ -66,22 +66,22 @@ namespace pluto
 
         const std::vector<Vector3>& GetPositions() const
         {
-            return this->positions;
+            return positions;
         }
 
-        void SetPositions(std::vector<Vector3> positions)
+        void SetPositions(std::vector<Vector3> value)
         {
-            this->positions = std::move(positions);
+            positions = std::move(value);
         }
 
         const std::vector<Vector2>& GetUVs() const
         {
-            return this->uvs;
+            return uvs;
         }
 
-        void SetUVs(std::vector<Vector2> uvs)
+        void SetUVs(std::vector<Vector2> value)
         {
-            this->uvs = std::move(uvs);
+            uvs = std::move(value);
         }
 
         const std::vector<Vector3Int>& GetTriangles() const
@@ -89,9 +89,9 @@ namespace pluto
             return triangles;
         }
 
-        void SetTriangles(std::vector<Vector3Int> triangles)
+        void SetTriangles(std::vector<Vector3Int> value)
         {
-            this->triangles = std::move(triangles);
+            triangles = std::move(value);
         }
 
         void Clone(const Impl& other)
@@ -205,9 +205,9 @@ namespace pluto
         return impl->GetName();
     }
 
-    void MeshAsset::SetName(std::string name)
+    void MeshAsset::SetName(std::string value)
     {
-        impl->SetName(std::move(name));
+        impl->SetName(std::move(value));
     }
 
     void MeshAsset::Dump(FileWriter& fileWriter) const
@@ -220,9 +220,9 @@ namespace pluto
         return impl->GetPositions();
     }
 
-    void MeshAsset::SetPositions(std::vector<Vector3> positions)
+    void MeshAsset::SetPositions(std::vector<Vector3> value)
     {
-        impl->SetPositions(std::move(positions));
+        impl->SetPositions(std::move(value));
     }
 
     const std::vector<Vector2>& MeshAsset::GetUVs() const
@@ -230,9 +230,9 @@ namespace pluto
         return impl->GetUVs();
     }
 
-    void MeshAsset::SetUVs(std::vector<Vector2> uvs)
+    void MeshAsset::SetUVs(std::vector<Vector2> value)
     {
-        impl->SetUVs(std::move(uvs));
+        impl->SetUVs(std::move(value));
     }
 
     const std::vector<Vector3Int>& MeshAsset::GetTriangles() const
@@ -240,8 +240,8 @@ namespace pluto
         return impl->GetTriangles();
     }
 
-    void MeshAsset::SetTriangles(std::vector<Vector3Int> triangles)
+    void MeshAsset::SetTriangles(std::vector<Vector3Int> value)
     {
-        impl->SetTriangles(std::move(triangles));
+        impl->SetTriangles(std::move(value));
     }
 }

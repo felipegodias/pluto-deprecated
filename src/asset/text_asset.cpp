@@ -29,9 +29,9 @@ namespace pluto
             return name;
         }
 
-        void SetName(std::string name)
+        void SetName(std::string value)
         {
-            this->name = std::move(name);
+            name = std::move(value);
         }
 
         void Dump(FileWriter& fileWriter) const
@@ -56,9 +56,9 @@ namespace pluto
             return text;
         }
 
-        void SetText(std::string text)
+        void SetText(std::string value)
         {
-            this->text = std::move(text);
+            text = std::move(value);
         }
     };
 
@@ -132,9 +132,9 @@ namespace pluto
         return impl->GetName();
     }
 
-    void TextAsset::SetName(std::string name)
+    void TextAsset::SetName(std::string value)
     {
-        impl->SetName(std::move(name));
+        impl->SetName(std::move(value));
     }
 
     void TextAsset::Dump(FileWriter& fileWriter) const
@@ -147,8 +147,8 @@ namespace pluto
         return impl->GetText();
     }
 
-    void TextAsset::SetText(std::string text)
+    void TextAsset::SetText(std::string value)
     {
-        impl->SetText(std::move(text));
+        impl->SetText(std::move(value));
     }
 }

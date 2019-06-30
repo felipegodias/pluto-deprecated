@@ -52,10 +52,10 @@ namespace pluto
 
         const Guid& GetId() const override;
         const std::string& GetName() const override;
-        void SetName(std::string name) override;
+        void SetName(std::string value) override;
         void Dump(FileWriter& fileWriter) const override;
 
         const std::string& GetText() const;
-        void SetText(std::string text);
+        void SetText(std::string value);
     };
 }

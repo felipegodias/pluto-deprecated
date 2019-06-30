@@ -6,7 +6,7 @@ namespace pluto
 {
     void LogInstaller::Install(const std::string& logFileName, DiContainer& diContainer)
     {
-        LogManager::Factory factory(diContainer);
+        const LogManager::Factory factory(diContainer);
         diContainer.AddSingleton<LogManager>(factory.Create(logFileName));
     }
 

@@ -191,31 +191,31 @@ namespace pluto
         }
     }
 
-    void Matrix4::SetRow(const int index, const Vector4& row)
+    void Matrix4::SetRow(const int index, const Vector4& value)
     {
         switch (index)
         {
         case 0:
-            x0 = row.x;
-            y0 = row.y;
-            z0 = row.z;
-            w0 = row.w;
+            x0 = value.x;
+            y0 = value.y;
+            z0 = value.z;
+            w0 = value.w;
             break;
         case 1:
-            x1 = row.x;
-            y1 = row.y;
-            z1 = row.z;
-            w1 = row.w;
+            x1 = value.x;
+            y1 = value.y;
+            z1 = value.z;
+            w1 = value.w;
         case 2:
-            x2 = row.x;
-            y2 = row.y;
-            z2 = row.z;
-            w2 = row.w;
+            x2 = value.x;
+            y2 = value.y;
+            z2 = value.z;
+            w2 = value.w;
         case 3:
-            x3 = row.x;
-            y3 = row.y;
-            z3 = row.z;
-            w3 = row.w;
+            x3 = value.x;
+            y3 = value.y;
+            z3 = value.z;
+            w3 = value.w;
         default:
             throw std::out_of_range("");
         }
@@ -238,31 +238,31 @@ namespace pluto
         }
     }
 
-    void Matrix4::SetColumn(const int index, const Vector4& column)
+    void Matrix4::SetColumn(const int index, const Vector4& value)
     {
         switch (index)
         {
         case 0:
-            x0 = column.x;
-            x1 = column.y;
-            x2 = column.z;
-            x3 = column.w;
+            x0 = value.x;
+            x1 = value.y;
+            x2 = value.z;
+            x3 = value.w;
             break;
         case 1:
-            y0 = column.x;
-            y1 = column.y;
-            y2 = column.z;
-            y3 = column.w;
+            y0 = value.x;
+            y1 = value.y;
+            y2 = value.z;
+            y3 = value.w;
         case 2:
-            z0 = column.x;
-            z1 = column.y;
-            z2 = column.z;
-            z3 = column.w;
+            z0 = value.x;
+            z1 = value.y;
+            z2 = value.z;
+            z3 = value.w;
         case 3:
-            w0 = column.x;
-            w1 = column.y;
-            w2 = column.z;
-            w3 = column.w;
+            w0 = value.x;
+            w1 = value.y;
+            w2 = value.z;
+            w3 = value.w;
         default:
             throw std::out_of_range("");
         }

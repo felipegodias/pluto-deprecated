@@ -35,9 +35,9 @@ namespace pluto
             return name;
         }
 
-        void SetName(std::string name)
+        void SetName(std::string value)
         {
-            this->name = std::move(name);
+            name = std::move(value);
         }
 
         void Dump(FileWriter& fileWriter) const
@@ -252,9 +252,9 @@ namespace pluto
         return impl->GetName();
     }
 
-    void ShaderAsset::SetName(std::string name)
+    void ShaderAsset::SetName(std::string value)
     {
-        impl->SetName(std::move(name));
+        impl->SetName(std::move(value));
     }
 
     void ShaderAsset::Dump(FileWriter& fileWriter) const

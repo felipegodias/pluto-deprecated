@@ -59,14 +59,14 @@ namespace pluto
 
         const Guid& GetId() const override;
         const std::string& GetName() const override;
-        void SetName(std::string name) override;
+        void SetName(std::string value) override;
         void Dump(FileWriter& fileWriter) const override;
 
         const std::vector<Vector3>& GetPositions() const;
-        void SetPositions(std::vector<Vector3> positions);
+        void SetPositions(std::vector<Vector3> value);
         const std::vector<Vector2>& GetUVs() const;
-        void SetUVs(std::vector<Vector2> uvs);
+        void SetUVs(std::vector<Vector2> value);
         const std::vector<Vector3Int>& GetTriangles() const;
-        void SetTriangles(std::vector<Vector3Int> triangles);
+        void SetTriangles(std::vector<Vector3Int> value);
     };
 }

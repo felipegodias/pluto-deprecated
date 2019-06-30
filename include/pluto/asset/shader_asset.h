@@ -110,7 +110,7 @@ namespace pluto
 
         const Guid& GetId() const override;
         const std::string& GetName() const override;
-        void SetName(std::string name) override;
+        void SetName(std::string value) override;
         void Dump(FileWriter& fileWriter) const override;
 
         BlendFunction GetBlendFunction() const;
