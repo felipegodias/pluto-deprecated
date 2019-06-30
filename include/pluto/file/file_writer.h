@@ -9,11 +9,11 @@ namespace pluto
     class PLUTO_API FileWriter
     {
     public:
-        class Factory final : public BaseFactory
+        class PLUTO_API Factory final : public BaseFactory
         {
         public:
             explicit Factory(DiContainer& diContainer);
-            std::unique_ptr<FileWriter> Create(std::ofstream ofs);
+            std::unique_ptr<FileWriter> Create(std::ofstream ofs) const;
         };
 
     private:

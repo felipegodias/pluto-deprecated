@@ -46,7 +46,7 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<FileReader> FileReader::Factory::Create(std::ifstream ifs)
+    std::unique_ptr<FileReader> FileReader::Factory::Create(std::ifstream ifs) const
     {
         return std::make_unique<FileReader>(std::make_unique<Impl>(std::move(ifs)));
     }

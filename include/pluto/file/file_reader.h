@@ -9,11 +9,11 @@ namespace pluto
     class PLUTO_API FileReader
     {
     public:
-        class Factory final : public BaseFactory
+        class PLUTO_API Factory final : public BaseFactory
         {
         public:
             explicit Factory(DiContainer& diContainer);
-            std::unique_ptr<FileReader> Create(std::ifstream ifs);
+            std::unique_ptr<FileReader> Create(std::ifstream ifs) const;
         };
 
     private:

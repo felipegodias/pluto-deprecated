@@ -51,7 +51,7 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<FileWriter> FileWriter::Factory::Create(std::ofstream ofs)
+    std::unique_ptr<FileWriter> FileWriter::Factory::Create(std::ofstream ofs) const
     {
         return std::make_unique<FileWriter>(std::make_unique<Impl>(std::move(ofs)));
     }
