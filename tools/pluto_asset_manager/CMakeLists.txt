@@ -1,6 +1,15 @@
 project(pluto_asset_manager CXX)
 
-add_executable(pluto_asset_manager main.cpp text_asset_menu.cpp text_asset_manager.cpp)
+list(APPEND ASSET_MANAGER_SOURCE_FILES
+    # .
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    # ./text
+    ${CMAKE_CURRENT_SOURCE_DIR}/text/text_asset_manager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/text/text_asset_menu.cpp
+)
+
+add_executable(pluto_asset_manager ${ASSET_MANAGER_SOURCE_FILES})
+
 
 target_link_libraries(pluto_asset_manager PRIVATE pluto)
 
