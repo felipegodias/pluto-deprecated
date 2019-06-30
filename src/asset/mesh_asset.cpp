@@ -8,16 +8,6 @@
 
 namespace pluto
 {
-    inline void Write(std::ostream& os, const void* ptr, const std::streamsize count)
-    {
-        os.write(reinterpret_cast<const char*>(ptr), count);
-    }
-
-    inline void Read(std::istream& is, void* ptr, const std::streamsize count)
-    {
-        is.read(reinterpret_cast<char*>(ptr), count);
-    }
-
     class MeshAsset::Impl
     {
     private:
@@ -45,33 +35,6 @@ namespace pluto
         void SetName(std::string name)
         {
             this->name = std::move(name);
-        }
-
-        void Dump(std::ostream& os) const
-        {
-            Write(os, &guid, sizeof(Guid));
-            uint8_t serializerVersion = 1;
-            Write(os, &serializerVersion, sizeof(uint8_t));
-            uint8_t assetType = 2;
-            Write(os, &assetType, sizeof(uint8_t));
-            Write(os, &guid, sizeof(Guid));
-            uint8_t assetNameLength = name.size();
-            Write(os, &assetNameLength, sizeof(uint8_t));
-            Write(os, name.data(), assetNameLength);
-
-            uint16_t positionsCount = positions.size();
-            Write(os, &positionsCount, sizeof(uint16_t));
-            Write(os, positions.data(), sizeof(Vector3) * positionsCount);
-
-            uint16_t uvsCount = uvs.size();
-            Write(os, &uvsCount, sizeof(uint16_t));
-            Write(os, uvs.data(), sizeof(Vector2) * uvsCount);
-
-            uint16_t trianglesCount = triangles.size();
-            Write(os, &trianglesCount, sizeof(uint16_t));
-            Write(os, triangles.data(), sizeof(Vector3Int) * trianglesCount);
-
-            os.flush();
         }
 
         void Dump(FileWriter& fileWriter) const
@@ -157,47 +120,6 @@ namespace pluto
         instance->SetUVs(original.GetUVs());
         instance->SetTriangles(original.GetTriangles());
         return instance;
-    }
-
-    std::unique_ptr<MeshAsset> MeshAsset::Factory::Create(std::istream& is) const
-    {
-        Guid signature;
-        Read(is, &signature, sizeof(Guid));
-        uint8_t serializerVersion;
-        Read(is, &serializerVersion, sizeof(uint8_t));
-        uint8_t assetType;
-        Read(is, &assetType, sizeof(uint8_t));
-        Guid assetId;
-        Read(is, &assetId, sizeof(Guid));
-
-        auto meshAsset = std::make_unique<MeshAsset>(std::make_unique<Impl>(assetId));
-
-        uint8_t assetNameLength;
-        Read(is, &assetNameLength, sizeof(uint8_t));
-        std::string assetName(assetNameLength, ' ');
-        Read(is, assetName.data(), assetNameLength);
-        meshAsset->SetName(assetName);
-
-        uint16_t positionsCount;
-        Read(is, &positionsCount, sizeof(uint16_t));
-
-        std::vector<Vector3> positions(positionsCount);
-        Read(is, positions.data(), sizeof(Vector3) * positionsCount);
-        meshAsset->SetPositions(std::move(positions));
-
-        uint16_t uvsCount;
-        Read(is, &uvsCount, sizeof(uint16_t));
-        std::vector<Vector2> uvs(uvsCount);
-        Read(is, uvs.data(), sizeof(Vector2) * uvsCount);
-        meshAsset->SetUVs(std::move(uvs));
-
-        uint16_t trianglesCount;
-        Read(is, &trianglesCount, sizeof(uint16_t));
-        std::vector<Vector3Int> triangles(trianglesCount);
-        Read(is, triangles.data(), sizeof(Vector3Int) * trianglesCount);
-        meshAsset->SetTriangles(std::move(triangles));
-
-        return meshAsset;
     }
 
     std::unique_ptr<MeshAsset> MeshAsset::Factory::Create(FileReader& fileReader) const
@@ -286,11 +208,6 @@ namespace pluto
     void MeshAsset::SetName(std::string name)
     {
         impl->SetName(std::move(name));
-    }
-
-    void MeshAsset::Dump(std::ostream& os) const
-    {
-        impl->Dump(os);
     }
 
     void MeshAsset::Dump(FileWriter& fileWriter) const

@@ -1,6 +1,8 @@
 #include "text_asset_menu.h"
 #include "text_asset_manager.h"
 #include <pluto/guid.h>
+#include <pluto/di/di_container.h>
+#include <pluto/file/file_writer.h>
 #include <iostream>
 #include <sstream>
 
@@ -25,11 +27,13 @@ namespace pluto
 
     void DumpTextAsset(const TextAsset& textAsset)
     {
-        std::stringstream ss;
-        ss << textAsset.GetId();
-        std::ofstream ofs(ss.str());
-        textAsset.Dump(ofs);
-        std::cout << "Text Asset \"" << textAsset.GetName() << "\" saved with id " << ss.str() << std::endl;
+        DiContainer diContainer;
+        FileWriter::Factory fileWriterFactory(diContainer);
+        const std::string guidStr = textAsset.GetId().Str();
+        std::ofstream ofs(guidStr);
+        const auto fileWriter = fileWriterFactory.Create(std::move(ofs));
+        textAsset.Dump(*fileWriter);
+        std::cout << "Text Asset \"" << textAsset.GetName() << "\" saved with id " << guidStr << std::endl;
     }
 
     void CreateTextMenu()

@@ -17,15 +17,21 @@
 #include <pluto/event/on_startup_event.h>
 #include <pluto/window/window_manager.h>
 #include <pluto/simulation/simulation_manager.h>
-#include <pluto/asset/asset_manager.h>
 
+#include <pluto/asset/asset_manager.h>
+#include <pluto/asset/mesh_asset.h>
+#include <pluto/asset/package_manifest_asset.h>
+
+#include <pluto/math/vector2.h>
 #include <pluto/math/vector3.h>
-#include <pluto/math/vector4.h>
-#include <pluto/math/quaternion.h>
-#include <pluto/math/matrix4.h>
-#include <pluto/asset/text_asset.h>
+#include <pluto/math/vector3int.h>
+
+#include <pluto/file/file_manager.h>
+#include <pluto/file/file_reader.h>
+#include <pluto/file/file_writer.h>
+
 #include <sstream>
-#include <iostream>
+
 #include <fmt/format.h>
 
 namespace pluto
@@ -55,6 +61,27 @@ namespace pluto
 
             auto& eventManager = diContainer->GetSingleton<EventManager>();
             eventManager.Dispatch(OnStartupEvent());
+
+            auto& assetManager = diContainer->GetSingleton<AssetManager>();
+            assetManager.LoadPackage("main");
+
+            auto& factory = diContainer->GetSingleton<MeshAsset::Factory>();
+            std::unique_ptr<MeshAsset> mesh = factory.Create();
+            std::vector<Vector3> positions{{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {9, 10, 11}};
+            mesh->SetPositions(std::move(positions));
+
+            const std::vector<Vector2> uvs{{12, 13}, {14, 15}, {16, 17}};
+            mesh->SetUVs(uvs);
+
+            const std::vector<Vector3Int> triangles{{18, 19, 20}, {21, 22, 23}};
+            mesh->SetTriangles(triangles);
+
+            auto& fileManager = diContainer->GetSingleton<FileManager>();
+            const auto fileWriter = fileManager.OpenWrite("quad.out");
+            mesh->Dump(*fileWriter);
+
+            const auto fileReader = fileManager.OpenRead("quad.out");
+            std::unique_ptr<MeshAsset> meshB = factory.Create(*fileReader);
         }
 
         ~Impl()

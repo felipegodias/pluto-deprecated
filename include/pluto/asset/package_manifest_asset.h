@@ -38,7 +38,6 @@ namespace pluto
             explicit Factory(DiContainer& diContainer);
             std::unique_ptr<PackageManifestAsset> Create() const;
             std::unique_ptr<PackageManifestAsset> Create(const PackageManifestAsset& original) const;
-            std::unique_ptr<PackageManifestAsset> Create(std::istream& is) const;
             std::unique_ptr<PackageManifestAsset> Create(FileReader& fileReader) const;
         };
 
@@ -58,7 +57,6 @@ namespace pluto
         const Guid& GetId() const override;
         const std::string& GetName() const override;
         void SetName(std::string name) override;
-        void Dump(std::ostream& os) const override;
         void Dump(FileWriter& fileWriter) const override;
 
         bool Contains(const std::string& virtualPath) const;

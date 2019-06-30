@@ -162,7 +162,7 @@ namespace pluto
 
             const std::unique_ptr<FileReader> file = fileManager.OpenRead(physicalFilePath);
             const auto& factory = static_cast<const typename T::Factory&>(factories.at(typeid(T)));
-            std::unique_ptr<T> asset = factory.Create(file->GetStream());
+            std::unique_ptr<T> asset = factory.Create(*file);
             return Register(std::move(asset));
         }
     };

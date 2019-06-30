@@ -6,16 +6,6 @@
 
 namespace pluto
 {
-    inline void Write(std::ostream& os, const void* ptr, const std::streamsize count)
-    {
-        os.write(reinterpret_cast<const char*>(ptr), count);
-    }
-
-    inline void Read(std::istream& is, void* ptr, const std::streamsize count)
-    {
-        is.read(reinterpret_cast<char*>(ptr), count);
-    }
-
     class ShaderAsset::Impl
     {
     private:
@@ -48,40 +38,6 @@ namespace pluto
         void SetName(std::string name)
         {
             this->name = std::move(name);
-        }
-
-        void Dump(std::ostream& os) const
-        {
-            Write(os, &guid, sizeof(Guid));
-            uint8_t serializerVersion = 1;
-            Write(os, &serializerVersion, sizeof(uint8_t));
-            uint8_t assetType = 1;
-            Write(os, &assetType, sizeof(uint8_t));
-            Write(os, &guid, sizeof(Guid));
-            uint8_t assetNameLength = name.size();
-            Write(os, &assetNameLength, sizeof(uint8_t));
-            Write(os, name.data(), assetNameLength);
-
-            auto blendFunction = static_cast<uint8_t>(this->blendFunction);
-            Write(os, &blendFunction, sizeof(uint8_t));
-
-            auto srcBlendFactor = static_cast<uint8_t>(this->srcBlendFactor);
-            Write(os, &srcBlendFactor, sizeof(uint8_t));
-
-            auto dstBlendFactor = static_cast<uint8_t>(this->dstBlendFactor);
-            Write(os, &dstBlendFactor, sizeof(uint8_t));
-
-            auto zTest = static_cast<uint8_t>(this->zTest);
-            Write(os, &zTest, sizeof(uint8_t));
-
-            auto cullMode = static_cast<uint8_t>(this->cullMode);
-            Write(os, &cullMode, sizeof(uint8_t));
-
-            uint32_t binarySize = binary.size();
-            Write(os, &binarySize, sizeof(uint32_t));
-            Write(os, binary.data(), binarySize);
-
-            os.flush();
         }
 
         void Dump(FileWriter& fileWriter) const
@@ -206,54 +162,6 @@ namespace pluto
         return shaderAsset;
     }
 
-    std::unique_ptr<ShaderAsset> ShaderAsset::Factory::Create(std::istream& is) const
-    {
-        Guid signature;
-        Read(is, &signature, sizeof(Guid));
-        uint8_t serializerVersion;
-        Read(is, &serializerVersion, sizeof(uint8_t));
-        uint8_t assetType;
-        Read(is, &assetType, sizeof(uint8_t));
-        Guid assetId;
-        Read(is, &assetId, sizeof(Guid));
-
-        auto shaderAsset = std::make_unique<ShaderAsset>(std::make_unique<Impl>(assetId));
-
-        uint8_t assetNameLength;
-        Read(is, &assetNameLength, sizeof(uint8_t));
-        std::string assetName(assetNameLength, ' ');
-        Read(is, assetName.data(), assetNameLength);
-        shaderAsset->SetName(assetName);
-
-        uint8_t blendFunction;
-        Read(is, &blendFunction, sizeof(uint8_t));
-        shaderAsset->SetBlendFunction(static_cast<BlendFunction>(blendFunction));
-
-        uint8_t srcBlendFactor;
-        Read(is, &srcBlendFactor, sizeof(uint8_t));
-        shaderAsset->SetSrcBlendFactor(static_cast<BlendFactor>(srcBlendFactor));
-
-        uint8_t dstBlendFactor;
-        Read(is, &dstBlendFactor, sizeof(uint8_t));
-        shaderAsset->SetDstBlendFactor(static_cast<BlendFactor>(dstBlendFactor));
-
-        uint8_t zTest;
-        Read(is, &zTest, sizeof(uint8_t));
-        shaderAsset->SetZTest(static_cast<ZTest>(zTest));
-
-        uint8_t cullMode;
-        Read(is, &cullMode, sizeof(uint8_t));
-        shaderAsset->SetCullMode(static_cast<CullMode>(cullMode));
-
-        uint32_t binarySize;
-        Read(is, &binarySize, sizeof(uint32_t));
-        std::vector<uint8_t> binary(binarySize);
-        Read(is, binary.data(), binarySize);
-        shaderAsset->SetBinary(std::move(binary));
-
-        return shaderAsset;
-    }
-
     std::unique_ptr<ShaderAsset> ShaderAsset::Factory::Create(FileReader& fileReader) const
     {
         Guid signature;
@@ -347,11 +255,6 @@ namespace pluto
     void ShaderAsset::SetName(std::string name)
     {
         impl->SetName(std::move(name));
-    }
-
-    void ShaderAsset::Dump(std::ostream& os) const
-    {
-        impl->Dump(os);
     }
 
     void ShaderAsset::Dump(FileWriter& fileWriter) const

@@ -1,7 +1,10 @@
 #include "text_asset_manager.h"
+
+#include <pluto/guid.h>
 #include <pluto/di/di_container.h>
 #include <pluto/asset/text_asset.h>
-#include <pluto/guid.h>
+#include <pluto/file/file_reader.h>
+
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -34,12 +37,12 @@ namespace pluto
     std::unique_ptr<TextAsset> LoadTextAsset(const Guid& guid)
     {
         DiContainer diContainer;
-        const TextAsset::Factory factory(diContainer);
+        const TextAsset::Factory textAssetFactory(diContainer);
+        FileReader::Factory fileReaderFactory(diContainer);
 
-        std::stringstream ss;
-        ss << guid;
-        std::ifstream ifs(ss.str(), std::ios::binary);
-        auto textAsset = factory.Create(ifs);
+        std::ifstream ifs(guid.Str(), std::ios::binary);
+        const auto fileReader = fileReaderFactory.Create(std::move(ifs));
+        auto textAsset = textAssetFactory.Create(*fileReader);
         return textAsset;
     }
 }

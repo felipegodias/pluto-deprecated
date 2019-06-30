@@ -9,16 +9,6 @@
 
 namespace pluto
 {
-    inline void Write(std::ostream& os, const void* ptr, const std::streamsize count)
-    {
-        os.write(reinterpret_cast<const char*>(ptr), count);
-    }
-
-    inline void Read(std::istream& is, void* ptr, const std::streamsize count)
-    {
-        is.read(reinterpret_cast<char*>(ptr), count);
-    }
-
     class PackageManifestAsset::Impl
     {
     private:
@@ -45,32 +35,6 @@ namespace pluto
         void SetName(std::string name)
         {
             this->name = std::move(name);
-        }
-
-        void Dump(std::ostream& os) const
-        {
-            Write(os, &guid, sizeof(Guid));
-            uint8_t serializerVersion = 1;
-            Write(os, &serializerVersion, sizeof(uint8_t));
-            uint8_t assetType = 0;
-            Write(os, &assetType, sizeof(uint8_t));
-            Write(os, &guid, sizeof(Guid));
-            uint8_t assetNameLength = name.size();
-            Write(os, &assetNameLength, sizeof(uint8_t));
-            Write(os, name.data(), assetNameLength);
-
-            uint16_t assetsCount = guidsByPath.size();
-            Write(os, &assetsCount, sizeof(uint16_t));
-
-            for (const auto& it : guidsByPath)
-            {
-                Write(os, &it.second, sizeof(Guid));
-                uint16_t assetPathLength = it.first.size();
-                Write(os, &assetPathLength, sizeof(uint16_t));
-                Write(os, it.first.data(), assetPathLength);
-            }
-
-            os.flush();
         }
 
         void Dump(FileWriter& fileWriter) const
@@ -177,44 +141,6 @@ namespace pluto
         return instance;
     }
 
-    std::unique_ptr<PackageManifestAsset> PackageManifestAsset::Factory::Create(std::istream& is) const
-    {
-        Guid signature;
-        Read(is, &signature, sizeof(Guid));
-        uint8_t serializerVersion;
-        Read(is, &serializerVersion, sizeof(uint8_t));
-        uint8_t assetType;
-        Read(is, &assetType, sizeof(uint8_t));
-
-        Guid assetId;
-        Read(is, &assetId, sizeof(Guid));
-
-        auto instance = std::make_unique<PackageManifestAsset>(std::make_unique<Impl>(assetId));
-
-        uint8_t assetNameLength;
-        Read(is, &assetNameLength, sizeof(uint8_t));
-        std::string assetName(assetNameLength, ' ');
-        Read(is, assetName.data(), assetNameLength);
-        instance->SetName(assetName);
-
-        uint16_t assetsListCount;
-        Read(is, &assetsListCount, sizeof(uint16_t));
-
-        for (uint16_t i = 0; i < assetsListCount; ++i)
-        {
-            Guid assetListGuid;
-            Read(is, &assetListGuid, sizeof(Guid));
-
-            uint16_t assetVirtualPathLength;
-            Read(is, &assetVirtualPathLength, sizeof(uint16_t));
-            std::string assetVirtualPath(assetVirtualPathLength, ' ');
-            Read(is, assetVirtualPath.data(), assetVirtualPathLength);
-            instance->AddAsset(std::move(assetVirtualPath), assetListGuid);
-        }
-
-        return instance;
-    }
-
     std::unique_ptr<PackageManifestAsset> PackageManifestAsset::Factory::Create(FileReader& fileReader) const
     {
         Guid signature;
@@ -298,11 +224,6 @@ namespace pluto
     void PackageManifestAsset::SetName(std::string name)
     {
         impl->SetName(std::move(name));
-    }
-
-    void PackageManifestAsset::Dump(std::ostream& os) const
-    {
-        impl->Dump(os);
     }
 
     void PackageManifestAsset::Dump(FileWriter& fileWriter) const

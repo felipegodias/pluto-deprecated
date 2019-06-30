@@ -7,16 +7,6 @@
 
 namespace pluto
 {
-    inline void Write(std::ostream& os, const void* ptr, const std::streamsize count)
-    {
-        os.write(reinterpret_cast<const char*>(ptr), count);
-    }
-
-    inline void Read(std::istream& is, void* ptr, const std::streamsize count)
-    {
-        is.read(reinterpret_cast<char*>(ptr), count);
-    }
-
     class TextAsset::Impl
     {
     private:
@@ -42,23 +32,6 @@ namespace pluto
         void SetName(std::string name)
         {
             this->name = std::move(name);
-        }
-
-        void Dump(std::ostream& os) const
-        {
-            Write(os, &guid, sizeof(Guid));
-            uint8_t serializerVersion = 1;
-            Write(os, &serializerVersion, sizeof(uint8_t));
-            uint8_t assetType = 1;
-            Write(os, &assetType, sizeof(uint8_t));
-            Write(os, &guid, sizeof(Guid));
-            uint8_t assetNameLength = name.size();
-            Write(os, &assetNameLength, sizeof(uint8_t));
-            Write(os, name.data(), assetNameLength);
-            int textLength = text.size();
-            Write(os, &textLength, sizeof(int));
-            Write(os, text.data(), textLength);
-            os.flush();
         }
 
         void Dump(FileWriter& fileWriter) const
@@ -103,31 +76,6 @@ namespace pluto
         auto textAsset = Create();
         textAsset->SetName(original.GetName());
         textAsset->SetText(original.GetText());
-        return textAsset;
-    }
-
-    std::unique_ptr<TextAsset> TextAsset::Factory::Create(std::istream& is) const
-    {
-        Guid signature;
-        Read(is, &signature, sizeof(Guid));
-        uint8_t serializerVersion;
-        Read(is, &serializerVersion, sizeof(uint8_t));
-        uint8_t assetType;
-        Read(is, &assetType, sizeof(uint8_t));
-        Guid assetId;
-        Read(is, &assetId, sizeof(Guid));
-        uint8_t assetNameLength;
-        Read(is, &assetNameLength, sizeof(uint8_t));
-        std::string assetName(assetNameLength, ' ');
-        Read(is, assetName.data(), assetNameLength);
-        int textLength;
-        Read(is, &textLength, sizeof(int));
-        std::string text(textLength, ' ');
-        Read(is, text.data(), textLength);
-
-        auto textAsset = std::make_unique<TextAsset>(std::make_unique<Impl>(assetId));
-        textAsset->SetName(assetName);
-        textAsset->SetText(text);
         return textAsset;
     }
 
@@ -187,11 +135,6 @@ namespace pluto
     void TextAsset::SetName(std::string name)
     {
         impl->SetName(std::move(name));
-    }
-
-    void TextAsset::Dump(std::ostream& os) const
-    {
-        impl->Dump(os);
     }
 
     void TextAsset::Dump(FileWriter& fileWriter) const
