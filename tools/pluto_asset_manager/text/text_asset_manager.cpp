@@ -7,7 +7,6 @@
 
 #include <filesystem>
 #include <fstream>
-#include <sstream>
 
 namespace pluto
 {
@@ -38,7 +37,7 @@ namespace pluto
     {
         DiContainer diContainer;
         const TextAsset::Factory textAssetFactory(diContainer);
-        FileReader::Factory fileReaderFactory(diContainer);
+        const FileReader::Factory fileReaderFactory(diContainer);
 
         std::ifstream ifs(guid.Str(), std::ios::binary);
         const auto fileReader = fileReaderFactory.Create(std::move(ifs));

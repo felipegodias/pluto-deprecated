@@ -1,5 +1,7 @@
-#include <iostream>
 #include "text/text_asset_menu.h"
+#include "mesh/mesh_asset_menu.h"
+
+#include <iostream>
 
 void PrintMenu()
 {
@@ -25,6 +27,7 @@ int main(int argc, char* argv[])
             pluto::TextAssetMenu();
             break;
         case 2:
+            pluto::MeshAssetMenu();
             break;
         case 3:
             break;

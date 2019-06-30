@@ -3,6 +3,9 @@ project(pluto_asset_manager CXX)
 list(APPEND ASSET_MANAGER_SOURCE_FILES
     # .
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    # ./mesh
+    ${CMAKE_CURRENT_SOURCE_DIR}/mesh/mesh_asset_manager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/mesh/mesh_asset_menu.cpp
     # ./text
     ${CMAKE_CURRENT_SOURCE_DIR}/text/text_asset_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/text/text_asset_menu.cpp
