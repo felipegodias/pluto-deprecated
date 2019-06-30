@@ -1,7 +1,9 @@
 #include <pluto/math/vector3f.h>
 #include <pluto/math/vector2f.h>
+#include <pluto/math/vector2i.h>
 #include <pluto/math/vector3i.h>
 #include <pluto/math/vector4f.h>
+#include <pluto/math/vector4i.h>
 
 #include <stdexcept>
 #include <limits>
@@ -60,16 +62,26 @@ namespace pluto
     {
     }
 
+    Vector3F::Vector3F(const Vector2I& other) : Vector3F(static_cast<float>(other.x), static_cast<float>(other.y),
+                                                         0)
+    {
+    }
+
     Vector3F::Vector3F(const Vector3F& other) : Vector3F(other.x, other.y, other.z)
     {
     }
 
     Vector3F::Vector3F(const Vector3I& other) : Vector3F(static_cast<float>(other.x), static_cast<float>(other.y),
-                                                        static_cast<float>(other.z))
+                                                         static_cast<float>(other.z))
     {
     }
 
     Vector3F::Vector3F(const Vector4F& other) : Vector3F(other.x, other.y, other.z)
+    {
+    }
+
+    Vector3F::Vector3F(const Vector4I& other) : Vector3F(static_cast<float>(other.x), static_cast<float>(other.y),
+                                                         static_cast<float>(other.z))
     {
     }
 
@@ -83,6 +95,14 @@ namespace pluto
     {
         x = rhs.x;
         y = rhs.y;
+        z = 0;
+        return *this;
+    }
+
+    Vector3F& Vector3F::operator=(const Vector2I& rhs)
+    {
+        x = static_cast<float>(rhs.x);
+        y = static_cast<float>(rhs.y);
         z = 0;
         return *this;
     }
@@ -112,6 +132,14 @@ namespace pluto
         x = rhs.x;
         y = rhs.y;
         z = rhs.z;
+        return *this;
+    }
+
+    Vector3F& Vector3F::operator=(const Vector4I& rhs)
+    {
+        x = static_cast<float>(rhs.x);
+        y = static_cast<float>(rhs.y);
+        z = static_cast<float>(rhs.z);
         return *this;
     }
 

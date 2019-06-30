@@ -87,7 +87,7 @@ namespace pluto
         os << "[" << vector.x << "," << vector.y << "," << vector.z << "," << vector.w << "]";
         return os;
     }
-
+     
     std::string Vector4I::Str() const
     {
         std::stringstream ss;

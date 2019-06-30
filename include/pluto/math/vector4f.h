@@ -6,7 +6,10 @@
 namespace pluto
 {
     class Vector2F;
+    class Vector2I;
     class Vector3F;
+    class Vector3I;
+    class Vector4I;
 
     class PLUTO_API Vector4F
     {
@@ -20,15 +23,21 @@ namespace pluto
         explicit Vector4F(float scalar);
         Vector4F(float x, float y, float z, float w);
         Vector4F(const Vector2F& other);
+        Vector4F(const Vector2I& other);
         Vector4F(const Vector3F& other);
+        Vector4F(const Vector3I& other);
         Vector4F(const Vector4F& other);
+        Vector4F(const Vector4I& other);
         Vector4F(Vector4F&& other) noexcept;
 
         ~Vector4F();
 
         Vector4F& operator=(const Vector2F& rhs);
+        Vector4F& operator=(const Vector2I& rhs);
         Vector4F& operator=(const Vector3F& rhs);
+        Vector4F& operator=(const Vector3I& rhs);
         Vector4F& operator=(const Vector4F& rhs);
+        Vector4F& operator=(const Vector4I& rhs);
         Vector4F& operator=(Vector4F&& rhs) noexcept;
 
         Vector4F& operator+=(const Vector4F& rhs);

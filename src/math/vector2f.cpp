@@ -1,6 +1,9 @@
 #include <pluto/math/vector2f.h>
+#include <pluto/math/vector2i.h>
 #include <pluto/math/vector3f.h>
+#include <pluto/math/vector3i.h>
 #include <pluto/math/vector4f.h>
+#include <pluto/math/vector4i.h>
 
 #include <stdexcept>
 #include <limits>
@@ -46,7 +49,7 @@ namespace pluto
     {
     }
 
-    Vector2F::Vector2F(const float scalar) : x(scalar), y(scalar)
+    Vector2F::Vector2F(const float scalar) : Vector2F(scalar, scalar)
     {
     }
 
@@ -54,15 +57,27 @@ namespace pluto
     {
     }
 
-    Vector2F::Vector2F(const Vector3F& other) : x(other.x), y(other.y)
+    Vector2F::Vector2F(const Vector2F& other) : Vector2F(other.x, other.y)
     {
     }
 
-    Vector2F::Vector2F(const Vector4F& other) : x(other.x), y(other.y)
+    Vector2F::Vector2F(const Vector2I& other) : Vector2F(static_cast<float>(other.x), static_cast<float>(other.y))
     {
     }
 
-    Vector2F::Vector2F(const Vector2F& other) : x(other.x), y(other.y)
+    Vector2F::Vector2F(const Vector3F& other) : Vector2F(other.x, other.y)
+    {
+    }
+
+    Vector2F::Vector2F(const Vector3I& other) : Vector2F(static_cast<float>(other.x), static_cast<float>(other.y))
+    {
+    }
+
+    Vector2F::Vector2F(const Vector4F& other) : Vector2F(other.x, other.y)
+    {
+    }
+
+    Vector2F::Vector2F(const Vector4I& other) : Vector2F(static_cast<float>(other.x), static_cast<float>(other.y))
     {
     }
 
@@ -83,6 +98,13 @@ namespace pluto
         return *this;
     }
 
+    Vector2F& Vector2F::operator=(const Vector2I& rhs)
+    {
+        x = static_cast<float>(rhs.x);
+        y = static_cast<float>(rhs.y);
+        return *this;
+    }
+
     Vector2F& Vector2F::operator=(const Vector3F& rhs)
     {
         x = rhs.x;
@@ -90,10 +112,24 @@ namespace pluto
         return *this;
     }
 
+    Vector2F& Vector2F::operator=(const Vector3I& rhs)
+    {
+        x = static_cast<float>(rhs.x);
+        y = static_cast<float>(rhs.y);
+        return *this;
+    }
+
     Vector2F& Vector2F::operator=(const Vector4F& rhs)
     {
         x = rhs.x;
         y = rhs.y;
+        return *this;
+    }
+
+    Vector2F& Vector2F::operator=(const Vector4I& rhs)
+    {
+        x = static_cast<float>(rhs.x);
+        y = static_cast<float>(rhs.y);
         return *this;
     }
 
