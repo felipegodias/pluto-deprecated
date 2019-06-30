@@ -1,8 +1,8 @@
 #include <pluto/asset/mesh_asset.h>
 #include <pluto/guid.h>
-#include <pluto/math/vector2.h>
-#include <pluto/math/vector3.h>
-#include <pluto/math/vector3int.h>
+#include <pluto/math/vector2f.h>
+#include <pluto/math/vector3f.h>
+#include <pluto/math/vector3i.h>
 #include <pluto/file/file_reader.h>
 #include <pluto/file/file_writer.h>
 
@@ -13,9 +13,9 @@ namespace pluto
     private:
         Guid guid;
         std::string name;
-        std::vector<Vector3> positions;
-        std::vector<Vector2> uvs;
-        std::vector<Vector3Int> triangles;
+        std::vector<Vector3F> positions;
+        std::vector<Vector2F> uvs;
+        std::vector<Vector3I> triangles;
 
     public:
         explicit Impl(Guid guid) : guid(std::move(guid))
@@ -51,45 +51,45 @@ namespace pluto
 
             uint16_t positionsCount = positions.size();
             fileWriter.Write(&positionsCount, sizeof(uint16_t));
-            fileWriter.Write(positions.data(), sizeof(Vector3) * positionsCount);
+            fileWriter.Write(positions.data(), sizeof(Vector3F) * positionsCount);
 
             uint16_t uvsCount = uvs.size();
             fileWriter.Write(&uvsCount, sizeof(uint16_t));
-            fileWriter.Write(uvs.data(), sizeof(Vector2) * uvsCount);
+            fileWriter.Write(uvs.data(), sizeof(Vector2F) * uvsCount);
 
             uint16_t trianglesCount = triangles.size();
             fileWriter.Write(&trianglesCount, sizeof(uint16_t));
-            fileWriter.Write(triangles.data(), sizeof(Vector3Int) * trianglesCount);
+            fileWriter.Write(triangles.data(), sizeof(Vector3I) * trianglesCount);
 
             fileWriter.Flush();
         }
 
-        const std::vector<Vector3>& GetPositions() const
+        const std::vector<Vector3F>& GetPositions() const
         {
             return positions;
         }
 
-        void SetPositions(std::vector<Vector3> value)
+        void SetPositions(std::vector<Vector3F> value)
         {
             positions = std::move(value);
         }
 
-        const std::vector<Vector2>& GetUVs() const
+        const std::vector<Vector2F>& GetUVs() const
         {
             return uvs;
         }
 
-        void SetUVs(std::vector<Vector2> value)
+        void SetUVs(std::vector<Vector2F> value)
         {
             uvs = std::move(value);
         }
 
-        const std::vector<Vector3Int>& GetTriangles() const
+        const std::vector<Vector3I>& GetTriangles() const
         {
             return triangles;
         }
 
-        void SetTriangles(std::vector<Vector3Int> value)
+        void SetTriangles(std::vector<Vector3I> value)
         {
             triangles = std::move(value);
         }
@@ -144,20 +144,20 @@ namespace pluto
         uint16_t positionsCount;
         fileReader.Read(&positionsCount, sizeof(uint16_t));
 
-        std::vector<Vector3> positions(positionsCount);
-        fileReader.Read(positions.data(), sizeof(Vector3) * positionsCount);
+        std::vector<Vector3F> positions(positionsCount);
+        fileReader.Read(positions.data(), sizeof(Vector3F) * positionsCount);
         meshAsset->SetPositions(std::move(positions));
 
         uint16_t uvsCount;
         fileReader.Read(&uvsCount, sizeof(uint16_t));
-        std::vector<Vector2> uvs(uvsCount);
-        fileReader.Read(uvs.data(), sizeof(Vector2) * uvsCount);
+        std::vector<Vector2F> uvs(uvsCount);
+        fileReader.Read(uvs.data(), sizeof(Vector2F) * uvsCount);
         meshAsset->SetUVs(std::move(uvs));
 
         uint16_t trianglesCount;
         fileReader.Read(&trianglesCount, sizeof(uint16_t));
-        std::vector<Vector3Int> triangles(trianglesCount);
-        fileReader.Read(triangles.data(), sizeof(Vector3Int) * trianglesCount);
+        std::vector<Vector3I> triangles(trianglesCount);
+        fileReader.Read(triangles.data(), sizeof(Vector3I) * trianglesCount);
         meshAsset->SetTriangles(std::move(triangles));
 
         return meshAsset;
@@ -215,32 +215,32 @@ namespace pluto
         impl->Dump(fileWriter);
     }
 
-    const std::vector<Vector3>& MeshAsset::GetPositions() const
+    const std::vector<Vector3F>& MeshAsset::GetPositions() const
     {
         return impl->GetPositions();
     }
 
-    void MeshAsset::SetPositions(std::vector<Vector3> value)
+    void MeshAsset::SetPositions(std::vector<Vector3F> value)
     {
         impl->SetPositions(std::move(value));
     }
 
-    const std::vector<Vector2>& MeshAsset::GetUVs() const
+    const std::vector<Vector2F>& MeshAsset::GetUVs() const
     {
         return impl->GetUVs();
     }
 
-    void MeshAsset::SetUVs(std::vector<Vector2> value)
+    void MeshAsset::SetUVs(std::vector<Vector2F> value)
     {
         impl->SetUVs(std::move(value));
     }
 
-    const std::vector<Vector3Int>& MeshAsset::GetTriangles() const
+    const std::vector<Vector3I>& MeshAsset::GetTriangles() const
     {
         return impl->GetTriangles();
     }
 
-    void MeshAsset::SetTriangles(std::vector<Vector3Int> value)
+    void MeshAsset::SetTriangles(std::vector<Vector3I> value)
     {
         impl->SetTriangles(std::move(value));
     }

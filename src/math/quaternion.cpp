@@ -1,5 +1,5 @@
 #include <pluto/math/quaternion.h>
-#include <pluto/math/vector3.h>
+#include <pluto/math/vector3f.h>
 
 #include <sstream>
 
@@ -20,7 +20,7 @@ namespace pluto
         return reinterpret_cast<const glm::quat&>(q);
     }
 
-    inline const glm::vec3& ToGlm(const Vector3& v)
+    inline const glm::vec3& ToGlm(const Vector3F& v)
     {
         return reinterpret_cast<const glm::vec3&>(v);
     }
@@ -35,9 +35,9 @@ namespace pluto
         return reinterpret_cast<const Quaternion&>(q);
     }
 
-    inline const Vector3& FromGlm(const glm::vec3& v)
+    inline const Vector3F& FromGlm(const glm::vec3& v)
     {
-        return reinterpret_cast<const Vector3&>(v);
+        return reinterpret_cast<const Vector3F&>(v);
     }
 
     const Quaternion Quaternion::IDENTITY = Quaternion(0, 0, 0, 1);
@@ -98,7 +98,7 @@ namespace pluto
         return FromGlm(ToGlm(*this) * ToGlm(rhs));
     }
 
-    Vector3 Quaternion::operator*(const Vector3& rhs) const
+    Vector3F Quaternion::operator*(const Vector3F& rhs) const
     {
         return FromGlm(ToGlm(*this) * ToGlm(rhs));
     }
@@ -137,12 +137,12 @@ namespace pluto
         return os;
     }
 
-    Vector3 Quaternion::GetEulerAngles() const
+    Vector3F Quaternion::GetEulerAngles() const
     {
         return FromGlm(degrees(eulerAngles(ToGlm(*this))));
     }
 
-    void Quaternion::SetEulerAngles(const Vector3& eulerAngles)
+    void Quaternion::SetEulerAngles(const Vector3F& eulerAngles)
     {
         *this = Euler(eulerAngles);
     }
@@ -169,7 +169,7 @@ namespace pluto
         return dot(ToGlm(lhs), ToGlm(rhs));
     }
 
-    Quaternion Quaternion::Euler(const Vector3& eulerAngles)
+    Quaternion Quaternion::Euler(const Vector3F& eulerAngles)
     {
         return FromGlm(glm::quat(radians(ToGlm(eulerAngles))));
     }

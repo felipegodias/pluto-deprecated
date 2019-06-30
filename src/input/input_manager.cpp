@@ -8,7 +8,7 @@
 #include <pluto/simulation/on_pre_update_event.h>
 
 #include <pluto/guid.h>
-#include <pluto/math/vector2.h>
+#include <pluto/math/vector2f.h>
 
 #include <unordered_set>
 #include <GLFW/glfw3.h>
@@ -106,14 +106,14 @@ namespace pluto
             return keysUp.find(keyCode) != keysUp.end();
         }
 
-        Vector2 GetMousePosition() const
+        Vector2F GetMousePosition() const
         {
-            return Vector2(static_cast<float>(mousePositionX), static_cast<float>(mousePositionY));
+            return Vector2F(static_cast<float>(mousePositionX), static_cast<float>(mousePositionY));
         }
 
-        Vector2 GetMouseScrollDelta() const
+        Vector2F GetMouseScrollDelta() const
         {
-            return Vector2(static_cast<float>(mouseScrollDeltaX), static_cast<float>(mouseScrollDeltaY));
+            return Vector2F(static_cast<float>(mouseScrollDeltaX), static_cast<float>(mouseScrollDeltaY));
         }
 
     private:
@@ -201,12 +201,12 @@ namespace pluto
         return impl->GetKeyUp(keyCode);
     }
 
-    Vector2 InputManager::GetMousePosition() const
+    Vector2F InputManager::GetMousePosition() const
     {
         return impl->GetMousePosition();
     }
 
-    Vector2 InputManager::GetMouseScrollDelta() const
+    Vector2F InputManager::GetMouseScrollDelta() const
     {
         return impl->GetMouseScrollDelta();
     }

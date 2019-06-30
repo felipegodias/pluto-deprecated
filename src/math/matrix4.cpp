@@ -1,7 +1,7 @@
 #include <pluto/math/matrix4.h>
-#include <pluto/math/vector2.h>
-#include <pluto/math/vector3.h>
-#include <pluto/math/vector4.h>
+#include <pluto/math/vector2f.h>
+#include <pluto/math/vector3f.h>
+#include <pluto/math/vector4f.h>
 
 #include <sstream>
 
@@ -21,12 +21,12 @@ namespace pluto
         return reinterpret_cast<const glm::mat4&>(m);
     }
 
-    inline const glm::vec3& ToGlm(const Vector3& v)
+    inline const glm::vec3& ToGlm(const Vector3F& v)
     {
         return reinterpret_cast<const glm::vec3&>(v);
     }
 
-    inline const glm::vec4& ToGlm(const Vector4& v)
+    inline const glm::vec4& ToGlm(const Vector4F& v)
     {
         return reinterpret_cast<const glm::vec4&>(v);
     }
@@ -46,9 +46,9 @@ namespace pluto
         return reinterpret_cast<const Matrix4&>(m);
     }
 
-    inline const Vector4& FromGlm(const glm::vec4& v)
+    inline const Vector4F& FromGlm(const glm::vec4& v)
     {
-        return reinterpret_cast<const Vector4&>(v);
+        return reinterpret_cast<const Vector4F&>(v);
     }
 
     const Matrix4 Matrix4::IDENTITY = Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
@@ -67,7 +67,7 @@ namespace pluto
     {
     }
 
-    Matrix4::Matrix4(const Vector4& row0, const Vector4& row1, const Vector4& row2, const Vector4& row3) :
+    Matrix4::Matrix4(const Vector4F& row0, const Vector4F& row1, const Vector4F& row2, const Vector4F& row3) :
         x0(row0.x), y0(row0.y), z0(row0.z), w0(row0.w),
         x1(row1.x), y1(row1.y), z1(row1.z), w1(row1.w),
         x2(row2.x), y2(row2.y), z2(row2.z), w2(row2.w),
@@ -123,7 +123,7 @@ namespace pluto
         return FromGlm(ToGlm(*this) * ToGlm(rhs));
     }
 
-    Vector4 Matrix4::operator*(const Vector4& rhs) const
+    Vector4F Matrix4::operator*(const Vector4F& rhs) const
     {
         return FromGlm(ToGlm(*this) * ToGlm(rhs));
     }
@@ -174,24 +174,24 @@ namespace pluto
         return os << "[" << matrix.GetRow(0) << matrix.GetRow(1) << matrix.GetRow(2) << matrix.GetRow(3) << "]";
     }
 
-    Vector4 Matrix4::GetRow(const int index) const
+    Vector4F Matrix4::GetRow(const int index) const
     {
         switch (index)
         {
         case 0:
-            return Vector4(x0, y0, z0, w0);
+            return Vector4F(x0, y0, z0, w0);
         case 1:
-            return Vector4(x1, y1, z1, w1);
+            return Vector4F(x1, y1, z1, w1);
         case 2:
-            return Vector4(x2, y2, z2, w2);
+            return Vector4F(x2, y2, z2, w2);
         case 3:
-            return Vector4(x3, y3, z3, w3);
+            return Vector4F(x3, y3, z3, w3);
         default:
             throw std::out_of_range("");
         }
     }
 
-    void Matrix4::SetRow(const int index, const Vector4& value)
+    void Matrix4::SetRow(const int index, const Vector4F& value)
     {
         switch (index)
         {
@@ -221,24 +221,24 @@ namespace pluto
         }
     }
 
-    Vector4 Matrix4::GetColumn(const int index) const
+    Vector4F Matrix4::GetColumn(const int index) const
     {
         switch (index)
         {
         case 0:
-            return Vector4(x0, x1, x2, x3);
+            return Vector4F(x0, x1, x2, x3);
         case 1:
-            return Vector4(y0, y1, y2, y3);
+            return Vector4F(y0, y1, y2, y3);
         case 2:
-            return Vector4(z0, z1, z2, z3);
+            return Vector4F(z0, z1, z2, z3);
         case 3:
-            return Vector4(w0, w1, w2, w3);
+            return Vector4F(w0, w1, w2, w3);
         default:
             throw std::out_of_range("");
         }
     }
 
-    void Matrix4::SetColumn(const int index, const Vector4& value)
+    void Matrix4::SetColumn(const int index, const Vector4F& value)
     {
         switch (index)
         {
@@ -283,14 +283,14 @@ namespace pluto
         return FromGlm(transpose(ToGlm(*this)));
     }
 
-    Vector2 Matrix4::MultiplyPoint(const Vector2& point) const
+    Vector2F Matrix4::MultiplyPoint(const Vector2F& point) const
     {
-        return Vector2(*this * Vector4(point));
+        return Vector2F(*this * Vector4F(point));
     }
 
-    Vector3 Matrix4::MultiplyPoint(const Vector3& point) const
+    Vector3F Matrix4::MultiplyPoint(const Vector3F& point) const
     {
-        return Vector3(*this * Vector4(point));
+        return Vector3F(*this * Vector4F(point));
     }
 
     std::string Matrix4::Str() const
@@ -306,7 +306,7 @@ namespace pluto
         return FromGlm(glm::frustum(left, right, bottom, top, near, far));
     }
 
-    Matrix4 Matrix4::LookAt(const Vector3& from, const Vector3& to, const Vector3& up)
+    Matrix4 Matrix4::LookAt(const Vector3F& from, const Vector3F& to, const Vector3F& up)
     {
         return FromGlm(lookAt(ToGlm(from), ToGlm(to), ToGlm(up)));
     }
@@ -322,7 +322,7 @@ namespace pluto
         return FromGlm(glm::perspective(fov, aspect, near, far));
     }
 
-    Matrix4 Matrix4::Translate(const Vector3& vector)
+    Matrix4 Matrix4::Translate(const Vector3F& vector)
     {
         return FromGlm(translate(ToGlm(vector)));
     }
@@ -332,12 +332,12 @@ namespace pluto
         return FromGlm(toMat4(ToGlm(quaternion)));
     }
 
-    Matrix4 Matrix4::Scale(const Vector3& vector)
+    Matrix4 Matrix4::Scale(const Vector3F& vector)
     {
         return FromGlm(scale(ToGlm(vector)));
     }
 
-    Matrix4 Matrix4::TSR(const Vector3& position, const Quaternion& rotation, const Vector3& scale)
+    Matrix4 Matrix4::TSR(const Vector3F& position, const Quaternion& rotation, const Vector3F& scale)
     {
         return Translate(position) * Rotate(rotation) * Scale(scale);
     }

@@ -22,9 +22,9 @@
 #include <pluto/asset/mesh_asset.h>
 #include <pluto/asset/package_manifest_asset.h>
 
-#include <pluto/math/vector2.h>
-#include <pluto/math/vector3.h>
-#include <pluto/math/vector3int.h>
+#include <pluto/math/vector2f.h>
+#include <pluto/math/vector3f.h>
+#include <pluto/math/vector3i.h>
 
 #include <pluto/file/file_manager.h>
 #include <pluto/file/file_reader.h>

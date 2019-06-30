@@ -1,0 +1,60 @@
+#pragma once
+
+#include "../api.h"
+#include <ostream>
+
+namespace pluto
+{
+    class Vector2F;
+    class Vector3F;
+
+    class PLUTO_API Vector4F
+    {
+    public:
+        static const Vector4F ZERO;
+        static const Vector4F ONE;
+
+        float x, y, z, w;
+
+        Vector4F();
+        explicit Vector4F(float scalar);
+        Vector4F(float x, float y, float z, float w);
+        Vector4F(const Vector2F& other);
+        Vector4F(const Vector3F& other);
+        Vector4F(const Vector4F& other);
+        Vector4F(Vector4F&& other) noexcept;
+
+        ~Vector4F();
+
+        Vector4F& operator=(const Vector2F& rhs);
+        Vector4F& operator=(const Vector3F& rhs);
+        Vector4F& operator=(const Vector4F& rhs);
+        Vector4F& operator=(Vector4F&& rhs) noexcept;
+
+        Vector4F& operator+=(const Vector4F& rhs);
+        Vector4F& operator-=(const Vector4F& rhs);
+        Vector4F& operator*=(float d);
+        Vector4F& operator/=(float d);
+
+        Vector4F operator+(const Vector4F& rhs) const;
+        Vector4F operator-(const Vector4F& rhs) const;
+        Vector4F operator*(float d) const;
+        Vector4F operator/(float d) const;
+        bool operator==(const Vector4F& rhs) const;
+        bool operator!=(const Vector4F& rhs) const;
+        float operator[](int index) const;
+        friend PLUTO_API std::ostream& operator<<(std::ostream& os, const Vector4F& vector);
+
+        float GetMagnitude() const;
+        float GetSqrMagnitude() const;
+        Vector4F GetNormalized() const;
+        std::string Str() const;
+
+        static float Distance(const Vector4F& from, const Vector4F& to);
+        static Vector4F Lerp(const Vector4F& from, const Vector4F& to, float t);
+        static Vector4F Max(const Vector4F& lhs, const Vector4F& rhs);
+        static Vector4F Min(const Vector4F& lhs, const Vector4F& rhs);
+        static float Dot(const Vector4F& lhs, const Vector4F& rhs);
+        static Vector4F Scale(const Vector4F& lhs, const Vector4F& rhs);
+    };
+}

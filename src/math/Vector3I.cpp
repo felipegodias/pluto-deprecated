@@ -1,45 +1,33 @@
-#include <pluto/math/vector3int.h>
+#include <pluto/math/vector3i.h>
 
 #include <sstream>
 
 namespace pluto
 {
-    Vector3Int::Vector3Int() : Vector3Int(0)
+    Vector3I::Vector3I() : Vector3I(0)
     {
     }
 
-    Vector3Int::Vector3Int(const int scalar) : Vector3Int(scalar, scalar, scalar)
+    Vector3I::Vector3I(const int scalar) : Vector3I(scalar, scalar, scalar)
     {
     }
 
-    Vector3Int::Vector3Int(const int x, const int y, const int z) : x(x), y(y), z(z)
+    Vector3I::Vector3I(const int x, const int y, const int z) : x(x), y(y), z(z)
     {
     }
 
-    Vector3Int::Vector3Int(const Vector3Int& other) : Vector3Int(other.x, other.y, other.z)
+    Vector3I::Vector3I(const Vector3I& other) : Vector3I(other.x, other.y, other.z)
     {
     }
 
-    Vector3Int::Vector3Int(Vector3Int&& other) noexcept : Vector3Int(other.x, other.y, other.z)
+    Vector3I::Vector3I(Vector3I&& other) noexcept : Vector3I(other.x, other.y, other.z)
     {
     }
 
-    Vector3Int::~Vector3Int() = default;
+    Vector3I::~Vector3I() = default;
 
-    Vector3Int& Vector3Int::operator=(const Vector3Int& rhs)
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
+    Vector3I& Vector3I::operator=(const Vector3I& rhs)
 
-        x = rhs.x;
-        y = rhs.y;
-        z = rhs.z;
-        return *this;
-    }
-
-    Vector3Int& Vector3Int::operator=(Vector3Int&& rhs) noexcept
     {
         if (this == &rhs)
         {
@@ -52,17 +40,30 @@ namespace pluto
         return *this;
     }
 
-    bool Vector3Int::operator==(const Vector3Int& rhs) const
+    Vector3I& Vector3I::operator=(Vector3I&& rhs) noexcept
+    {
+        if (this == &rhs)
+        {
+            return *this;
+        }
+
+        x = rhs.x;
+        y = rhs.y;
+        z = rhs.z;
+        return *this;
+    }
+
+    bool Vector3I::operator==(const Vector3I& rhs) const
     {
         return x == rhs.x && y == rhs.y && z == rhs.z;
     }
 
-    bool Vector3Int::operator!=(const Vector3Int& rhs) const
+    bool Vector3I::operator!=(const Vector3I& rhs) const
     {
         return !(*this == rhs);
     }
 
-    int Vector3Int::operator[](const int index) const
+    int Vector3I::operator[](const int index) const
     {
         switch (index)
         {
@@ -77,13 +78,13 @@ namespace pluto
         }
     }
 
-    std::ostream& operator<<(std::ostream& os, const Vector3Int& vector)
+    std::ostream& operator<<(std::ostream& os, const Vector3I& vector)
     {
         os << "[" << vector.x << "," << vector.y << "," << vector.z << "]";
         return os;
     }
 
-    std::string Vector3Int::Str() const
+    std::string Vector3I::Str() const
     {
         std::stringstream ss;
         ss << *this;
