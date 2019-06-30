@@ -36,9 +36,9 @@ namespace pluto
             ofs.seekp(value, std::ios::beg);
         }
 
-        void Write(const void* ptr, uint64_t size)
+        void Write(const void* ptr, const uint64_t size)
         {
-            ofs.write(reinterpret_cast<const char*>(ptr), std::ios::beg);
+            ofs.write(reinterpret_cast<const char*>(ptr), size);
         }
 
         void Flush()
