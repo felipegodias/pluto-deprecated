@@ -8,8 +8,7 @@
 
 namespace pluto
 {
-    class Asset;
-    class Guid;
+    class FileReader;
 
     /*
      * File layout in disk. (Version 1)
@@ -40,6 +39,7 @@ namespace pluto
             std::unique_ptr<PackageManifestAsset> Create() const;
             std::unique_ptr<PackageManifestAsset> Create(const PackageManifestAsset& original) const;
             std::unique_ptr<PackageManifestAsset> Create(std::istream& is) const;
+            std::unique_ptr<PackageManifestAsset> Create(FileReader& fileReader) const;
         };
 
     private:
@@ -59,6 +59,7 @@ namespace pluto
         const std::string& GetName() const override;
         void SetName(std::string name) override;
         void Dump(std::ostream& os) const override;
+        void Dump(FileWriter& fileWriter) const override;
 
         bool Contains(const std::string& virtualPath) const;
         bool Contains(const Guid& guid) const;

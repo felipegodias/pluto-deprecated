@@ -1,4 +1,6 @@
 #include <pluto/asset/shader_asset.h>
+#include <pluto/file/file_reader.h>
+#include <pluto/file/file_writer.h>
 #include <pluto/guid.h>
 #include <vector>
 
@@ -80,6 +82,40 @@ namespace pluto
             Write(os, binary.data(), binarySize);
 
             os.flush();
+        }
+
+        void Dump(FileWriter& fileWriter) const
+        {
+            fileWriter.Write(&guid, sizeof(Guid));
+            uint8_t serializerVersion = 1;
+            fileWriter.Write(&serializerVersion, sizeof(uint8_t));
+            uint8_t assetType = 1;
+            fileWriter.Write(&assetType, sizeof(uint8_t));
+            fileWriter.Write(&guid, sizeof(Guid));
+            uint8_t assetNameLength = name.size();
+            fileWriter.Write(&assetNameLength, sizeof(uint8_t));
+            fileWriter.Write(name.data(), assetNameLength);
+
+            auto blendFunction = static_cast<uint8_t>(this->blendFunction);
+            fileWriter.Write(&blendFunction, sizeof(uint8_t));
+
+            auto srcBlendFactor = static_cast<uint8_t>(this->srcBlendFactor);
+            fileWriter.Write(&srcBlendFactor, sizeof(uint8_t));
+
+            auto dstBlendFactor = static_cast<uint8_t>(this->dstBlendFactor);
+            fileWriter.Write(&dstBlendFactor, sizeof(uint8_t));
+
+            auto zTest = static_cast<uint8_t>(this->zTest);
+            fileWriter.Write(&zTest, sizeof(uint8_t));
+
+            auto cullMode = static_cast<uint8_t>(this->cullMode);
+            fileWriter.Write(&cullMode, sizeof(uint8_t));
+
+            uint32_t binarySize = binary.size();
+            fileWriter.Write(&binarySize, sizeof(uint32_t));
+            fileWriter.Write(binary.data(), binarySize);
+
+            fileWriter.Flush();
         }
 
         BlendFunction GetBlendFunction() const
@@ -218,6 +254,54 @@ namespace pluto
         return shaderAsset;
     }
 
+    std::unique_ptr<ShaderAsset> ShaderAsset::Factory::Create(FileReader& fileReader) const
+    {
+        Guid signature;
+        fileReader.Read(&signature, sizeof(Guid));
+        uint8_t serializerVersion;
+        fileReader.Read(&serializerVersion, sizeof(uint8_t));
+        uint8_t assetType;
+        fileReader.Read(&assetType, sizeof(uint8_t));
+        Guid assetId;
+        fileReader.Read(&assetId, sizeof(Guid));
+
+        auto shaderAsset = std::make_unique<ShaderAsset>(std::make_unique<Impl>(assetId));
+
+        uint8_t assetNameLength;
+        fileReader.Read(&assetNameLength, sizeof(uint8_t));
+        std::string assetName(assetNameLength, ' ');
+        fileReader.Read(assetName.data(), assetNameLength);
+        shaderAsset->SetName(assetName);
+
+        uint8_t blendFunction;
+        fileReader.Read(&blendFunction, sizeof(uint8_t));
+        shaderAsset->SetBlendFunction(static_cast<BlendFunction>(blendFunction));
+
+        uint8_t srcBlendFactor;
+        fileReader.Read(&srcBlendFactor, sizeof(uint8_t));
+        shaderAsset->SetSrcBlendFactor(static_cast<BlendFactor>(srcBlendFactor));
+
+        uint8_t dstBlendFactor;
+        fileReader.Read(&dstBlendFactor, sizeof(uint8_t));
+        shaderAsset->SetDstBlendFactor(static_cast<BlendFactor>(dstBlendFactor));
+
+        uint8_t zTest;
+        fileReader.Read(&zTest, sizeof(uint8_t));
+        shaderAsset->SetZTest(static_cast<ZTest>(zTest));
+
+        uint8_t cullMode;
+        fileReader.Read(&cullMode, sizeof(uint8_t));
+        shaderAsset->SetCullMode(static_cast<CullMode>(cullMode));
+
+        uint32_t binarySize;
+        fileReader.Read(&binarySize, sizeof(uint32_t));
+        std::vector<uint8_t> binary(binarySize);
+        fileReader.Read(binary.data(), binarySize);
+        shaderAsset->SetBinary(std::move(binary));
+
+        return shaderAsset;
+    }
+
     ShaderAsset::ShaderAsset(std::unique_ptr<Impl> impl) : impl(std::move(impl))
     {
     }
@@ -268,6 +352,11 @@ namespace pluto
     void ShaderAsset::Dump(std::ostream& os) const
     {
         impl->Dump(os);
+    }
+
+    void ShaderAsset::Dump(FileWriter& fileWriter) const
+    {
+        impl->Dump(fileWriter);
     }
 
     ShaderAsset::BlendFunction ShaderAsset::GetBlendFunction() const

@@ -8,6 +8,8 @@
 
 namespace pluto
 {
+    class FileReader;
+
     /*
      * File layout in disk. (Version 1)
      * +--------------+------+------------------------------+
@@ -91,6 +93,7 @@ namespace pluto
             std::unique_ptr<ShaderAsset> Create() const;
             std::unique_ptr<ShaderAsset> Create(const ShaderAsset& original) const;
             std::unique_ptr<ShaderAsset> Create(std::istream& is) const;
+            std::unique_ptr<ShaderAsset> Create(FileReader& fileReader) const;
         };
 
     private:
@@ -110,6 +113,7 @@ namespace pluto
         const std::string& GetName() const override;
         void SetName(std::string name) override;
         void Dump(std::ostream& os) const override;
+        void Dump(FileWriter& fileWriter) const override;
 
         BlendFunction GetBlendFunction() const;
         void SetBlendFunction(BlendFunction value);

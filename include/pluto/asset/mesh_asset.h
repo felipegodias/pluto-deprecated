@@ -10,6 +10,7 @@ namespace pluto
     class Vector2;
     class Vector3;
     class Vector3Int;
+    class FileReader;
 
     /*
      * File layout in disk. (Version 1)
@@ -41,6 +42,7 @@ namespace pluto
             std::unique_ptr<MeshAsset> Create() const;
             std::unique_ptr<MeshAsset> Create(const MeshAsset& original) const;
             std::unique_ptr<MeshAsset> Create(std::istream& is) const;
+            std::unique_ptr<MeshAsset> Create(FileReader& fileReader) const;
         };
 
     private:
@@ -60,6 +62,7 @@ namespace pluto
         const std::string& GetName() const override;
         void SetName(std::string name) override;
         void Dump(std::ostream& os) const override;
+        void Dump(FileWriter& fileWriter) const override;
 
         const std::vector<Vector3>& GetPositions() const;
         void SetPositions(std::vector<Vector3> positions);

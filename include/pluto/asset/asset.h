@@ -7,6 +7,7 @@
 namespace pluto
 {
     class Guid;
+    class FileWriter;
 
     class PLUTO_API Asset
     {
@@ -17,6 +18,7 @@ namespace pluto
         virtual const std::string& GetName() const = 0;
         virtual void SetName(std::string name) = 0;
         virtual void Dump(std::ostream& os) const = 0;
+        virtual void Dump(FileWriter& fileWriter) const = 0;
 
         bool operator==(const Asset& rhs) const;
         bool operator!=(const Asset& rhs) const;

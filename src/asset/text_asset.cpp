@@ -194,6 +194,11 @@ namespace pluto
         impl->Dump(os);
     }
 
+    void TextAsset::Dump(FileWriter& fileWriter) const
+    {
+        impl->Dump(fileWriter);
+    }
+
     const std::string& TextAsset::GetText() const
     {
         return impl->GetText();

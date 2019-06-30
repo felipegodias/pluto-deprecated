@@ -7,7 +7,6 @@
 
 namespace pluto
 {
-    class FileWriter;
     class FileReader;
 
     /*
@@ -56,7 +55,7 @@ namespace pluto
         const std::string& GetName() const override;
         void SetName(std::string name) override;
         void Dump(std::ostream& os) const override;
-        void Dump(FileWriter& fileWriter) const;
+        void Dump(FileWriter& fileWriter) const override;
 
         const std::string& GetText() const;
         void SetText(std::string text);
