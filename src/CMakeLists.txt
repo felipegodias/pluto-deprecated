@@ -4,6 +4,7 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/guid.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/regex.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/root.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/stack_trace.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/stop_watch.cpp
     # ./asset
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/asset.cpp
