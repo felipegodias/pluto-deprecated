@@ -1,5 +1,6 @@
-#include "text/text_asset_menu.h"
 #include "mesh/mesh_asset_menu.h"
+#include "shader/shader_asset_menu.h"
+#include "text/text_asset_menu.h"
 
 #include <iostream>
 
@@ -30,6 +31,7 @@ int main(int argc, char* argv[])
             pluto::MeshAssetMenu();
             break;
         case 3:
+            pluto::ShaderAssetMenu();
             break;
         default:
             std::cout << "Invalid option." << std::endl;
