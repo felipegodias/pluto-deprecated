@@ -69,6 +69,23 @@ namespace pluto
             auto cullMode = static_cast<uint8_t>(this->cullMode);
             fileWriter.Write(&cullMode, sizeof(uint8_t));
 
+            uint8_t propertiesCount = properties.size();
+            fileWriter.Write(&propertiesCount, sizeof(uint8_t));
+
+            for (const auto& property : properties)
+            {
+                fileWriter.Write(&property.id, sizeof(uint8_t));
+
+                uint8_t propertyNameSize = property.name.size();
+                fileWriter.Write(&propertyNameSize, sizeof(uint8_t));
+                fileWriter.Write(property.name.data(), propertyNameSize);
+
+                auto propertyType = static_cast<uint8_t>(property.type);
+                fileWriter.Write(&propertyType, sizeof(uint8_t));
+            }
+
+            fileWriter.Write(&binaryFormat, sizeof(uint32_t));
+
             uint32_t binarySize = binary.size();
             fileWriter.Write(&binarySize, sizeof(uint32_t));
             fileWriter.Write(binary.data(), binarySize);
@@ -164,6 +181,8 @@ namespace pluto
             dstBlendFactor = other.dstBlendFactor;
             zTest = other.zTest;
             cullMode = other.cullMode;
+            properties = other.properties;
+            binaryFormat = other.binaryFormat;
             binary = other.binary;
         }
     };
@@ -222,6 +241,26 @@ namespace pluto
         uint8_t cullMode;
         fileReader.Read(&cullMode, sizeof(uint8_t));
         shaderAsset->SetCullMode(static_cast<CullMode>(cullMode));
+
+        uint8_t propertyCount;
+        fileReader.Read(&propertyCount, sizeof(uint8_t));
+        std::vector<Property> properties(propertyCount);
+        for (int i = 0; i < propertyCount; ++i)
+        {
+            fileReader.Read(&properties[i].id, sizeof(uint8_t));
+            uint8_t propertyNameSize;
+            fileReader.Read(&propertyNameSize, sizeof(uint8_t));
+            properties[i].name = std::string(propertyNameSize, ' ');
+            fileReader.Read(properties[i].name.data(), propertyNameSize);
+            uint8_t propertyType;
+            fileReader.Read(&propertyType, sizeof(uint8_t));
+            properties[i].type = static_cast<Property::Type>(propertyType);
+        }
+        shaderAsset->SetProperties(std::move(properties));
+
+        uint32_t binaryFormat;
+        fileReader.Read(&binaryFormat, sizeof(uint32_t));
+        shaderAsset->SetBinaryFormat(binaryFormat);
 
         uint32_t binarySize;
         fileReader.Read(&binarySize, sizeof(uint32_t));
