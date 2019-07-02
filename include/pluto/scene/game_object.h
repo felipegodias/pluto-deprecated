@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../di/base_factory.h"
-#include "../guid.h"
 
 #include <memory>
 #include <string>
@@ -9,6 +8,7 @@
 
 namespace pluto
 {
+    class Guid;
     class Transform;
     class Component;
 
@@ -60,6 +60,5 @@ namespace pluto
         void Destroy();
 
         void Update();
-        void PostUpdate();
     };
 }

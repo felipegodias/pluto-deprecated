@@ -1,12 +1,12 @@
 #pragma once
 
 #include "../di/base_factory.h"
-#include "../guid.h"
 
 #include <memory>
 
 namespace pluto
 {
+    class Guid;
     class GameObject;
     class Vector3F;
     class Quaternion;
