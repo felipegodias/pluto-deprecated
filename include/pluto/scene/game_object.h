@@ -37,7 +37,7 @@ namespace pluto
         Transform& GetTransform() const;
 
         GameObject* GetParent() const;
-        void SetParent(GameObject* value) const;
+        void SetParent(GameObject* value);
 
         GameObject& GetChild(int index);
         const std::vector<GameObject>& GetChildren() const;
@@ -59,7 +59,7 @@ namespace pluto
 
         void Destroy();
 
-        void OnUpdate();
-        void OnPostUpdate();
+        void Update();
+        void PostUpdate();
     };
 }

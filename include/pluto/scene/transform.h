@@ -40,24 +40,23 @@ namespace pluto
         const Vector3F& GetLocalScale() const;
         void SetLocalScale(Vector3F value);
 
-        const Vector3F& GetPosition() const;
+        const Vector3F& GetPosition();
         void SetPosition(Vector3F value);
 
-        const Quaternion& GetRotation() const;
+        const Quaternion& GetRotation();
         void SetRotation(Quaternion value);
 
-        const Vector3F& GetScale() const;
+        const Vector3F& GetScale();
         void SetScale(Vector3F value);
 
-        const Vector3F& GetUp() const;
-        const Vector3F& GetDown() const;
-        const Vector3F& GetRight() const;
-        const Vector3F& GetLeft() const;
-        const Vector3F& GetForward() const;
-        const Vector3F& GetBack() const;
+        const Vector3F& GetUp();
+        const Vector3F& GetDown();
+        const Vector3F& GetRight();
+        const Vector3F& GetLeft();
+        const Vector3F& GetForward();
+        const Vector3F& GetBack();
 
-        const Matrix4 GetLocalToWorld() const;
-
-        void Update(bool isDirty);
+        const Matrix4& GetLocalMatrix();
+        const Matrix4& GetWorldMatrix();
     };
 }
