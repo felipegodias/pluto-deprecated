@@ -27,6 +27,14 @@ namespace pluto
         std::unique_ptr<Impl> impl;
 
     public:
+        explicit Transform(std::unique_ptr<Impl> impl);
+        Transform(const Transform& other) = delete;
+        Transform(Transform&& other) noexcept;
+        ~Transform();
+
+        Transform& operator=(const Transform& rhs) = delete;
+        Transform& operator=(Transform&& rhs) noexcept;
+
         const Guid& GetId() const;
 
         GameObject& GetGameObject() const;
@@ -40,21 +48,21 @@ namespace pluto
         const Vector3F& GetLocalScale() const;
         void SetLocalScale(Vector3F value);
 
-        const Vector3F& GetPosition();
-        void SetPosition(Vector3F value);
+        Vector3F GetPosition();
+        void SetPosition(const Vector3F& value);
 
-        const Quaternion& GetRotation();
-        void SetRotation(Quaternion value);
+        Quaternion GetRotation();
+        void SetRotation(const Quaternion& value);
 
-        const Vector3F& GetScale();
-        void SetScale(Vector3F value);
+        Vector3F GetScale();
+        void SetScale(const Vector3F& value);
 
-        const Vector3F& GetUp();
-        const Vector3F& GetDown();
-        const Vector3F& GetRight();
-        const Vector3F& GetLeft();
-        const Vector3F& GetForward();
-        const Vector3F& GetBack();
+        Vector3F GetUp();
+        Vector3F GetDown();
+        Vector3F GetRight();
+        Vector3F GetLeft();
+        Vector3F GetForward();
+        Vector3F GetBack();
 
         const Matrix4& GetLocalMatrix();
         const Matrix4& GetWorldMatrix();
