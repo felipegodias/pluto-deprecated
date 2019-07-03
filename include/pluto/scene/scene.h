@@ -31,11 +31,13 @@ namespace pluto
 
         ~Scene();
 
-        Scene& operator=(const Scene& other) = delete;
-        Scene& operator=(Scene&& other) noexcept;
+        Scene& operator=(const Scene& rhs) = delete;
+        Scene& operator=(Scene&& rhs) noexcept;
 
         const Guid& GetId() const;
 
         GameObject& GetRootGameObject() const;
+
+        void Destroy();
     };
 }

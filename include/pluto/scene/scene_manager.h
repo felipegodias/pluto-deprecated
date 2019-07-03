@@ -6,6 +6,8 @@
 
 namespace pluto
 {
+    class Scene;
+
     class PLUTO_API SceneManager final : public Singleton
     {
     public:
@@ -29,6 +31,8 @@ namespace pluto
 
         SceneManager& operator=(const SceneManager& rhs) = delete;
         SceneManager& operator=(SceneManager&& rhs) noexcept;
+
+        Scene& GetActiveScene() const;
 
         void LoadEmptyScene();
     };
