@@ -18,6 +18,12 @@ namespace pluto
     class PLUTO_API GameObject
     {
     public:
+        enum class Flags
+        {
+            None = 0,
+            Static = 1,
+        };
+
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
@@ -39,17 +45,24 @@ namespace pluto
         GameObject& operator=(const GameObject& rhs) = delete;
         GameObject& operator=(GameObject&& rhs) noexcept;
 
+        bool operator==(const GameObject& rhs) const;
+        bool operator!=(const GameObject& rhs) const;
+
         const Guid& GetId() const;
-        std::string GetName() const;
-        void SetName(std::string name);
+        const std::string& GetName() const;
+        void SetName(std::string value);
+
+        Flags GetFlags() const;
 
         Transform& GetTransform() const;
 
         GameObject& GetParent() const;
         void SetParent(GameObject& value);
 
+        uint32_t GetChildCount() const;
+
         GameObject& GetChild(int index);
-        const std::vector<GameObject>& GetChildren() const;
+        std::vector<GameObject&> GetChildren() const;
 
         template <typename T, IsComponent<T>  = 0>
         T& AddComponent();
@@ -68,7 +81,7 @@ namespace pluto
 
         void Destroy();
 
-        void OnUpdate();
+        void OnUpdate(uint32_t currentFrame);
         void OnRender();
     };
 }

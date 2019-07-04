@@ -1,5 +1,6 @@
 #pragma once
 
+#include "component.h"
 #include "../di/base_factory.h"
 
 #include <memory>
@@ -12,14 +13,14 @@ namespace pluto
     class Quaternion;
     class Matrix4;
 
-    class PLUTO_API Transform
+    class PLUTO_API Transform final : public Component
     {
     public:
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
             explicit Factory(DiContainer& diContainer);
-            std::unique_ptr<Transform> Create() const;
+            std::unique_ptr<Transform> Create(GameObject& gameObject) const;
         };
 
     private:
@@ -35,9 +36,9 @@ namespace pluto
         Transform& operator=(const Transform& rhs) = delete;
         Transform& operator=(Transform&& rhs) noexcept;
 
-        const Guid& GetId() const;
+        const Guid& GetId() const override;
 
-        GameObject& GetGameObject() const;
+        GameObject& GetGameObject() const override;
 
         const Vector3F& GetLocalPosition() const;
         void SetLocalPosition(Vector3F value);
@@ -66,5 +67,11 @@ namespace pluto
 
         const Matrix4& GetLocalMatrix();
         const Matrix4& GetWorldMatrix();
+
+        void Destroy() override;
+
+        void OnUpdate() override;
+        void OnRender() override;
+        void OnDestroy() override;
     };
 }
