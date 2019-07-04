@@ -18,6 +18,7 @@
 #include <pluto/event/on_startup_event.h>
 #include <pluto/window/window_manager.h>
 #include <pluto/simulation/simulation_manager.h>
+#include <pluto/scene/scene_manager.h>
 
 #include <pluto/asset/asset_manager.h>
 #include <pluto/asset/mesh_asset.h>
@@ -102,6 +103,8 @@ namespace pluto
                 eventManager.Dispatch(OnStartupEvent());
                 auto& assetManager = diContainer->GetSingleton<AssetManager>();
                 assetManager.LoadPackage("main");
+                auto& sceneManager = diContainer->GetSingleton<SceneManager>();
+                sceneManager.LoadEmptyScene();
             }
 
             while (windowManager.IsOpen())

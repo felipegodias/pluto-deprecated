@@ -26,7 +26,7 @@ namespace pluto
 
     public:
         Impl(const Scene::Factory& sceneFactory, EventManager& eventManager, LogManager& logManager) :
-            sceneFactory(sceneFactory), eventManager(eventManager), logManager(logManager)
+            sceneFactory(sceneFactory), eventManager(eventManager), logManager(logManager), currentFrame(0)
         {
             static Impl* instance = this;
             onUpdateEventId = eventManager.Subscribe<OnUpdateEvent>([&](const OnUpdateEvent& evt)
@@ -61,11 +61,11 @@ namespace pluto
     private:
         void OnUpdate(const OnUpdateEvent& evt)
         {
+            ++currentFrame;
             if (activeScene != nullptr)
             {
                 activeScene->GetRootGameObject().OnUpdate(currentFrame);
             }
-            ++currentFrame;
         }
     };
 

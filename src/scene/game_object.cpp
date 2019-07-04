@@ -31,7 +31,7 @@ namespace pluto
         Impl(Guid guid, const Transform::Factory& transformFactory) : guid(std::move(guid)),
                                                                       flags(Flags::None), me(nullptr),
                                                                       parent(nullptr), transform(nullptr),
-                                                                      isDestroyed(false)
+                                                                      isDestroyed(false), lastFrame(0)
         {
             componentFactories.emplace(typeid(Transform), transformFactory);
         }
