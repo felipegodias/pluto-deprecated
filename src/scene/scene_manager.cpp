@@ -1,6 +1,13 @@
 #include <pluto/scene/scene_manager.h>
-#include <pluto/scene/scene.h>
 
+#include <pluto/event/event_manager.h>
+#include <pluto/simulation/on_update_event.h>
+#include <pluto/log/log_manager.h>
+
+#include <pluto/scene/scene.h>
+#include <pluto/scene/game_object.h>
+
+#include <pluto/guid.h>
 #include <pluto/di/di_container.h>
 
 namespace pluto
@@ -9,11 +16,31 @@ namespace pluto
     {
     private:
         std::unique_ptr<Scene> activeScene;
+
+        Guid onUpdateEventId;
+
         const Scene::Factory& sceneFactory;
+        EventManager& eventManager;
+        LogManager& logManager;
+        uint32_t currentFrame;
 
     public:
-        explicit Impl(const Scene::Factory& sceneFactory) : sceneFactory(sceneFactory)
+        Impl(const Scene::Factory& sceneFactory, EventManager& eventManager, LogManager& logManager) :
+            sceneFactory(sceneFactory), eventManager(eventManager), logManager(logManager)
         {
+            static Impl* instance = this;
+            onUpdateEventId = eventManager.Subscribe<OnUpdateEvent>([&](const OnUpdateEvent& evt)
+            {
+                instance->OnUpdate(evt);
+            });
+
+            logManager.LogInfo("SceneManager initialized!");
+        }
+
+        ~Impl()
+        {
+            eventManager.Unsubscribe<OnUpdateEvent>(onUpdateEventId);
+            logManager.LogInfo("SceneManager terminated!");
         }
 
         Scene& GetActiveScene() const
@@ -30,6 +57,16 @@ namespace pluto
 
             activeScene = sceneFactory.Create();
         }
+
+    private:
+        void OnUpdate(const OnUpdateEvent& evt)
+        {
+            if (activeScene != nullptr)
+            {
+                activeScene->GetRootGameObject().OnUpdate(currentFrame);
+            }
+            ++currentFrame;
+        }
     };
 
     SceneManager::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
@@ -39,7 +76,9 @@ namespace pluto
     std::unique_ptr<SceneManager> SceneManager::Factory::Create() const
     {
         auto& sceneFactory = diContainer.GetSingleton<Scene::Factory>();
-        return std::make_unique<SceneManager>(std::make_unique<Impl>(sceneFactory));
+        auto& eventManager = diContainer.GetSingleton<EventManager>();
+        auto& logManager = diContainer.GetSingleton<LogManager>();
+        return std::make_unique<SceneManager>(std::make_unique<Impl>(sceneFactory, eventManager, logManager));
     }
 
     SceneManager::SceneManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
