@@ -9,6 +9,7 @@
 #include <pluto/input/input_installer.h>
 #include <pluto/simulation/simulation_installer.h>
 #include <pluto/asset/asset_installer.h>
+#include <pluto/scene/scene_installer.h>
 
 #include <pluto/log/log_manager.h>
 #include <pluto/input/input_manager.h>
@@ -70,6 +71,7 @@ namespace pluto
             InputInstaller::Install(*diContainer);
             SimulationInstaller::Install(*diContainer);
             AssetInstaller::Install(*diContainer);
+            SceneInstaller::Install(*diContainer);
 
             auto& logManager = diContainer->GetSingleton<LogManager>();
             logManager.LogInfo("Pluto Engine Initialized!");
@@ -77,6 +79,7 @@ namespace pluto
 
         ~Impl()
         {
+            SceneInstaller::Uninstall(*diContainer);
             AssetInstaller::Uninstall(*diContainer);
             SimulationInstaller::Uninstall(*diContainer);
             InputInstaller::Uninstall(*diContainer);

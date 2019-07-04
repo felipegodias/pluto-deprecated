@@ -67,11 +67,5 @@ namespace pluto
 
         const Matrix4& GetLocalMatrix();
         const Matrix4& GetWorldMatrix();
-
-        void Destroy() override;
-
-        void OnUpdate() override;
-        void OnRender() override;
-        void OnDestroy() override;
     };
 }

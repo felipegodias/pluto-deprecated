@@ -43,6 +43,13 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/math/vector3f.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/vector3i.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/vector4f.cpp
+    # ./scene
+    ${CMAKE_CURRENT_SOURCE_DIR}/scene/component.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/scene/game_object.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/scene/scene.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/scene/scene_installer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/scene/scene_manager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/scene/transform.cpp
     # ./simulation
     ${CMAKE_CURRENT_SOURCE_DIR}/simulation/simulation_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/simulation/simulation_manager.cpp

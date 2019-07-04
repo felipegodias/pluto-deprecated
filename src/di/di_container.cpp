@@ -1,19 +1,32 @@
 #include <pluto/di/di_container.h>
 #include <pluto/di/singleton.h>
+
 #include <pluto/log/log_manager.h>
+
 #include <pluto/config/config_manager.h>
+
 #include <pluto/file/file_manager.h>
 #include <pluto/file/file_reader.h>
 #include <pluto/file/file_writer.h>
+
 #include <pluto/event/event_manager.h>
+
 #include <pluto/window/window_manager.h>
+
 #include <pluto/input/input_manager.h>
+
 #include <pluto/simulation/simulation_manager.h>
+
 #include <pluto/asset/asset_manager.h>
 #include <pluto/asset/package_manifest_asset.h>
 #include <pluto/asset/text_asset.h>
 #include <pluto/asset/mesh_asset.h>
 #include <pluto/asset/shader_asset.h>
+
+#include <pluto/scene/scene_manager.h>
+#include <pluto/scene/scene.h>
+#include <pluto/scene/game_object.h>
+#include <pluto/scene/transform.h>
 
 #include <unordered_map>
 #include <typeindex>
@@ -128,4 +141,21 @@ namespace pluto
     template ShaderAsset::Factory& DiContainer::AddSingleton(std::unique_ptr<ShaderAsset::Factory> instance);
     template void DiContainer::RemoveSingleton<ShaderAsset::Factory>();
     template ShaderAsset::Factory& DiContainer::GetSingleton() const;
+
+    template SceneManager& DiContainer::AddSingleton(std::unique_ptr<SceneManager> instance);
+    template void DiContainer::RemoveSingleton<SceneManager>();
+    template SceneManager& DiContainer::GetSingleton() const;
+
+    template Scene::Factory& DiContainer::AddSingleton(std::unique_ptr<Scene::Factory> instance);
+    template void DiContainer::RemoveSingleton<Scene::Factory>();
+    template Scene::Factory& DiContainer::GetSingleton() const;
+
+    template GameObject::Factory& DiContainer::AddSingleton(std::unique_ptr<GameObject::Factory> instance);
+    template void DiContainer::RemoveSingleton<GameObject::Factory>();
+    template GameObject::Factory& DiContainer::GetSingleton() const;
+
+    template Transform::Factory& DiContainer::AddSingleton(std::unique_ptr<Transform::Factory> instance);
+    template void DiContainer::RemoveSingleton<Transform::Factory>();
+    template Transform::Factory& DiContainer::GetSingleton() const;
+
 }

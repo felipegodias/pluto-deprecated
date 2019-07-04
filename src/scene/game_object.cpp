@@ -62,17 +62,22 @@ namespace pluto
             return flags;
         }
 
-        Transform& GameObject::GetTransform() const
+        bool IsRoot() const
+        {
+            return parent == nullptr;
+        }
+
+        Transform& GetTransform() const
         {
             return *transform;
         }
 
-        GameObject& GameObject::GetParent() const
+        GameObject& GetParent() const
         {
             return *parent;
         }
 
-        void GameObject::SetParent(GameObject& value)
+        void SetParent(GameObject& value)
         {
             if (flags == Flags::Static || isDestroyed || value.impl->isDestroyed)
             {
@@ -89,24 +94,23 @@ namespace pluto
             return children.size();
         }
 
-        GameObject& GameObject::GetChild(const int index)
+        GameObject& GetChild(const int index)
         {
             return *children[index];
         }
 
-        std::vector<GameObject&> GameObject::GetChildren() const
+        std::vector<GameObject*> GetChildren() const
         {
-            std::vector<GameObject&> result;
+            std::vector<GameObject*> result(children.size());
             for (int i = 0; i < children.size(); ++i)
             {
-                GameObject& child = *children[i];
-                result.emplace_back(child);
+                result[i] = children[i].get();
             }
             return result;
         }
 
         template <typename T, IsComponent<T>  = 0>
-        T& GameObject::AddComponent()
+        T& AddComponent()
         {
             const auto& factory = static_cast<const typename T::Factory&>(componentFactories.at(typeid(T)));
             std::unique_ptr<T> componentPtr = factory.Create(*me);
@@ -116,7 +120,7 @@ namespace pluto
         }
 
         template <typename T, IsComponent<T>  = 0>
-        T* GameObject::GetComponent() const
+        T* GetComponent() const
         {
             for (auto& component : components)
             {
@@ -130,22 +134,22 @@ namespace pluto
         }
 
         template <typename T, IsComponent<T>  = 0>
-        std::vector<T&> GameObject::GetComponents() const
+        std::vector<T*> GetComponents() const
         {
-            std::vector<T&> result;
+            std::vector<T*> result;
             for (auto& component : components)
             {
                 T* obj = dynamic_cast<T*>(component.get());
                 if (result != nullptr)
                 {
-                    result.emplace_back(*obj);
+                    result.push_back(obj);
                 }
             }
             return result;
         }
 
         template <typename T, IsComponent<T>  = 0>
-        T* GameObject::GetComponentInChildren() const
+        T* GetComponentInChildren() const
         {
             T* result = GetComponent<T>();
             if (result != nullptr)
@@ -165,7 +169,7 @@ namespace pluto
         }
 
         template <typename T, IsComponent<T>  = 0>
-        std::vector<T&> GameObject::GetComponentsInChildren() const
+        std::vector<T&> GetComponentsInChildren() const
         {
             std::vector<T&> result = GetComponents<T>();
             for (auto& child : children)
@@ -176,7 +180,7 @@ namespace pluto
             return result;
         }
 
-        void GameObject::Destroy()
+        void Destroy()
         {
             if (isDestroyed)
             {
@@ -187,7 +191,7 @@ namespace pluto
 
             for (auto& component : components)
             {
-                component->Destroy();
+                component->OnDestroy();
             }
 
             for (auto& child : children)
@@ -196,7 +200,7 @@ namespace pluto
             }
         }
 
-        void GameObject::OnUpdate(const uint32_t currentFrame)
+        void OnUpdate(const uint32_t currentFrame)
         {
             // Only run update if the object was not destroyed or already updated in the current frame.
             if (isDestroyed || lastFrame >= currentFrame)
@@ -215,7 +219,7 @@ namespace pluto
                 // Uses a copy of the children because the parent can be changed while in update.
                 for (auto& child : GetChildren())
                 {
-                    child.OnUpdate(currentFrame);
+                    child->OnUpdate(currentFrame);
                 }
             }
 
@@ -228,7 +232,7 @@ namespace pluto
             // myPtr scoped out and die.
         }
 
-        void GameObject::OnRender()
+        void OnRender()
         {
             for (auto& component : components)
             {
@@ -324,6 +328,11 @@ namespace pluto
         return impl->GetFlags();
     }
 
+    bool GameObject::IsRoot() const
+    {
+        return impl->IsRoot();
+    }
+
     Transform& GameObject::GetTransform() const
     {
         return impl->GetTransform();
@@ -349,7 +358,7 @@ namespace pluto
         return impl->GetChild(index);
     }
 
-    std::vector<GameObject&> GameObject::GetChildren() const
+    std::vector<GameObject*> GameObject::GetChildren() const
     {
         return impl->GetChildren();
     }
@@ -367,7 +376,7 @@ namespace pluto
     }
 
     template <typename T, IsComponent<T>>
-    std::vector<T&> GameObject::GetComponents() const
+    std::vector<T*> GameObject::GetComponents() const
     {
         return impl->GetComponents<T>();
     }
