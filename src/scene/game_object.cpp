@@ -85,8 +85,7 @@ namespace pluto
             }
 
             std::unique_ptr<GameObject> myPtr = parent->impl->RemoveAndGetChildPtr(*me);
-            parent = &value;
-            parent->impl->children.push_back(std::move(myPtr));
+            parent->AddChild(std::move(myPtr));
         }
 
         uint32_t GetChildCount() const
@@ -102,11 +101,18 @@ namespace pluto
         std::vector<std::reference_wrapper<GameObject>> GetChildren() const
         {
             std::vector<std::reference_wrapper<GameObject>> result;
-            for (uint32_t i = 0; i < children.size(); ++i)
+            for (const auto& i : children)
             {
-                result[i] = *children[i];
+                result.emplace_back(*i);
             }
             return result;
+        }
+
+        GameObject& AddChild(std::unique_ptr<GameObject> child)
+        {
+            child->impl->parent = me;
+            children.push_back(std::move(child));
+            return *children[children.size() - 1];
         }
 
         template <typename T, IsComponent<T>  = 0>
@@ -364,6 +370,11 @@ namespace pluto
         return impl->GetChildren();
     }
 
+    GameObject& GameObject::AddChild(std::unique_ptr<GameObject> child)
+    {
+        return impl->AddChild(std::move(child));
+    }
+
     template <typename T, IsComponent<T>>
     T& GameObject::AddComponent()
     {
@@ -377,7 +388,7 @@ namespace pluto
     }
 
     template <typename T, IsComponent<T>>
-    std::vector< std::reference_wrapper<T>> GameObject::GetComponents() const
+    std::vector<std::reference_wrapper<T>> GameObject::GetComponents() const
     {
         return impl->GetComponents<T>();
     }
@@ -389,7 +400,7 @@ namespace pluto
     }
 
     template <typename T, IsComponent<T>>
-    std::vector< std::reference_wrapper<T>> GameObject::GetComponentsInChildren() const
+    std::vector<std::reference_wrapper<T>> GameObject::GetComponentsInChildren() const
     {
         return impl->GetComponentsInChildren<T>();
     }

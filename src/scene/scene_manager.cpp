@@ -9,6 +9,7 @@
 
 #include <pluto/guid.h>
 #include <pluto/di/di_container.h>
+#include <pluto/scene/game_object.h>
 
 namespace pluto
 {
@@ -20,13 +21,19 @@ namespace pluto
         Guid onUpdateEventId;
 
         const Scene::Factory& sceneFactory;
+        const GameObject::Factory& gameObjectFactory;
+
         EventManager& eventManager;
         LogManager& logManager;
+
         uint32_t currentFrame;
 
     public:
-        Impl(const Scene::Factory& sceneFactory, EventManager& eventManager, LogManager& logManager) :
-            sceneFactory(sceneFactory), eventManager(eventManager), logManager(logManager), currentFrame(0)
+        Impl(const Scene::Factory& sceneFactory, const GameObject::Factory& gameObjectFactory,
+             EventManager& eventManager, LogManager& logManager) : sceneFactory(sceneFactory),
+                                                                   gameObjectFactory(gameObjectFactory),
+                                                                   eventManager(eventManager), logManager(logManager),
+                                                                   currentFrame(0)
         {
             static Impl* instance = this;
             onUpdateEventId = eventManager.Subscribe<OnUpdateEvent>([&](const OnUpdateEvent& evt)
@@ -58,6 +65,28 @@ namespace pluto
             activeScene = sceneFactory.Create();
         }
 
+        GameObject& CreateGameObject()
+        {
+            return CreateGameObject(activeScene->GetRootGameObject(), "");
+        }
+
+        GameObject& CreateGameObject(std::string name)
+        {
+            return CreateGameObject(activeScene->GetRootGameObject(), std::move(name));
+        }
+
+        GameObject& CreateGameObject(GameObject& parent)
+        {
+            return CreateGameObject(parent, "");
+        }
+
+        GameObject& CreateGameObject(GameObject& parent, std::string name)
+        {
+            std::unique_ptr<GameObject> gameObject = gameObjectFactory.Create();
+            gameObject->SetName(std::move(name));
+            return parent.AddChild(std::move(gameObject));
+        }
+
     private:
         void OnUpdate(const OnUpdateEvent& evt)
         {
@@ -76,9 +105,11 @@ namespace pluto
     std::unique_ptr<SceneManager> SceneManager::Factory::Create() const
     {
         auto& sceneFactory = diContainer.GetSingleton<Scene::Factory>();
+        auto& gameObjectFactory = diContainer.GetSingleton<GameObject::Factory>();
         auto& eventManager = diContainer.GetSingleton<EventManager>();
         auto& logManager = diContainer.GetSingleton<LogManager>();
-        return std::make_unique<SceneManager>(std::make_unique<Impl>(sceneFactory, eventManager, logManager));
+        return std::make_unique<SceneManager>(
+            std::make_unique<Impl>(sceneFactory, gameObjectFactory, eventManager, logManager));
     }
 
     SceneManager::SceneManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
@@ -110,5 +141,25 @@ namespace pluto
     void SceneManager::LoadEmptyScene()
     {
         return impl->LoadEmptyScene();
+    }
+
+    GameObject& SceneManager::CreateGameObject()
+    {
+        return impl->CreateGameObject();
+    }
+
+    GameObject& SceneManager::CreateGameObject(std::string name)
+    {
+        return impl->CreateGameObject(std::move(name));
+    }
+
+    GameObject& SceneManager::CreateGameObject(GameObject& parent)
+    {
+        return impl->CreateGameObject(parent);
+    }
+
+    GameObject& SceneManager::CreateGameObject(GameObject& parent, std::string name)
+    {
+        return impl->CreateGameObject(parent, std::move(name));
     }
 }

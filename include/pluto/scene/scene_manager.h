@@ -3,10 +3,12 @@
 #include "../di/singleton.h"
 #include "../di/base_factory.h"
 #include <memory>
+#include <string>
 
 namespace pluto
 {
     class Scene;
+    class GameObject;
 
     class PLUTO_API SceneManager final : public Singleton
     {
@@ -35,5 +37,10 @@ namespace pluto
         Scene& GetActiveScene() const;
 
         void LoadEmptyScene();
+
+        GameObject& CreateGameObject();
+        GameObject& CreateGameObject(std::string name);
+        GameObject& CreateGameObject(GameObject& parent);
+        GameObject& CreateGameObject(GameObject& parent, std::string name);
     };
 }
