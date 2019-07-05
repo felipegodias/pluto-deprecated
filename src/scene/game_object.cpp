@@ -31,7 +31,7 @@ namespace pluto
         Impl(Guid guid, const Transform::Factory& transformFactory) : guid(std::move(guid)),
                                                                       flags(Flags::None), me(nullptr),
                                                                       parent(nullptr), transform(nullptr),
-                                                                      isDestroyed(false), lastFrame(0)
+                                                                      lastFrame(0), isDestroyed(false)
         {
             componentFactories.emplace(typeid(Transform), transformFactory);
         }
@@ -99,12 +99,12 @@ namespace pluto
             return *children[index];
         }
 
-        std::vector<GameObject*> GetChildren() const
+        std::vector<std::reference_wrapper<GameObject>> GetChildren() const
         {
-            std::vector<GameObject*> result(children.size());
-            for (int i = 0; i < children.size(); ++i)
+            std::vector<std::reference_wrapper<GameObject>> result;
+            for (uint32_t i = 0; i < children.size(); ++i)
             {
-                result[i] = children[i].get();
+                result[i] = *children[i];
             }
             return result;
         }
@@ -134,15 +134,15 @@ namespace pluto
         }
 
         template <typename T, IsComponent<T>  = 0>
-        std::vector<T*> GetComponents() const
+        std::vector<std::reference_wrapper<T>> GetComponents() const
         {
-            std::vector<T*> result;
+            std::vector<std::reference_wrapper<T>> result;
             for (auto& component : components)
             {
                 T* obj = dynamic_cast<T*>(component.get());
                 if (result != nullptr)
                 {
-                    result.push_back(obj);
+                    result.push_back(*obj);
                 }
             }
             return result;
@@ -169,13 +169,13 @@ namespace pluto
         }
 
         template <typename T, IsComponent<T>  = 0>
-        std::vector<T&> GetComponentsInChildren() const
+        std::vector<std::reference_wrapper<T>> GetComponentsInChildren() const
         {
-            std::vector<T&> result = GetComponents<T>();
+            std::vector<std::reference_wrapper<T>> result = GetComponents<T>();
             for (auto& child : children)
             {
-                std::vector<T&> componentsFromChild = child->GetComponentInChildren<T>();
-                result.insert(componentsFromChild.begin(), componentsFromChild.end());
+                std::vector<std::reference_wrapper<T>> componentsFromChild = child->GetComponentInChildren<T>();
+                result.insert(result.end(), componentsFromChild.begin(), componentsFromChild.end());
             }
             return result;
         }
@@ -219,7 +219,8 @@ namespace pluto
                 // Uses a copy of the children because the parent can be changed while in update.
                 for (auto& child : GetChildren())
                 {
-                    child->OnUpdate(currentFrame);
+                    GameObject& gameObject = child;
+                    gameObject.OnUpdate(currentFrame);
                 }
             }
 
@@ -358,7 +359,7 @@ namespace pluto
         return impl->GetChild(index);
     }
 
-    std::vector<GameObject*> GameObject::GetChildren() const
+    std::vector<std::reference_wrapper<GameObject>> GameObject::GetChildren() const
     {
         return impl->GetChildren();
     }
@@ -376,7 +377,7 @@ namespace pluto
     }
 
     template <typename T, IsComponent<T>>
-    std::vector<T*> GameObject::GetComponents() const
+    std::vector< std::reference_wrapper<T>> GameObject::GetComponents() const
     {
         return impl->GetComponents<T>();
     }
@@ -388,7 +389,7 @@ namespace pluto
     }
 
     template <typename T, IsComponent<T>>
-    std::vector<T&> GameObject::GetComponentsInChildren() const
+    std::vector< std::reference_wrapper<T>> GameObject::GetComponentsInChildren() const
     {
         return impl->GetComponentsInChildren<T>();
     }

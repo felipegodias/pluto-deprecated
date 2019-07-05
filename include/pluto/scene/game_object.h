@@ -63,7 +63,7 @@ namespace pluto
         uint32_t GetChildCount() const;
 
         GameObject& GetChild(int index);
-        std::vector<GameObject*> GetChildren() const;
+        std::vector<std::reference_wrapper<GameObject>> GetChildren() const;
 
         template <typename T, IsComponent<T>  = 0>
         T& AddComponent();
@@ -72,13 +72,13 @@ namespace pluto
         T* GetComponent() const;
 
         template <typename T, IsComponent<T>  = 0>
-        std::vector<T*> GetComponents() const;
+        std::vector<std::reference_wrapper<T>> GetComponents() const;
 
         template <typename T, IsComponent<T>  = 0>
         T* GetComponentInChildren() const;
 
         template <typename T, IsComponent<T>  = 0>
-        std::vector<T&> GetComponentsInChildren() const;
+        std::vector<std::reference_wrapper<T>> GetComponentsInChildren() const;
 
         void Destroy();
 
