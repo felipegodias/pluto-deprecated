@@ -1,5 +1,6 @@
 #include <pluto/asset/asset_manager.h>
 #include <pluto/file/file_manager.h>
+
 #include <pluto/file/file_reader.h>
 
 #include <pluto/di/di_container.h>
@@ -11,6 +12,9 @@
 #include <pluto/asset/mesh_asset.h>
 #include <pluto/asset/shader_asset.h>
 #include <pluto/exception.h>
+
+#include <pluto/event/event_manager.h>
+#include <pluto/asset/events/on_asset_unload.h>
 
 #include <string>
 #include <fmt/ostream.h>
@@ -24,14 +28,16 @@ namespace pluto
     {
     private:
         const FileManager& fileManager;
+        const EventManager& eventManager;
 
         std::unordered_map<std::string, const PackageManifestAsset&> manifests;
         std::unordered_map<std::type_index, const BaseFactory&> factories;
         std::unordered_map<Guid, std::unique_ptr<Asset>> loadedAssets;
 
     public:
-        Impl(const FileManager& fileManager, const PackageManifestAsset::Factory& packageManifestFactory,
-             const TextAsset::Factory& textFactory, const MeshAsset::Factory& meshFactory) : fileManager(fileManager)
+        Impl(const FileManager& fileManager, const EventManager& eventManager,
+             const PackageManifestAsset::Factory& packageManifestFactory, const TextAsset::Factory& textFactory,
+             const MeshAsset::Factory& meshFactory) : fileManager(fileManager), eventManager(eventManager)
         {
             factories.emplace(typeid(PackageManifestAsset), packageManifestFactory);
             factories.emplace(typeid(TextAsset), textFactory);
@@ -120,6 +126,7 @@ namespace pluto
                 manifests.erase(asset.GetName());
             }
 
+            eventManager.Dispatch<OnAssetUnload>(OnAssetUnload(asset));
             loadedAssets.erase(it);
         }
 
@@ -132,7 +139,7 @@ namespace pluto
             {
                 if (manifests.find(result.GetName()) != manifests.end())
                 {
-                    throw std::runtime_error("");
+                    Exception::Throw(std::runtime_error("Package already loaded."));
                 }
 
                 manifests.emplace(result.GetName(), result);
@@ -175,11 +182,12 @@ namespace pluto
     std::unique_ptr<AssetManager> AssetManager::Factory::Create() const
     {
         const auto& fileManager = diContainer.GetSingleton<FileManager>();
+        const auto& eventManager = diContainer.GetSingleton<EventManager>();
         const auto& packageManifestFactory = diContainer.GetSingleton<PackageManifestAsset::Factory>();
         const auto& textFactory = diContainer.GetSingleton<TextAsset::Factory>();
         const auto& meshFactory = diContainer.GetSingleton<MeshAsset::Factory>();
         return std::make_unique<AssetManager>(
-            std::make_unique<Impl>(fileManager, packageManifestFactory, textFactory, meshFactory));
+            std::make_unique<Impl>(fileManager, eventManager, packageManifestFactory, textFactory, meshFactory));
     }
 
     AssetManager::AssetManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))

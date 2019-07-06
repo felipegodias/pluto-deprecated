@@ -14,6 +14,8 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/package_manifest_asset.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/shader_asset.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/text_asset.cpp
+    # ./asset/events
+    ${CMAKE_CURRENT_SOURCE_DIR}/asset/events/on_asset_unload.cpp
     # ./di
     ${CMAKE_CURRENT_SOURCE_DIR}/di/base_factory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/di/di_container.cpp

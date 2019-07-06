@@ -8,6 +8,7 @@
 #include <pluto/simulation/on_pre_update_event.h>
 #include <pluto/simulation/on_update_event.h>
 #include <pluto/simulation/on_post_update_event.h>
+#include <pluto/asset/events/on_asset_unload.h>
 
 #include <memory>
 #include <typeindex>
@@ -53,7 +54,7 @@ namespace pluto
             };
             auto& vec = listeners[type];
             Guid guid = Guid::New();
-            vec.push_back({ guid, callback });
+            vec.push_back({guid, callback});
             return guid;
         }
 
@@ -145,4 +146,8 @@ namespace pluto
     template Guid EventManager::Subscribe(const EventListener<OnPostUpdateEvent>& listener);
     template void EventManager::Unsubscribe<OnPostUpdateEvent>(const Guid& guid);
     template void EventManager::Dispatch(const OnPostUpdateEvent& event) const;
+
+    template Guid EventManager::Subscribe(const EventListener<OnAssetUnload>& listener);
+    template void EventManager::Unsubscribe<OnAssetUnload>(const Guid& guid);
+    template void EventManager::Dispatch(const OnAssetUnload& event) const;
 }
