@@ -69,10 +69,10 @@ namespace pluto
         void SetBool(const std::string& propertyName, bool value);
 
         int GetInt(const std::string& propertyName) const;
-        void SetInt(const std::string& propertyName, Vector4F value);
+        void SetInt(const std::string& propertyName, int value);
 
         float GetFloat(const std::string& propertyName) const;
-        void SetFloat(const std::string& propertyName, Vector4F value);
+        void SetFloat(const std::string& propertyName, float value);
 
         const Vector2I& GetVector2I(const std::string& propertyName) const;
         void SetVector2I(const std::string& propertyName, Vector2I value);
