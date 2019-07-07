@@ -1,11 +1,13 @@
 #include <pluto/scene/game_object.h>
 #include <pluto/scene/transform.h>
 #include <pluto/scene/component.h>
-#include <pluto/guid.h>
 #include <pluto/di/di_container.h>
+#include <pluto/guid.h>
+#include <pluto/exception.h>
 
 #include <typeindex>
 #include <unordered_map>
+#include <iostream>
 
 namespace pluto
 {
@@ -84,8 +86,13 @@ namespace pluto
                 return;
             }
 
+            if (IsGameObjectMyChild(value))
+            {
+                Exception::Throw(std::runtime_error("Can not set a game object parent if the same is it's child."));
+            }
+
             std::unique_ptr<GameObject> myPtr = parent->impl->RemoveAndGetChildPtr(*me);
-            parent->AddChild(std::move(myPtr));
+            value.AddChild(std::move(myPtr));
         }
 
         uint32_t GetChildCount() const
@@ -208,6 +215,7 @@ namespace pluto
 
         void OnUpdate(const uint32_t currentFrame)
         {
+            std::cout << name << std::endl;
             // Only run update if the object was not destroyed or already updated in the current frame.
             if (isDestroyed || lastFrame >= currentFrame)
             {
@@ -269,6 +277,19 @@ namespace pluto
                 return child;
             }
             return nullptr;
+        }
+
+        bool IsGameObjectMyChild(const GameObject& gameObject)
+        {
+            for (auto& child : children)
+            {
+                if (*child == gameObject)
+                {
+                    return true;
+                }
+                return child->impl->IsGameObjectMyChild(gameObject);
+            }
+            return false;
         }
     };
 

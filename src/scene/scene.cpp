@@ -44,6 +44,7 @@ namespace pluto
     {
         const auto& gameObjectFactory = diContainer.GetSingleton<GameObject::Factory>();
         auto rootGameObject = gameObjectFactory.Create();
+        rootGameObject->SetName("root");
         return std::make_unique<Scene>(std::make_unique<Impl>(Guid::New(), std::move(rootGameObject)));
     }
 
