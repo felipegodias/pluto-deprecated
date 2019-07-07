@@ -21,15 +21,15 @@ namespace pluto
         Vector3F localScale;
 
         bool isLocalMatrixDirty;
-        Matrix4 localMatrix;
+        Matrix4X4 localMatrix;
 
-        Matrix4 worldMatrix;
+        Matrix4X4 worldMatrix;
 
     public:
         Impl(Guid guid, GameObject& gameObject) : guid(std::move(guid)), gameObject(gameObject),
                                                   localPosition(Vector3F::ZERO), localRotation(Quaternion::IDENTITY),
                                                   localScale(Vector3F::ONE), isLocalMatrixDirty(false),
-                                                  localMatrix(Matrix4::IDENTITY)
+                                                  localMatrix(Matrix4X4::IDENTITY)
         {
         }
 
@@ -158,18 +158,18 @@ namespace pluto
             return GetRotation() * Vector3F::BACK;
         }
 
-        const Matrix4& GetLocalMatrix()
+        const Matrix4X4& GetLocalMatrix()
         {
             if (isLocalMatrixDirty)
             {
-                localMatrix = Matrix4::TSR(localPosition, localRotation, localScale);
+                localMatrix = Matrix4X4::TSR(localPosition, localRotation, localScale);
                 isLocalMatrixDirty = false;
             }
 
             return localMatrix;
         }
 
-        const Matrix4& GetWorldMatrix()
+        const Matrix4X4& GetWorldMatrix()
         {
             if (IsWorldMatrixDirty())
             {
@@ -200,7 +200,7 @@ namespace pluto
             return gameObject.GetParent().GetTransform().impl->IsWorldMatrixDirty();
         }
 
-        Matrix4 GetInverseWorldMatrix()
+        Matrix4X4 GetInverseWorldMatrix()
         {
             return GetWorldMatrix().GetInverse();
         }
@@ -336,12 +336,12 @@ namespace pluto
         return impl->GetBack();
     }
 
-    const Matrix4& Transform::GetLocalMatrix()
+    const Matrix4X4& Transform::GetLocalMatrix()
     {
         return impl->GetWorldMatrix();
     }
 
-    const Matrix4& Transform::GetWorldMatrix()
+    const Matrix4X4& Transform::GetWorldMatrix()
     {
         return impl->GetWorldMatrix();
     }

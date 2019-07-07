@@ -11,7 +11,7 @@ namespace pluto
     class GameObject;
     class Vector3F;
     class Quaternion;
-    class Matrix4;
+    class Matrix4X4;
 
     class PLUTO_API Transform final : public Component
     {
@@ -65,7 +65,7 @@ namespace pluto
         Vector3F GetForward();
         Vector3F GetBack();
 
-        const Matrix4& GetLocalMatrix();
-        const Matrix4& GetWorldMatrix();
+        const Matrix4X4& GetLocalMatrix();
+        const Matrix4X4& GetWorldMatrix();
     };
 }

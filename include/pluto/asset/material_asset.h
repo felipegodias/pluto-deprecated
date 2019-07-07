@@ -17,7 +17,7 @@ namespace pluto
     class Vector4F;
     //class Matrix2x2;
     //class Matrix3x3;
-    class Matrix4;
+    class Matrix4X4;
 
     /*
      * File layout in disk. (Version 1)
@@ -98,7 +98,7 @@ namespace pluto
         //const Matrix2X2& GetMatrix3X3(const std::string& propertyName) const;
         //void SetMatrix3X3(const std::string& propertyName, Matrix3X3 value);
 
-        const Matrix4& GetMatrix4X4(const std::string& propertyName) const;
-        void SetMatrix4X4(const std::string& propertyName, Matrix4 value);
+        const Matrix4X4& GetMatrix4X4(const std::string& propertyName) const;
+        void SetMatrix4X4(const std::string& propertyName, Matrix4X4 value);
     };
 }
