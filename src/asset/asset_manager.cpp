@@ -126,7 +126,7 @@ namespace pluto
                 manifests.erase(asset.GetName());
             }
 
-            eventManager.Dispatch<OnAssetUnload>(OnAssetUnload(asset));
+            eventManager.Dispatch(OnAssetUnload(asset));
             loadedAssets.erase(it);
         }
 
