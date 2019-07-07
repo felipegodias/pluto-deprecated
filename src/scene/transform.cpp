@@ -6,7 +6,7 @@
 #include <pluto/math/vector3f.h>
 #include <pluto/math/vector4f.h>
 #include <pluto/math/quaternion.h>
-#include <pluto/math/matrix4.h>
+#include <pluto/math/matrix4x4.h>
 
 namespace pluto
 {
