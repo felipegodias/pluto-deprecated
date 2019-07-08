@@ -63,10 +63,10 @@ namespace pluto
 		void Dump(FileWriter& fileWriter) const override;
 
 		ShaderAsset& GetShader() const;
-		void SetShader(ShaderAsset& shader);
+		void SetShader(ShaderAsset& value);
 
 		bool HasProperty(const std::string& propertyName) const;
-		bool RemoveProperty(const std::string& propertyName);
+		void RemoveProperty(const std::string& propertyName);
 
 		bool GetBool(const std::string& propertyName) const;
 		void SetBool(const std::string& propertyName, bool value);
