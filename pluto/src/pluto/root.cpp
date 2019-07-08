@@ -109,7 +109,7 @@ namespace pluto
                 assetManager.LoadPackage("main");
                 auto& sceneManager = diContainer->GetSingleton<SceneManager>();
                 sceneManager.LoadEmptyScene();
-				Scene& scene = sceneManager.GetActiveScene();
+                Scene& scene = sceneManager.GetActiveScene();
                 GameObject& a = scene.CreateGameObject("a");
                 GameObject& b = scene.CreateGameObject(a.GetTransform(), "b");
                 GameObject& c = scene.CreateGameObject(b.GetTransform(), "c");

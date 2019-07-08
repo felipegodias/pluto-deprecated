@@ -25,234 +25,234 @@
 
 namespace pluto
 {
-	class AssetManager::Impl
-	{
-	private:
-		const FileManager& fileManager;
-		const EventManager& eventManager;
+    class AssetManager::Impl
+    {
+    private:
+        const FileManager& fileManager;
+        const EventManager& eventManager;
 
-		std::unordered_map<std::string, const PackageManifestAsset&> manifests;
-		std::unordered_map<std::type_index, const BaseFactory&> factories;
-		std::unordered_map<Guid, std::unique_ptr<Asset>> loadedAssets;
+        std::unordered_map<std::string, const PackageManifestAsset&> manifests;
+        std::unordered_map<std::type_index, const BaseFactory&> factories;
+        std::unordered_map<Guid, std::unique_ptr<Asset>> loadedAssets;
 
-	public:
-		Impl(const FileManager& fileManager, const EventManager& eventManager,
-		     const PackageManifestAsset::Factory& packageManifestFactory, const TextAsset::Factory& textFactory,
-		     const MeshAsset::Factory& meshFactory) : fileManager(fileManager), eventManager(eventManager)
-		{
-			factories.emplace(typeid(PackageManifestAsset), packageManifestFactory);
-			factories.emplace(typeid(TextAsset), textFactory);
-			factories.emplace(typeid(MeshAsset), meshFactory);
-		}
+    public:
+        Impl(const FileManager& fileManager, const EventManager& eventManager,
+             const PackageManifestAsset::Factory& packageManifestFactory, const TextAsset::Factory& textFactory,
+             const MeshAsset::Factory& meshFactory) : fileManager(fileManager), eventManager(eventManager)
+        {
+            factories.emplace(typeid(PackageManifestAsset), packageManifestFactory);
+            factories.emplace(typeid(TextAsset), textFactory);
+            factories.emplace(typeid(MeshAsset), meshFactory);
+        }
 
-		void LoadPackage(const std::string& name)
-		{
-			if (manifests.find(name) != manifests.end())
-			{
-				Exception::Throw(std::runtime_error("err..."));
-			}
+        void LoadPackage(const std::string& name)
+        {
+            if (manifests.find(name) != manifests.end())
+            {
+                Exception::Throw(std::runtime_error("err..."));
+            }
 
-			const std::string physicalFilePath = fmt::format("packages/{0}/{0}", name);
-			LoadFromFile<PackageManifestAsset>(physicalFilePath);
-		}
+            const std::string physicalFilePath = fmt::format("packages/{0}/{0}", name);
+            LoadFromFile<PackageManifestAsset>(physicalFilePath);
+        }
 
-		template <typename T, IsAsset<T>  = 0>
-		T& Load(const std::string& path)
-		{
-			const PackageManifestAsset* package = nullptr;
-			for (const auto& manifest : manifests)
-			{
-				if (manifest.second.Contains(path))
-				{
-					package = &manifest.second;
-					break;
-				}
-			}
+        template <typename T, IsAsset<T>  = 0>
+        T& Load(const std::string& path)
+        {
+            const PackageManifestAsset* package = nullptr;
+            for (const auto& manifest : manifests)
+            {
+                if (manifest.second.Contains(path))
+                {
+                    package = &manifest.second;
+                    break;
+                }
+            }
 
-			if (package == nullptr)
-			{
-				throw std::runtime_error("");
-			}
+            if (package == nullptr)
+            {
+                throw std::runtime_error("");
+            }
 
-			const Guid guid = package->GetAssetGuid(path);
-			const auto& it = loadedAssets.find(guid);
-			if (it != loadedAssets.end())
-			{
-				return static_cast<T&>(*it->second);
-			}
+            const Guid guid = package->GetAssetGuid(path);
+            const auto& it = loadedAssets.find(guid);
+            if (it != loadedAssets.end())
+            {
+                return static_cast<T&>(*it->second);
+            }
 
-			const std::string physicalFilePath = fmt::format("packages/{0}/{1}", package->GetName(), guid);
-			return LoadFromFile<T>(physicalFilePath);
-		}
+            const std::string physicalFilePath = fmt::format("packages/{0}/{1}", package->GetName(), guid);
+            return LoadFromFile<T>(physicalFilePath);
+        }
 
-		template <typename T, IsAsset<T>  = 0>
-		T& Load(const Guid& guid)
-		{
-			const auto& it = loadedAssets.find(guid);
-			if (it != loadedAssets.end())
-			{
-				return static_cast<T&>(*it->second);
-			}
+        template <typename T, IsAsset<T>  = 0>
+        T& Load(const Guid& guid)
+        {
+            const auto& it = loadedAssets.find(guid);
+            if (it != loadedAssets.end())
+            {
+                return static_cast<T&>(*it->second);
+            }
 
-			const PackageManifestAsset* package = nullptr;
-			for (const auto& manifest : manifests)
-			{
-				if (manifest.second.Contains(guid))
-				{
-					package = &manifest.second;
-					break;
-				}
-			}
+            const PackageManifestAsset* package = nullptr;
+            for (const auto& manifest : manifests)
+            {
+                if (manifest.second.Contains(guid))
+                {
+                    package = &manifest.second;
+                    break;
+                }
+            }
 
-			if (package == nullptr)
-			{
-				throw std::runtime_error("");
-			}
+            if (package == nullptr)
+            {
+                throw std::runtime_error("");
+            }
 
-			const std::string physicalFilePath = fmt::format("packages/{0}/{1}", package->GetName(), guid);
-			return LoadFromFile<T>(physicalFilePath);
-		}
+            const std::string physicalFilePath = fmt::format("packages/{0}/{1}", package->GetName(), guid);
+            return LoadFromFile<T>(physicalFilePath);
+        }
 
-		template <typename T, IsAsset<T>  = 0>
-		void Unload(const T& asset)
-		{
-			const auto& it = loadedAssets.find(asset.GetId());
-			if (it == loadedAssets.end())
-			{
-				throw std::runtime_error("");
-			}
+        template <typename T, IsAsset<T>  = 0>
+        void Unload(const T& asset)
+        {
+            const auto& it = loadedAssets.find(asset.GetId());
+            if (it == loadedAssets.end())
+            {
+                throw std::runtime_error("");
+            }
 
-			if constexpr (std::is_same<T, PackageManifestAsset>::value)
-			{
-				manifests.erase(asset.GetName());
-			}
+            if constexpr (std::is_same<T, PackageManifestAsset>::value)
+            {
+                manifests.erase(asset.GetName());
+            }
 
-			eventManager.Dispatch(OnAssetUnloadEvent(asset));
-			loadedAssets.erase(it);
-		}
+            eventManager.Dispatch(OnAssetUnloadEvent(asset));
+            loadedAssets.erase(it);
+        }
 
-		template <typename T, IsAsset<T>  = 0>
-		T& Register(std::unique_ptr<T> asset)
-		{
-			T& result = *asset;
-			loadedAssets.emplace(asset->GetId(), std::move(asset));
-			if constexpr (std::is_same<T, PackageManifestAsset>::value)
-			{
-				if (manifests.find(result.GetName()) != manifests.end())
-				{
-					Exception::Throw(std::runtime_error("Package already loaded."));
-				}
+        template <typename T, IsAsset<T>  = 0>
+        T& Register(std::unique_ptr<T> asset)
+        {
+            T& result = *asset;
+            loadedAssets.emplace(asset->GetId(), std::move(asset));
+            if constexpr (std::is_same<T, PackageManifestAsset>::value)
+            {
+                if (manifests.find(result.GetName()) != manifests.end())
+                {
+                    Exception::Throw(std::runtime_error("Package already loaded."));
+                }
 
-				manifests.emplace(result.GetName(), result);
-			}
+                manifests.emplace(result.GetName(), result);
+            }
 
-			return result;
-		}
+            return result;
+        }
 
-		std::vector<Asset*> GetLoadedAssets() const
-		{
-			std::vector<Asset*> result(loadedAssets.size());
-			int i = 0;
-			for (const auto& loadedAsset : loadedAssets)
-			{
-				result[i++] = loadedAsset.second.get();
-			}
-			return result;
-		}
+        std::vector<Asset*> GetLoadedAssets() const
+        {
+            std::vector<Asset*> result(loadedAssets.size());
+            int i = 0;
+            for (const auto& loadedAsset : loadedAssets)
+            {
+                result[i++] = loadedAsset.second.get();
+            }
+            return result;
+        }
 
-	private:
-		template <typename T, IsAsset<T>  = 0>
-		T& LoadFromFile(const std::string& physicalFilePath)
-		{
-			if (!fileManager.Exists(physicalFilePath))
-			{
-				throw std::runtime_error("");
-			}
+    private:
+        template <typename T, IsAsset<T>  = 0>
+        T& LoadFromFile(const std::string& physicalFilePath)
+        {
+            if (!fileManager.Exists(physicalFilePath))
+            {
+                throw std::runtime_error("");
+            }
 
-			const std::unique_ptr<FileReader> file = fileManager.OpenRead(physicalFilePath);
-			const auto& factory = static_cast<const typename T::Factory&>(factories.at(typeid(T)));
-			std::unique_ptr<T> asset = factory.Create(*file);
-			return Register(std::move(asset));
-		}
-	};
+            const std::unique_ptr<FileReader> file = fileManager.OpenRead(physicalFilePath);
+            const auto& factory = static_cast<const typename T::Factory&>(factories.at(typeid(T)));
+            std::unique_ptr<T> asset = factory.Create(*file);
+            return Register(std::move(asset));
+        }
+    };
 
-	AssetManager::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
-	{
-	}
+    AssetManager::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    {
+    }
 
-	std::unique_ptr<AssetManager> AssetManager::Factory::Create() const
-	{
-		const auto& fileManager = diContainer.GetSingleton<FileManager>();
-		const auto& eventManager = diContainer.GetSingleton<EventManager>();
-		const auto& packageManifestFactory = diContainer.GetSingleton<PackageManifestAsset::Factory>();
-		const auto& textFactory = diContainer.GetSingleton<TextAsset::Factory>();
-		const auto& meshFactory = diContainer.GetSingleton<MeshAsset::Factory>();
-		return std::make_unique<AssetManager>(
-			std::make_unique<Impl>(fileManager, eventManager, packageManifestFactory, textFactory, meshFactory));
-	}
+    std::unique_ptr<AssetManager> AssetManager::Factory::Create() const
+    {
+        const auto& fileManager = diContainer.GetSingleton<FileManager>();
+        const auto& eventManager = diContainer.GetSingleton<EventManager>();
+        const auto& packageManifestFactory = diContainer.GetSingleton<PackageManifestAsset::Factory>();
+        const auto& textFactory = diContainer.GetSingleton<TextAsset::Factory>();
+        const auto& meshFactory = diContainer.GetSingleton<MeshAsset::Factory>();
+        return std::make_unique<AssetManager>(
+            std::make_unique<Impl>(fileManager, eventManager, packageManifestFactory, textFactory, meshFactory));
+    }
 
-	AssetManager::AssetManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
-	{
-	}
+    AssetManager::AssetManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
+    {
+    }
 
-	AssetManager::~AssetManager() = default;
+    AssetManager::~AssetManager() = default;
 
-	void AssetManager::LoadPackage(const std::string& name)
-	{
-		impl->LoadPackage(name);
-	}
+    void AssetManager::LoadPackage(const std::string& name)
+    {
+        impl->LoadPackage(name);
+    }
 
-	template <typename T, IsAsset<T>>
-	T& AssetManager::Load(const std::string& path)
-	{
-		return impl->Load<T>(path);
-	}
+    template <typename T, IsAsset<T>>
+    T& AssetManager::Load(const std::string& path)
+    {
+        return impl->Load<T>(path);
+    }
 
-	template <typename T, IsAsset<T>>
-	T& AssetManager::Load(const Guid& guid)
-	{
-		return impl->Load<T>(guid);
-	}
+    template <typename T, IsAsset<T>>
+    T& AssetManager::Load(const Guid& guid)
+    {
+        return impl->Load<T>(guid);
+    }
 
-	template <typename T, IsAsset<T>>
-	void AssetManager::Unload(const T& asset)
-	{
-		impl->Unload<T>(asset);
-	}
+    template <typename T, IsAsset<T>>
+    void AssetManager::Unload(const T& asset)
+    {
+        impl->Unload<T>(asset);
+    }
 
-	template <typename T, IsAsset<T>>
-	T& AssetManager::Register(std::unique_ptr<T> asset)
-	{
-		return impl->Register(std::move(asset));
-	}
+    template <typename T, IsAsset<T>>
+    T& AssetManager::Register(std::unique_ptr<T> asset)
+    {
+        return impl->Register(std::move(asset));
+    }
 
-	std::vector<Asset*> AssetManager::GetLoadedAssets() const
-	{
-		return impl->GetLoadedAssets();
-	}
+    std::vector<Asset*> AssetManager::GetLoadedAssets() const
+    {
+        return impl->GetLoadedAssets();
+    }
 
-	template PackageManifestAsset& AssetManager::Load(const std::string& path);
-	template PackageManifestAsset& AssetManager::Load(const Guid& guid);
-	template PackageManifestAsset& AssetManager::Register(std::unique_ptr<PackageManifestAsset> asset);
-	template void AssetManager::Unload(const PackageManifestAsset& asset);
+    template PackageManifestAsset& AssetManager::Load(const std::string& path);
+    template PackageManifestAsset& AssetManager::Load(const Guid& guid);
+    template PackageManifestAsset& AssetManager::Register(std::unique_ptr<PackageManifestAsset> asset);
+    template void AssetManager::Unload(const PackageManifestAsset& asset);
 
-	template TextAsset& AssetManager::Load(const std::string& path);
-	template TextAsset& AssetManager::Load(const Guid& guid);
-	template TextAsset& AssetManager::Register(std::unique_ptr<TextAsset> asset);
-	template void AssetManager::Unload(const TextAsset& asset);
+    template TextAsset& AssetManager::Load(const std::string& path);
+    template TextAsset& AssetManager::Load(const Guid& guid);
+    template TextAsset& AssetManager::Register(std::unique_ptr<TextAsset> asset);
+    template void AssetManager::Unload(const TextAsset& asset);
 
-	template MeshAsset& AssetManager::Load(const std::string& path);
-	template MeshAsset& AssetManager::Load(const Guid& guid);
-	template MeshAsset& AssetManager::Register(std::unique_ptr<MeshAsset> asset);
-	template void AssetManager::Unload(const MeshAsset& asset);
+    template MeshAsset& AssetManager::Load(const std::string& path);
+    template MeshAsset& AssetManager::Load(const Guid& guid);
+    template MeshAsset& AssetManager::Register(std::unique_ptr<MeshAsset> asset);
+    template void AssetManager::Unload(const MeshAsset& asset);
 
-	template ShaderAsset& AssetManager::Load(const std::string& path);
-	template ShaderAsset& AssetManager::Load(const Guid& guid);
-	template ShaderAsset& AssetManager::Register(std::unique_ptr<ShaderAsset> asset);
-	template void AssetManager::Unload(const ShaderAsset& asset);
+    template ShaderAsset& AssetManager::Load(const std::string& path);
+    template ShaderAsset& AssetManager::Load(const Guid& guid);
+    template ShaderAsset& AssetManager::Register(std::unique_ptr<ShaderAsset> asset);
+    template void AssetManager::Unload(const ShaderAsset& asset);
 
-	template MaterialAsset& AssetManager::Load(const std::string& path);
-	template MaterialAsset& AssetManager::Load(const Guid& guid);
-	template MaterialAsset& AssetManager::Register(std::unique_ptr<MaterialAsset> asset);
-	template void AssetManager::Unload(const MaterialAsset& asset);
+    template MaterialAsset& AssetManager::Load(const std::string& path);
+    template MaterialAsset& AssetManager::Load(const Guid& guid);
+    template MaterialAsset& AssetManager::Register(std::unique_ptr<MaterialAsset> asset);
+    template void AssetManager::Unload(const MaterialAsset& asset);
 }

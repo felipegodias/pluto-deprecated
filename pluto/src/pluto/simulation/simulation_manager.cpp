@@ -45,7 +45,8 @@ namespace pluto
         {
             const double time = glfwGetTime();
             deltaTime = time - lastTime;
-            if (deltaTime >= maxPeriod) {
+            if (deltaTime >= maxPeriod)
+            {
                 lastTime = time;
                 eventManager.Dispatch(OnPreUpdateEvent());
                 eventManager.Dispatch(OnUpdateEvent());

@@ -69,8 +69,8 @@ namespace pluto
     }
 
     Matrix4X4::Matrix4X4(const float x0, const float y0, const float z0, const float w0, const float x1, const float y1,
-                     const float z1, const float w1, const float x2, const float y2, const float z2, const float w2,
-                     const float x3, const float y3, const float z3, const float w3)
+                         const float z1, const float w1, const float x2, const float y2, const float z2, const float w2,
+                         const float x3, const float y3, const float z3, const float w3)
         : Matrix4X4(std::array<float, 16>{
             x0, y0, z0, w0,
             x1, y1, z1, w1,
@@ -230,8 +230,9 @@ namespace pluto
         return ss.str();
     }
 
-    Matrix4X4 Matrix4X4::Frustum(const float left, const float right, const float bottom, const float top, const float near,
-                             const float far)
+    Matrix4X4 Matrix4X4::Frustum(const float left, const float right, const float bottom, const float top,
+                                 const float near,
+                                 const float far)
     {
         return FromGlm(glm::frustum(left, right, bottom, top, near, far));
     }
@@ -241,8 +242,9 @@ namespace pluto
         return FromGlm(lookAt(ToGlm(from), ToGlm(to), ToGlm(up)));
     }
 
-    Matrix4X4 Matrix4X4::Ortho(const float left, const float right, const float bottom, const float top, const float near,
-                           const float far)
+    Matrix4X4 Matrix4X4::Ortho(const float left, const float right, const float bottom, const float top,
+                               const float near,
+                               const float far)
     {
         return FromGlm(glm::ortho(left, right, bottom, top, near, far));
     }
