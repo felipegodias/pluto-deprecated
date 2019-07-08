@@ -147,7 +147,7 @@ namespace pluto
 
         void SetVector2I(const std::string& propertyName, Vector2I value)
         {
-            //SetProperty<Vector2I>(propertyName, std::move(value));
+            SetProperty<Vector2I>(propertyName, std::move(value));
         }
 
         const Vector2F& GetVector2F(const std::string& propertyName) const
