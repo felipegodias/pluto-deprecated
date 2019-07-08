@@ -13,11 +13,11 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/lib/debug)
 include(${CMAKE_CURRENT_SOURCE_DIR}/conan/conanbuildinfo.cmake)
 conan_basic_setup()
 
-set(PLUTO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
-set(PLUTO_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(PLUTO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/pluto/include)
+set(PLUTO_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/pluto/src)
 
 set(PLUTO_SOURCE_FILES "")
-add_subdirectory(src)
+add_subdirectory(pluto/src/pluto)
 
 add_library(pluto SHARED ${PLUTO_SOURCE_FILES})
 
