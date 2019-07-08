@@ -6,13 +6,13 @@ namespace pluto
 {
     class Asset;
 
-    class PLUTO_API OnAssetUnload final : public BaseEvent
+    class PLUTO_API OnAssetUnloadEvent final : public BaseEvent
     {
     private:
         const Asset& asset;
 
     public:
-        explicit OnAssetUnload(const Asset& asset);
+        explicit OnAssetUnloadEvent(const Asset& asset);
 
         const Asset& GetAsset() const;
     };
