@@ -53,17 +53,9 @@ namespace pluto
         void SetName(std::string value);
 
         Flags GetFlags() const;
-        bool IsRoot() const;
+        bool IsDestroyed() const;
 
         Transform& GetTransform() const;
-
-        GameObject& GetParent() const;
-        void SetParent(GameObject& value);
-
-        uint32_t GetChildCount() const;
-        GameObject& GetChild(int index);
-        std::vector<std::reference_wrapper<GameObject>> GetChildren() const;
-        GameObject& AddChild(std::unique_ptr<GameObject> child);
 
         template <typename T, IsComponent<T>  = 0>
         T& AddComponent();

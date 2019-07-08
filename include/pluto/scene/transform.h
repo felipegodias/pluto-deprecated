@@ -4,6 +4,7 @@
 #include "../di/base_factory.h"
 
 #include <memory>
+#include <vector>
 
 namespace pluto
 {
@@ -24,7 +25,7 @@ namespace pluto
         };
 
     private:
-        class Impl;
+        class PLUTO_API Impl;
         std::unique_ptr<Impl> impl;
 
     public:
@@ -39,6 +40,12 @@ namespace pluto
         const Guid& GetId() const override;
 
         GameObject& GetGameObject() const override;
+
+        bool IsRoot();
+        Transform& GetParent() const;
+        void SetParent(Transform& value) const;
+
+        const std::vector<std::reference_wrapper<Transform>>& GetChildren() const;
 
         const Vector3F& GetLocalPosition() const;
         void SetLocalPosition(Vector3F value);

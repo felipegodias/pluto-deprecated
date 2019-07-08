@@ -27,12 +27,16 @@
 #include <pluto/math/vector2f.h>
 #include <pluto/math/vector3f.h>
 #include <pluto/math/vector3i.h>
-#include <pluto/math/matrix4.h>
+#include <pluto/math/matrix4x4.h>
 #include <glm/glm.hpp>
 
 #include <pluto/file/file_manager.h>
 #include <pluto/file/file_reader.h>
 #include <pluto/file/file_writer.h>
+
+#include <pluto/scene/scene.h>
+#include <pluto/scene/game_object.h>
+#include <pluto/scene/transform.h>
 
 #include <fmt/format.h>
 #include <chrono>
@@ -105,6 +109,11 @@ namespace pluto
                 assetManager.LoadPackage("main");
                 auto& sceneManager = diContainer->GetSingleton<SceneManager>();
                 sceneManager.LoadEmptyScene();
+				Scene& scene = sceneManager.GetActiveScene();
+                GameObject& a = scene.CreateGameObject("a");
+                GameObject& b = scene.CreateGameObject(a.GetTransform(), "b");
+                GameObject& c = scene.CreateGameObject(b.GetTransform(), "c");
+                a.GetTransform().SetParent(c.GetTransform());
             }
 
             while (windowManager.IsOpen())

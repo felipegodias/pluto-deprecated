@@ -65,35 +65,29 @@ namespace pluto
             activeScene = sceneFactory.Create();
         }
 
-        GameObject& CreateGameObject()
-        {
-            return CreateGameObject(activeScene->GetRootGameObject(), "");
-        }
-
-        GameObject& CreateGameObject(std::string name)
-        {
-            return CreateGameObject(activeScene->GetRootGameObject(), std::move(name));
-        }
-
-        GameObject& CreateGameObject(GameObject& parent)
-        {
-            return CreateGameObject(parent, "");
-        }
-
-        GameObject& CreateGameObject(GameObject& parent, std::string name)
-        {
-            std::unique_ptr<GameObject> gameObject = gameObjectFactory.Create();
-            gameObject->SetName(std::move(name));
-            return parent.AddChild(std::move(gameObject));
-        }
-
     private:
         void OnUpdate(const OnUpdateEvent& evt)
         {
             ++currentFrame;
             if (activeScene != nullptr)
             {
-                activeScene->GetRootGameObject().OnUpdate(currentFrame);
+                activeScene->OnUpdate(currentFrame);
+            }
+        }
+
+        void OnRender()
+        {
+            if (activeScene != nullptr)
+            {
+                activeScene->OnRender();
+            }
+        }
+
+        void OnCleanup()
+        {
+            if (activeScene != nullptr)
+            {
+                activeScene->OnCleanup();
             }
         }
     };
@@ -141,25 +135,5 @@ namespace pluto
     void SceneManager::LoadEmptyScene()
     {
         return impl->LoadEmptyScene();
-    }
-
-    GameObject& SceneManager::CreateGameObject()
-    {
-        return impl->CreateGameObject();
-    }
-
-    GameObject& SceneManager::CreateGameObject(std::string name)
-    {
-        return impl->CreateGameObject(std::move(name));
-    }
-
-    GameObject& SceneManager::CreateGameObject(GameObject& parent)
-    {
-        return impl->CreateGameObject(parent);
-    }
-
-    GameObject& SceneManager::CreateGameObject(GameObject& parent, std::string name)
-    {
-        return impl->CreateGameObject(parent, std::move(name));
     }
 }

@@ -37,10 +37,5 @@ namespace pluto
         Scene& GetActiveScene() const;
 
         void LoadEmptyScene();
-
-        GameObject& CreateGameObject();
-        GameObject& CreateGameObject(std::string name);
-        GameObject& CreateGameObject(GameObject& parent);
-        GameObject& CreateGameObject(GameObject& parent, std::string name);
     };
 }

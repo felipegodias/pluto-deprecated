@@ -3,11 +3,13 @@
 #include "../di/base_factory.h"
 
 #include <memory>
+#include <string>
 
 namespace pluto
 {
     class Guid;
     class GameObject;
+    class Transform;
 
     class PLUTO_API Scene
     {
@@ -38,6 +40,14 @@ namespace pluto
 
         GameObject& GetRootGameObject() const;
 
+        GameObject& CreateGameObject();
+        GameObject& CreateGameObject(std::string name);
+        GameObject& CreateGameObject(Transform& parent);
+        GameObject& CreateGameObject(Transform& parent, std::string name);
+
         void Destroy();
+        void OnUpdate(uint32_t currentFrame);
+        void OnRender();
+        void OnCleanup();
     };
 }
