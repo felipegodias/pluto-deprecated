@@ -44,9 +44,11 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/math/matrix4x4.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/quaternion.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/vector2f.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/vector2i.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/vector3f.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/vector3i.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/vector4f.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/vector4i.cpp
     # ./scene
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/component.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/game_object.cpp

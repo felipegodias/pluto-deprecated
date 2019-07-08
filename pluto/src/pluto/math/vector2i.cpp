@@ -24,10 +24,9 @@ namespace pluto
     {
     }
 
-    Vector2I::~Vector2I() = default;
+	Vector2I::~Vector2I() = default;
 
     Vector2I& Vector2I::operator=(const Vector2I& rhs)
-
     {
         if (this == &rhs)
         {
