@@ -16,7 +16,7 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/shader_asset.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/text_asset.cpp
     # ./asset/events
-    ${CMAKE_CURRENT_SOURCE_DIR}/asset/events/on_asset_unload.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/asset/events/on_asset_unload_event.cpp
     # ./di
     ${CMAKE_CURRENT_SOURCE_DIR}/di/base_factory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/di/di_container.cpp
@@ -50,6 +50,11 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/math/vector3i.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/vector4f.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/math/vector4i.cpp
+    # ./render
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/render_manager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/render_installer.cpp
+    # ./render/gl
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/gl/gl_render_manager.cpp
     # ./scene
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/component.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/game_object.cpp

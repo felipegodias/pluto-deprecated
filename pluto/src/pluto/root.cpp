@@ -10,6 +10,7 @@
 #include <pluto/simulation/simulation_installer.h>
 #include <pluto/asset/asset_installer.h>
 #include <pluto/scene/scene_installer.h>
+#include <pluto/render/render_installer.h>
 
 #include <pluto/log/log_manager.h>
 #include <pluto/input/input_manager.h>
@@ -19,6 +20,7 @@
 #include <pluto/window/window_manager.h>
 #include <pluto/simulation/simulation_manager.h>
 #include <pluto/scene/scene_manager.h>
+#include <pluto/render/render_manager.h>
 
 #include <pluto/asset/asset_manager.h>
 #include <pluto/asset/mesh_asset.h>
@@ -77,6 +79,7 @@ namespace pluto
             SimulationInstaller::Install(*diContainer);
             AssetInstaller::Install(*diContainer);
             SceneInstaller::Install(*diContainer);
+            RenderInstaller::Install(*diContainer);
 
             auto& logManager = diContainer->GetSingleton<LogManager>();
             logManager.LogInfo("Pluto Engine Initialized!");
@@ -84,6 +87,7 @@ namespace pluto
 
         ~Impl()
         {
+            RenderInstaller::Uninstall(*diContainer);
             SceneInstaller::Uninstall(*diContainer);
             AssetInstaller::Uninstall(*diContainer);
             SimulationInstaller::Uninstall(*diContainer);
@@ -109,11 +113,6 @@ namespace pluto
                 assetManager.LoadPackage("main");
                 auto& sceneManager = diContainer->GetSingleton<SceneManager>();
                 sceneManager.LoadEmptyScene();
-                Scene& scene = sceneManager.GetActiveScene();
-                GameObject& a = scene.CreateGameObject("a");
-                GameObject& b = scene.CreateGameObject(a.GetTransform(), "b");
-                GameObject& c = scene.CreateGameObject(b.GetTransform(), "c");
-                a.GetTransform().SetParent(c.GetTransform());
             }
 
             while (windowManager.IsOpen())

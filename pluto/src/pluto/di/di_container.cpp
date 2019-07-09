@@ -17,6 +17,8 @@
 
 #include <pluto/simulation/simulation_manager.h>
 
+#include <pluto/render/render_manager.h>
+
 #include <pluto/asset/asset_manager.h>
 #include <pluto/asset/package_manifest_asset.h>
 #include <pluto/asset/text_asset.h>
@@ -162,4 +164,8 @@ namespace pluto
     template Transform::Factory& DiContainer::AddSingleton(std::unique_ptr<Transform::Factory> instance);
     template void DiContainer::RemoveSingleton<Transform::Factory>();
     template Transform::Factory& DiContainer::GetSingleton() const;
+
+    template RenderManager& DiContainer::AddSingleton(std::unique_ptr<RenderManager> instance);
+    template void DiContainer::RemoveSingleton<RenderManager>();
+    template RenderManager& DiContainer::GetSingleton() const;
 }
