@@ -12,6 +12,5 @@ namespace pluto
     {
     public:
         virtual ~RenderManager() = 0;
-        virtual void PushToRender(Transform& transform, MeshAsset& mesh, MaterialAsset& material) = 0;
     };
 }

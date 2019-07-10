@@ -30,7 +30,5 @@ namespace pluto
 
         GlRenderManager& operator=(const GlRenderManager& rhs) = delete;
         GlRenderManager& operator=(GlRenderManager&& rhs) noexcept;
-
-        void PushToRender(Transform& transform, MeshAsset& mesh, MaterialAsset& material) override;
     };
 }

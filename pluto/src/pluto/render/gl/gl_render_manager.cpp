@@ -1,35 +1,31 @@
 #include "pluto/render/gl/gl_render_manager.h"
 #include "pluto/render/events/on_render_event.h"
-#include "pluto/render/events/on_render_camera_event.h"
+
 #include "pluto/log/log_manager.h"
 #include "pluto/event/event_manager.h"
+
+#include "pluto/scene/scene_manager.h"
+#include "pluto/scene/scene.h"
+#include "pluto/scene/game_object.h"
+#include "pluto/scene/components/renderer.h"
+
 #include "pluto/di/di_container.h"
 #include "pluto/guid.h"
-
-#include <queue>
 
 namespace pluto
 {
     class GlRenderManager::Impl
     {
     private:
-        struct DrawData
-        {
-            Transform& transform;
-            MeshAsset& mesh;
-            MaterialAsset& material;
-        };
-
-        std::queue<DrawData> dataToDraw;
-
         LogManager& logManager;
         EventManager& eventManager;
+        const SceneManager& sceneManager;
 
         Guid onRenderListenerId;
 
     public:
-        explicit Impl(LogManager& logManager, EventManager& eventManager) : logManager(logManager),
-                                                                            eventManager(eventManager)
+        Impl(LogManager& logManager, EventManager& eventManager, const SceneManager& sceneManager) :
+            logManager(logManager), eventManager(eventManager), sceneManager(sceneManager)
         {
             onRenderListenerId = eventManager.Subscribe<OnRenderEvent>(
                 std::bind(&Impl::OnRender, this, std::placeholders::_1));
@@ -44,21 +40,22 @@ namespace pluto
             logManager.LogInfo("OpenGL RenderManager terminated!");
         }
 
-        void PushToRender(Transform& transform, MeshAsset& mesh, MaterialAsset& material)
-        {
-            dataToDraw.push({transform, mesh, material});
-        }
-
         void OnRender(const OnRenderEvent& evt)
         {
-            // TODO: Evaluate for each camera in scene.
-            eventManager.Dispatch(OnRenderCameraEvent());
-            while (!dataToDraw.empty())
+            const Scene& activeScene = sceneManager.GetActiveScene();
+            const GameObject& rootGameObject = activeScene.GetRootGameObject();
+            
+            std::vector<std::reference_wrapper<Renderer>> renderers = rootGameObject.GetComponents<Renderer>();
+            for (auto& it : renderers)
             {
-                DrawData current = dataToDraw.front();
-                // TODO: Draw
-                dataToDraw.pop();
+                Renderer& renderer = it;
+                // Check renderer bounds against camera frustum.
+                Draw(renderer.GetTransform(), renderer.GetMesh(), renderer.GetMaterial());
             }
+        }
+
+        void Draw(Transform& transform, MeshAsset& mesh, MaterialAsset& material)
+        {
         }
     };
 
@@ -70,7 +67,8 @@ namespace pluto
     {
         auto& logManager = diContainer.GetSingleton<LogManager>();
         auto& eventManager = diContainer.GetSingleton<EventManager>();
-        return std::make_unique<GlRenderManager>(std::make_unique<Impl>(logManager, eventManager));
+        auto& sceneManager = diContainer.GetSingleton<SceneManager>();
+        return std::make_unique<GlRenderManager>(std::make_unique<Impl>(logManager, eventManager, sceneManager));
     }
 
     GlRenderManager::GlRenderManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
@@ -92,10 +90,5 @@ namespace pluto
 
         impl = std::move(rhs.impl);
         return *this;
-    }
-
-    void GlRenderManager::PushToRender(Transform& transform, MeshAsset& mesh, MaterialAsset& material)
-    {
-        impl->PushToRender(transform, mesh, material);
     }
 }
