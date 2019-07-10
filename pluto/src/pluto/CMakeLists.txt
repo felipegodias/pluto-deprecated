@@ -63,6 +63,9 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/scene_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/scene_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/transform.cpp
+    # ./scene/components
+    ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/camera.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/renderer.cpp
     # ./simulation
     ${CMAKE_CURRENT_SOURCE_DIR}/simulation/simulation_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/simulation/simulation_manager.cpp

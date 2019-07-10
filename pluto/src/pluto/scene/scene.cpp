@@ -56,11 +56,6 @@ namespace pluto
             gameObjects.front()->OnUpdate(currentFrame);
         }
 
-        void OnRender()
-        {
-            gameObjects.front()->OnRender();
-        }
-
         void OnCleanup()
         {
             auto it = gameObjects.begin();
@@ -150,11 +145,6 @@ namespace pluto
     void Scene::OnUpdate(const uint32_t currentFrame)
     {
         impl->OnUpdate(currentFrame);
-    }
-
-    void Scene::OnRender()
-    {
-        impl->OnRender();
     }
 
     void Scene::OnCleanup()

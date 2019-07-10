@@ -47,7 +47,6 @@ namespace pluto
 
         void Destroy();
         void OnUpdate(uint32_t currentFrame);
-        void OnRender();
         void OnCleanup();
     };
 }

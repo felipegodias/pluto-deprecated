@@ -29,10 +29,10 @@ namespace pluto
         bool IsOpen() const;
         void Close();
 
-        const Vector2I& GetSize() const;
-        void SetSize(Vector2I value);
+        const Vector2I& GetWindowSize() const;
+        void SetWindowSize(Vector2I value);
 
-        float GetAspectRatio() const;
+        float GetWindowAspectRatio() const;
 
         void* GetNativeWindow() const;
     };

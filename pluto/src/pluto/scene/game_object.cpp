@@ -1,6 +1,9 @@
 #include <pluto/scene/game_object.h>
 #include <pluto/scene/transform.h>
 #include <pluto/scene/component.h>
+#include <pluto/scene/components/renderer.h>
+#include <pluto/scene/components/camera.h>
+
 #include <pluto/di/di_container.h>
 #include <pluto/guid.h>
 #include <pluto/exception.h>
@@ -103,7 +106,7 @@ namespace pluto
             for (auto& component : components)
             {
                 T* obj = dynamic_cast<T*>(component.get());
-                if (result != nullptr)
+                if (obj != nullptr)
                 {
                     result.push_back(*obj);
                 }
@@ -120,9 +123,10 @@ namespace pluto
                 return result;
             }
 
-            for (auto& child : children)
+            for (auto it : GetTransform().GetChildren())
             {
-                result = child->GetComponentInChildren<T>();
+                Transform& child = it;
+                result = child.GetGameObject().GetComponentInChildren<T>();
                 if (result != nullptr)
                 {
                     return result;
@@ -135,9 +139,10 @@ namespace pluto
         std::vector<std::reference_wrapper<T>> GetComponentsInChildren() const
         {
             std::vector<std::reference_wrapper<T>> result = GetComponents<T>();
-            for (auto& child : children)
+            for (auto it : GetTransform().GetChildren())
             {
-                std::vector<std::reference_wrapper<T>> componentsFromChild = child->GetComponentInChildren<T>();
+                Transform& child = it;
+                auto componentsFromChild = child.GetGameObject().GetComponentsInChildren<T>();
                 result.insert(result.end(), componentsFromChild.begin(), componentsFromChild.end());
             }
             return result;
@@ -188,20 +193,6 @@ namespace pluto
                     Transform& child = it;
                     child.GetGameObject().OnUpdate(currentFrame);
                 }
-            }
-        }
-
-        void OnRender()
-        {
-            for (auto& component : components)
-            {
-                component->OnRender();
-            }
-
-            for (auto& it : transform->GetChildren())
-            {
-                Transform& child = it;
-                child.GetGameObject().OnRender();
             }
         }
     };
@@ -319,8 +310,20 @@ namespace pluto
         impl->OnUpdate(currentFrame);
     }
 
-    void GameObject::OnRender()
-    {
-        impl->OnRender();
-    }
+    template Transform& GameObject::AddComponent();
+    template Transform* GameObject::GetComponent() const;
+    template std::vector<std::reference_wrapper<Transform>> GameObject::GetComponents() const;
+    template Transform* GameObject::GetComponentInChildren() const;
+    template std::vector<std::reference_wrapper<Transform>> GameObject::GetComponentsInChildren() const;
+
+    template Camera& GameObject::AddComponent();
+    template Camera* GameObject::GetComponent() const;
+    template std::vector<std::reference_wrapper<Camera>> GameObject::GetComponents() const;
+    template Camera* GameObject::GetComponentInChildren() const;
+    template std::vector<std::reference_wrapper<Camera>> GameObject::GetComponentsInChildren() const;
+
+    template Renderer* GameObject::GetComponent() const;
+    template std::vector<std::reference_wrapper<Renderer>> GameObject::GetComponents() const;
+    template Renderer* GameObject::GetComponentInChildren() const;
+    template std::vector<std::reference_wrapper<Renderer>> GameObject::GetComponentsInChildren() const;
 }

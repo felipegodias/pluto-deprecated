@@ -20,10 +20,6 @@ namespace pluto
     {
     }
 
-    void Component::OnRender()
-    {
-    }
-
     void Component::OnDestroy()
     {
     }

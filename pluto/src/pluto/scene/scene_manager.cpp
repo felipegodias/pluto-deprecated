@@ -75,14 +75,6 @@ namespace pluto
             }
         }
 
-        void OnRender()
-        {
-            if (activeScene != nullptr)
-            {
-                activeScene->OnRender();
-            }
-        }
-
         void OnCleanup()
         {
             if (activeScene != nullptr)

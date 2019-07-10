@@ -23,7 +23,6 @@ namespace pluto
         virtual GameObject& GetGameObject() const = 0;
 
         virtual void OnUpdate();
-        virtual void OnRender();
         virtual void OnDestroy();
     };
 }
