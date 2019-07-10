@@ -30,6 +30,7 @@
 #include <pluto/scene/scene.h>
 #include <pluto/scene/game_object.h>
 #include <pluto/scene/transform.h>
+#include <pluto/scene/components/camera.h>
 
 #include <unordered_map>
 #include <typeindex>
@@ -164,6 +165,10 @@ namespace pluto
     template Transform::Factory& DiContainer::AddSingleton(std::unique_ptr<Transform::Factory> instance);
     template void DiContainer::RemoveSingleton<Transform::Factory>();
     template Transform::Factory& DiContainer::GetSingleton() const;
+
+    template Camera::Factory& DiContainer::AddSingleton(std::unique_ptr<Camera::Factory> instance);
+    template void DiContainer::RemoveSingleton<Camera::Factory>();
+    template Camera::Factory& DiContainer::GetSingleton() const;
 
     template RenderManager& DiContainer::AddSingleton(std::unique_ptr<RenderManager> instance);
     template void DiContainer::RemoveSingleton<RenderManager>();

@@ -31,12 +31,14 @@ namespace pluto
         std::unordered_map<std::type_index, const BaseFactory&> componentFactories;
 
     public:
-        Impl(Guid guid, const Transform::Factory& transformFactory) : guid(std::move(guid)),
-                                                                      flags(Flags::None), me(nullptr),
-                                                                      transform(nullptr),
-                                                                      lastFrame(0), isDestroyed(false)
+        Impl(Guid guid, const Transform::Factory& transformFactory, const Camera::Factory& cameraFactory) :
+            guid(std::move(guid)),
+            flags(Flags::None), me(nullptr),
+            transform(nullptr),
+            lastFrame(0), isDestroyed(false)
         {
             componentFactories.emplace(typeid(Transform), transformFactory);
+            componentFactories.emplace(typeid(Camera), cameraFactory);
         }
 
         void Init(GameObject& instance)
@@ -204,7 +206,9 @@ namespace pluto
     std::unique_ptr<GameObject> GameObject::Factory::Create() const
     {
         auto& transformFactory = diContainer.GetSingleton<Transform::Factory>();
-        auto gameObject = std::make_unique<GameObject>(std::make_unique<Impl>(Guid::New(), transformFactory));
+        auto& cameraFactory = diContainer.GetSingleton<Camera::Factory>();
+        auto gameObject = std::make_unique<GameObject>(
+            std::make_unique<Impl>(Guid::New(), transformFactory, cameraFactory));
         gameObject->impl->Init(*gameObject);
         return gameObject;
     }
