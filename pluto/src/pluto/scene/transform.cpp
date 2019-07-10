@@ -231,7 +231,7 @@ namespace pluto
         {
             if (isWorldMatrixDirty)
             {
-                worldMatrix = GetParent().GetWorldMatrix() * GetLocalMatrix();
+                worldMatrix = IsRoot() ? GetLocalMatrix() : GetParent().GetWorldMatrix() * GetLocalMatrix();
                 isWorldMatrixDirty = false;
             }
             return worldMatrix;
