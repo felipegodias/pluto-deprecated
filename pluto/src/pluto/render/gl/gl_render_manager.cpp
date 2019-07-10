@@ -7,7 +7,11 @@
 #include "pluto/scene/scene_manager.h"
 #include "pluto/scene/scene.h"
 #include "pluto/scene/game_object.h"
+#include "pluto/scene/transform.h"
 #include "pluto/scene/components/renderer.h"
+#include "pluto/scene/components/camera.h"
+
+#include "pluto/math/matrix4x4.h"
 
 #include "pluto/di/di_container.h"
 #include "pluto/guid.h"
@@ -44,18 +48,29 @@ namespace pluto
         {
             const Scene& activeScene = sceneManager.GetActiveScene();
             const GameObject& rootGameObject = activeScene.GetRootGameObject();
-            
+
+            auto* camera = rootGameObject.GetComponentInChildren<Camera>();
+            if (camera == nullptr)
+            {
+                return;
+            }
+
             std::vector<std::reference_wrapper<Renderer>> renderers = rootGameObject.GetComponents<Renderer>();
             for (auto& it : renderers)
             {
                 Renderer& renderer = it;
-                // Check renderer bounds against camera frustum.
-                Draw(renderer.GetTransform(), renderer.GetMesh(), renderer.GetMaterial());
+                if (!camera->IsVisible(renderer))
+                {
+                    continue;
+                }
+
+                Draw(*camera, renderer.GetTransform(), renderer.GetMesh(), renderer.GetMaterial());
             }
         }
 
-        void Draw(Transform& transform, MeshAsset& mesh, MaterialAsset& material)
+        void Draw(Camera& camera, Transform& transform, MeshAsset& mesh, MaterialAsset& material)
         {
+            const Matrix4X4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * transform.GetWorldMatrix();
         }
     };
 
