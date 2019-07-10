@@ -6,6 +6,8 @@
 
 namespace pluto
 {
+    class Vector2I;
+
     class PLUTO_API WindowManager final : public Singleton
     {
     public:
@@ -26,9 +28,12 @@ namespace pluto
 
         bool IsOpen() const;
         void Close();
-        size_t GetWidth() const;
-        size_t GetHeight() const;
-        void SetSize(size_t width, size_t height);
+
+        const Vector2I& GetSize() const;
+        void SetSize(Vector2I value);
+
+        float GetAspectRatio() const;
+
         void* GetNativeWindow() const;
     };
 }
