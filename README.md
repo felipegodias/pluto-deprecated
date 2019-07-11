@@ -13,7 +13,15 @@
 * [yaml-cpp 0.6.2](https://github.com/jbeder/yaml-cpp)
 #### Install Libraries
 ```bash
+# On root folder.
 $ mkdir conan
 $ cd conan
 $ conan install -s build_type=Debug ..
+```
+## Build
+```bash
+# On root folder.
+$ mkdir cmake
+$ cmake ..
+$ cmake --build . --config Debug
 ```
