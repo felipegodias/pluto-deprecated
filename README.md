@@ -22,6 +22,7 @@ $ conan install -s build_type=Debug ..
 ```bash
 # On root folder.
 $ mkdir cmake
+$ cd cmake
 $ cmake ..
 $ cmake --build . --config Debug
 ```
