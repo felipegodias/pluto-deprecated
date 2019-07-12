@@ -11,6 +11,7 @@ namespace pluto
     class Vector3F;
     class Vector3I;
     class FileReader;
+    class MeshBuffer;
 
     /*
      * File layout in disk. (Version 1)
@@ -68,5 +69,7 @@ namespace pluto
         void SetUVs(std::vector<Vector2F> value);
         const std::vector<Vector3I>& GetTriangles() const;
         void SetTriangles(std::vector<Vector3I> value);
+
+        MeshBuffer& GetMeshBuffer();
     };
 }

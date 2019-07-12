@@ -91,6 +91,7 @@ namespace pluto
         void SetPositions(std::vector<Vector3F> value)
         {
             positions = std::move(value);
+            isBufferDirty = true;
         }
 
         const std::vector<Vector2F>& GetUVs() const
@@ -101,6 +102,7 @@ namespace pluto
         void SetUVs(std::vector<Vector2F> value)
         {
             uvs = std::move(value);
+            isBufferDirty = true;
         }
 
         const std::vector<Vector3I>& GetTriangles() const
@@ -111,6 +113,7 @@ namespace pluto
         void SetTriangles(std::vector<Vector3I> value)
         {
             triangles = std::move(value);
+            isBufferDirty = true;
         }
 
         void Clone(const Impl& other)
@@ -119,6 +122,7 @@ namespace pluto
             positions = other.positions;
             uvs = other.uvs;
             triangles = other.triangles;
+            isBufferDirty = true;
         }
 
         MeshBuffer& GetMeshBuffer()
@@ -126,6 +130,7 @@ namespace pluto
             if (isBufferDirty)
             {
                 meshBuffer = meshBufferFactory.Create(*instance);
+                isBufferDirty = false;
             }
             return *meshBuffer;
         }

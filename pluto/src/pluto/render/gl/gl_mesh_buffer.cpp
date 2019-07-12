@@ -97,8 +97,11 @@ namespace pluto
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
 
         const std::vector<Vector3I>& triangles = mesh.GetTriangles();
-        const size_t bufferSize = triangles.size() * sizeof(Vector3I);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, bufferSize, &triangles[0], GL_STATIC_DRAW);
+        if (!triangles.empty())
+        {
+            const size_t bufferSize = triangles.size() * sizeof(Vector3I);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, bufferSize, &triangles[0], GL_STATIC_DRAW);
+        }
 
         int verticesCount = static_cast<int>(triangles.size()) * 3;
 

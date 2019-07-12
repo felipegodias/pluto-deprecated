@@ -19,6 +19,8 @@
 #include "pluto/di/di_container.h"
 #include "pluto/guid.h"
 
+#include <GL/glew.h>
+
 namespace pluto
 {
     class GlRenderManager::Impl
@@ -37,13 +39,14 @@ namespace pluto
             onRenderListenerId = eventManager.Subscribe<OnRenderEvent>(
                 std::bind(&Impl::OnRender, this, std::placeholders::_1));
 
+            glewInit();
+
             logManager.LogInfo("OpenGL RenderManager initialized!");
         }
 
         ~Impl()
         {
             eventManager.Unsubscribe<OnRenderEvent>(onRenderListenerId);
-
             logManager.LogInfo("OpenGL RenderManager terminated!");
         }
 
