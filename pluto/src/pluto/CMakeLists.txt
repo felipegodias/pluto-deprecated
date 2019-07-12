@@ -52,9 +52,11 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/math/vector4f.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/vector4i.cpp
     # ./render
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/mesh_buffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/render_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/render_installer.cpp
     # ./render/gl
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/gl/gl_mesh_buffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gl/gl_render_manager.cpp
     # ./scene
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/component.cpp

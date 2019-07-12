@@ -17,8 +17,6 @@
 
 #include <pluto/simulation/simulation_manager.h>
 
-#include <pluto/render/render_manager.h>
-
 #include <pluto/asset/asset_manager.h>
 #include <pluto/asset/package_manifest_asset.h>
 #include <pluto/asset/text_asset.h>
@@ -31,6 +29,9 @@
 #include <pluto/scene/game_object.h>
 #include <pluto/scene/transform.h>
 #include <pluto/scene/components/camera.h>
+
+#include <pluto/render/render_manager.h>
+#include <pluto/render/mesh_buffer.h>
 
 #include <unordered_map>
 #include <typeindex>
@@ -173,4 +174,8 @@ namespace pluto
     template RenderManager& DiContainer::AddSingleton(std::unique_ptr<RenderManager> instance);
     template void DiContainer::RemoveSingleton<RenderManager>();
     template RenderManager& DiContainer::GetSingleton() const;
+
+    template MeshBuffer::Factory& DiContainer::AddSingleton(std::unique_ptr<MeshBuffer::Factory> instance);
+    template void DiContainer::RemoveSingleton<MeshBuffer::Factory>();
+    template MeshBuffer::Factory& DiContainer::GetSingleton() const;
 }
