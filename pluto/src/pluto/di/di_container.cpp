@@ -32,6 +32,7 @@
 
 #include <pluto/render/render_manager.h>
 #include <pluto/render/mesh_buffer.h>
+#include <pluto/render/shader_program.h>
 
 #include <unordered_map>
 #include <typeindex>
@@ -178,4 +179,8 @@ namespace pluto
     template MeshBuffer::Factory& DiContainer::AddSingleton(std::unique_ptr<MeshBuffer::Factory> instance);
     template void DiContainer::RemoveSingleton<MeshBuffer::Factory>();
     template MeshBuffer::Factory& DiContainer::GetSingleton() const;
+
+    template ShaderProgram::Factory& DiContainer::AddSingleton(std::unique_ptr<ShaderProgram::Factory> instance);
+    template void DiContainer::RemoveSingleton<ShaderProgram::Factory>();
+    template ShaderProgram::Factory& DiContainer::GetSingleton() const;
 }

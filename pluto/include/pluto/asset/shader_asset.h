@@ -44,7 +44,8 @@ namespace pluto
             Min = 4,
             Max = 5,
             Default = None,
-            Last = Max
+            Last = Max,
+            Count = Last + 1
         };
 
         enum class BlendFactor
@@ -60,7 +61,8 @@ namespace pluto
             OneMinusSrcAlpha = 8,
             OneMinusDstAlpha = 9,
             Default = Zero,
-            Last = OneMinusDstAlpha
+            Last = OneMinusDstAlpha,
+            Count = Last + 1
         };
 
         enum class ZTest
@@ -75,7 +77,8 @@ namespace pluto
             Greater = 7,
             Always = 8,
             Default = None,
-            Last = Always
+            Last = Always,
+            Count = Last + 1
         };
 
         enum class CullMode
@@ -84,7 +87,8 @@ namespace pluto
             Back = 1,
             FrontAndBack = 2,
             Default = Front,
-            Last = FrontAndBack
+            Last = FrontAndBack,
+            Count = Last + 1
         };
 
         class Property
@@ -104,7 +108,9 @@ namespace pluto
                 Matrix2X2 = 9,
                 Matrix3X3 = 10,
                 Matrix4X4 = 11,
-                Sampler2D = 12
+                Sampler2D = 12,
+                Last = Sampler2D,
+                Count = Last + 1
             };
 
             uint8_t id;
