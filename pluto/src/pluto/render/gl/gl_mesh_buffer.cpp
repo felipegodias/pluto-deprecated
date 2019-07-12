@@ -17,13 +17,15 @@ namespace pluto
         const uint32_t vertexArrayObject;
         const uint32_t indexBufferObject;
         const std::vector<uint32_t> vertexBufferObjects;
+        bool isBound;
 
     public:
         Impl(const int verticesCount, const uint32_t vertexArrayObject, const uint32_t indexBufferObject,
              std::vector<uint32_t> vertexBufferObjects) : verticesCount(verticesCount),
                                                           vertexArrayObject(vertexArrayObject),
                                                           indexBufferObject(indexBufferObject),
-                                                          vertexBufferObjects(std::move(vertexBufferObjects))
+                                                          vertexBufferObjects(std::move(vertexBufferObjects)),
+                                                          isBound(false)
         {
         }
 
@@ -34,10 +36,29 @@ namespace pluto
             glDeleteBuffers(vertexBufferObjects.size(), &vertexBufferObjects[0]);
         }
 
-        void Draw() const
+        void Bind()
         {
+            if (isBound)
+            {
+                return;
+            }
+            isBound = true;
             glBindVertexArray(vertexArrayObject);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
+        }
+
+        void Unbind()
+        {
+            if (!isBound)
+            {
+                return;
+            }
+            isBound = false;
+            glBindVertexArray(0);
+        }
+
+        void Draw()
+        {
+            Bind();
             glDrawElements(GL_TRIANGLES, verticesCount, GL_UNSIGNED_INT, nullptr);
         }
     };
@@ -50,16 +71,16 @@ namespace pluto
     void CreateVertexBufferObject(const uint32_t stride, const std::vector<T>& values,
                                   std::vector<uint32_t>& vertexBufferObjects)
     {
-        GLuint vbo = 0;
+        uint32_t vertexArrayObject = 0;
         if (!values.empty())
         {
-            glGenBuffers(1, &vbo);
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            glGenBuffers(1, &vertexArrayObject);
+            glBindBuffer(GL_ARRAY_BUFFER, vertexArrayObject);
             glBufferData(GL_ARRAY_BUFFER, values.size() * sizeof(T), &values[0], GL_STATIC_DRAW);
             glEnableVertexAttribArray(vertexBufferObjects.size());
             glVertexAttribPointer(vertexBufferObjects.size(), stride, GL_FLOAT, GL_FALSE, 0, nullptr);
         }
-        vertexBufferObjects.push_back(vbo);
+        vertexBufferObjects.push_back(vertexArrayObject);
     }
 
     std::unique_ptr<MeshBuffer> GlMeshBuffer::Factory::Create(const MeshAsset& mesh) const
@@ -70,7 +91,7 @@ namespace pluto
         GLuint indexBufferObject;
         glGenBuffers(1, &indexBufferObject);
 
-        std::vector<GLuint> vertexBufferObjects;
+        std::vector<uint32_t> vertexBufferObjects;
         CreateVertexBufferObject<Vector3F>(3, mesh.GetPositions(), vertexBufferObjects);
         CreateVertexBufferObject<Vector2F>(2, mesh.GetUVs(), vertexBufferObjects);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
@@ -107,7 +128,17 @@ namespace pluto
         return *this;
     }
 
-    void GlMeshBuffer::Draw() const
+    void GlMeshBuffer::Bind()
+    {
+        impl->Bind();
+    }
+
+    void GlMeshBuffer::Unbind()
+    {
+        impl->Unbind();
+    }
+
+    void GlMeshBuffer::Draw()
     {
         impl->Draw();
     }

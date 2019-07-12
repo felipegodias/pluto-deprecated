@@ -29,6 +29,8 @@ namespace pluto
         GlMeshBuffer& operator=(const GlMeshBuffer& rhs) = delete;
         GlMeshBuffer& operator=(GlMeshBuffer&& rhs) noexcept;
 
-        void Draw() const;
+        void Bind();
+        void Unbind();
+        void Draw();
     };
 }
