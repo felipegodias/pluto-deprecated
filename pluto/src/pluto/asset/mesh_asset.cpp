@@ -1,4 +1,8 @@
 #include <pluto/asset/mesh_asset.h>
+
+#include <pluto/di/di_container.h>
+#include <pluto/render/mesh_buffer.h>
+
 #include <pluto/guid.h>
 #include <pluto/math/vector2f.h>
 #include <pluto/math/vector3f.h>
@@ -17,9 +21,24 @@ namespace pluto
         std::vector<Vector2F> uvs;
         std::vector<Vector3I> triangles;
 
+        MeshAsset* instance;
+
+        std::unique_ptr<MeshBuffer> meshBuffer;
+        bool isBufferDirty;
+
+        const MeshBuffer::Factory& meshBufferFactory;
+
     public:
-        explicit Impl(Guid guid) : guid(std::move(guid))
+        Impl(Guid guid, const MeshBuffer::Factory& meshBufferFactory) : guid(std::move(guid)), instance(nullptr),
+                                                                        meshBuffer(nullptr), isBufferDirty(true),
+                                                                        meshBufferFactory(meshBufferFactory)
         {
+        }
+
+        // TODO: Look for a better way to pass MeshAsset instance to it.
+        void SetInstance(MeshAsset& value)
+        {
+            instance = &value;
         }
 
         const Guid& GetId() const
@@ -101,6 +120,15 @@ namespace pluto
             uvs = other.uvs;
             triangles = other.triangles;
         }
+
+        MeshBuffer& GetMeshBuffer()
+        {
+            if (isBufferDirty)
+            {
+                meshBuffer = meshBufferFactory.Create(*instance);
+            }
+            return *meshBuffer;
+        }
     };
 
     MeshAsset::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
@@ -109,7 +137,10 @@ namespace pluto
 
     std::unique_ptr<MeshAsset> MeshAsset::Factory::Create() const
     {
-        return std::make_unique<MeshAsset>(std::make_unique<Impl>(Guid::New()));
+        auto& meshBufferFactory = diContainer.GetSingleton<MeshBuffer::Factory>();
+        auto meshAsset = std::make_unique<MeshAsset>(std::make_unique<Impl>(Guid::New(), meshBufferFactory));
+        meshAsset->impl->SetInstance(*meshAsset);
+        return meshAsset;
     }
 
     std::unique_ptr<MeshAsset> MeshAsset::Factory::Create(const MeshAsset& original) const
@@ -133,7 +164,9 @@ namespace pluto
         Guid assetId;
         fileReader.Read(&assetId, sizeof(Guid));
 
-        auto meshAsset = std::make_unique<MeshAsset>(std::make_unique<Impl>(assetId));
+        auto& meshBufferFactory = diContainer.GetSingleton<MeshBuffer::Factory>();
+        auto meshAsset = std::make_unique<MeshAsset>(std::make_unique<Impl>(assetId, meshBufferFactory));
+        meshAsset->impl->SetInstance(*meshAsset);
 
         uint8_t assetNameLength;
         fileReader.Read(&assetNameLength, sizeof(uint8_t));
@@ -243,5 +276,10 @@ namespace pluto
     void MeshAsset::SetTriangles(std::vector<Vector3I> value)
     {
         impl->SetTriangles(std::move(value));
+    }
+
+    MeshBuffer& MeshAsset::GetMeshBuffer()
+    {
+        return impl->GetMeshBuffer();
     }
 }

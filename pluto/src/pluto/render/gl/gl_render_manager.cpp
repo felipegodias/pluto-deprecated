@@ -1,8 +1,11 @@
 #include "pluto/render/gl/gl_render_manager.h"
+#include "pluto/render/gl/gl_mesh_buffer.h"
 #include "pluto/render/events/on_render_event.h"
 
 #include "pluto/log/log_manager.h"
 #include "pluto/event/event_manager.h"
+
+#include "pluto/asset/mesh_asset.h"
 
 #include "pluto/scene/scene_manager.h"
 #include "pluto/scene/scene.h"
@@ -71,6 +74,12 @@ namespace pluto
         void Draw(Camera& camera, Transform& transform, MeshAsset& mesh, MaterialAsset& material)
         {
             const Matrix4X4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * transform.GetWorldMatrix();
+
+            auto& meshBuffer = dynamic_cast<GlMeshBuffer&>(mesh.GetMeshBuffer());
+
+            meshBuffer.Bind();
+            meshBuffer.Draw();
+            meshBuffer.Unbind();
         }
     };
 
