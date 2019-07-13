@@ -92,12 +92,12 @@ namespace pluto
 
         std::unique_ptr<FileReader> OpenRead(const std::string& path) const
         {
-            return fileReaderFactory.Create(std::ifstream(path, std::ifstream::binary));
+            return fileReaderFactory.Create(std::ifstream(path, std::ios::binary));
         }
 
         std::unique_ptr<FileWriter> OpenWrite(const std::string& path) const
         {
-            return fileWriterFactory.Create(std::ofstream(path, std::ifstream::binary));
+            return fileWriterFactory.Create(std::ofstream(path, std::ios::binary));
         }
 
         void Delete(const std::string& path) const
