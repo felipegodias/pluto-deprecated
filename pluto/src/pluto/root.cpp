@@ -24,6 +24,8 @@
 
 #include <pluto/asset/asset_manager.h>
 #include <pluto/asset/mesh_asset.h>
+#include <pluto/asset/shader_asset.h>
+#include <pluto/asset/material_asset.h>
 #include <pluto/asset/package_manifest_asset.h>
 
 #include <pluto/math/vector2f.h>
@@ -39,6 +41,10 @@
 #include <pluto/scene/scene.h>
 #include <pluto/scene/game_object.h>
 #include <pluto/scene/transform.h>
+#include <pluto/scene/components/camera.h>
+#include <pluto/scene/components/mesh_renderer.h>
+
+#include <pluto/guid.h>
 
 #include <fmt/format.h>
 #include <chrono>
@@ -110,9 +116,35 @@ namespace pluto
                 auto& eventManager = diContainer->GetSingleton<EventManager>();
                 eventManager.Dispatch(OnStartupEvent());
                 auto& assetManager = diContainer->GetSingleton<AssetManager>();
-                assetManager.LoadPackage("main");
+
+                auto& packageFactory = diContainer->GetSingleton<PackageManifestAsset::Factory>();
+                auto package = packageFactory.Create();
+                package->SetName("main");
+                package->AddAsset("quad", Guid("022d0eeb-165f-4381-bc50-159910308bf2"));
+                package->AddAsset("pink", Guid("39d39db2-2968-41cc-9e29-dfa9203cce44"));
+                assetManager.Register(std::move(package));
+
                 auto& sceneManager = diContainer->GetSingleton<SceneManager>();
                 sceneManager.LoadEmptyScene();
+
+                GameObject& cameraGo = sceneManager.GetActiveScene().CreateGameObject("Camera");
+                cameraGo.GetTransform().SetLocalPosition({ 0, 0, -1 });
+
+                auto& camera = cameraGo.AddComponent<Camera>();
+
+                auto& meshAsset = assetManager.Load<MeshAsset>("quad");
+                auto& shaderAsset = assetManager.Load<ShaderAsset>("pink");
+
+                auto& materialFactory = diContainer->GetSingleton<MaterialAsset::Factory>();
+                auto materialAssetPtr = materialFactory.Create();
+                materialAssetPtr->SetName("default");
+                materialAssetPtr->SetShader(shaderAsset); 
+                auto& materialAsset = assetManager.Register(std::move(materialAssetPtr));
+
+                GameObject& quadGo = sceneManager.GetActiveScene().CreateGameObject("Quad");
+                auto& meshRenderer = quadGo.AddComponent<MeshRenderer>();
+                meshRenderer.SetMesh(meshAsset);
+                meshRenderer.SetMaterial(materialAsset);
             }
 
             while (windowManager.IsOpen())
