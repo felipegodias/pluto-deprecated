@@ -34,7 +34,6 @@ namespace pluto
         const SceneManager& sceneManager;
 
         Guid onRenderListenerId;
-
     public:
         Impl(LogManager& logManager, EventManager& eventManager, const SceneManager& sceneManager) :
             logManager(logManager), eventManager(eventManager), sceneManager(sceneManager)
@@ -64,7 +63,7 @@ namespace pluto
                 return;
             }
 
-            std::vector<std::reference_wrapper<Renderer>> renderers = rootGameObject.GetComponents<Renderer>();
+            std::vector<std::reference_wrapper<Renderer>> renderers = rootGameObject.GetComponentsInChildren<Renderer>();
             for (auto& it : renderers)
             {
                 Renderer& renderer = it;
