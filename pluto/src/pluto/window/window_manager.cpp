@@ -1,8 +1,11 @@
 #include <pluto/window/window_manager.h>
 #include <pluto/config/config_manager.h>
 #include <pluto/log/log_manager.h>
+#include <pluto/event/event_manager.h>
+#include <pluto/render/events/on_post_render_event.h>
 #include <pluto/math/vector2i.h>
 
+#include <pluto/guid.h>
 #include <pluto/di/di_container.h>
 #include <GLFW/glfw3.h>
 #include <stdexcept>
@@ -14,12 +17,16 @@ namespace pluto
     private:
         Vector2I windowSize;
 
-        LogManager& logManager;
         GLFWwindow* window;
 
+        LogManager& logManager;
+        EventManager& eventManager;
+
+        Guid onPostRenderListenerId;
+
     public:
-        Impl(const std::string& screenTitle, Vector2I windowSize, LogManager& logManager) :
-            windowSize(std::move(windowSize)), logManager(logManager)
+        Impl(const std::string& screenTitle, Vector2I windowSize, LogManager& logManager, EventManager& eventManager) :
+            windowSize(std::move(windowSize)), logManager(logManager), eventManager(eventManager)
         {
             if (!glfwInit())
             {
@@ -33,12 +40,18 @@ namespace pluto
                 throw std::runtime_error("Failed to create GLFW Window.");
             }
             glfwMakeContextCurrent(window);
+
+            onPostRenderListenerId = eventManager.Subscribe<OnPostRenderEvent>(
+                std::bind(&Impl::OnPostRender, this, std::placeholders::_1));
+
             logManager.LogInfo("WindowManager Initialized!");
         }
 
         ~Impl()
         {
             glfwTerminate();
+
+            eventManager.Unsubscribe<OnPostRenderEvent>(onPostRenderListenerId);
             logManager.LogInfo("WindowManager Terminated!");
         }
 
@@ -72,6 +85,12 @@ namespace pluto
         {
             return window;
         }
+
+    private:
+        void OnPostRender(const OnPostRenderEvent& evt)
+        {
+            glfwSwapBuffers(window);
+        }
     };
 
     WindowManager::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
@@ -86,8 +105,9 @@ namespace pluto
         const std::string appName = configManager.GetString("appName", "Unknown");
 
         auto& logManager = diContainer.GetSingleton<LogManager>();
+        auto& eventManager = diContainer.GetSingleton<EventManager>();
         return std::make_unique<WindowManager>(
-            std::make_unique<Impl>(appName, Vector2I(screenWidth, screenHeight), logManager));
+            std::make_unique<Impl>(appName, Vector2I(screenWidth, screenHeight), logManager, eventManager));
     }
 
     WindowManager::WindowManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))

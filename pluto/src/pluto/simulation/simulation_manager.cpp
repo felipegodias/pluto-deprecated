@@ -4,6 +4,7 @@
 #include <pluto/simulation/on_update_event.h>
 #include <pluto/simulation/on_post_update_event.h>
 #include <pluto/render/events/on_render_event.h>
+#include <pluto/render/events/on_post_render_event.h>
 
 #include <pluto/log/log_manager.h>
 #include <pluto/event/event_manager.h>
@@ -53,6 +54,7 @@ namespace pluto
                 eventManager.Dispatch(OnUpdateEvent());
                 eventManager.Dispatch(OnPostUpdateEvent());
                 eventManager.Dispatch(OnRenderEvent());
+                eventManager.Dispatch(OnPostRenderEvent());
             }
         }
     };
