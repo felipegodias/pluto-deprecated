@@ -11,6 +11,8 @@
 #include <pluto/math/vector3f.h>
 #include <pluto/math/vector3i.h>
 
+#include <yaml-cpp/yaml.h>
+
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -28,6 +30,15 @@ namespace pluto
 
     std::unique_ptr<MeshAsset> CreateMeshAsset(const std::string& path)
     {
+        std::string plutoFilePath = path + ".pluto";
+        if (!std::filesystem::exists(plutoFilePath))
+        {
+            throw std::runtime_error("Pluto file not found at " + plutoFilePath);
+        }
+
+        YAML::Node plutoFile = YAML::LoadFile(plutoFilePath);
+        Guid guid(plutoFile["guid"].as<std::string>());
+
         std::ifstream ifs(path);
         if (!ifs)
         {
@@ -104,6 +115,11 @@ namespace pluto
         const MeshAsset::Factory factory(diContainer);
 
         auto meshAsset = factory.Create();
+
+        // Evil, I know. But it's better than expose the guid to changes directly.
+        Guid& shaderGuid = const_cast<Guid&>(meshAsset->GetId());
+        shaderGuid = guid;
+
         const std::filesystem::path filePath(path);
         meshAsset->SetName(filePath.filename().replace_extension("").string());
         meshAsset->SetPositions(std::move(positions));

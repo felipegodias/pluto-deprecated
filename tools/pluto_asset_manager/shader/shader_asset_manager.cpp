@@ -9,6 +9,9 @@
 #include <boost/algorithm/string.hpp>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#include <yaml-cpp/yaml.h>
+
 #include <fmt/format.h>
 
 #include <filesystem>
@@ -316,6 +319,15 @@ namespace pluto
 
     std::unique_ptr<ShaderAsset> CreateShaderAsset(const std::string& path)
     {
+        std::string plutoFilePath = path + ".pluto";
+        if (!std::filesystem::exists(plutoFilePath))
+        {
+            throw std::runtime_error("Pluto file not found at " + plutoFilePath);
+        }
+
+        YAML::Node plutoFile = YAML::LoadFile(plutoFilePath);
+        Guid guid(plutoFile["guid"].as<std::string>());
+
         std::ifstream file(path);
         const ShaderFileData shaderData = ParseShader(file);
 
@@ -341,6 +353,13 @@ namespace pluto
         diContainer.AddSingleton<ShaderProgram::Factory>(std::make_unique<GlShaderProgram::Factory>(diContainer));
         const ShaderAsset::Factory factory(diContainer);
         auto shaderAsset = factory.Create();
+
+        // Evil, I know. But it's better than expose the guid to changes directly.
+        Guid& shaderGuid = const_cast<Guid&>(shaderAsset->GetId());
+        shaderGuid = guid;
+
+        std::string ss = shaderAsset->GetId().Str();
+
         const std::filesystem::path filePath(path);
         shaderAsset->SetName(filePath.filename().replace_extension("").string());
         shaderAsset->SetBlendFunction(blend);
