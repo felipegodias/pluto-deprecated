@@ -11,7 +11,6 @@
 #include <pluto/asset/events/on_asset_unload_event.h>
 
 #include <pluto/render/events/on_render_event.h>
-#include <pluto/render/events/on_render_camera_event.h>
 
 #include <memory>
 #include <typeindex>
@@ -158,7 +157,4 @@ namespace pluto
     template void EventManager::Unsubscribe<OnRenderEvent>(const Guid& guid);
     template void EventManager::Dispatch(const OnRenderEvent& event) const;
 
-    template Guid EventManager::Subscribe(const EventListener<OnRenderCameraEvent>& listener);
-    template void EventManager::Unsubscribe<OnRenderCameraEvent>(const Guid& guid);
-    template void EventManager::Dispatch(const OnRenderCameraEvent& event) const;
 }
