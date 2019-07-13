@@ -63,7 +63,8 @@ namespace pluto
 
     public:
         Impl(const GLuint programId, const ShaderAsset& shaderAsset) : programId(programId), shaderAsset(shaderAsset),
-                                                                       isBound(false), lastMaterialAsset(nullptr)
+                                                                       mvpUniformLocation(255), isBound(false),
+                                                                       lastMaterialAsset(nullptr)
         {
             for (const auto& property : shaderAsset.GetProperties())
             {
@@ -94,7 +95,7 @@ namespace pluto
                 isBound = true;
             }
 
-            if (*lastMaterialAsset != materialAsset)
+            if (lastMaterialAsset == nullptr || *lastMaterialAsset != materialAsset)
             {
                 lastMaterialAsset = &materialAsset;
                 UpdateMaterial();
@@ -174,7 +175,7 @@ namespace pluto
     {
         const GLuint programId = glCreateProgram();
         const std::vector<uint8_t>& binary = shaderAsset.GetBinary();
-        glProgramBinary(programId, shaderAsset.GetBinaryFormat(), &binary[0], binary.size());
+        glProgramBinary(programId, shaderAsset.GetBinaryFormat(), binary.data(), binary.size());
 
         return std::make_unique<GlShaderProgram>(std::make_unique<Impl>(programId, shaderAsset));
     }

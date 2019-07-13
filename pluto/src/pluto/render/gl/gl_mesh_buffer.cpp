@@ -44,6 +44,7 @@ namespace pluto
             }
             isBound = true;
             glBindVertexArray(vertexArrayObject);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
         }
 
         void Unbind()
@@ -76,7 +77,7 @@ namespace pluto
         {
             glGenBuffers(1, &vertexArrayObject);
             glBindBuffer(GL_ARRAY_BUFFER, vertexArrayObject);
-            glBufferData(GL_ARRAY_BUFFER, values.size() * sizeof(T), &values[0], GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, values.size() * sizeof(T), values.data(), GL_STATIC_DRAW);
             glEnableVertexAttribArray(vertexBufferObjects.size());
             glVertexAttribPointer(vertexBufferObjects.size(), stride, GL_FLOAT, GL_FALSE, 0, nullptr);
         }
@@ -91,16 +92,18 @@ namespace pluto
         GLuint indexBufferObject;
         glGenBuffers(1, &indexBufferObject);
 
+        glBindVertexArray(vertexArrayObject);
         std::vector<uint32_t> vertexBufferObjects;
         CreateVertexBufferObject<Vector3F>(3, mesh.GetPositions(), vertexBufferObjects);
         CreateVertexBufferObject<Vector2F>(2, mesh.GetUVs(), vertexBufferObjects);
+        
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
 
         const std::vector<Vector3I>& triangles = mesh.GetTriangles();
         if (!triangles.empty())
         {
             const size_t bufferSize = triangles.size() * sizeof(Vector3I);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, bufferSize, &triangles[0], GL_STATIC_DRAW);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, bufferSize, triangles.data(), GL_STATIC_DRAW);
         }
 
         int verticesCount = static_cast<int>(triangles.size()) * 3;
