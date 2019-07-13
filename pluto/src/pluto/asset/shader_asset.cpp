@@ -1,4 +1,6 @@
 #include <pluto/asset/shader_asset.h>
+#include <pluto/render/shader_program.h>
+#include <pluto/di/di_container.h>
 #include <pluto/file/file_reader.h>
 #include <pluto/file/file_writer.h>
 #include <pluto/guid.h>
@@ -9,6 +11,8 @@ namespace pluto
     class ShaderAsset::Impl
     {
     private:
+        ShaderAsset* instance;
+
         Guid guid;
         std::string name;
         BlendFunction blendFunction;
@@ -20,11 +24,27 @@ namespace pluto
         std::vector<Property> properties;
         std::vector<uint8_t> binary;
 
+        bool isDirty;
+        std::unique_ptr<ShaderProgram> shaderProgram;
+
+        const ShaderProgram::Factory& shaderProgramFactory;
+
     public:
-        explicit Impl(Guid guid) : guid(std::move(guid)), blendFunction(BlendFunction::Default),
-                                   srcBlendFactor(BlendFactor::Default), dstBlendFactor(BlendFactor::Default),
-                                   zTest(ZTest::Default), cullMode(CullMode::Default), binaryFormat(0)
+        Impl(Guid guid, const ShaderProgram::Factory& shaderProgramFactory) : instance(nullptr), guid(std::move(guid)),
+                                                                              blendFunction(BlendFunction::Default),
+                                                                              srcBlendFactor(BlendFactor::Default),
+                                                                              dstBlendFactor(BlendFactor::Default),
+                                                                              zTest(ZTest::Default),
+                                                                              cullMode(CullMode::Default),
+                                                                              binaryFormat(0), isDirty(true),
+                                                                              shaderProgram(nullptr),
+                                                                              shaderProgramFactory(shaderProgramFactory)
         {
+        }
+
+        void SetInstance(ShaderAsset& value)
+        {
+            instance = &value;
         }
 
         const Guid& GetId() const
@@ -161,6 +181,7 @@ namespace pluto
         void SetBinaryFormat(const uint32_t value)
         {
             binaryFormat = value;
+            isDirty = true;
         }
 
         const std::vector<uint8_t>& GetBinary() const
@@ -171,6 +192,18 @@ namespace pluto
         void SetBinary(std::vector<uint8_t> value)
         {
             binary = std::move(value);
+            isDirty = true;
+        }
+
+        ShaderProgram& GetShaderProgram()
+        {
+            if (isDirty)
+            {
+                shaderProgram = shaderProgramFactory.Create(*instance);
+                isDirty = false;
+            }
+
+            return *shaderProgram;
         }
 
         void Clone(const Impl& other)
@@ -193,7 +226,10 @@ namespace pluto
 
     std::unique_ptr<ShaderAsset> ShaderAsset::Factory::Create() const
     {
-        return std::make_unique<ShaderAsset>(std::make_unique<Impl>(Guid::New()));
+        auto& shaderProgramFactory = diContainer.GetSingleton<ShaderProgram::Factory>();
+        auto shaderAsset = std::make_unique<ShaderAsset>(std::make_unique<Impl>(Guid::New(), shaderProgramFactory));
+        shaderAsset->impl->SetInstance(*shaderAsset);
+        return shaderAsset;
     }
 
     std::unique_ptr<ShaderAsset> ShaderAsset::Factory::Create(const ShaderAsset& original) const
@@ -214,7 +250,9 @@ namespace pluto
         Guid assetId;
         fileReader.Read(&assetId, sizeof(Guid));
 
-        auto shaderAsset = std::make_unique<ShaderAsset>(std::make_unique<Impl>(assetId));
+        auto& shaderProgramFactory = diContainer.GetSingleton<ShaderProgram::Factory>();
+        auto shaderAsset = std::make_unique<ShaderAsset>(std::make_unique<Impl>(assetId, shaderProgramFactory));
+        shaderAsset->impl->SetInstance(*shaderAsset);
 
         uint8_t assetNameLength;
         fileReader.Read(&assetNameLength, sizeof(uint8_t));
@@ -401,5 +439,10 @@ namespace pluto
     void ShaderAsset::SetBinary(std::vector<uint8_t> value)
     {
         impl->SetBinary(std::move(value));
+    }
+
+    ShaderProgram& ShaderAsset::GetShaderProgram()
+    {
+        return impl->GetShaderProgram();
     }
 }

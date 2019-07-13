@@ -9,6 +9,7 @@
 namespace pluto
 {
     class FileReader;
+    class ShaderProgram;
 
     /*
      * File layout in disk. (Version 1)
@@ -168,5 +169,7 @@ namespace pluto
 
         const std::vector<uint8_t>& GetBinary() const;
         void SetBinary(std::vector<uint8_t> value);
+
+        ShaderProgram& GetShaderProgram();
     };
 }
