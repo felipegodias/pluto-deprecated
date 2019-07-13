@@ -5,6 +5,8 @@
 #include <pluto/asset/mesh_asset.h>
 #include <pluto/file/file_reader.h>
 
+#include <pluto/render/gl/gl_mesh_buffer.h>
+
 #include <pluto/math/vector2f.h>
 #include <pluto/math/vector3f.h>
 #include <pluto/math/vector3i.h>
@@ -98,6 +100,7 @@ namespace pluto
         }
 
         DiContainer diContainer;
+        diContainer.AddSingleton<MeshBuffer::Factory>(std::make_unique<GlMeshBuffer::Factory>(diContainer));
         const MeshAsset::Factory factory(diContainer);
 
         auto meshAsset = factory.Create();

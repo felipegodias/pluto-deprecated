@@ -3,6 +3,7 @@
 #include <pluto/guid.h>
 #include <pluto/di/di_container.h>
 #include <pluto/asset/shader_asset.h>
+#include <pluto/render/gl/gl_shader_program.h>
 #include <pluto/file/file_reader.h>
 
 #include <boost/algorithm/string.hpp>
@@ -337,6 +338,7 @@ namespace pluto
         glfwTerminate();
 
         DiContainer diContainer;
+        diContainer.AddSingleton<ShaderProgram::Factory>(std::make_unique<GlShaderProgram::Factory>(diContainer));
         const ShaderAsset::Factory factory(diContainer);
         auto shaderAsset = factory.Create();
         const std::filesystem::path filePath(path);
@@ -356,6 +358,7 @@ namespace pluto
     std::unique_ptr<ShaderAsset> LoadShaderAsset(const Guid& guid)
     {
         DiContainer diContainer;
+        diContainer.AddSingleton<ShaderProgram::Factory>(std::make_unique<GlShaderProgram::Factory>(diContainer));
         const ShaderAsset::Factory shaderAssetFactory(diContainer);
         const FileReader::Factory fileReaderFactory(diContainer);
 
