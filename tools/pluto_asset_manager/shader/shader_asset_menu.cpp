@@ -92,7 +92,7 @@ namespace pluto
         DiContainer diContainer;
         const FileWriter::Factory fileWriterFactory(diContainer);
         const std::string guidStr = shaderAsset.GetId().Str();
-        std::ofstream ofs(guidStr);
+        std::ofstream ofs(guidStr, std::ios::binary);
         const auto fileWriter = fileWriterFactory.Create(std::move(ofs));
         shaderAsset.Dump(*fileWriter);
         std::cout << "Shader Asset \"" << shaderAsset.GetName() << "\" saved with id " << guidStr << std::endl;
