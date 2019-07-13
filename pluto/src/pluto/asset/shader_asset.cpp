@@ -89,6 +89,7 @@ namespace pluto
             auto cullMode = static_cast<uint8_t>(this->cullMode);
             fileWriter.Write(&cullMode, sizeof(uint8_t));
 
+            
             uint8_t propertiesCount = properties.size();
             fileWriter.Write(&propertiesCount, sizeof(uint8_t));
 
