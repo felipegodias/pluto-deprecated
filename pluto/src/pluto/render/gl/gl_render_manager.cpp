@@ -54,6 +54,8 @@ namespace pluto
 
         void OnRender(const OnRenderEvent& evt)
         {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
             const Scene& activeScene = sceneManager.GetActiveScene();
             const GameObject& rootGameObject = activeScene.GetRootGameObject();
 
