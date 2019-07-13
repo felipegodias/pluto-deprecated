@@ -2,6 +2,7 @@
 #include <pluto/scene/transform.h>
 #include <pluto/scene/component.h>
 #include <pluto/scene/components/renderer.h>
+#include <pluto/scene/components/mesh_renderer.h>
 #include <pluto/scene/components/camera.h>
 
 #include <pluto/di/di_container.h>
@@ -31,7 +32,8 @@ namespace pluto
         std::unordered_map<std::type_index, const BaseFactory&> componentFactories;
 
     public:
-        Impl(Guid guid, const Transform::Factory& transformFactory, const Camera::Factory& cameraFactory) :
+        Impl(Guid guid, const Transform::Factory& transformFactory, const Camera::Factory& cameraFactory,
+             const MeshRenderer::Factory& meshRendererFactory) :
             guid(std::move(guid)),
             flags(Flags::None), me(nullptr),
             transform(nullptr),
@@ -39,6 +41,7 @@ namespace pluto
         {
             componentFactories.emplace(typeid(Transform), transformFactory);
             componentFactories.emplace(typeid(Camera), cameraFactory);
+            componentFactories.emplace(typeid(MeshRenderer), meshRendererFactory);
         }
 
         void Init(GameObject& instance)
@@ -207,8 +210,9 @@ namespace pluto
     {
         auto& transformFactory = diContainer.GetSingleton<Transform::Factory>();
         auto& cameraFactory = diContainer.GetSingleton<Camera::Factory>();
+        auto& meshRendererFactory = diContainer.GetSingleton<MeshRenderer::Factory>();
         auto gameObject = std::make_unique<GameObject>(
-            std::make_unique<Impl>(Guid::New(), transformFactory, cameraFactory));
+            std::make_unique<Impl>(Guid::New(), transformFactory, cameraFactory, meshRendererFactory));
         gameObject->impl->Init(*gameObject);
         return gameObject;
     }
@@ -330,4 +334,10 @@ namespace pluto
     template std::vector<std::reference_wrapper<Renderer>> GameObject::GetComponents() const;
     template Renderer* GameObject::GetComponentInChildren() const;
     template std::vector<std::reference_wrapper<Renderer>> GameObject::GetComponentsInChildren() const;
+
+    template MeshRenderer& GameObject::AddComponent();
+    template MeshRenderer* GameObject::GetComponent() const;
+    template std::vector<std::reference_wrapper<MeshRenderer>> GameObject::GetComponents() const;
+    template MeshRenderer* GameObject::GetComponentInChildren() const;
+    template std::vector<std::reference_wrapper<MeshRenderer>> GameObject::GetComponentsInChildren() const;
 }

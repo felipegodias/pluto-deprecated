@@ -37,7 +37,11 @@ namespace pluto
         Bounds GetBounds() override;
 
         Transform& GetTransform() const override;
+
         MeshAsset& GetMesh() const override;
+        void SetMesh(MeshAsset& value);
+
         MaterialAsset& GetMaterial() const override;
+        void SetMaterial(MaterialAsset& value);
     };
 }

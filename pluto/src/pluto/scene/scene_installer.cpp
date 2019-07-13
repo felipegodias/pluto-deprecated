@@ -7,6 +7,7 @@
 #include <pluto/scene/game_object.h>
 #include <pluto/scene/transform.h>
 #include <pluto/scene/components/camera.h>
+#include <pluto/scene/components/mesh_renderer.h>
 
 namespace pluto
 {
@@ -16,6 +17,7 @@ namespace pluto
         diContainer.AddSingleton(std::make_unique<Transform::Factory>(diContainer));
         diContainer.AddSingleton(std::make_unique<Camera::Factory>(diContainer));
         diContainer.AddSingleton(std::make_unique<Scene::Factory>(diContainer));
+        diContainer.AddSingleton(std::make_unique<MeshRenderer::Factory>(diContainer));
 
         const SceneManager::Factory sceneManagerFactory(diContainer);
         diContainer.AddSingleton(sceneManagerFactory.Create());
@@ -24,6 +26,7 @@ namespace pluto
     void SceneInstaller::Uninstall(DiContainer& diContainer)
     {
         diContainer.RemoveSingleton<SceneManager>();
+        diContainer.RemoveSingleton<MeshRenderer::Factory>();
         diContainer.RemoveSingleton<Scene::Factory>();
         diContainer.RemoveSingleton<Camera::Factory>();
         diContainer.RemoveSingleton<Transform::Factory>();

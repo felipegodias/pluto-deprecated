@@ -29,6 +29,7 @@
 #include <pluto/scene/game_object.h>
 #include <pluto/scene/transform.h>
 #include <pluto/scene/components/camera.h>
+#include <pluto/scene/components/mesh_renderer.h>
 
 #include <pluto/render/render_manager.h>
 #include <pluto/render/mesh_buffer.h>
@@ -172,15 +173,20 @@ namespace pluto
     template void DiContainer::RemoveSingleton<Camera::Factory>();
     template Camera::Factory& DiContainer::GetSingleton() const;
 
+    template MeshRenderer::Factory& DiContainer::AddSingleton(std::unique_ptr<MeshRenderer::Factory> instance);
+    template void DiContainer::RemoveSingleton<MeshRenderer::Factory>();
+    template MeshRenderer::Factory& DiContainer::GetSingleton() const;
+
     template RenderManager& DiContainer::AddSingleton(std::unique_ptr<RenderManager> instance);
     template void DiContainer::RemoveSingleton<RenderManager>();
     template RenderManager& DiContainer::GetSingleton() const;
 
-    template MeshBuffer::Factory& DiContainer::AddSingleton(std::unique_ptr<MeshBuffer::Factory> instance);
-    template void DiContainer::RemoveSingleton<MeshBuffer::Factory>();
-    template MeshBuffer::Factory& DiContainer::GetSingleton() const;
+    template PLUTO_API MeshBuffer::Factory& DiContainer::AddSingleton(std::unique_ptr<MeshBuffer::Factory> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<MeshBuffer::Factory>();
+    template PLUTO_API MeshBuffer::Factory& DiContainer::GetSingleton() const;
 
-    template ShaderProgram::Factory& DiContainer::AddSingleton(std::unique_ptr<ShaderProgram::Factory> instance);
-    template void DiContainer::RemoveSingleton<ShaderProgram::Factory>();
-    template ShaderProgram::Factory& DiContainer::GetSingleton() const;
+    template PLUTO_API ShaderProgram::Factory& DiContainer::AddSingleton(
+        std::unique_ptr<ShaderProgram::Factory> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<ShaderProgram::Factory>();
+    template PLUTO_API ShaderProgram::Factory& DiContainer::GetSingleton() const;
 }
