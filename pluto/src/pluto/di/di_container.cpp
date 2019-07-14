@@ -35,6 +35,10 @@
 #include <pluto/render/mesh_buffer.h>
 #include <pluto/render/shader_program.h>
 
+#include "pluto/exception.h"
+
+#include <fmt/format.h>
+
 #include <unordered_map>
 #include <typeindex>
 
@@ -49,8 +53,16 @@ namespace pluto
         template <typename T, IsSingleton<T>  = 0>
         T& AddSingleton(std::unique_ptr<T> instance)
         {
+            const auto it = singletons.find(typeid(T));
+            if (it != singletons.end())
+            {
+                Exception::Throw(
+                    std::runtime_error(fmt::format("Singleton instance of type {0} already exists in the container.",
+                                                   typeid(T).name())));
+            }
+
             T* ptr = instance.get();
-            singletons[typeid(T)] = std::move(instance);
+            singletons.emplace(typeid(T), std::move(instance));
             return *ptr;
         }
 
@@ -63,8 +75,14 @@ namespace pluto
         template <typename T, IsSingleton<T>  = 0>
         T& GetSingleton() const
         {
-            Singleton& singleton = *singletons.at(typeid(T));
-            return static_cast<T&>(singleton);
+            const auto it = singletons.find(typeid(T));
+            if (it == singletons.end())
+            {
+                Exception::Throw(
+                    std::runtime_error(fmt::format("Could not resolve singleton for type {0}", typeid(T).name())));
+            }
+
+            return static_cast<T&>(*it->second);
         }
     };
 
@@ -92,94 +110,96 @@ namespace pluto
         return impl->GetSingleton<T>();
     }
 
-    template LogManager& DiContainer::AddSingleton(std::unique_ptr<LogManager> instance);
-    template void DiContainer::RemoveSingleton<LogManager>();
-    template LogManager& DiContainer::GetSingleton() const;
+    template PLUTO_API LogManager& DiContainer::AddSingleton(std::unique_ptr<LogManager> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<LogManager>();
+    template PLUTO_API LogManager& DiContainer::GetSingleton() const;
 
-    template ConfigManager& DiContainer::AddSingleton(std::unique_ptr<ConfigManager> instance);
-    template void DiContainer::RemoveSingleton<ConfigManager>();
-    template ConfigManager& DiContainer::GetSingleton() const;
+    template PLUTO_API ConfigManager& DiContainer::AddSingleton(std::unique_ptr<ConfigManager> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<ConfigManager>();
+    template PLUTO_API ConfigManager& DiContainer::GetSingleton() const;
 
-    template FileManager& DiContainer::AddSingleton(std::unique_ptr<FileManager> instance);
-    template void DiContainer::RemoveSingleton<FileManager>();
-    template FileManager& DiContainer::GetSingleton() const;
+    template PLUTO_API FileManager& DiContainer::AddSingleton(std::unique_ptr<FileManager> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<FileManager>();
+    template PLUTO_API FileManager& DiContainer::GetSingleton() const;
 
-    template FileReader::Factory& DiContainer::AddSingleton(std::unique_ptr<FileReader::Factory> instance);
-    template void DiContainer::RemoveSingleton<FileReader::Factory>();
-    template FileReader::Factory& DiContainer::GetSingleton() const;
+    template PLUTO_API FileReader::Factory& DiContainer::AddSingleton(std::unique_ptr<FileReader::Factory> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<FileReader::Factory>();
+    template PLUTO_API FileReader::Factory& DiContainer::GetSingleton() const;
 
-    template FileWriter::Factory& DiContainer::AddSingleton(std::unique_ptr<FileWriter::Factory> instance);
-    template void DiContainer::RemoveSingleton<FileWriter::Factory>();
-    template FileWriter::Factory& DiContainer::GetSingleton() const;
+    template PLUTO_API FileWriter::Factory& DiContainer::AddSingleton(std::unique_ptr<FileWriter::Factory> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<FileWriter::Factory>();
+    template PLUTO_API FileWriter::Factory& DiContainer::GetSingleton() const;
 
-    template EventManager& DiContainer::AddSingleton(std::unique_ptr<EventManager> instance);
-    template void DiContainer::RemoveSingleton<EventManager>();
-    template EventManager& DiContainer::GetSingleton() const;
+    template PLUTO_API EventManager& DiContainer::AddSingleton(std::unique_ptr<EventManager> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<EventManager>();
+    template PLUTO_API EventManager& DiContainer::GetSingleton() const;
 
-    template WindowManager& DiContainer::AddSingleton(std::unique_ptr<WindowManager> instance);
-    template void DiContainer::RemoveSingleton<WindowManager>();
-    template WindowManager& DiContainer::GetSingleton() const;
+    template PLUTO_API WindowManager& DiContainer::AddSingleton(std::unique_ptr<WindowManager> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<WindowManager>();
+    template PLUTO_API WindowManager& DiContainer::GetSingleton() const;
 
-    template InputManager& DiContainer::AddSingleton(std::unique_ptr<InputManager> instance);
-    template void DiContainer::RemoveSingleton<InputManager>();
-    template InputManager& DiContainer::GetSingleton() const;
+    template PLUTO_API InputManager& DiContainer::AddSingleton(std::unique_ptr<InputManager> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<InputManager>();
+    template PLUTO_API InputManager& DiContainer::GetSingleton() const;
 
-    template SimulationManager& DiContainer::AddSingleton(std::unique_ptr<SimulationManager> instance);
-    template void DiContainer::RemoveSingleton<SimulationManager>();
-    template SimulationManager& DiContainer::GetSingleton() const;
+    template PLUTO_API SimulationManager& DiContainer::AddSingleton(std::unique_ptr<SimulationManager> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<SimulationManager>();
+    template PLUTO_API SimulationManager& DiContainer::GetSingleton() const;
 
-    template AssetManager& DiContainer::AddSingleton(std::unique_ptr<AssetManager> instance);
-    template void DiContainer::RemoveSingleton<AssetManager>();
-    template AssetManager& DiContainer::GetSingleton() const;
+    template PLUTO_API AssetManager& DiContainer::AddSingleton(std::unique_ptr<AssetManager> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<AssetManager>();
+    template PLUTO_API AssetManager& DiContainer::GetSingleton() const;
 
-    template PackageManifestAsset::Factory& DiContainer::AddSingleton(
+    template PLUTO_API PackageManifestAsset::Factory& DiContainer::AddSingleton(
         std::unique_ptr<PackageManifestAsset::Factory> instance);
-    template void DiContainer::RemoveSingleton<PackageManifestAsset::Factory>();
-    template PackageManifestAsset::Factory& DiContainer::GetSingleton() const;
+    template PLUTO_API void DiContainer::RemoveSingleton<PackageManifestAsset::Factory>();
+    template PLUTO_API PackageManifestAsset::Factory& DiContainer::GetSingleton() const;
 
-    template TextAsset::Factory& DiContainer::AddSingleton(std::unique_ptr<TextAsset::Factory> instance);
-    template void DiContainer::RemoveSingleton<TextAsset::Factory>();
-    template TextAsset::Factory& DiContainer::GetSingleton() const;
+    template PLUTO_API TextAsset::Factory& DiContainer::AddSingleton(std::unique_ptr<TextAsset::Factory> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<TextAsset::Factory>();
+    template PLUTO_API TextAsset::Factory& DiContainer::GetSingleton() const;
 
-    template MeshAsset::Factory& DiContainer::AddSingleton(std::unique_ptr<MeshAsset::Factory> instance);
-    template void DiContainer::RemoveSingleton<MeshAsset::Factory>();
-    template MeshAsset::Factory& DiContainer::GetSingleton() const;
+    template PLUTO_API MeshAsset::Factory& DiContainer::AddSingleton(std::unique_ptr<MeshAsset::Factory> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<MeshAsset::Factory>();
+    template PLUTO_API MeshAsset::Factory& DiContainer::GetSingleton() const;
 
-    template ShaderAsset::Factory& DiContainer::AddSingleton(std::unique_ptr<ShaderAsset::Factory> instance);
-    template void DiContainer::RemoveSingleton<ShaderAsset::Factory>();
-    template ShaderAsset::Factory& DiContainer::GetSingleton() const;
+    template PLUTO_API ShaderAsset::Factory& DiContainer::AddSingleton(std::unique_ptr<ShaderAsset::Factory> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<ShaderAsset::Factory>();
+    template PLUTO_API ShaderAsset::Factory& DiContainer::GetSingleton() const;
 
-    template MaterialAsset::Factory& DiContainer::AddSingleton(std::unique_ptr<MaterialAsset::Factory> instance);
-    template void DiContainer::RemoveSingleton<MaterialAsset::Factory>();
-    template MaterialAsset::Factory& DiContainer::GetSingleton() const;
+    template PLUTO_API MaterialAsset::Factory& DiContainer::AddSingleton(
+        std::unique_ptr<MaterialAsset::Factory> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<MaterialAsset::Factory>();
+    template PLUTO_API MaterialAsset::Factory& DiContainer::GetSingleton() const;
 
-    template SceneManager& DiContainer::AddSingleton(std::unique_ptr<SceneManager> instance);
-    template void DiContainer::RemoveSingleton<SceneManager>();
-    template SceneManager& DiContainer::GetSingleton() const;
+    template PLUTO_API SceneManager& DiContainer::AddSingleton(std::unique_ptr<SceneManager> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<SceneManager>();
+    template PLUTO_API SceneManager& DiContainer::GetSingleton() const;
 
-    template Scene::Factory& DiContainer::AddSingleton(std::unique_ptr<Scene::Factory> instance);
-    template void DiContainer::RemoveSingleton<Scene::Factory>();
-    template Scene::Factory& DiContainer::GetSingleton() const;
+    template PLUTO_API Scene::Factory& DiContainer::AddSingleton(std::unique_ptr<Scene::Factory> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<Scene::Factory>();
+    template PLUTO_API Scene::Factory& DiContainer::GetSingleton() const;
 
-    template GameObject::Factory& DiContainer::AddSingleton(std::unique_ptr<GameObject::Factory> instance);
-    template void DiContainer::RemoveSingleton<GameObject::Factory>();
-    template GameObject::Factory& DiContainer::GetSingleton() const;
+    template PLUTO_API GameObject::Factory& DiContainer::AddSingleton(std::unique_ptr<GameObject::Factory> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<GameObject::Factory>();
+    template PLUTO_API GameObject::Factory& DiContainer::GetSingleton() const;
 
-    template Transform::Factory& DiContainer::AddSingleton(std::unique_ptr<Transform::Factory> instance);
-    template void DiContainer::RemoveSingleton<Transform::Factory>();
-    template Transform::Factory& DiContainer::GetSingleton() const;
+    template PLUTO_API Transform::Factory& DiContainer::AddSingleton(std::unique_ptr<Transform::Factory> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<Transform::Factory>();
+    template PLUTO_API Transform::Factory& DiContainer::GetSingleton() const;
 
-    template Camera::Factory& DiContainer::AddSingleton(std::unique_ptr<Camera::Factory> instance);
-    template void DiContainer::RemoveSingleton<Camera::Factory>();
-    template Camera::Factory& DiContainer::GetSingleton() const;
+    template PLUTO_API Camera::Factory& DiContainer::AddSingleton(std::unique_ptr<Camera::Factory> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<Camera::Factory>();
+    template PLUTO_API Camera::Factory& DiContainer::GetSingleton() const;
 
-    template MeshRenderer::Factory& DiContainer::AddSingleton(std::unique_ptr<MeshRenderer::Factory> instance);
-    template void DiContainer::RemoveSingleton<MeshRenderer::Factory>();
-    template MeshRenderer::Factory& DiContainer::GetSingleton() const;
+    template PLUTO_API MeshRenderer::Factory& DiContainer::
+    AddSingleton(std::unique_ptr<MeshRenderer::Factory> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<MeshRenderer::Factory>();
+    template PLUTO_API MeshRenderer::Factory& DiContainer::GetSingleton() const;
 
-    template RenderManager& DiContainer::AddSingleton(std::unique_ptr<RenderManager> instance);
-    template void DiContainer::RemoveSingleton<RenderManager>();
-    template RenderManager& DiContainer::GetSingleton() const;
+    template PLUTO_API RenderManager& DiContainer::AddSingleton(std::unique_ptr<RenderManager> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<RenderManager>();
+    template PLUTO_API RenderManager& DiContainer::GetSingleton() const;
 
     template PLUTO_API MeshBuffer::Factory& DiContainer::AddSingleton(std::unique_ptr<MeshBuffer::Factory> instance);
     template PLUTO_API void DiContainer::RemoveSingleton<MeshBuffer::Factory>();
