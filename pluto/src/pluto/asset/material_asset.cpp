@@ -2,6 +2,7 @@
 #include <pluto/asset/shader_asset.h>
 #include <pluto/asset/events/on_asset_unload_event.h>
 #include <pluto/asset/asset_manager.h>
+#include <pluto/file/path.h>
 
 #include <pluto/di/di_container.h>
 
@@ -242,7 +243,7 @@ namespace pluto
         {
             if (shaderAsset == onAssetUnload.GetAsset())
             {
-                shaderAsset = assetManager.Load<ShaderAsset>("assets/pink_shader.hlsl");
+                shaderAsset = assetManager.Load<ShaderAsset>(Path("assets/pink_shader.hlsl"));
             }
         }
 
@@ -297,7 +298,7 @@ namespace pluto
     std::unique_ptr<MaterialAsset> MaterialAsset::Factory::Create() const
     {
         auto& assetManager = diContainer.GetSingleton<AssetManager>();
-        auto& pinkShader = assetManager.Load<ShaderAsset>("pink");
+        auto& pinkShader = assetManager.Load<ShaderAsset>(Path("pink"));
         auto& eventManager = diContainer.GetSingleton<EventManager>();
 
         return std::make_unique<MaterialAsset>(

@@ -1,9 +1,11 @@
-#include <pluto/file/file_manager.h>
-#include <pluto/file/file_reader.h>
-#include <pluto/file/file_writer.h>
-#include <pluto/di/di_container.h>
-#include <pluto/regex.h>
+#include "pluto/file/file_manager.h"
+#include "pluto/file/file_reader.h"
+#include "pluto/file/file_writer.h"
+#include "pluto/file/path.h"
+#include "pluto/di/di_container.h"
+#include "pluto/regex.h"
 
+#include <algorithm>
 #include <iostream>
 #include <filesystem>
 
@@ -16,15 +18,11 @@ namespace pluto
         FileWriter::Factory& fileWriterFactory;
 
     public:
-        explicit Impl(const std::string& dataDirectoryName, FileReader::Factory& fileReaderFactory,
+        explicit Impl(const Path& rootPath, FileReader::Factory& fileReaderFactory,
                       FileWriter::Factory& fileWriterFactory) : fileReaderFactory(fileReaderFactory),
                                                                 fileWriterFactory(fileWriterFactory)
         {
-            if (!dataDirectoryName.empty())
-            {
-                std::filesystem::current_path(dataDirectoryName);
-            }
-
+            std::filesystem::current_path(rootPath.Str());
             std::cout << "FileManager initialized!" << std::endl;
         }
 
@@ -33,22 +31,22 @@ namespace pluto
             std::cout << "FileManager terminated!" << std::endl;
         }
 
-        bool Exists(const std::string& path) const
+        bool Exists(const Path& path) const
         {
-            return std::filesystem::exists(path);
+            return std::filesystem::exists(path.Str());
         }
 
-        bool IsFile(const std::string& path) const
+        bool IsFile(const Path& path) const
         {
-            return std::filesystem::is_regular_file(path);
+            return std::filesystem::is_regular_file(path.Str());
         }
 
-        bool IsDirectory(const std::string& path) const
+        bool IsDirectory(const Path& path) const
         {
-            return std::filesystem::is_directory(path);
+            return std::filesystem::is_directory(path.Str());
         }
 
-        std::vector<std::string> GetDirectories(const std::string& path, const SearchOptions searchOptions) const
+        std::vector<Path> GetDirectories(const Path& path, const SearchOptions searchOptions) const
         {
             const auto filter = [](const std::filesystem::directory_entry& e)-> bool
             {
@@ -58,10 +56,10 @@ namespace pluto
             return GetEntries(path, searchOptions, filter);
         }
 
-        std::vector<std::string> GetDirectories(const std::string& path, const Regex& regex,
-                                                const SearchOptions searchOptions) const
+        std::vector<Path> GetDirectories(const Path& path, const Regex& regex,
+                                         const SearchOptions searchOptions) const
         {
-            const auto filter = [regex](const std::filesystem::directory_entry& e)-> bool
+            const auto filter = [&regex](const std::filesystem::directory_entry& e)-> bool
             {
                 return e.is_directory() && regex.Match(e.path().string());
             };
@@ -69,7 +67,7 @@ namespace pluto
             return GetEntries(path, searchOptions, filter);
         }
 
-        std::vector<std::string> GetFiles(const std::string& path, const SearchOptions searchOptions) const
+        std::vector<Path> GetFiles(const Path& path, const SearchOptions searchOptions) const
         {
             const auto filter = [](const std::filesystem::directory_entry& e)-> bool
             {
@@ -79,10 +77,10 @@ namespace pluto
             return GetEntries(path, searchOptions, filter);
         }
 
-        std::vector<std::string> GetFiles(const std::string& path, const Regex& regex,
-                                          const SearchOptions searchOptions) const
+        std::vector<Path> GetFiles(const Path& path, const Regex& regex,
+                                   const SearchOptions searchOptions) const
         {
-            const auto filter = [regex](const std::filesystem::directory_entry& e)-> bool
+            const auto filter = [&regex](const std::filesystem::directory_entry& e)-> bool
             {
                 return e.is_regular_file() && regex.Match(e.path().string());
             };
@@ -90,41 +88,41 @@ namespace pluto
             return GetEntries(path, searchOptions, filter);
         }
 
-        std::unique_ptr<FileReader> OpenRead(const std::string& path) const
+        std::unique_ptr<FileReader> OpenRead(const Path& path) const
         {
-            return fileReaderFactory.Create(std::ifstream(path, std::ios::binary));
+            return fileReaderFactory.Create(std::ifstream(path.Str(), std::ios::binary));
         }
 
-        std::unique_ptr<FileWriter> OpenWrite(const std::string& path) const
+        std::unique_ptr<FileWriter> OpenWrite(const Path& path) const
         {
-            return fileWriterFactory.Create(std::ofstream(path, std::ios::binary));
+            return fileWriterFactory.Create(std::ofstream(path.Str(), std::ios::binary));
         }
 
-        void Delete(const std::string& path) const
+        void Delete(const Path& path) const
         {
-            std::filesystem::remove_all(path);
+            std::filesystem::remove_all(path.Str());
         }
 
     private:
         template <typename Tf>
-        std::vector<std::string> GetEntries(const std::string& path, const SearchOptions searchOptions, Tf filter) const
+        std::vector<Path> GetEntries(const Path& path, const SearchOptions searchOptions, Tf filter) const
         {
             if (searchOptions == TopDirectoryOnly)
             {
-                return GetEntries(path, std::filesystem::directory_iterator(path), filter);
+                return FilterEntries(std::filesystem::directory_iterator(path.Str()), filter);
             }
-            return GetEntries(path, std::filesystem::recursive_directory_iterator(path), filter);
+            return FilterEntries(std::filesystem::recursive_directory_iterator(path.Str()), filter);
         }
 
         template <typename Ti, typename Tf>
-        std::vector<std::string> GetEntries(const std::string& path, Ti it, Tf filter) const
+        std::vector<Path> FilterEntries(Ti iterator, Tf filter) const
         {
-            std::vector<std::string> result;
-            for (auto& p : it)
+            std::vector<Path> result;
+            for (auto& it : iterator)
             {
-                if (filter(p))
+                if (filter(it))
                 {
-                    result.push_back(p.path().string());
+                    result.push_back(Path(it.path().string()));
                 }
             }
             return result;
@@ -135,12 +133,12 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<FileManager> FileManager::Factory::Create(const std::string& dataDirectoryName) const
+    std::unique_ptr<FileManager> FileManager::Factory::Create(const Path& rootPath) const
     {
         auto& fileReaderFactory = diContainer.GetSingleton<FileReader::Factory>();
         auto& fileWriterFactory = diContainer.GetSingleton<FileWriter::Factory>();
         return std::make_unique<FileManager>(
-            std::make_unique<Impl>(dataDirectoryName, fileReaderFactory, fileWriterFactory));
+            std::make_unique<Impl>(rootPath, fileReaderFactory, fileWriterFactory));
     }
 
     FileManager::FileManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
@@ -149,75 +147,74 @@ namespace pluto
 
     FileManager::~FileManager() = default;
 
-    bool FileManager::Exists(const std::string& path) const
+    bool FileManager::Exists(const Path& path) const
     {
         return impl->Exists(path);
     }
 
-    bool FileManager::IsFile(const std::string& path) const
+    bool FileManager::IsFile(const Path& path) const
     {
         return impl->IsFile(path);
     }
 
-    bool FileManager::IsDirectory(const std::string& path) const
+    bool FileManager::IsDirectory(const Path& path) const
     {
         return impl->IsDirectory(path);
     }
 
-    std::vector<std::string> FileManager::GetDirectories(const std::string& path) const
+    std::vector<Path> FileManager::GetDirectories(const Path& path) const
     {
         return impl->GetDirectories(path, TopDirectoryOnly);
     }
 
-    std::vector<std::string> FileManager::GetDirectories(const std::string& path,
-                                                         const SearchOptions searchOptions) const
+    std::vector<Path> FileManager::GetDirectories(const Path& path, const SearchOptions searchOptions) const
     {
         return impl->GetDirectories(path, searchOptions);
     }
 
-    std::vector<std::string> FileManager::GetDirectories(const std::string& path, const Regex& regex) const
+    std::vector<Path> FileManager::GetDirectories(const Path& path, const Regex& regex) const
     {
         return impl->GetDirectories(path, regex, TopDirectoryOnly);
     }
 
-    std::vector<std::string> FileManager::GetDirectories(const std::string& path, const Regex& regex,
-                                                         const SearchOptions searchOptions) const
+    std::vector<Path> FileManager::GetDirectories(const Path& path, const Regex& regex,
+                                                  const SearchOptions searchOptions) const
     {
         return impl->GetDirectories(path, regex, searchOptions);
     }
 
-    std::vector<std::string> FileManager::GetFiles(const std::string& path) const
+    std::vector<Path> FileManager::GetFiles(const Path& path) const
     {
         return impl->GetFiles(path, TopDirectoryOnly);
     }
 
-    std::vector<std::string> FileManager::GetFiles(const std::string& path, const SearchOptions searchOptions) const
+    std::vector<Path> FileManager::GetFiles(const Path& path, const SearchOptions searchOptions) const
     {
         return impl->GetFiles(path, searchOptions);
     }
 
-    std::vector<std::string> FileManager::GetFiles(const std::string& path, const Regex& regex) const
+    std::vector<Path> FileManager::GetFiles(const Path& path, const Regex& regex) const
     {
         return impl->GetFiles(path, regex, TopDirectoryOnly);
     }
 
-    std::vector<std::string> FileManager::GetFiles(const std::string& path, const Regex& regex,
-                                                   const SearchOptions searchOptions) const
+    std::vector<Path> FileManager::GetFiles(const Path& path, const Regex& regex,
+                                            const SearchOptions searchOptions) const
     {
         return impl->GetFiles(path, regex, searchOptions);
     }
 
-    std::unique_ptr<FileReader> FileManager::OpenRead(const std::string& path) const
+    std::unique_ptr<FileReader> FileManager::OpenRead(const Path& path) const
     {
         return impl->OpenRead(path);
     }
 
-    std::unique_ptr<FileWriter> FileManager::OpenWrite(const std::string& path) const
+    std::unique_ptr<FileWriter> FileManager::OpenWrite(const Path& path) const
     {
         return impl->OpenWrite(path);
     }
 
-    void FileManager::Delete(const std::string& path) const
+    void FileManager::Delete(const Path& path) const
     {
         return impl->Delete(path);
     }

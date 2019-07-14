@@ -37,6 +37,7 @@
 #include <pluto/file/file_manager.h>
 #include <pluto/file/file_reader.h>
 #include <pluto/file/file_writer.h>
+#include <pluto/file/path.h>
 
 #include <pluto/scene/scene.h>
 #include <pluto/scene/game_object.h>
@@ -69,13 +70,13 @@ namespace pluto
             FileInstaller::Install(dataDirectoryName, *diContainer);
             auto& fileManager = diContainer->GetSingleton<FileManager>();
 
-            std::unique_ptr<FileWriter> logFile = fileManager.OpenWrite(logFileName);
+            std::unique_ptr<FileWriter> logFile = fileManager.OpenWrite(Path(logFileName));
             LogInstaller::Install(std::move(logFile), *diContainer);
 
             std::unique_ptr<FileReader> configFile;
-            if (fileManager.Exists(configFileName))
+            if (fileManager.Exists(Path(configFileName)))
             {
-                configFile = fileManager.OpenRead(configFileName);
+                configFile = fileManager.OpenRead(Path(configFileName));
             }
             ConfigInstaller::Install(configFile.get(), *diContainer);
 
@@ -132,8 +133,8 @@ namespace pluto
 
                 auto& camera = cameraGo.AddComponent<Camera>();
 
-                auto& meshAsset = assetManager.Load<MeshAsset>("quad");
-                auto& shaderAsset = assetManager.Load<ShaderAsset>("pink");
+                auto& meshAsset = assetManager.Load<MeshAsset>(Path("quad"));
+                auto& shaderAsset = assetManager.Load<ShaderAsset>(Path("pink"));
 
                 auto& materialFactory = diContainer->GetSingleton<MaterialAsset::Factory>();
                 auto materialAssetPtr = materialFactory.Create();

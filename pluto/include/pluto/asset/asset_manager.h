@@ -10,6 +10,7 @@ namespace pluto
 {
     class Asset;
     class Guid;
+    class Path;
 
     template <typename T>
     using IsAsset = std::enable_if_t<std::is_base_of_v<Asset, T>, int>;
@@ -35,7 +36,7 @@ namespace pluto
         void LoadPackage(const std::string& name);
 
         template <typename T, IsAsset<T>  = 0>
-        T& Load(const std::string& path);
+        T& Load(const Path& path);
 
         template <typename T, IsAsset<T>  = 0>
         T& Load(const Guid& guid);

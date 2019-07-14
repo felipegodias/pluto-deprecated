@@ -3,15 +3,14 @@
 #include "../di/singleton.h"
 #include "../di/base_factory.h"
 #include <memory>
-#include <string>
 #include <vector>
-#include <fstream>
 
 namespace pluto
 {
     class FileWriter;
     class FileReader;
     class Regex;
+    class Path;
 
     class PLUTO_API FileManager final : public Singleton
     {
@@ -20,7 +19,7 @@ namespace pluto
         {
         public:
             explicit Factory(DiContainer& diContainer);
-            std::unique_ptr<FileManager> Create(const std::string& dataDirectoryName) const;
+            std::unique_ptr<FileManager> Create(const Path& rootPath) const;
         };
 
         enum SearchOptions
@@ -38,34 +37,32 @@ namespace pluto
 
         ~FileManager();
 
-        bool Exists(const std::string& path) const;
+        bool Exists(const Path& path) const;
 
-        bool IsFile(const std::string& path) const;
+        bool IsFile(const Path& path) const;
 
-        bool IsDirectory(const std::string& path) const;
+        bool IsDirectory(const Path& path) const;
 
-        std::vector<std::string> GetDirectories(const std::string& path) const;
+        std::vector<Path> GetDirectories(const Path& path) const;
 
-        std::vector<std::string> GetDirectories(const std::string& path, SearchOptions searchOptions) const;
+        std::vector<Path> GetDirectories(const Path& path, SearchOptions searchOptions) const;
 
-        std::vector<std::string> GetDirectories(const std::string& path, const Regex& regex) const;
+        std::vector<Path> GetDirectories(const Path& path, const Regex& regex) const;
 
-        std::vector<std::string> GetDirectories(const std::string& path, const Regex& regex,
-                                                SearchOptions searchOptions) const;
+        std::vector<Path> GetDirectories(const Path& path, const Regex& regex, SearchOptions searchOptions) const;
 
-        std::vector<std::string> GetFiles(const std::string& path) const;
+        std::vector<Path> GetFiles(const Path& path) const;
 
-        std::vector<std::string> GetFiles(const std::string& path, SearchOptions searchOptions) const;
+        std::vector<Path> GetFiles(const Path& path, SearchOptions searchOptions) const;
 
-        std::vector<std::string> GetFiles(const std::string& path, const Regex& regex) const;
+        std::vector<Path> GetFiles(const Path& path, const Regex& regex) const;
 
-        std::vector<std::string> GetFiles(const std::string& path, const Regex& regex,
-                                          SearchOptions searchOptions) const;
+        std::vector<Path> GetFiles(const Path& path, const Regex& regex, SearchOptions searchOptions) const;
 
-        std::unique_ptr<FileReader> OpenRead(const std::string& path) const;
+        std::unique_ptr<FileReader> OpenRead(const Path& path) const;
 
-        std::unique_ptr<FileWriter> OpenWrite(const std::string& path) const;
+        std::unique_ptr<FileWriter> OpenWrite(const Path& path) const;
 
-        void Delete(const std::string& path) const;
+        void Delete(const Path& path) const;
     };
 }
