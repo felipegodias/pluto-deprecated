@@ -58,6 +58,7 @@ namespace pluto
         float GetSqrMagnitude() const;
         Vector4F GetNormalized() const;
         std::string Str() const;
+        float* Data();
 
         static float Distance(const Vector4F& from, const Vector4F& to);
         static Vector4F Lerp(const Vector4F& from, const Vector4F& to, float t);

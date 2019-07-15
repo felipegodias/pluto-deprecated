@@ -195,4 +195,9 @@ namespace pluto
         ss << *this;
         return ss.str();
     }
+
+    float* Matrix2X2::Data()
+    {
+        return data.data();
+    }
 }

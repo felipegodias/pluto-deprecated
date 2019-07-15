@@ -261,6 +261,11 @@ namespace pluto
         return ss.str();
     }
 
+    float* Vector3F::Data()
+    {
+        return &x;
+    }
+
     float Vector3F::Angle(const Vector3F& from, const Vector3F& to)
     {
         return angle(normalize(ToGlm(from)), normalize(ToGlm(to)));

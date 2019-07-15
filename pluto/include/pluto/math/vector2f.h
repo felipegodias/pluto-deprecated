@@ -63,6 +63,7 @@ namespace pluto
         float GetSqrMagnitude() const;
         Vector2F GetNormalized() const;
         std::string Str() const;
+        float* Data();
 
         static float Angle(const Vector2F& from, const Vector2F& to);
         static float Distance(const Vector2F& from, const Vector2F& to);

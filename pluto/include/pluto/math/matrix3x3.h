@@ -45,5 +45,6 @@ namespace pluto
         Matrix3X3 GetInverse() const;
         Matrix3X3 GetTranspose() const;
         std::string Str() const;
+        float* Data();
     };
 }

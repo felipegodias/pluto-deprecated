@@ -85,4 +85,9 @@ namespace pluto
         ss << *this;
         return ss.str();
     }
+
+    int* Vector2I::Data()
+    {
+        return &x;
+    }
 }

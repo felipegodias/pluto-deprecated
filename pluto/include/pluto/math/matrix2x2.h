@@ -45,5 +45,6 @@ namespace pluto
         Matrix2X2 GetInverse() const;
         Matrix2X2 GetTranspose() const;
         std::string Str() const;
+        float* Data();
     };
 }

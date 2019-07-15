@@ -2,6 +2,7 @@
 
 #include "../api.h"
 #include <ostream>
+#include <array>
 
 namespace pluto
 {
@@ -38,6 +39,7 @@ namespace pluto
         Quaternion GetNormalized() const;
         Quaternion GetInverse() const;
         std::string Str() const;
+        float* Data();
 
         static float Dot(const Quaternion& lhs, const Quaternion& rhs);
         static Quaternion Euler(const Vector3F& eulerAngles);

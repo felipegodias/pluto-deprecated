@@ -50,6 +50,7 @@ namespace pluto
         Vector2F MultiplyPoint(const Vector2F& point) const;
         Vector3F MultiplyPoint(const Vector3F& point) const;
         std::string Str() const;
+        float* Data();
 
         static Matrix4X4 Frustum(float left, float right, float bottom, float top, float near, float far);
         static Matrix4X4 LookAt(const Vector3F& from, const Vector3F& to, const Vector3F& up);

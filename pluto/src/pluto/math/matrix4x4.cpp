@@ -230,6 +230,11 @@ namespace pluto
         return ss.str();
     }
 
+    float* Matrix4X4::Data()
+    {
+        return data.data();
+    }
+
     Matrix4X4 Matrix4X4::Frustum(const float left, const float right, const float bottom, const float top,
                                  const float near,
                                  const float far)

@@ -201,4 +201,9 @@ namespace pluto
         ss << *this;
         return ss.str();
     }
+
+    float* Matrix3X3::Data()
+    {
+        return data.data();
+    }
 }

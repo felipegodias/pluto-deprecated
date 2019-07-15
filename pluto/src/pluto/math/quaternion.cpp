@@ -164,6 +164,11 @@ namespace pluto
         return ss.str();
     }
 
+    float* Quaternion::Data()
+    {
+        return &x;
+    }
+
     float Quaternion::Dot(const Quaternion& lhs, const Quaternion& rhs)
     {
         return dot(ToGlm(lhs), ToGlm(rhs));

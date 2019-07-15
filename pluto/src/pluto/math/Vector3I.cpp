@@ -90,4 +90,9 @@ namespace pluto
         ss << *this;
         return ss.str();
     }
+
+    int* Vector3I::Data()
+    {
+        return &x;
+    }
 }
