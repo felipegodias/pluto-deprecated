@@ -59,6 +59,8 @@ namespace pluto
 
         std::vector<Path> GetFiles(const Path& path, const Regex& regex, SearchOptions searchOptions) const;
 
+        void CreateDirectory(const Path& path) const;
+
         std::unique_ptr<FileReader> OpenRead(const Path& path) const;
 
         std::unique_ptr<FileWriter> OpenWrite(const Path& path) const;

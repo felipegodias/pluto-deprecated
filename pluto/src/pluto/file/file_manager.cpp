@@ -88,6 +88,11 @@ namespace pluto
             return GetEntries(path, searchOptions, filter);
         }
 
+        void CreateDirectory(const Path& path) const
+        {
+            std::filesystem::create_directory(path.Str());
+        }
+
         std::unique_ptr<FileReader> OpenRead(const Path& path) const
         {
             return fileReaderFactory.Create(std::ifstream(path.Str(), std::ios::binary));
@@ -202,6 +207,11 @@ namespace pluto
                                             const SearchOptions searchOptions) const
     {
         return impl->GetFiles(path, regex, searchOptions);
+    }
+
+    void FileManager::CreateDirectory(const Path& path) const
+    {
+        return impl->CreateDirectory(path);
     }
 
     std::unique_ptr<FileReader> FileManager::OpenRead(const Path& path) const
