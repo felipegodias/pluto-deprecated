@@ -1,8 +1,16 @@
 #include "pluto/render/gl/gl_shader_program.h"
 #include "pluto/asset/shader_asset.h"
 #include "pluto/asset/material_asset.h"
-#include "pluto/math/matrix4x4.h"
+
+#include "pluto/math/vector2i.h"
+#include "pluto/math/vector2f.h"
+#include "pluto/math/vector3i.h"
+#include "pluto/math/vector3f.h"
+#include "pluto/math/vector4i.h"
 #include "pluto/math/vector4f.h"
+#include "pluto/math/matrix2x2.h"
+#include "pluto/math/matrix3x3.h"
+#include "pluto/math/matrix4x4.h"
 
 #include <GL/glew.h>
 
@@ -178,10 +186,48 @@ namespace pluto
     private:
         void UpdateProperty(const ShaderAsset::Property& property)
         {
-            if (property.type == ShaderAsset::Property::Type::Vector4F)
+            switch (property.type)
             {
-                const Vector4F& value = lastMaterialAsset->GetVector4F(property.name);
-                glUniform4fv(property.id, 1, &value.x);
+            case ShaderAsset::Property::Type::Bool:
+                glUniform1i(property.id, lastMaterialAsset->GetBool(property.name));
+                break;
+            case ShaderAsset::Property::Type::Int:
+                glUniform1i(property.id, lastMaterialAsset->GetInt(property.name));
+                break;
+            case ShaderAsset::Property::Type::Float:
+                glUniform1f(property.id, lastMaterialAsset->GetFloat(property.name));
+                break;
+            case ShaderAsset::Property::Type::Vector2I:
+                glUniform2iv(property.id, 1, lastMaterialAsset->GetVector2I(property.name).Data());
+                break;
+            case ShaderAsset::Property::Type::Vector2F:
+                glUniform2fv(property.id, 1, lastMaterialAsset->GetVector2F(property.name).Data());
+                break;
+            case ShaderAsset::Property::Type::Vector3I:
+                glUniform3iv(property.id, 1, lastMaterialAsset->GetVector3I(property.name).Data());
+                break;
+            case ShaderAsset::Property::Type::Vector3F:
+                glUniform3fv(property.id, 1, lastMaterialAsset->GetVector3F(property.name).Data());
+                break;
+            case ShaderAsset::Property::Type::Vector4I:
+                glUniform4iv(property.id, 1, lastMaterialAsset->GetVector4I(property.name).Data());
+                break;
+            case ShaderAsset::Property::Type::Vector4F:
+                glUniform4fv(property.id, 1, lastMaterialAsset->GetVector4F(property.name).Data());
+                break;
+            case ShaderAsset::Property::Type::Matrix2X2:
+                glUniformMatrix2fv(property.id, 1, GL_FALSE, lastMaterialAsset->GetMatrix2X2(property.name).Data());
+                break;
+            case ShaderAsset::Property::Type::Matrix3X3:
+                glUniformMatrix3fv(property.id, 1, GL_FALSE, lastMaterialAsset->GetMatrix3X3(property.name).Data());
+                break;
+            case ShaderAsset::Property::Type::Matrix4X4:
+                glUniformMatrix3fv(property.id, 1, GL_FALSE, lastMaterialAsset->GetMatrix4X4(property.name).Data());
+                break;
+            case ShaderAsset::Property::Type::Sampler2D:
+                //glUniform4fv(property.id, 1, lastMaterialAsset->GetVector4F(property.name).Data());
+                break;
+            default: ;
             }
         }
     };
