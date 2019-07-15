@@ -118,12 +118,7 @@ namespace pluto
                 eventManager.Dispatch(OnStartupEvent());
                 auto& assetManager = diContainer->GetSingleton<AssetManager>();
 
-                auto& packageFactory = diContainer->GetSingleton<PackageManifestAsset::Factory>();
-                auto package = packageFactory.Create();
-                package->SetName("main");
-                package->AddAsset("quad", Guid("022d0eeb-165f-4381-bc50-159910308bf2"));
-                package->AddAsset("pink", Guid("39d39db2-2968-41cc-9e29-dfa9203cce44"));
-                assetManager.Register(std::move(package));
+                assetManager.LoadPackage("built-in");
 
                 auto& sceneManager = diContainer->GetSingleton<SceneManager>();
                 sceneManager.LoadEmptyScene();
@@ -133,8 +128,8 @@ namespace pluto
 
                 auto& camera = cameraGo.AddComponent<Camera>();
 
-                auto& meshAsset = assetManager.Load<MeshAsset>(Path("quad"));
-                auto& shaderAsset = assetManager.Load<ShaderAsset>(Path("pink"));
+                auto& meshAsset = assetManager.Load<MeshAsset>(Path("meshes/quad.obj"));
+                auto& shaderAsset = assetManager.Load<ShaderAsset>(Path("shaders/pink.glsl"));
 
                 auto& materialFactory = diContainer->GetSingleton<MaterialAsset::Factory>();
                 auto materialAssetPtr = materialFactory.Create();

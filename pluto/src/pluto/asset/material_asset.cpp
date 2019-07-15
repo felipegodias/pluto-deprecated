@@ -22,6 +22,7 @@
 #include <pluto/guid.h>
 #include <pluto/exception.h>
 
+#include <fmt/format.h>
 #include <unordered_map>
 
 namespace pluto
@@ -243,7 +244,7 @@ namespace pluto
         {
             if (shaderAsset == onAssetUnload.GetAsset())
             {
-                shaderAsset = assetManager.Load<ShaderAsset>(Path("assets/pink_shader.hlsl"));
+                shaderAsset = assetManager.Load<ShaderAsset>(Path("shaders/pink.glsl"));
             }
         }
 
@@ -253,13 +254,16 @@ namespace pluto
             const auto it = properties.find(propertyName);
             if (it == properties.end())
             {
-                Exception::Throw(std::runtime_error(""));
+                Exception::Throw(std::runtime_error(
+                    fmt::format("Property with name {0} not found in material {1}.", propertyName, name)));
             }
 
             auto property = dynamic_cast<const Property<T>*>(&it->second);
             if (property == nullptr)
             {
-                Exception::Throw(std::runtime_error(""));
+                Exception::Throw(std::runtime_error(fmt::format(
+                    "Property with name {0} exists in material {1} but is not a {2}.", propertyName, name,
+                    typeid(T).name())));
             }
 
             return property->data;
@@ -298,7 +302,7 @@ namespace pluto
     std::unique_ptr<MaterialAsset> MaterialAsset::Factory::Create() const
     {
         auto& assetManager = diContainer.GetSingleton<AssetManager>();
-        auto& pinkShader = assetManager.Load<ShaderAsset>(Path("pink"));
+        auto& pinkShader = assetManager.Load<ShaderAsset>(Path("shaders/pink.glsl"));
         auto& eventManager = diContainer.GetSingleton<EventManager>();
 
         return std::make_unique<MaterialAsset>(

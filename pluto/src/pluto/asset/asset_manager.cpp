@@ -52,7 +52,7 @@ namespace pluto
         {
             if (manifests.find(name) != manifests.end())
             {
-                Exception::Throw(std::runtime_error("err..."));
+                Exception::Throw(std::runtime_error(fmt::format("Package {0} already loaded.", name)));
             }
 
             const std::string physicalFilePath = fmt::format("packages/{0}/{0}", name);
@@ -74,7 +74,7 @@ namespace pluto
 
             if (package == nullptr)
             {
-                throw std::runtime_error("");
+                throw std::runtime_error(fmt::format("Asset at path {0} does not exists or the its package is not loaded.", path));
             }
 
             const Guid guid = package->GetAssetGuid(path.Str());
@@ -109,7 +109,7 @@ namespace pluto
 
             if (package == nullptr)
             {
-                throw std::runtime_error("");
+                throw std::runtime_error(fmt::format("Asset with guid {0} does not exist or its package is not loaded.", guid));
             }
 
             const std::string physicalFilePath = fmt::format("packages/{0}/{1}", package->GetName(), guid);
@@ -122,7 +122,7 @@ namespace pluto
             const auto& it = loadedAssets.find(asset.GetId());
             if (it == loadedAssets.end())
             {
-                throw std::runtime_error("");
+                throw std::runtime_error(fmt::format("Trying to unload a unloaded asset with id {0} or not managed by the asset manager.", asset.GetId()));
             }
 
             if constexpr (std::is_same<T, PackageManifestAsset>::value)
@@ -143,7 +143,7 @@ namespace pluto
             {
                 if (manifests.find(result.GetName()) != manifests.end())
                 {
-                    Exception::Throw(std::runtime_error("Package already loaded."));
+                    Exception::Throw(std::runtime_error(fmt::format("Package with name {0} already registered.", asset->GetId())));
                 }
 
                 manifests.emplace(result.GetName(), result);
