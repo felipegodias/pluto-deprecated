@@ -64,6 +64,7 @@ namespace pluto
         Vector2F GetNormalized() const;
         std::string Str() const;
         float* Data();
+        const float* Data() const;
 
         static float Angle(const Vector2F& from, const Vector2F& to);
         static float Distance(const Vector2F& from, const Vector2F& to);

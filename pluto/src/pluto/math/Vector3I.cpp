@@ -95,4 +95,9 @@ namespace pluto
     {
         return &x;
     }
+
+    const int* Vector3I::Data() const
+    {
+        return &x;
+    }
 }

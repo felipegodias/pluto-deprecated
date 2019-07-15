@@ -200,4 +200,9 @@ namespace pluto
     {
         return data.data();
     }
+
+    const float* Matrix2X2::Data() const
+    {
+        return data.data();
+    }
 }

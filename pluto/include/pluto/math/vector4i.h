@@ -30,5 +30,6 @@ namespace pluto
         friend PLUTO_API std::ostream& operator<<(std::ostream& os, const Vector4I& vector);
         std::string Str() const;
         int* Data();
+        const int* Data() const;
     };
 }

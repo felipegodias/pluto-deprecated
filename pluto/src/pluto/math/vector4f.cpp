@@ -273,6 +273,11 @@ namespace pluto
         return &x;
     }
 
+    const float* Vector4F::Data() const
+    {
+        return &x;
+    }
+
     float Vector4F::Distance(const Vector4F& from, const Vector4F& to)
     {
         return distance(ToGlm(from), ToGlm(to));

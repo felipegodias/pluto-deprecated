@@ -46,5 +46,6 @@ namespace pluto
         Matrix2X2 GetTranspose() const;
         std::string Str() const;
         float* Data();
+        const float* Data() const;
     };
 }

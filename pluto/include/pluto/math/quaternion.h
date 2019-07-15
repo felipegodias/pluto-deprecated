@@ -40,6 +40,7 @@ namespace pluto
         Quaternion GetInverse() const;
         std::string Str() const;
         float* Data();
+        const float* Data() const;
 
         static float Dot(const Quaternion& lhs, const Quaternion& rhs);
         static Quaternion Euler(const Vector3F& eulerAngles);

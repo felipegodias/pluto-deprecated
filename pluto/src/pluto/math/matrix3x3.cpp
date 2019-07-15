@@ -206,4 +206,9 @@ namespace pluto
     {
         return data.data();
     }
+
+    const float* Matrix3X3::Data() const
+    {
+        return data.data();
+    }
 }
