@@ -2,6 +2,7 @@
 #include "pluto/asset/shader_asset.h"
 #include "pluto/asset/material_asset.h"
 #include "pluto/math/matrix4x4.h"
+#include "pluto/math/vector4f.h"
 
 #include <GL/glew.h>
 
@@ -158,12 +159,30 @@ namespace pluto
 
         void UpdateMaterial()
         {
-            // TODO: Implement.
+            for (const auto& property : shaderAsset.GetProperties())
+            {
+                if (property.id == mvpUniformLocation)
+                {
+                    continue;
+                }
+
+                UpdateProperty(property);
+            }
         }
 
         void UpdateModelViewProjection(const Matrix4X4& mvp)
         {
             glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, mvp.data.data());
+        }
+
+    private:
+        void UpdateProperty(const ShaderAsset::Property& property)
+        {
+            if (property.type == ShaderAsset::Property::Type::Vector4F)
+            {
+                const Vector4F& value = lastMaterialAsset->GetVector4F(property.name);
+                glUniform4fv(property.id, 1, &value.x);
+            }
         }
     };
 

@@ -32,7 +32,7 @@
 #include <pluto/math/vector3f.h>
 #include <pluto/math/vector3i.h>
 #include <pluto/math/matrix4x4.h>
-#include <glm/glm.hpp>
+#include <pluto/math/vector4f.h>
 
 #include <pluto/file/file_manager.h>
 #include <pluto/file/file_reader.h>
@@ -111,6 +111,7 @@ namespace pluto
             auto& windowManager = diContainer->GetSingleton<WindowManager>();
             auto& simulationManager = diContainer->GetSingleton<SimulationManager>();
             auto& logManager = diContainer->GetSingleton<LogManager>();
+            MaterialAsset* m = nullptr;
 
             {
                 // TODO: Move to simulation manager.
@@ -129,25 +130,29 @@ namespace pluto
                 auto& camera = cameraGo.AddComponent<Camera>();
 
                 auto& meshAsset = assetManager.Load<MeshAsset>(Path("meshes/quad.obj"));
-                auto& shaderAsset = assetManager.Load<ShaderAsset>(Path("shaders/pink.glsl"));
+                auto& shaderAsset = assetManager.Load<ShaderAsset>(Path("shaders/color.glsl"));
 
                 auto& materialFactory = diContainer->GetSingleton<MaterialAsset::Factory>();
                 auto materialAssetPtr = materialFactory.Create();
                 materialAssetPtr->SetName("default");
                 materialAssetPtr->SetShader(shaderAsset); 
-                auto& materialAsset = assetManager.Register(std::move(materialAssetPtr));
+                materialAssetPtr->SetVector4F("u_mat.color", Vector4F(1, 1, 1, 1));
+                m = &assetManager.Register(std::move(materialAssetPtr));
 
                 GameObject& quadGo = sceneManager.GetActiveScene().CreateGameObject("Quad");
                 auto& meshRenderer = quadGo.AddComponent<MeshRenderer>();
                 meshRenderer.SetMesh(meshAsset);
-                meshRenderer.SetMaterial(materialAsset);
+                meshRenderer.SetMaterial(*m);
             }
 
+            int i = 0;
             while (windowManager.IsOpen())
             {
                 try
                 {
+                    m->SetVector4F("u_mat.color", { sinf(i), cosf(i), tanf(i), 1 });
                     simulationManager.Run();
+                    ++i;
                 }
                 catch (const Exception& e)
                 {

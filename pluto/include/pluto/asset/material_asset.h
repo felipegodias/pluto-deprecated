@@ -65,9 +65,6 @@ namespace pluto
         ShaderAsset& GetShader() const;
         void SetShader(ShaderAsset& value);
 
-        bool HasProperty(const std::string& propertyName) const;
-        void RemoveProperty(const std::string& propertyName);
-
         bool GetBool(const std::string& propertyName) const;
         void SetBool(const std::string& propertyName, bool value);
 

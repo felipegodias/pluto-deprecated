@@ -30,27 +30,21 @@ namespace pluto
     class MaterialAsset::Impl
     {
     private:
-        class BaseProperty
-        {
-        public:
-            virtual ~BaseProperty() = default;
-        };
-
-        template <typename T>
-        class Property final : public BaseProperty
-        {
-        public:
-            T data;
-
-            explicit Property(T data) : data(std::move(data))
-            {
-            }
-        };
-
         Guid guid;
         std::string name;
         ShaderAsset& shaderAsset;
-        std::unordered_map<std::string, BaseProperty> properties;
+        std::unordered_map<std::string, bool> booleans;
+        std::unordered_map<std::string, float> floats;
+        std::unordered_map<std::string, int> integers;
+        std::unordered_map<std::string, Vector2F> vectors2F;
+        std::unordered_map<std::string, Vector2I> vectors2I;
+        std::unordered_map<std::string, Vector3F> vectors3F;
+        std::unordered_map<std::string, Vector3I> vectors3I;
+        std::unordered_map<std::string, Vector4F> vectors4F;
+        std::unordered_map<std::string, Vector4I> vectors4I;
+        std::unordered_map<std::string, Matrix2X2> matrices2X2;
+        std::unordered_map<std::string, Matrix3X3> matrices3X3;
+        std::unordered_map<std::string, Matrix4X4> matrices4X4;
 
         Guid onAssetUnloadListenerId;
         EventManager& eventManager;
@@ -96,147 +90,133 @@ namespace pluto
         void SetShader(ShaderAsset& value)
         {
             shaderAsset = value;
-        }
-
-        bool HasProperty(const std::string& propertyName) const
-        {
-            return properties.find(propertyName) != properties.end();
-        }
-
-        void RemoveProperty(const std::string& propertyName)
-        {
-            const auto it = properties.find(propertyName);
-            if (properties.find(propertyName) != properties.end())
-            {
-                properties.erase(it);
-            }
+            UpdateProperties();
         }
 
         bool GetBool(const std::string& propertyName) const
         {
-            return GetProperty<bool>(propertyName);
+            return GetProperty<bool>(propertyName, booleans)->second;
         }
 
         void SetBool(const std::string& propertyName, const bool value)
         {
-            SetProperty<bool>(propertyName, value);
+            GetProperty<bool>(propertyName, booleans)->second = value;
         }
 
         int GetInt(const std::string& propertyName) const
         {
-            return GetProperty<int>(propertyName);
+            return GetProperty<int>(propertyName, integers)->second;
         }
 
         void SetInt(const std::string& propertyName, const int value)
         {
-            SetProperty<int>(propertyName, value);
+            GetProperty<int>(propertyName, integers)->second = value;
         }
 
         float GetFloat(const std::string& propertyName) const
         {
-            return GetProperty<float>(propertyName);
+            return GetProperty<float>(propertyName, floats)->second;
         }
 
         void SetFloat(const std::string& propertyName, const float value)
         {
-            SetProperty<float>(propertyName, value);
+            GetProperty<float>(propertyName, floats)->second = value;
         }
 
         const Vector2I& GetVector2I(const std::string& propertyName) const
         {
-            return GetProperty<const Vector2I&>(propertyName);
+            return GetProperty<Vector2I>(propertyName, vectors2I)->second;
         }
 
         void SetVector2I(const std::string& propertyName, Vector2I value)
         {
-            SetProperty<Vector2I>(propertyName, std::move(value));
+            GetProperty<Vector2I>(propertyName, vectors2I)->second = std::move(value);
         }
 
         const Vector2F& GetVector2F(const std::string& propertyName) const
         {
-            return GetProperty<const Vector2F&>(propertyName);
+            return GetProperty<Vector2F>(propertyName, vectors2F)->second;
         }
 
         void SetVector2F(const std::string& propertyName, Vector2F value)
         {
-            SetProperty<Vector2F>(propertyName, std::move(value));
+            GetProperty<Vector2F>(propertyName, vectors2F)->second = std::move(value);
         }
 
         const Vector3I& GetVector3I(const std::string& propertyName) const
         {
-            return GetProperty<const Vector3I&>(propertyName);
+            return GetProperty<Vector3I>(propertyName, vectors3I)->second;
         }
 
         void SetVector3I(const std::string& propertyName, Vector3I value)
         {
-            SetProperty<Vector3I>(propertyName, std::move(value));
+            GetProperty<Vector3I>(propertyName, vectors3I)->second = std::move(value);
         }
 
         const Vector3F& GetVector3F(const std::string& propertyName) const
         {
-            return GetProperty<const Vector3F&>(propertyName);
+            return GetProperty<Vector3F>(propertyName, vectors3F)->second;
         }
 
         void SetVector3F(const std::string& propertyName, Vector3F value)
         {
-            SetProperty<Vector3F>(propertyName, std::move(value));
+            GetProperty<Vector3F>(propertyName, vectors3F)->second = std::move(value);
         }
 
         const Vector4I& GetVector4I(const std::string& propertyName) const
         {
-            return GetProperty<const Vector4I&>(propertyName);
+            return GetProperty<Vector4I>(propertyName, vectors4I)->second;
         }
 
         void SetVector4I(const std::string& propertyName, Vector4I value)
         {
-            SetProperty<Vector4I>(propertyName, std::move(value));
+            GetProperty<Vector4I>(propertyName, vectors4I)->second = std::move(value);
         }
 
         const Vector4F& GetVector4F(const std::string& propertyName) const
         {
-            return GetProperty<const Vector4F&>(propertyName);
+            return GetProperty<Vector4F>(propertyName, vectors4F)->second;
         }
 
         void SetVector4F(const std::string& propertyName, Vector4F value)
         {
-            SetProperty<Vector4F>(propertyName, std::move(value));
+            GetProperty<Vector4F>(propertyName, vectors4F)->second = std::move(value);
         }
 
         const Matrix2X2& GetMatrix2X2(const std::string& propertyName) const
         {
-            return GetProperty<const Matrix2X2&>(propertyName);
+            return GetProperty<Matrix2X2>(propertyName, matrices2X2)->second;
         }
 
         void SetMatrix2X2(const std::string& propertyName, Matrix2X2 value)
         {
-            SetProperty<Matrix2X2>(propertyName, std::move(value));
+            GetProperty<Matrix2X2>(propertyName, matrices2X2)->second = std::move(value);
         }
 
         const Matrix3X3& GetMatrix3X3(const std::string& propertyName) const
         {
-            return GetProperty<const Matrix3X3&>(propertyName);
+            return GetProperty<Matrix3X3>(propertyName, matrices3X3)->second;
         }
 
         void SetMatrix3X3(const std::string& propertyName, Matrix3X3 value)
         {
-            SetProperty<Matrix3X3>(propertyName, std::move(value));
+            GetProperty<Matrix3X3>(propertyName, matrices3X3)->second = std::move(value);
         }
 
         const Matrix4X4& GetMatrix4X4(const std::string& propertyName) const
         {
-            return GetProperty<const Matrix4X4&>(propertyName);
+            return GetProperty<Matrix4X4>(propertyName, matrices4X4)->second;
         }
 
         void SetMatrix4X4(const std::string& propertyName, Matrix4X4 value)
         {
-            SetProperty<Matrix4X4>(propertyName, std::move(value));
+            GetProperty<Matrix4X4>(propertyName, matrices4X4)->second = std::move(value);
         }
 
         void Clone(const Impl& other)
         {
             name = other.name;
             shaderAsset = other.shaderAsset;
-            properties = other.properties;
         }
 
     private:
@@ -244,54 +224,46 @@ namespace pluto
         {
             if (shaderAsset == onAssetUnload.GetAsset())
             {
-                shaderAsset = assetManager.Load<ShaderAsset>(Path("shaders/pink.glsl"));
+                SetShader(assetManager.Load<ShaderAsset>(Path("shaders/pink.glsl")));
             }
         }
 
-        template <typename T>
-        T GetProperty(const std::string& propertyName) const
+        void UpdateProperties()
         {
-            const auto it = properties.find(propertyName);
-            if (it == properties.end())
+            vectors4F.clear();
+            for (auto& property : shaderAsset.GetProperties())
+            {
+                if (property.type == ShaderAsset::Property::Type::Vector4F)
+                {
+                    vectors4F.emplace(property.name, Vector4F::ZERO);
+                }
+            }
+        }
+
+        template <typename T, typename Map>
+        typename Map::const_iterator GetProperty(const std::string& propertyName, const Map& map) const
+        {
+            auto it = map.find(propertyName);
+            if (it == map.end())
             {
                 Exception::Throw(std::runtime_error(
-                    fmt::format("Property with name {0} not found in material {1}.", propertyName, name)));
+                    fmt::format("The {0} property with name {1} not found in material {2}.", typeid(T).name(),
+                                propertyName, name)));
             }
-
-            auto property = dynamic_cast<const Property<T>*>(&it->second);
-            if (property == nullptr)
-            {
-                Exception::Throw(std::runtime_error(fmt::format(
-                    "Property with name {0} exists in material {1} but is not a {2}.", propertyName, name,
-                    typeid(T).name())));
-            }
-
-            return property->data;
+            return it;
         }
 
-        template <typename T>
-        void SetProperty(const std::string& propertyName, T value)
+        template <typename T, typename Map>
+        typename Map::iterator GetProperty(const std::string& propertyName, Map& map)
         {
-            const auto it = properties.find(propertyName);
-            if (it == properties.end())
+            auto it = map.find(propertyName);
+            if (it == map.end())
             {
-                Property<T> property(std::move(value));
-                properties.emplace(propertyName, property);
+                Exception::Throw(std::runtime_error(
+                    fmt::format("The {0} property with name {1} not found in material {2}.", typeid(T).name(),
+                        propertyName, name)));
             }
-            else
-            {
-                const auto propertyPtr = dynamic_cast<Property<T>*>(&it->second);
-                if (propertyPtr == nullptr)
-                {
-                    properties.erase(it);
-                    Property<T> property(std::move(value));
-                    properties.emplace(propertyName, property);
-                }
-                else
-                {
-                    propertyPtr->data = std::move(value);
-                }
-            }
+            return it;
         }
     };
 
@@ -370,16 +342,6 @@ namespace pluto
     void MaterialAsset::SetShader(ShaderAsset& value)
     {
         impl->SetShader(value);
-    }
-
-    bool MaterialAsset::HasProperty(const std::string& propertyName) const
-    {
-        return impl->GetBool(propertyName);
-    }
-
-    void MaterialAsset::RemoveProperty(const std::string& propertyName)
-    {
-        impl->RemoveProperty(propertyName);
     }
 
     bool MaterialAsset::GetBool(const std::string& propertyName) const
