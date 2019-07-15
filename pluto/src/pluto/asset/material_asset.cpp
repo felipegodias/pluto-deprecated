@@ -33,9 +33,7 @@ namespace pluto
         Guid guid;
         std::string name;
         ShaderAsset& shaderAsset;
-        std::unordered_map<std::string, bool> booleans;
         std::unordered_map<std::string, float> floats;
-        std::unordered_map<std::string, int> integers;
         std::unordered_map<std::string, Vector2F> vectors2F;
         std::unordered_map<std::string, Vector2I> vectors2I;
         std::unordered_map<std::string, Vector3F> vectors3F;
@@ -95,22 +93,22 @@ namespace pluto
 
         bool GetBool(const std::string& propertyName) const
         {
-            return GetProperty<bool>(propertyName, booleans)->second;
+            return GetProperty<float>(propertyName, floats)->second != 0;
         }
 
         void SetBool(const std::string& propertyName, const bool value)
         {
-            GetProperty<bool>(propertyName, booleans)->second = value;
+            GetProperty<float>(propertyName, floats)->second = value ? 1 : 0;
         }
 
         int GetInt(const std::string& propertyName) const
         {
-            return GetProperty<int>(propertyName, integers)->second;
+            return GetProperty<float>(propertyName, floats)->second;
         }
 
         void SetInt(const std::string& propertyName, const int value)
         {
-            GetProperty<int>(propertyName, integers)->second = value;
+            GetProperty<int>(propertyName, floats)->second = value;
         }
 
         float GetFloat(const std::string& propertyName) const
@@ -230,12 +228,46 @@ namespace pluto
 
         void UpdateProperties()
         {
-            vectors4F.clear();
             for (auto& property : shaderAsset.GetProperties())
             {
-                if (property.type == ShaderAsset::Property::Type::Vector4F)
+                switch (property.type)
                 {
+                case ShaderAsset::Property::Type::Bool:
+                case ShaderAsset::Property::Type::Int:
+                case ShaderAsset::Property::Type::Float:
+                    floats.emplace(property.name, 0);
+                    break;
+                case ShaderAsset::Property::Type::Vector2I:
+                    vectors2I.emplace(property.name, Vector2I::ZERO);
+                    break;
+                case ShaderAsset::Property::Type::Vector2F:
+                    vectors2F.emplace(property.name, Vector2F::ZERO);
+                    break;
+                case ShaderAsset::Property::Type::Vector3I:
+                    vectors3I.emplace(property.name, Vector3I::ZERO);
+                    break;
+                case ShaderAsset::Property::Type::Vector3F:
+                    vectors3F.emplace(property.name, Vector3F::ZERO);
+                    break;
+                case ShaderAsset::Property::Type::Vector4I:
+                    vectors4I.emplace(property.name, Vector4I::ZERO);
+                    break;
+                case ShaderAsset::Property::Type::Vector4F:
                     vectors4F.emplace(property.name, Vector4F::ZERO);
+                    break;
+                case ShaderAsset::Property::Type::Matrix2X2:
+                    matrices2X2.emplace(property.name, Matrix2X2::IDENTITY);
+                    break;
+                case ShaderAsset::Property::Type::Matrix3X3:
+                    matrices3X3.emplace(property.name, Matrix2X2::IDENTITY);
+                    break;
+                case ShaderAsset::Property::Type::Matrix4X4:
+                    matrices4X4.emplace(property.name, Matrix2X2::IDENTITY);
+                    break;
+                case ShaderAsset::Property::Type::Sampler2D:
+                    //glUniform4fv(property.id, 1, lastMaterialAsset->GetVector4F(property.name).Data());
+                    break;
+                default: ;
                 }
             }
         }
@@ -261,7 +293,7 @@ namespace pluto
             {
                 Exception::Throw(std::runtime_error(
                     fmt::format("The {0} property with name {1} not found in material {2}.", typeid(T).name(),
-                        propertyName, name)));
+                                propertyName, name)));
             }
             return it;
         }
