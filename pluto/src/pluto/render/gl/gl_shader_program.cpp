@@ -215,12 +215,6 @@ namespace pluto
             case ShaderAsset::Property::Type::Vector4F:
                 glUniform4fv(property.id, 1, lastMaterialAsset->GetVector4F(property.name).Data());
                 break;
-            case ShaderAsset::Property::Type::Matrix2X2:
-                glUniformMatrix2fv(property.id, 1, GL_FALSE, lastMaterialAsset->GetMatrix2X2(property.name).Data());
-                break;
-            case ShaderAsset::Property::Type::Matrix3X3:
-                glUniformMatrix3fv(property.id, 1, GL_FALSE, lastMaterialAsset->GetMatrix3X3(property.name).Data());
-                break;
             case ShaderAsset::Property::Type::Matrix4X4:
                 glUniformMatrix3fv(property.id, 1, GL_FALSE, lastMaterialAsset->GetMatrix4X4(property.name).Data());
                 break;

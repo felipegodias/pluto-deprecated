@@ -74,29 +74,23 @@ namespace pluto
         float GetFloat(const std::string& propertyName) const;
         void SetFloat(const std::string& propertyName, float value);
 
-        const Vector2I& GetVector2I(const std::string& propertyName) const;
-        void SetVector2I(const std::string& propertyName, Vector2I value);
+        Vector2I GetVector2I(const std::string& propertyName) const;
+        void SetVector2I(const std::string& propertyName, const Vector2I& value);
 
-        const Vector2F& GetVector2F(const std::string& propertyName) const;
-        void SetVector2F(const std::string& propertyName, Vector2F value);
+        Vector2F GetVector2F(const std::string& propertyName) const;
+        void SetVector2F(const std::string& propertyName, const Vector2F& value);
 
-        const Vector3I& GetVector3I(const std::string& propertyName) const;
-        void SetVector3I(const std::string& propertyName, Vector3I value);
+        Vector3I GetVector3I(const std::string& propertyName) const;
+        void SetVector3I(const std::string& propertyName, const Vector3I& value);
 
-        const Vector3F& GetVector3F(const std::string& propertyName) const;
-        void SetVector3F(const std::string& propertyName, Vector3F value);
+        Vector3F GetVector3F(const std::string& propertyName) const;
+        void SetVector3F(const std::string& propertyName, const Vector3F& value);
 
-        const Vector4I& GetVector4I(const std::string& propertyName) const;
-        void SetVector4I(const std::string& propertyName, Vector4I value);
+        Vector4I GetVector4I(const std::string& propertyName) const;
+        void SetVector4I(const std::string& propertyName, const Vector4I& value);
 
         const Vector4F& GetVector4F(const std::string& propertyName) const;
         void SetVector4F(const std::string& propertyName, Vector4F value);
-
-        const Matrix2X2& GetMatrix2X2(const std::string& propertyName) const;
-        void SetMatrix2X2(const std::string& propertyName, Matrix2X2 value);
-
-        const Matrix3X3& GetMatrix3X3(const std::string& propertyName) const;
-        void SetMatrix3X3(const std::string& propertyName, Matrix3X3 value);
 
         const Matrix4X4& GetMatrix4X4(const std::string& propertyName) const;
         void SetMatrix4X4(const std::string& propertyName, Matrix4X4 value);

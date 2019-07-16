@@ -34,15 +34,8 @@ namespace pluto
         std::string name;
         ShaderAsset& shaderAsset;
         std::unordered_map<std::string, float> floats;
-        std::unordered_map<std::string, Vector2F> vectors2F;
-        std::unordered_map<std::string, Vector2I> vectors2I;
-        std::unordered_map<std::string, Vector3F> vectors3F;
-        std::unordered_map<std::string, Vector3I> vectors3I;
-        std::unordered_map<std::string, Vector4F> vectors4F;
-        std::unordered_map<std::string, Vector4I> vectors4I;
-        std::unordered_map<std::string, Matrix2X2> matrices2X2;
-        std::unordered_map<std::string, Matrix3X3> matrices3X3;
-        std::unordered_map<std::string, Matrix4X4> matrices4X4;
+        std::unordered_map<std::string, Vector4F> vectors;
+        std::unordered_map<std::string, Matrix4X4> matrices;
 
         Guid onAssetUnloadListenerId;
         EventManager& eventManager;
@@ -121,94 +114,77 @@ namespace pluto
             GetProperty<float>(propertyName, floats)->second = value;
         }
 
-        const Vector2I& GetVector2I(const std::string& propertyName) const
+        Vector2I GetVector2I(const std::string& propertyName) const
         {
-            return GetProperty<Vector2I>(propertyName, vectors2I)->second;
+            const Vector4F& v = GetProperty<Vector2I>(propertyName, vectors)->second;
+            return {static_cast<int>(v.x), static_cast<int>(v.y)};
         }
 
-        void SetVector2I(const std::string& propertyName, Vector2I value)
+        void SetVector2I(const std::string& propertyName, const Vector2I& value)
         {
-            GetProperty<Vector2I>(propertyName, vectors2I)->second = std::move(value);
+            GetProperty<Vector2I>(propertyName, vectors)->second = value;
         }
 
-        const Vector2F& GetVector2F(const std::string& propertyName) const
+        Vector2F GetVector2F(const std::string& propertyName) const
         {
-            return GetProperty<Vector2F>(propertyName, vectors2F)->second;
+            return GetProperty<Vector2F>(propertyName, vectors)->second;
         }
 
-        void SetVector2F(const std::string& propertyName, Vector2F value)
+        void SetVector2F(const std::string& propertyName, const Vector2F& value)
         {
-            GetProperty<Vector2F>(propertyName, vectors2F)->second = std::move(value);
+            GetProperty<Vector2F>(propertyName, vectors)->second = value;
         }
 
-        const Vector3I& GetVector3I(const std::string& propertyName) const
+        Vector3I GetVector3I(const std::string& propertyName) const
         {
-            return GetProperty<Vector3I>(propertyName, vectors3I)->second;
+            const Vector4F& v = GetProperty<Vector3I>(propertyName, vectors)->second;
+            return {static_cast<int>(v.x), static_cast<int>(v.y), static_cast<int>(v.z)};
         }
 
-        void SetVector3I(const std::string& propertyName, Vector3I value)
+        void SetVector3I(const std::string& propertyName, const Vector3I& value)
         {
-            GetProperty<Vector3I>(propertyName, vectors3I)->second = std::move(value);
+            GetProperty<Vector3I>(propertyName, vectors)->second = value;
         }
 
-        const Vector3F& GetVector3F(const std::string& propertyName) const
+        Vector3F GetVector3F(const std::string& propertyName) const
         {
-            return GetProperty<Vector3F>(propertyName, vectors3F)->second;
+            return GetProperty<Vector3F>(propertyName, vectors)->second;
         }
 
-        void SetVector3F(const std::string& propertyName, Vector3F value)
+        void SetVector3F(const std::string& propertyName, const Vector3F& value)
         {
-            GetProperty<Vector3F>(propertyName, vectors3F)->second = std::move(value);
+            GetProperty<Vector3F>(propertyName, vectors)->second = value;
         }
 
-        const Vector4I& GetVector4I(const std::string& propertyName) const
+        Vector4I GetVector4I(const std::string& propertyName) const
         {
-            return GetProperty<Vector4I>(propertyName, vectors4I)->second;
+            const Vector4F& v = GetProperty<Vector4I>(propertyName, vectors)->second;
+            return {static_cast<int>(v.x), static_cast<int>(v.y), static_cast<int>(v.z), static_cast<int>(v.w)};
         }
 
-        void SetVector4I(const std::string& propertyName, Vector4I value)
+        void SetVector4I(const std::string& propertyName, const Vector4I& value)
         {
-            GetProperty<Vector4I>(propertyName, vectors4I)->second = std::move(value);
+            GetProperty<Vector4I>(propertyName, vectors)->second = value;
         }
 
         const Vector4F& GetVector4F(const std::string& propertyName) const
         {
-            return GetProperty<Vector4F>(propertyName, vectors4F)->second;
+            return GetProperty<Vector4F>(propertyName, vectors)->second;
         }
 
         void SetVector4F(const std::string& propertyName, Vector4F value)
         {
-            GetProperty<Vector4F>(propertyName, vectors4F)->second = std::move(value);
-        }
-
-        const Matrix2X2& GetMatrix2X2(const std::string& propertyName) const
-        {
-            return GetProperty<Matrix2X2>(propertyName, matrices2X2)->second;
-        }
-
-        void SetMatrix2X2(const std::string& propertyName, Matrix2X2 value)
-        {
-            GetProperty<Matrix2X2>(propertyName, matrices2X2)->second = std::move(value);
-        }
-
-        const Matrix3X3& GetMatrix3X3(const std::string& propertyName) const
-        {
-            return GetProperty<Matrix3X3>(propertyName, matrices3X3)->second;
-        }
-
-        void SetMatrix3X3(const std::string& propertyName, Matrix3X3 value)
-        {
-            GetProperty<Matrix3X3>(propertyName, matrices3X3)->second = std::move(value);
+            GetProperty<Vector4F>(propertyName, vectors)->second = std::move(value);
         }
 
         const Matrix4X4& GetMatrix4X4(const std::string& propertyName) const
         {
-            return GetProperty<Matrix4X4>(propertyName, matrices4X4)->second;
+            return GetProperty<Matrix4X4>(propertyName, matrices)->second;
         }
 
         void SetMatrix4X4(const std::string& propertyName, Matrix4X4 value)
         {
-            GetProperty<Matrix4X4>(propertyName, matrices4X4)->second = std::move(value);
+            GetProperty<Matrix4X4>(propertyName, matrices)->second = std::move(value);
         }
 
         void Clone(const Impl& other)
@@ -238,31 +214,15 @@ namespace pluto
                     floats.emplace(property.name, 0);
                     break;
                 case ShaderAsset::Property::Type::Vector2I:
-                    vectors2I.emplace(property.name, Vector2I::ZERO);
-                    break;
                 case ShaderAsset::Property::Type::Vector2F:
-                    vectors2F.emplace(property.name, Vector2F::ZERO);
-                    break;
                 case ShaderAsset::Property::Type::Vector3I:
-                    vectors3I.emplace(property.name, Vector3I::ZERO);
-                    break;
                 case ShaderAsset::Property::Type::Vector3F:
-                    vectors3F.emplace(property.name, Vector3F::ZERO);
-                    break;
                 case ShaderAsset::Property::Type::Vector4I:
-                    vectors4I.emplace(property.name, Vector4I::ZERO);
-                    break;
                 case ShaderAsset::Property::Type::Vector4F:
-                    vectors4F.emplace(property.name, Vector4F::ZERO);
-                    break;
-                case ShaderAsset::Property::Type::Matrix2X2:
-                    matrices2X2.emplace(property.name, Matrix2X2::IDENTITY);
-                    break;
-                case ShaderAsset::Property::Type::Matrix3X3:
-                    matrices3X3.emplace(property.name, Matrix2X2::IDENTITY);
+                    vectors.emplace(property.name, Vector4F::ZERO);
                     break;
                 case ShaderAsset::Property::Type::Matrix4X4:
-                    matrices4X4.emplace(property.name, Matrix2X2::IDENTITY);
+                    matrices.emplace(property.name, Matrix4X4::IDENTITY);
                     break;
                 case ShaderAsset::Property::Type::Sampler2D:
                     //glUniform4fv(property.id, 1, lastMaterialAsset->GetVector4F(property.name).Data());
@@ -406,54 +366,54 @@ namespace pluto
         impl->SetFloat(propertyName, value);
     }
 
-    const Vector2I& MaterialAsset::GetVector2I(const std::string& propertyName) const
+    Vector2I MaterialAsset::GetVector2I(const std::string& propertyName) const
     {
         return impl->GetVector2I(propertyName);
     }
 
-    void MaterialAsset::SetVector2I(const std::string& propertyName, Vector2I value)
+    void MaterialAsset::SetVector2I(const std::string& propertyName, const Vector2I& value)
     {
-        impl->SetVector2I(propertyName, std::move(value));
+        impl->SetVector2I(propertyName, value);
     }
 
-    const Vector2F& MaterialAsset::GetVector2F(const std::string& propertyName) const
+    Vector2F MaterialAsset::GetVector2F(const std::string& propertyName) const
     {
         return impl->GetVector2F(propertyName);
     }
 
-    void MaterialAsset::SetVector2F(const std::string& propertyName, Vector2F value)
+    void MaterialAsset::SetVector2F(const std::string& propertyName, const Vector2F& value)
     {
-        impl->SetVector2F(propertyName, std::move(value));
+        impl->SetVector2F(propertyName, value);
     }
 
-    const Vector3I& MaterialAsset::GetVector3I(const std::string& propertyName) const
+    Vector3I MaterialAsset::GetVector3I(const std::string& propertyName) const
     {
         return impl->GetVector3I(propertyName);
     }
 
-    void MaterialAsset::SetVector3I(const std::string& propertyName, Vector3I value)
+    void MaterialAsset::SetVector3I(const std::string& propertyName, const Vector3I& value)
     {
-        impl->SetVector3I(propertyName, std::move(value));
+        impl->SetVector3I(propertyName, value);
     }
 
-    const Vector3F& MaterialAsset::GetVector3F(const std::string& propertyName) const
+    Vector3F MaterialAsset::GetVector3F(const std::string& propertyName) const
     {
         return impl->GetVector3F(propertyName);
     }
 
-    void MaterialAsset::SetVector3F(const std::string& propertyName, Vector3F value)
+    void MaterialAsset::SetVector3F(const std::string& propertyName, const Vector3F& value)
     {
-        impl->SetVector3F(propertyName, std::move(value));
+        impl->SetVector3F(propertyName, value);
     }
 
-    const Vector4I& MaterialAsset::GetVector4I(const std::string& propertyName) const
+    Vector4I MaterialAsset::GetVector4I(const std::string& propertyName) const
     {
         return impl->GetVector4I(propertyName);
     }
 
-    void MaterialAsset::SetVector4I(const std::string& propertyName, Vector4I value)
+    void MaterialAsset::SetVector4I(const std::string& propertyName, const Vector4I& value)
     {
-        impl->SetVector4I(propertyName, std::move(value));
+        impl->SetVector4I(propertyName, value);
     }
 
     const Vector4F& MaterialAsset::GetVector4F(const std::string& propertyName) const
@@ -464,26 +424,6 @@ namespace pluto
     void MaterialAsset::SetVector4F(const std::string& propertyName, Vector4F value)
     {
         impl->SetVector4F(propertyName, std::move(value));
-    }
-
-    const Matrix2X2& MaterialAsset::GetMatrix2X2(const std::string& propertyName) const
-    {
-        return impl->GetMatrix2X2(propertyName);
-    }
-
-    void MaterialAsset::SetMatrix2X2(const std::string& propertyName, Matrix2X2 value)
-    {
-        impl->SetMatrix2X2(propertyName, std::move(value));
-    }
-
-    const Matrix3X3& MaterialAsset::GetMatrix3X3(const std::string& propertyName) const
-    {
-        return impl->GetMatrix3X3(propertyName);
-    }
-
-    void MaterialAsset::SetMatrix3X3(const std::string& propertyName, Matrix3X3 value)
-    {
-        impl->SetMatrix3X3(propertyName, std::move(value));
     }
 
     const Matrix4X4& MaterialAsset::GetMatrix4X4(const std::string& propertyName) const
