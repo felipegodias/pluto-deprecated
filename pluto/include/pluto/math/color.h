@@ -26,21 +26,14 @@ namespace pluto
 
         Color();
         Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-        Color(float r, float g, float b, float a);
+        explicit Color(const Vector4F& vector);
         explicit Color(const std::string& hex);
-        Color(const Color& other);
-        Color(Color&& other) noexcept;
-
-        ~Color();
-
-        Color& operator=(const Color& rhs);
-        Color& operator=(Color&& rhs) noexcept;
 
         bool operator==(const Color& rhs) const;
         bool operator!=(const Color& rhs) const;
         uint8_t& operator[](uint8_t index);
         uint8_t operator[](uint8_t index) const;
-        friend PLUTO_API std::ostream& operator<<(std::ostream& os, const Color& vector);
+        friend PLUTO_API std::ostream& operator<<(std::ostream& os, const Color& color);
 
         std::string Str() const;
         std::string HexStr() const;

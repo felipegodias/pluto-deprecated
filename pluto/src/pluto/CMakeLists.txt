@@ -42,6 +42,7 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/log/log_manager.cpp
     # ./math
     ${CMAKE_CURRENT_SOURCE_DIR}/math/bounds.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/math/color.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/matrix2x2.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/matrix3x3.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/matrix4x4.cpp
