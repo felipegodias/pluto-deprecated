@@ -15,13 +15,15 @@ namespace pluto
         Guid guid;
         std::string name;
         Vector2I size;
+        Wrap wrap;
         Format format;
         Filter filter;
 
-        std::vector<uint8_t> pixels;
+        std::vector<uint8_t> data;
 
     public:
-        explicit Impl(const Guid& guid) : guid(guid), format(Format::RGBA32), filter(Filter::Bilinear)
+        explicit Impl(const Guid& guid) : guid(guid), wrap(Wrap::Default), format(Format::Default),
+                                          filter(Filter::Default)
         {
         }
 
@@ -44,6 +46,11 @@ namespace pluto
         {
         }
 
+        std::vector<uint8_t> Data()
+        {
+            return data;
+        }
+
         const Vector2I& GetSize() const
         {
             return size;
@@ -61,11 +68,12 @@ namespace pluto
             switch (format)
             {
             case Format::Alpha8:
-                return {0, 0, 0, pixels[index]};
+                return {0, 0, 0, data[index]};
             case Format::RGB24:
-                return {pixels[index], pixels[index + 1], pixels[index + 2], 0};
+                return {data[index], data[index + 1], data[index + 2], 0};
             case Format::RGBA32:
-                return {pixels[index], pixels[index + 1], pixels[index + 2], pixels[index + 3],};
+                return {data[index], data[index + 1], data[index + 2], data[index + 3],};
+            default: ;
             }
             return Color::CLEAR;
         }
@@ -76,44 +84,46 @@ namespace pluto
             switch (format)
             {
             case Format::Alpha8:
-                pixels[index] = value.a;
+                data[index] = value.a;
                 break;
             case Format::RGB24:
-                pixels[index] = value.r;
-                pixels[index + 1] = value.r;
-                pixels[index + 2] = value.r;
+                data[index] = value.r;
+                data[index + 1] = value.r;
+                data[index + 2] = value.r;
                 break;
             case Format::RGBA32:
-                pixels[index] = value.r;
-                pixels[index + 1] = value.g;
-                pixels[index + 2] = value.b;
-                pixels[index + 3] = value.a;
+                data[index] = value.r;
+                data[index + 1] = value.g;
+                data[index + 2] = value.b;
+                data[index + 3] = value.a;
                 break;
+            default: ;
             }
         }
 
         std::vector<Color> GetPixels() const
         {
-            std::vector<Color> buffer(pixels.size() / GetChannelsCount());
+            std::vector<Color> buffer(data.size() / GetChannelsCount());
             switch (format)
             {
             case Format::Alpha8:
-                for (size_t i = 0; i < pixels.size(); ++i)
+                for (size_t i = 0; i < data.size(); ++i)
                 {
-                    buffer[i].a = pixels[i];
+                    buffer[i].a = data[i];
                 }
                 break;
             case Format::RGB24:
-                for (size_t i = 0, j = 0; i < pixels.size(); i += 3, ++j)
+                for (size_t i = 0, j = 0; i < data.size(); i += 3, ++j)
                 {
-                    buffer[j].r = pixels[i];
-                    buffer[j].g = pixels[i + 1];
-                    buffer[j].b = pixels[i + 2];
+                    buffer[j].r = data[i];
+                    buffer[j].g = data[i + 1];
+                    buffer[j].b = data[i + 2];
                 }
                 break;
             case Format::RGBA32:
-                std::memcpy(buffer.data(), pixels.data(), pixels.size());
+                std::memcpy(buffer.data(), data.data(), data.size());
                 break;
+            default: ;
             }
             return buffer;
         }
@@ -123,23 +133,34 @@ namespace pluto
             switch (format)
             {
             case Format::Alpha8:
-                for (size_t i = 0; i < pixels.size() && i < value.size(); ++i)
+                for (size_t i = 0; i < data.size() && i < value.size(); ++i)
                 {
-                    pixels[i] = value[i].a;
+                    data[i] = value[i].a;
                 }
                 break;
             case Format::RGB24:
-                for (size_t i = 0, j = 0; i < pixels.size() && j < value.size(); i += 3, ++j)
+                for (size_t i = 0, j = 0; i < data.size() && j < value.size(); i += 3, ++j)
                 {
-                    pixels[i] = value[j].r;
-                    pixels[i + 1] = value[j].g;
-                    pixels[i + 2] = value[j].b;
+                    data[i] = value[j].r;
+                    data[i + 1] = value[j].g;
+                    data[i + 2] = value[j].b;
                 }
                 break;
             case Format::RGBA32:
-                std::memcpy(pixels.data(), value.data(), std::min(pixels.size(), value.size() * 4));
+                std::memcpy(data.data(), value.data(), std::min(data.size(), value.size() * 4));
                 break;
+            default: ;
             }
+        }
+
+        Wrap GetWrap() const
+        {
+            return wrap;
+        }
+
+        void SetWrap(const Wrap value)
+        {
+            wrap = value;
         }
 
         Format GetFormat() const
@@ -166,9 +187,15 @@ namespace pluto
         {
             name = other.name;
             size = other.size;
-            pixels = other.pixels;
+            data = other.data;
+            wrap = other.wrap;
             format = other.format;
             filter = other.filter;
+        }
+
+        void Apply()
+        {
+            // TODO: Send modified changes to the GPU.
         }
 
     private:
@@ -182,6 +209,7 @@ namespace pluto
                 return 3;
             case Format::RGBA32:
                 return 4;
+            default: ;
             }
             return 0;
         }
@@ -239,6 +267,11 @@ namespace pluto
         impl->Dump(fileWriter);
     }
 
+    std::vector<uint8_t> TextureAsset::Data()
+    {
+        return impl->Data();
+    }
+
     const Vector2I& TextureAsset::GetSize() const
     {
         return impl->GetSize();
@@ -269,6 +302,16 @@ namespace pluto
         impl->SetPixels(value);
     }
 
+    TextureAsset::Wrap TextureAsset::GetWrap() const
+    {
+        return impl->GetWrap();
+    }
+
+    void TextureAsset::SetWrap(const Wrap value)
+    {
+        impl->SetWrap(value);
+    }
+
     TextureAsset::Format TextureAsset::GetFormat() const
     {
         return impl->GetFormat();
@@ -287,6 +330,11 @@ namespace pluto
     void TextureAsset::SetFilter(const Filter value)
     {
         impl->SetFilter(value);
+    }
+
+    void TextureAsset::Apply()
+    {
+        impl->Apply();
     }
 
     void TextureAsset::Clone(const TextureAsset& other)

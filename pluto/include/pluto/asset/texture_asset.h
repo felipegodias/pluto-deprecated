@@ -32,17 +32,33 @@ namespace pluto
     class PLUTO_API TextureAsset final : public Asset
     {
     public:
+        enum class Wrap
+        {
+            Clamp = 0,
+            Mirror = 1,
+            Repeat = 2,
+            Default = Clamp,
+            Last = Repeat,
+            Count = Last + 1
+        };
+
         enum class Format
         {
             Alpha8 = 0,
             RGB24 = 1,
-            RGBA32 = 2
+            RGBA32 = 2,
+            Default = RGBA32,
+            Last = RGBA32,
+            Count = Last + 1
         };
 
         enum class Filter
         {
             Point = 0,
-            Bilinear = 1
+            Bilinear = 1,
+            Default = Bilinear,
+            Last = Bilinear,
+            Count = Last + 1
         };
 
         class PLUTO_API Factory final : public BaseFactory
@@ -72,6 +88,8 @@ namespace pluto
         void SetName(std::string value) override;
         void Dump(FileWriter& fileWriter) const override;
 
+        std::vector<uint8_t> Data();
+
         const Vector2I& GetSize() const;
         void SetSize(const Vector2I& value);
 
@@ -81,12 +99,16 @@ namespace pluto
         std::vector<Color> GetPixels() const;
         void SetPixels(const std::vector<Color>& value) const;
 
+        Wrap GetWrap() const;
+        void SetWrap(Wrap value);
+
         Format GetFormat() const;
         void SetFormat(Format value);
 
         Filter GetFilter() const;
         void SetFilter(Filter value);
 
+        void Apply();
         void Clone(const TextureAsset& other);
     };
 }
