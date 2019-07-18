@@ -67,10 +67,6 @@ namespace pluto
     {
     }
 
-    Vector3F::Vector3F(const Vector3F& other) : Vector3F(other.x, other.y, other.z)
-    {
-    }
-
     Vector3F::Vector3F(const Vector3I& other) : Vector3F(static_cast<float>(other.x), static_cast<float>(other.y),
                                                          static_cast<float>(other.z))
     {
@@ -85,12 +81,6 @@ namespace pluto
     {
     }
 
-    Vector3F::Vector3F(Vector3F&& other) noexcept : Vector3F(other.x, other.y, other.z)
-    {
-    }
-
-    Vector3F::~Vector3F() = default;
-
     Vector3F& Vector3F::operator=(const Vector2F& rhs)
     {
         x = rhs.x;
@@ -104,18 +94,6 @@ namespace pluto
         x = static_cast<float>(rhs.x);
         y = static_cast<float>(rhs.y);
         z = 0;
-        return *this;
-    }
-
-    Vector3F& Vector3F::operator=(const Vector3F& rhs)
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-        x = rhs.x;
-        y = rhs.y;
-        z = rhs.z;
         return *this;
     }
 
@@ -140,18 +118,6 @@ namespace pluto
         x = static_cast<float>(rhs.x);
         y = static_cast<float>(rhs.y);
         z = static_cast<float>(rhs.z);
-        return *this;
-    }
-
-    Vector3F& Vector3F::operator=(Vector3F&& rhs) noexcept
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-        x = rhs.x;
-        y = rhs.y;
-        z = rhs.z;
         return *this;
     }
 

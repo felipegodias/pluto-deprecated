@@ -13,38 +13,6 @@ namespace pluto
     {
     }
 
-    Bounds::Bounds(const Bounds& other) = default;
-
-    Bounds::Bounds(Bounds&& other) noexcept : min(std::move(other.min)), max(std::move(other.max))
-    {
-    }
-
-    Bounds::~Bounds() = default;
-
-    Bounds& Bounds::operator=(const Bounds& rhs)
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        min = rhs.min;
-        max = rhs.max;
-        return *this;
-    }
-
-    Bounds& Bounds::operator=(Bounds&& rhs) noexcept
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        min = std::move(rhs.min);
-        max = std::move(rhs.max);
-        return *this;
-    }
-
     const Vector3F& Bounds::GetMin() const
     {
         return min;

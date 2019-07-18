@@ -120,7 +120,7 @@ namespace pluto
                 return localPosition;
             }
 
-            return GetWorldMatrix() * Vector4F(localPosition);
+            return Vector3F(GetWorldMatrix() * Vector4F(localPosition));
         }
 
         void SetPosition(const Vector3F& value)

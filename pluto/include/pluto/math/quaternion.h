@@ -17,13 +17,6 @@ namespace pluto
 
         Quaternion();
         Quaternion(float x, float y, float z, float w);
-        Quaternion(const Quaternion& other);
-        Quaternion(Quaternion&& other) noexcept;
-
-        ~Quaternion();
-
-        Quaternion& operator=(const Quaternion& rhs);
-        Quaternion& operator=(Quaternion&& rhs) noexcept;
 
         Quaternion& operator*=(const Quaternion& rhs);
         Quaternion operator*(const Quaternion& rhs) const;

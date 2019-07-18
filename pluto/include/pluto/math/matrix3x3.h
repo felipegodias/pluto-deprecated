@@ -11,24 +11,18 @@ namespace pluto
 
     class PLUTO_API Matrix3X3
     {
+        std::array<float, 9> data;
+
     public:
         static const Matrix3X3 IDENTITY;
         static const Matrix3X3 ZERO;
-
-        std::array<float, 9> data;
 
         Matrix3X3();
         explicit Matrix3X3(const std::array<float, 9>& data);
 
         Matrix3X3(float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2);
         Matrix3X3(const Vector3F& row0, const Vector3F& row1, const Vector3F& row2);
-        Matrix3X3(const Matrix3X3& other);
-        Matrix3X3(Matrix3X3&& other) noexcept;
 
-        ~Matrix3X3();
-
-        Matrix3X3& operator=(const Matrix3X3& rhs);
-        Matrix3X3& operator=(Matrix3X3&& rhs) noexcept;
         Matrix3X3& operator*=(const Matrix3X3& rhs);
         Matrix3X3 operator*(const Matrix3X3& rhs) const;
         Vector3F operator*(const Vector3F& rhs) const;

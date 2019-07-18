@@ -20,18 +20,12 @@ namespace pluto
         Vector2I();
         explicit Vector2I(int scalar);
         Vector2I(int x, int y);
-        Vector2I(const Vector2I& other);
-        Vector2I(Vector2I&& other) noexcept;
-
-        ~Vector2I();
-
-        Vector2I& operator=(const Vector2I& rhs);
-        Vector2I& operator=(Vector2I&& rhs) noexcept;
 
         bool operator==(const Vector2I& rhs) const;
         bool operator!=(const Vector2I& rhs) const;
         int operator[](int index) const;
         friend PLUTO_API std::ostream& operator<<(std::ostream& os, const Vector2I& vector);
+
         std::string Str() const;
         int* Data();
         const int* Data() const;

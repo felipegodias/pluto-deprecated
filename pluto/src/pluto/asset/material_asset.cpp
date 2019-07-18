@@ -116,7 +116,7 @@ namespace pluto
 
         Vector2I GetVector2I(const std::string& propertyName) const
         {
-            const Vector4F& v = GetProperty<Vector2I>(propertyName, vectors)->second;
+            const auto& v = GetProperty<Vector2I>(propertyName, vectors)->second;
             return {static_cast<int>(v.x), static_cast<int>(v.y)};
         }
 
@@ -127,7 +127,7 @@ namespace pluto
 
         Vector2F GetVector2F(const std::string& propertyName) const
         {
-            return GetProperty<Vector2F>(propertyName, vectors)->second;
+            return Vector2F(GetProperty<Vector2F>(propertyName, vectors)->second);
         }
 
         void SetVector2F(const std::string& propertyName, const Vector2F& value)
@@ -137,7 +137,7 @@ namespace pluto
 
         Vector3I GetVector3I(const std::string& propertyName) const
         {
-            const Vector4F& v = GetProperty<Vector3I>(propertyName, vectors)->second;
+            const auto& v = GetProperty<Vector3I>(propertyName, vectors)->second;
             return {static_cast<int>(v.x), static_cast<int>(v.y), static_cast<int>(v.z)};
         }
 
@@ -148,7 +148,7 @@ namespace pluto
 
         Vector3F GetVector3F(const std::string& propertyName) const
         {
-            return GetProperty<Vector3F>(propertyName, vectors)->second;
+            return Vector3F(GetProperty<Vector3F>(propertyName, vectors)->second);
         }
 
         void SetVector3F(const std::string& propertyName, const Vector3F& value)
@@ -158,7 +158,7 @@ namespace pluto
 
         Vector4I GetVector4I(const std::string& propertyName) const
         {
-            const Vector4F& v = GetProperty<Vector4I>(propertyName, vectors)->second;
+            const auto& v = GetProperty<Vector4I>(propertyName, vectors)->second;
             return {static_cast<int>(v.x), static_cast<int>(v.y), static_cast<int>(v.z), static_cast<int>(v.w)};
         }
 

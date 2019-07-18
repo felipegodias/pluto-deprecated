@@ -1,4 +1,5 @@
 #include <pluto/math/vector4f.h>
+#include <pluto/math/color.h>
 #include <pluto/math/vector2f.h>
 #include <pluto/math/vector2i.h>
 #include <pluto/math/vector3f.h>
@@ -8,6 +9,7 @@
 #include <stdexcept>
 #include <limits>
 #include <sstream>
+#include <algorithm>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -37,6 +39,11 @@ namespace pluto
         return reinterpret_cast<const Vector4F&>(v);
     }
 
+    inline float NormalizeUInt8(const uint8_t v)
+    {
+        return std::clamp(static_cast<float>(v) / 255.0f, 0.0f, 1.0f);
+    }
+
     const Vector4F Vector4F::ZERO = Vector4F(0);
     const Vector4F Vector4F::ONE = Vector4F(1);
 
@@ -49,6 +56,11 @@ namespace pluto
     }
 
     Vector4F::Vector4F(const float x, const float y, const float z, const float w) : x(x), y(y), z(z), w(w)
+    {
+    }
+
+    Vector4F::Vector4F(const Color& other) : x(NormalizeUInt8(other.r)), y(NormalizeUInt8(other.g)),
+                                             z(NormalizeUInt8(other.b)), w(NormalizeUInt8(other.a))
     {
     }
 
@@ -70,20 +82,19 @@ namespace pluto
     {
     }
 
-    Vector4F::Vector4F(const Vector4F& other) : Vector4F(other.x, other.y, other.z, other.w)
-    {
-    }
-
     Vector4F::Vector4F(const Vector4I& other) : Vector4F(static_cast<float>(other.x), static_cast<float>(other.y),
                                                          static_cast<float>(other.z), static_cast<float>(other.w))
     {
     }
 
-    Vector4F::Vector4F(Vector4F&& other) noexcept : x(other.x), y(other.y), z(other.z), w(other.w)
+    Vector4F& Vector4F::operator=(const Color& rhs)
     {
+        x = NormalizeUInt8(rhs.r);
+        y = NormalizeUInt8(rhs.g);
+        z = NormalizeUInt8(rhs.b);
+        w = NormalizeUInt8(rhs.a);
+        return *this;
     }
-
-    Vector4F::~Vector4F() = default;
 
     Vector4F& Vector4F::operator=(const Vector2F& rhs)
     {
@@ -121,38 +132,12 @@ namespace pluto
         return *this;
     }
 
-    Vector4F& Vector4F::operator=(const Vector4F& rhs)
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-        x = rhs.x;
-        y = rhs.y;
-        z = rhs.z;
-        w = rhs.w;
-        return *this;
-    }
-
     Vector4F& Vector4F::operator=(const Vector4I& rhs)
     {
         x = static_cast<float>(rhs.x);
         y = static_cast<float>(rhs.y);
         z = static_cast<float>(rhs.z);
         w = static_cast<float>(rhs.w);
-        return *this;
-    }
-
-    Vector4F& Vector4F::operator=(Vector4F&& rhs) noexcept
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-        x = rhs.x;
-        y = rhs.y;
-        z = rhs.z;
-        w = rhs.w;
         return *this;
     }
 
@@ -214,7 +199,7 @@ namespace pluto
 
     bool Vector4F::operator==(const Vector4F& rhs) const
     {
-        constexpr float e = std::numeric_limits<float>::epsilon();
+        constexpr auto e = std::numeric_limits<float>::epsilon();
         return abs(x - rhs.x) <= e && abs(y - rhs.y) <= e && abs(z - rhs.z) <= e && abs(w - rhs.w) <= e;
     }
 

@@ -11,24 +11,18 @@ namespace pluto
 
     class PLUTO_API Matrix2X2
     {
+        std::array<float, 4> data;
+
     public:
         static const Matrix2X2 IDENTITY;
         static const Matrix2X2 ZERO;
-
-        std::array<float, 4> data;
 
         Matrix2X2();
         explicit Matrix2X2(const std::array<float, 4>& data);
 
         Matrix2X2(float x0, float y0, float x1, float y1);
         Matrix2X2(const Vector2F& row0, const Vector2F& row1);
-        Matrix2X2(const Matrix2X2& other);
-        Matrix2X2(Matrix2X2&& other) noexcept;
 
-        ~Matrix2X2();
-
-        Matrix2X2& operator=(const Matrix2X2& rhs);
-        Matrix2X2& operator=(Matrix2X2&& rhs) noexcept;
         Matrix2X2& operator*=(const Matrix2X2& rhs);
         Matrix2X2 operator*(const Matrix2X2& rhs) const;
         Vector2F operator*(const Vector2F& rhs) const;

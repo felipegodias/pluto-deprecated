@@ -50,44 +50,6 @@ namespace pluto
     {
     }
 
-    Quaternion::Quaternion(const Quaternion& other) : x(other.x), y(other.y), z(other.z), w(other.w)
-    {
-    }
-
-    Quaternion::Quaternion(Quaternion&& other) noexcept : x(other.x), y(other.y), z(other.z), w(other.w)
-    {
-    }
-
-    Quaternion::~Quaternion() = default;
-
-    Quaternion& Quaternion::operator=(const Quaternion& rhs)
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        x = rhs.x;
-        y = rhs.y;
-        z = rhs.z;
-        z = rhs.z;
-        return *this;
-    }
-
-    Quaternion& Quaternion::operator=(Quaternion&& rhs) noexcept
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        x = rhs.x;
-        y = rhs.y;
-        z = rhs.z;
-        z = rhs.z;
-        return *this;
-    }
-
     Quaternion& Quaternion::operator*=(const Quaternion& rhs)
     {
         return *this = FromGlm(ToGlm(*this) * ToGlm(rhs));

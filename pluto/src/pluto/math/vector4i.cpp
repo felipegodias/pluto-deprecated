@@ -16,45 +16,6 @@ namespace pluto
     {
     }
 
-    Vector4I::Vector4I(const Vector4I& other) : Vector4I(other.x, other.y, other.z, other.w)
-    {
-    }
-
-    Vector4I::Vector4I(Vector4I&& other) noexcept : Vector4I(other.x, other.y, other.z, other.w)
-    {
-    }
-
-    Vector4I::~Vector4I() = default;
-
-    Vector4I& Vector4I::operator=(const Vector4I& rhs)
-
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        x = rhs.x;
-        y = rhs.y;
-        z = rhs.z;
-        w = rhs.w;
-        return *this;
-    }
-
-    Vector4I& Vector4I::operator=(Vector4I&& rhs) noexcept
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        x = rhs.x;
-        y = rhs.y;
-        z = rhs.z;
-        w = rhs.w;
-        return *this;
-    }
-
     bool Vector4I::operator==(const Vector4I& rhs) const
     {
         return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w;

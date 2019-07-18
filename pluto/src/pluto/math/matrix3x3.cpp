@@ -74,38 +74,6 @@ namespace pluto
     {
     }
 
-    Matrix3X3::Matrix3X3(const Matrix3X3& other) : Matrix3X3(other.data)
-    {
-    }
-
-    Matrix3X3::Matrix3X3(Matrix3X3&& other) noexcept : Matrix3X3(other.data)
-    {
-    }
-
-    Matrix3X3::~Matrix3X3() = default;
-
-    Matrix3X3& Matrix3X3::operator=(const Matrix3X3& rhs)
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        data = rhs.data;
-        return *this;
-    }
-
-    Matrix3X3& Matrix3X3::operator=(Matrix3X3&& rhs) noexcept
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        data = rhs.data;
-        return *this;
-    }
-
     Matrix3X3& Matrix3X3::operator*=(const Matrix3X3& rhs)
     {
         return *this = FromGlm(ToGlm(*this) * ToGlm(rhs));

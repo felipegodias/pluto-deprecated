@@ -16,43 +16,6 @@ namespace pluto
     {
     }
 
-    Vector3I::Vector3I(const Vector3I& other) : Vector3I(other.x, other.y, other.z)
-    {
-    }
-
-    Vector3I::Vector3I(Vector3I&& other) noexcept : Vector3I(other.x, other.y, other.z)
-    {
-    }
-
-    Vector3I::~Vector3I() = default;
-
-    Vector3I& Vector3I::operator=(const Vector3I& rhs)
-
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        x = rhs.x;
-        y = rhs.y;
-        z = rhs.z;
-        return *this;
-    }
-
-    Vector3I& Vector3I::operator=(Vector3I&& rhs) noexcept
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        x = rhs.x;
-        y = rhs.y;
-        z = rhs.z;
-        return *this;
-    }
-
     bool Vector3I::operator==(const Vector3I& rhs) const
     {
         return x == rhs.x && y == rhs.y && z == rhs.z;

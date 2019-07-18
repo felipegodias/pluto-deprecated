@@ -13,11 +13,11 @@ namespace pluto
 
     class PLUTO_API Matrix4X4
     {
+        std::array<float, 16> data;
+
     public:
         static const Matrix4X4 IDENTITY;
         static const Matrix4X4 ZERO;
-
-        std::array<float, 16> data;
 
         Matrix4X4();
         explicit Matrix4X4(const std::array<float, 16>& data);
@@ -25,13 +25,7 @@ namespace pluto
         Matrix4X4(float x0, float y0, float z0, float w0, float x1, float y1, float z1, float w1, float x2, float y2,
                   float z2, float w2, float x3, float y3, float z3, float w3);
         Matrix4X4(const Vector4F& row0, const Vector4F& row1, const Vector4F& row2, const Vector4F& row3);
-        Matrix4X4(const Matrix4X4& other);
-        Matrix4X4(Matrix4X4&& other) noexcept;
 
-        ~Matrix4X4();
-
-        Matrix4X4& operator=(const Matrix4X4& rhs);
-        Matrix4X4& operator=(Matrix4X4&& rhs) noexcept;
         Matrix4X4& operator*=(const Matrix4X4& rhs);
         Matrix4X4 operator*(const Matrix4X4& rhs) const;
         Vector4F operator*(const Vector4F& rhs) const;

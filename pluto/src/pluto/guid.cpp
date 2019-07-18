@@ -44,36 +44,6 @@ namespace pluto
         *this = FromBoost(uuid);
     }
 
-    Guid::Guid(const Guid& other) : data(other.data)
-    {
-    }
-
-    Guid::Guid(Guid&& other) noexcept : data(other.data)
-    {
-    }
-
-    Guid& Guid::operator=(const Guid& rhs)
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        data = rhs.data;
-        return *this;
-    }
-
-    Guid& Guid::operator=(Guid&& rhs) noexcept
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        data = rhs.data;
-        return *this;
-    }
-
     bool Guid::operator==(const Guid& rhs) const
     {
         return ToBoost(*this) == ToBoost(rhs);

@@ -26,23 +26,18 @@ namespace pluto
         Vector2F();
         explicit Vector2F(float scalar);
         Vector2F(float x, float y);
-        Vector2F(const Vector2F& other);
-        Vector2F(const Vector2I& other);
-        Vector2F(const Vector3F& other);
-        Vector2F(const Vector3I& other);
-        Vector2F(const Vector4F& other);
-        Vector2F(const Vector4I& other);
-        Vector2F(Vector2F&& other) noexcept;
 
-        ~Vector2F();
+        explicit Vector2F(const Vector2I& other);
+        explicit Vector2F(const Vector3F& other);
+        explicit Vector2F(const Vector3I& other);
+        explicit Vector2F(const Vector4F& other);
+        explicit Vector2F(const Vector4I& other);
 
-        Vector2F& operator=(const Vector2F& rhs);
         Vector2F& operator=(const Vector2I& rhs);
         Vector2F& operator=(const Vector3F& rhs);
         Vector2F& operator=(const Vector3I& rhs);
         Vector2F& operator=(const Vector4F& rhs);
         Vector2F& operator=(const Vector4I& rhs);
-        Vector2F& operator=(Vector2F&& rhs) noexcept;
 
         Vector2F& operator+=(const Vector2F& rhs);
         Vector2F& operator-=(const Vector2F& rhs);

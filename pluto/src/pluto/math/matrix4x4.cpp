@@ -90,38 +90,6 @@ namespace pluto
     {
     }
 
-    Matrix4X4::Matrix4X4(const Matrix4X4& other) : Matrix4X4(other.data)
-    {
-    }
-
-    Matrix4X4::Matrix4X4(Matrix4X4&& other) noexcept : Matrix4X4(other.data)
-    {
-    }
-
-    Matrix4X4::~Matrix4X4() = default;
-
-    Matrix4X4& Matrix4X4::operator=(const Matrix4X4& rhs)
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        data = rhs.data;
-        return *this;
-    }
-
-    Matrix4X4& Matrix4X4::operator=(Matrix4X4&& rhs) noexcept
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        data = rhs.data;
-        return *this;
-    }
-
     Matrix4X4& Matrix4X4::operator*=(const Matrix4X4& rhs)
     {
         return *this = FromGlm(ToGlm(*this) * ToGlm(rhs));

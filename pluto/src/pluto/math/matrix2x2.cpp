@@ -70,38 +70,6 @@ namespace pluto
     {
     }
 
-    Matrix2X2::Matrix2X2(const Matrix2X2& other) : Matrix2X2(other.data)
-    {
-    }
-
-    Matrix2X2::Matrix2X2(Matrix2X2&& other) noexcept : Matrix2X2(other.data)
-    {
-    }
-
-    Matrix2X2::~Matrix2X2() = default;
-
-    Matrix2X2& Matrix2X2::operator=(const Matrix2X2& rhs)
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        data = rhs.data;
-        return *this;
-    }
-
-    Matrix2X2& Matrix2X2::operator=(Matrix2X2&& rhs) noexcept
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        data = rhs.data;
-        return *this;
-    }
-
     Matrix2X2& Matrix2X2::operator*=(const Matrix2X2& rhs)
     {
         return *this = FromGlm(ToGlm(*this) * ToGlm(rhs));

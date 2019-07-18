@@ -16,40 +16,6 @@ namespace pluto
     {
     }
 
-    Vector2I::Vector2I(const Vector2I& other) : Vector2I(other.x, other.y)
-    {
-    }
-
-    Vector2I::Vector2I(Vector2I&& other) noexcept : Vector2I(other.x, other.y)
-    {
-    }
-
-    Vector2I::~Vector2I() = default;
-
-    Vector2I& Vector2I::operator=(const Vector2I& rhs)
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        x = rhs.x;
-        y = rhs.y;
-        return *this;
-    }
-
-    Vector2I& Vector2I::operator=(Vector2I&& rhs) noexcept
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        x = rhs.x;
-        y = rhs.y;
-        return *this;
-    }
-
     bool Vector2I::operator==(const Vector2I& rhs) const
     {
         return x == rhs.x && y == rhs.y;

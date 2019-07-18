@@ -28,23 +28,17 @@ namespace pluto
         Vector3F();
         explicit Vector3F(float scalar);
         Vector3F(float x, float y, float z);
-        Vector3F(const Vector2F& other);
-        Vector3F(const Vector2I& other);
-        Vector3F(const Vector3F& other);
-        Vector3F(const Vector3I& other);
-        Vector3F(const Vector4F& other);
-        Vector3F(const Vector4I& other);
-        Vector3F(Vector3F&& other) noexcept;
-
-        ~Vector3F();
+        explicit Vector3F(const Vector2F& other);
+        explicit Vector3F(const Vector2I& other);
+        explicit Vector3F(const Vector3I& other);
+        explicit Vector3F(const Vector4F& other);
+        explicit Vector3F(const Vector4I& other);
 
         Vector3F& operator=(const Vector2F& rhs);
         Vector3F& operator=(const Vector2I& rhs);
-        Vector3F& operator=(const Vector3F& rhs);
         Vector3F& operator=(const Vector3I& rhs);
         Vector3F& operator=(const Vector4F& rhs);
         Vector3F& operator=(const Vector4I& rhs);
-        Vector3F& operator=(Vector3F&& rhs) noexcept;
 
         Vector3F& operator+=(const Vector3F& rhs);
         Vector3F& operator-=(const Vector3F& rhs);
