@@ -8,7 +8,7 @@
 namespace pluto
 {
     class Vector2I;
-    class Vector4F;
+    class Color;
     class FileReader;
 
     /*
@@ -22,6 +22,11 @@ namespace pluto
      * | GUID         | 16   | Asset unique identifier.     |
      * | uint8_t      | 1    | Asset name length.           |
      * | string       | *    | Asset name.                  |
+     * +--------------+------+------------------------------+
+     * | uint8_t      | 1    | Filter.                      |
+     * | uint8_t      | 1    | Format.                      |
+     * | uint32_t     | 4    | Bytes count.                 |
+     * | uint8_t[]    | *    | Bytes.                       |
      * +--------------+------+------------------------------+
      */
     class PLUTO_API TextureAsset final : public Asset
@@ -59,7 +64,7 @@ namespace pluto
         TextureAsset(TextureAsset&& other) noexcept;
         ~TextureAsset() override;
 
-        TextureAsset& operator=(const TextureAsset& rhs);
+        TextureAsset& operator=(const TextureAsset& rhs) = delete;
         TextureAsset& operator=(TextureAsset&& rhs) noexcept;
 
         const Guid& GetId() const override;
@@ -68,18 +73,20 @@ namespace pluto
         void Dump(FileWriter& fileWriter) const override;
 
         const Vector2I& GetSize() const;
-        void SetSize(Vector2I value);
+        void SetSize(const Vector2I& value);
 
-        Vector4F GetPixel(const Vector2I& pos) const;
-        void SetPixel(const Vector2I& pos, const Vector4F& value);
+        Color GetPixel(const Vector2I& pos) const;
+        void SetPixel(const Vector2I& pos, const Color& value);
 
-        std::vector<Vector4F> GetPixels() const;
-        void SetPixels(const std::vector<Vector4F>& value) const;
+        std::vector<Color> GetPixels() const;
+        void SetPixels(const std::vector<Color>& value) const;
 
         Format GetFormat() const;
         void SetFormat(Format value);
 
         Filter GetFilter() const;
         void SetFilter(Filter value);
+
+        void Clone(const TextureAsset& other);
     };
 }

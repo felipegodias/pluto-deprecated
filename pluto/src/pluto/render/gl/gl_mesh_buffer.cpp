@@ -89,7 +89,7 @@ namespace pluto
         uint32_t vertexArrayObject;
         glGenVertexArrays(1, &vertexArrayObject);
 
-        GLuint indexBufferObject;
+        uint32_t indexBufferObject;
         glGenBuffers(1, &indexBufferObject);
 
         glBindVertexArray(vertexArrayObject);

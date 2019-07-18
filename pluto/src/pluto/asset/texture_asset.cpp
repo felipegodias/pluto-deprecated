@@ -21,10 +21,7 @@ namespace pluto
         std::vector<uint8_t> pixels;
 
     public:
-        explicit Impl(const Guid& guid, std::string name, const Vector2I& size, const Format format,
-                      const Filter filter, std::vector<uint8_t> pixels) : guid(guid), name(std::move(name)),
-                                                                          size(size), format(format),
-                                                                          filter(filter), pixels(std::move(pixels))
+        explicit Impl(const Guid& guid) : guid(guid), format(Format::RGBA32), filter(Filter::Bilinear)
         {
         }
 
@@ -196,14 +193,20 @@ namespace pluto
 
     std::unique_ptr<TextureAsset> TextureAsset::Factory::Create() const
     {
+        auto textureAsset = std::make_unique<TextureAsset>(std::make_unique<Impl>(Guid::New()));
+        return textureAsset;
     }
 
     std::unique_ptr<TextureAsset> TextureAsset::Factory::Create(const TextureAsset& original) const
     {
+        auto textureAsset = Create();
+        textureAsset->Clone(original);
+        return textureAsset;
     }
 
     std::unique_ptr<TextureAsset> TextureAsset::Factory::Create(FileReader& fileReader) const
     {
+        return Create();
     }
 
     TextureAsset::TextureAsset(std::unique_ptr<Impl> impl) : impl(std::move(impl))
