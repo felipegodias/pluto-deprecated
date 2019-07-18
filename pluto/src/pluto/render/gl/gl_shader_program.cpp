@@ -180,7 +180,7 @@ namespace pluto
 
         void UpdateModelViewProjection(const Matrix4X4& mvp)
         {
-            glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, mvp.data.data());
+            glUniformMatrix4fv(mvpUniformLocation, 1, GL_FALSE, mvp.Data());
         }
 
     private:
