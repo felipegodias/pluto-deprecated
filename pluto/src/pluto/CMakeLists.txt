@@ -61,6 +61,7 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/render/shader_program.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/texture_buffer.cpp
     # ./render/gl
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/gl/gl_call.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gl/gl_mesh_buffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gl/gl_render_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gl/gl_shader_program.cpp
