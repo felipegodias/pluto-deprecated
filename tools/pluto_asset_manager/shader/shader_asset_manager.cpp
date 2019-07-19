@@ -73,6 +73,7 @@ namespace pluto
         {GL_FLOAT_MAT2, ShaderAsset::Property::Type::Matrix2X2},
         {GL_FLOAT_MAT3, ShaderAsset::Property::Type::Matrix3X3},
         {GL_FLOAT_MAT4, ShaderAsset::Property::Type::Matrix4X4},
+        {GL_SAMPLER_2D, ShaderAsset::Property::Type::Sampler2D},
     };
 
     struct ShaderFileData
