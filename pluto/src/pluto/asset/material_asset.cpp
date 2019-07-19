@@ -1,5 +1,6 @@
 #include <pluto/asset/material_asset.h>
 #include <pluto/asset/shader_asset.h>
+#include <pluto/asset/texture_asset.h>
 #include <pluto/asset/events/on_asset_unload_event.h>
 #include <pluto/asset/asset_manager.h>
 #include <pluto/file/path.h>
@@ -29,13 +30,13 @@ namespace pluto
 {
     class MaterialAsset::Impl
     {
-    private:
         Guid guid;
         std::string name;
         ShaderAsset& shaderAsset;
         std::unordered_map<std::string, float> floats;
         std::unordered_map<std::string, Vector4F> vectors;
         std::unordered_map<std::string, Matrix4X4> matrices;
+        std::unordered_map<std::string, TextureAsset*> textures;
 
         Guid onAssetUnloadListenerId;
         EventManager& eventManager;
@@ -172,9 +173,9 @@ namespace pluto
             return GetProperty<Vector4F>(propertyName, vectors)->second;
         }
 
-        void SetVector4F(const std::string& propertyName, Vector4F value)
+        void SetVector4F(const std::string& propertyName, const Vector4F& value)
         {
-            GetProperty<Vector4F>(propertyName, vectors)->second = std::move(value);
+            GetProperty<Vector4F>(propertyName, vectors)->second = value;
         }
 
         const Matrix4X4& GetMatrix4X4(const std::string& propertyName) const
@@ -182,9 +183,19 @@ namespace pluto
             return GetProperty<Matrix4X4>(propertyName, matrices)->second;
         }
 
-        void SetMatrix4X4(const std::string& propertyName, Matrix4X4 value)
+        void SetMatrix4X4(const std::string& propertyName, const Matrix4X4& value)
         {
-            GetProperty<Matrix4X4>(propertyName, matrices)->second = std::move(value);
+            GetProperty<Matrix4X4>(propertyName, matrices)->second = value;
+        }
+
+        TextureAsset& GetTexture(const std::string& propertyName) const
+        {
+            return *GetProperty<TextureAsset>(propertyName, textures)->second;
+        }
+
+        void SetTexture(const std::string& propertyName, TextureAsset& textureAsset)
+        {
+            GetProperty<TextureAsset>(propertyName, textures)->second = &textureAsset;
         }
 
         void Clone(const Impl& other)
@@ -225,7 +236,7 @@ namespace pluto
                     matrices.emplace(property.name, Matrix4X4::IDENTITY);
                     break;
                 case ShaderAsset::Property::Type::Sampler2D:
-                    //glUniform4fv(property.id, 1, lastMaterialAsset->GetVector4F(property.name).Data());
+                    textures.emplace(property.name, nullptr);
                     break;
                 default: ;
                 }
@@ -421,9 +432,9 @@ namespace pluto
         return impl->GetVector4F(propertyName);
     }
 
-    void MaterialAsset::SetVector4F(const std::string& propertyName, Vector4F value)
+    void MaterialAsset::SetVector4F(const std::string& propertyName, const Vector4F& value)
     {
-        impl->SetVector4F(propertyName, std::move(value));
+        impl->SetVector4F(propertyName, value);
     }
 
     const Matrix4X4& MaterialAsset::GetMatrix4X4(const std::string& propertyName) const
@@ -431,8 +442,18 @@ namespace pluto
         return impl->GetMatrix4X4(propertyName);
     }
 
-    void MaterialAsset::SetMatrix4X4(const std::string& propertyName, Matrix4X4 value)
+    void MaterialAsset::SetMatrix4X4(const std::string& propertyName, const Matrix4X4& value)
     {
-        impl->SetMatrix4X4(propertyName, std::move(value));
+        impl->SetMatrix4X4(propertyName, value);
+    }
+
+    TextureAsset& MaterialAsset::GetTexture(const std::string& propertyName) const
+    {
+        return impl->GetTexture(propertyName);
+    }
+
+    void MaterialAsset::SetTexture(const std::string& propertyName, TextureAsset& textureAsset)
+    {
+        impl->SetTexture(propertyName, textureAsset);
     }
 }

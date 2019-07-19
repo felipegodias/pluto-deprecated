@@ -79,6 +79,7 @@ namespace pluto
         void SetSize(const Vector2I& value)
         {
             size = value;
+            data = std::vector<uint8_t>(size.x * size.y * 4, 0);
         }
 
         Color GetPixel(const Vector2I& pos) const

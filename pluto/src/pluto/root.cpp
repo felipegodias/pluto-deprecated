@@ -26,9 +26,12 @@
 #include <pluto/asset/mesh_asset.h>
 #include <pluto/asset/shader_asset.h>
 #include <pluto/asset/material_asset.h>
+#include <pluto/asset/texture_asset.h>
 #include <pluto/asset/package_manifest_asset.h>
 
+#include <pluto/math/color.h>
 #include <pluto/math/vector2f.h>
+#include <pluto/math/vector2i.h>
 #include <pluto/math/vector3f.h>
 #include <pluto/math/vector3i.h>
 #include <pluto/math/matrix4x4.h>
@@ -125,24 +128,41 @@ namespace pluto
                 sceneManager.LoadEmptyScene();
 
                 GameObject& cameraGo = sceneManager.GetActiveScene().CreateGameObject("Camera");
-                cameraGo.GetTransform().SetLocalPosition({ 0, 0, -1 });
+                cameraGo.GetTransform().SetLocalPosition({0, 0, -1});
 
                 auto& camera = cameraGo.AddComponent<Camera>();
 
                 auto& meshAsset = assetManager.Load<MeshAsset>(Path("meshes/quad.obj"));
-                auto& shaderAsset = assetManager.Load<ShaderAsset>(Path("shaders/color.glsl"));
+                auto& shaderAsset = assetManager.Load<ShaderAsset>(Path("shaders/unlit.glsl"));
 
                 auto& materialFactory = diContainer->GetSingleton<MaterialAsset::Factory>();
                 auto materialAssetPtr = materialFactory.Create();
                 materialAssetPtr->SetName("default");
-                materialAssetPtr->SetShader(shaderAsset); 
-                materialAssetPtr->SetVector4F("u_mat.color", Vector4F(1, 1, 1, 1));
+                materialAssetPtr->SetShader(shaderAsset);
+                //materialAssetPtr->SetVector4F("u_mat.color", Vector4F(1, 1, 1, 1));
                 m = &assetManager.Register(std::move(materialAssetPtr));
 
                 GameObject& quadGo = sceneManager.GetActiveScene().CreateGameObject("Quad");
                 auto& meshRenderer = quadGo.AddComponent<MeshRenderer>();
                 meshRenderer.SetMesh(meshAsset);
                 meshRenderer.SetMaterial(*m);
+
+                const auto& textureAssetFactory = diContainer->GetSingleton<TextureAsset::Factory>();
+                auto textureAsset = textureAssetFactory.Create();
+                textureAsset->SetSize({2, 2});
+
+                std::vector<Color> colors = {
+                    {255, 0, 0, 255}, {0, 255, 0, 255},
+                    {0, 0, 255, 0}, {255, 0, 255, 255}
+                };
+
+                textureAsset->SetPixels(colors);
+                textureAsset->SetWrap(TextureAsset::Wrap::Clamp);
+                textureAsset->SetFilter(TextureAsset::Filter::Point);
+                textureAsset->Apply();
+                m->SetTexture("u_mat.mainTex", *textureAsset);
+
+                assetManager.Register(std::move(textureAsset));
             }
 
             int i = 0;
@@ -150,7 +170,7 @@ namespace pluto
             {
                 try
                 {
-                    m->SetVector4F("u_mat.color", { sinf(i), cosf(i), tanf(i), 1 });
+                    //m->SetVector4F("u_mat.color", {sinf(i), cosf(i), tanf(i), 1});
                     simulationManager.Run();
                     ++i;
                 }

@@ -8,6 +8,7 @@
 namespace pluto
 {
     class ShaderAsset;
+    class TextureAsset;
     class FileReader;
     class Vector2I;
     class Vector2F;
@@ -90,9 +91,12 @@ namespace pluto
         void SetVector4I(const std::string& propertyName, const Vector4I& value);
 
         const Vector4F& GetVector4F(const std::string& propertyName) const;
-        void SetVector4F(const std::string& propertyName, Vector4F value);
+        void SetVector4F(const std::string& propertyName, const Vector4F& value);
 
         const Matrix4X4& GetMatrix4X4(const std::string& propertyName) const;
-        void SetMatrix4X4(const std::string& propertyName, Matrix4X4 value);
+        void SetMatrix4X4(const std::string& propertyName, const Matrix4X4& value);
+
+        TextureAsset& GetTexture(const std::string& propertyName) const;
+        void SetTexture(const std::string& propertyName, TextureAsset& textureAsset);
     };
 }
