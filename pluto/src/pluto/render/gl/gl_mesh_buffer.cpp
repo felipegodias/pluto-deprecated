@@ -1,6 +1,8 @@
 #include "pluto/render/gl/gl_mesh_buffer.h"
 #include "pluto/asset/mesh_asset.h"
 
+#include "pluto/render/gl/gl_call.h"
+
 #include "pluto/math/vector2f.h"
 #include "pluto/math/vector3f.h"
 #include "pluto/math/vector3i.h"
@@ -31,9 +33,9 @@ namespace pluto
 
         ~Impl()
         {
-            glDeleteVertexArrays(1, &vertexArrayObject);
-            glDeleteBuffers(1, &indexBufferObject);
-            glDeleteBuffers(vertexBufferObjects.size(), &vertexBufferObjects[0]);
+            GL_CALL(glDeleteVertexArrays(1, &vertexArrayObject));
+            GL_CALL(glDeleteBuffers(1, &indexBufferObject));
+            GL_CALL(glDeleteBuffers(vertexBufferObjects.size(), &vertexBufferObjects[0]));
         }
 
         void Bind()
@@ -43,8 +45,8 @@ namespace pluto
                 return;
             }
             isBound = true;
-            glBindVertexArray(vertexArrayObject);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
+            GL_CALL(glBindVertexArray(vertexArrayObject));
+            GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject));
         }
 
         void Unbind()
@@ -54,13 +56,13 @@ namespace pluto
                 return;
             }
             isBound = false;
-            glBindVertexArray(0);
+            GL_CALL(glBindVertexArray(0));
         }
 
         void Draw()
         {
             Bind();
-            glDrawElements(GL_TRIANGLES, verticesCount, GL_UNSIGNED_INT, nullptr);
+            GL_CALL(glDrawElements(GL_TRIANGLES, verticesCount, GL_UNSIGNED_INT, nullptr));
         }
     };
 
@@ -75,11 +77,11 @@ namespace pluto
         uint32_t vertexArrayObject = 0;
         if (!values.empty())
         {
-            glGenBuffers(1, &vertexArrayObject);
-            glBindBuffer(GL_ARRAY_BUFFER, vertexArrayObject);
-            glBufferData(GL_ARRAY_BUFFER, values.size() * sizeof(T), values.data(), GL_STATIC_DRAW);
-            glEnableVertexAttribArray(vertexBufferObjects.size());
-            glVertexAttribPointer(vertexBufferObjects.size(), stride, GL_FLOAT, GL_FALSE, 0, nullptr);
+            GL_CALL(glGenBuffers(1, &vertexArrayObject));
+            GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vertexArrayObject));
+            GL_CALL(glBufferData(GL_ARRAY_BUFFER, values.size() * sizeof(T), values.data(), GL_STATIC_DRAW));
+            GL_CALL(glEnableVertexAttribArray(vertexBufferObjects.size()));
+            GL_CALL(glVertexAttribPointer(vertexBufferObjects.size(), stride, GL_FLOAT, GL_FALSE, 0, nullptr));
         }
         vertexBufferObjects.push_back(vertexArrayObject);
     }
@@ -87,23 +89,23 @@ namespace pluto
     std::unique_ptr<MeshBuffer> GlMeshBuffer::Factory::Create(const MeshAsset& mesh) const
     {
         uint32_t vertexArrayObject;
-        glGenVertexArrays(1, &vertexArrayObject);
+        GL_CALL(glGenVertexArrays(1, &vertexArrayObject));
 
         uint32_t indexBufferObject;
-        glGenBuffers(1, &indexBufferObject);
+        GL_CALL(glGenBuffers(1, &indexBufferObject));
 
-        glBindVertexArray(vertexArrayObject);
+        GL_CALL(glBindVertexArray(vertexArrayObject));
         std::vector<uint32_t> vertexBufferObjects;
         CreateVertexBufferObject<Vector3F>(3, mesh.GetPositions(), vertexBufferObjects);
         CreateVertexBufferObject<Vector2F>(2, mesh.GetUVs(), vertexBufferObjects);
-        
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
+
+        GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject));
 
         const std::vector<Vector3I>& triangles = mesh.GetTriangles();
         if (!triangles.empty())
         {
             const size_t bufferSize = triangles.size() * sizeof(Vector3I);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, bufferSize, triangles.data(), GL_STATIC_DRAW);
+            GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, bufferSize, triangles.data(), GL_STATIC_DRAW));
         }
 
         int verticesCount = static_cast<int>(triangles.size()) * 3;

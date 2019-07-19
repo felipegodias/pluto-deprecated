@@ -2,6 +2,8 @@
 #include "pluto/asset/texture_asset.h"
 #include "pluto/math/vector2i.h"
 
+#include "pluto/render/gl/gl_call.h"
+
 #include <GL/glew.h>
 
 #include <array>
@@ -40,7 +42,7 @@ namespace pluto
 
         ~Impl()
         {
-            glDeleteTextures(1, &textureBufferObjectId);
+            GL_CALL(glDeleteTextures(1, &textureBufferObjectId));
         }
 
         Impl(const Impl& other) = delete;
@@ -53,25 +55,25 @@ namespace pluto
 
         void Update(TextureAsset& textureAsset)
         {
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, textureBufferObjectId);
+            GL_CALL(glActiveTexture(GL_TEXTURE0));
+            GL_CALL(glBindTexture(GL_TEXTURE_2D, textureBufferObjectId));
 
             const GLint wrap = WRAPS[static_cast<int>(textureAsset.GetWrap())];
             const GLint filter = FILTERS[static_cast<int>(textureAsset.GetFilter())];
 
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap));
+            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap));
+            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter));
+            GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter));
 
             const GLint format = FORMATS[static_cast<int>(textureAsset.GetFormat())];
 
             const Vector2I& size = textureAsset.GetSize();
 
-            glTexImage2D(GL_TEXTURE_2D, 0, format, size.x, size.y, 0, format, GL_UNSIGNED_BYTE,
-                         textureAsset.Data().data());
+            GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, format, size.x, size.y, 0, format, GL_UNSIGNED_BYTE,
+                textureAsset.Data().data()));
 
-            glBindTexture(GL_TEXTURE_2D, 0);
+            GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
         }
 
         void Bind(const uint8_t location)
@@ -81,8 +83,9 @@ namespace pluto
                 return;
             }
 
-            glActiveTexture(GL_TEXTURE0 + location);
-            glBindTexture(GL_TEXTURE_2D, textureBufferObjectId);
+            GL_CALL(glActiveTexture(GL_TEXTURE0 + location));
+            GL_CALL(glBindTexture(GL_TEXTURE_2D, textureBufferObjectId));
+
             isBound = true;
             lastBindLocation = location;
         }
@@ -94,8 +97,8 @@ namespace pluto
                 return;
             }
 
-            glActiveTexture(GL_TEXTURE0 + lastBindLocation);
-            glBindTexture(GL_TEXTURE_2D, 0);
+            GL_CALL(glActiveTexture(GL_TEXTURE0 + lastBindLocation));
+            GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
             isBound = false;
         }
     };
@@ -107,7 +110,7 @@ namespace pluto
     std::unique_ptr<TextureBuffer> GlTextureBuffer::Factory::Create() const
     {
         GLuint textureBufferObject;
-        glGenTextures(1, &textureBufferObject);
+        GL_CALL(glGenTextures(1, &textureBufferObject));
         return std::make_unique<GlTextureBuffer>(std::make_unique<Impl>(textureBufferObject));
     }
 
