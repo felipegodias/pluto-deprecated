@@ -12,7 +12,7 @@ namespace pluto
         {
         public:
             explicit Factory(DiContainer& diContainer);
-            std::unique_ptr<TextureBuffer> Create(const TextureAsset& textureAsset) const override;
+            std::unique_ptr<TextureBuffer> Create() const override;
         };
 
     private:
@@ -28,7 +28,7 @@ namespace pluto
         GlTextureBuffer& operator=(const GlTextureBuffer& rhs) = delete;
         GlTextureBuffer& operator=(GlTextureBuffer&& rhs) noexcept;
 
-        void Update() override;
+        void Update(TextureAsset& textureAsset) override;
         void Bind(uint8_t location);
         void Unbind();
     };

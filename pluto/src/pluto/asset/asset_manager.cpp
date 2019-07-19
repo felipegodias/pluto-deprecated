@@ -13,6 +13,7 @@
 #include <pluto/asset/mesh_asset.h>
 #include <pluto/asset/shader_asset.h>
 #include <pluto/asset/material_asset.h>
+#include <pluto/asset/texture_asset.h>
 #include <pluto/exception.h>
 
 #include <pluto/event/event_manager.h>
@@ -74,7 +75,8 @@ namespace pluto
 
             if (package == nullptr)
             {
-                throw std::runtime_error(fmt::format("Asset at path {0} does not exists or the its package is not loaded.", path));
+                throw std::runtime_error(
+                    fmt::format("Asset at path {0} does not exists or the its package is not loaded.", path));
             }
 
             const Guid guid = package->GetAssetGuid(path.Str());
@@ -109,7 +111,8 @@ namespace pluto
 
             if (package == nullptr)
             {
-                throw std::runtime_error(fmt::format("Asset with guid {0} does not exist or its package is not loaded.", guid));
+                throw std::runtime_error(fmt::format("Asset with guid {0} does not exist or its package is not loaded.",
+                                                     guid));
             }
 
             const std::string physicalFilePath = fmt::format("packages/{0}/{1}", package->GetName(), guid);
@@ -122,7 +125,9 @@ namespace pluto
             const auto& it = loadedAssets.find(asset.GetId());
             if (it == loadedAssets.end())
             {
-                throw std::runtime_error(fmt::format("Trying to unload a unloaded asset with id {0} or not managed by the asset manager.", asset.GetId()));
+                throw std::runtime_error(fmt::format(
+                    "Trying to unload a unloaded asset with id {0} or not managed by the asset manager.",
+                    asset.GetId()));
             }
 
             if constexpr (std::is_same<T, PackageManifestAsset>::value)
@@ -143,7 +148,8 @@ namespace pluto
             {
                 if (manifests.find(result.GetName()) != manifests.end())
                 {
-                    Exception::Throw(std::runtime_error(fmt::format("Package with name {0} already registered.", asset->GetId())));
+                    Exception::Throw(
+                        std::runtime_error(fmt::format("Package with name {0} already registered.", asset->GetId())));
                 }
 
                 manifests.emplace(result.GetName(), result);
@@ -261,4 +267,14 @@ namespace pluto
     template MaterialAsset& AssetManager::Load(const Guid& guid);
     template MaterialAsset& AssetManager::Register(std::unique_ptr<MaterialAsset> asset);
     template void AssetManager::Unload(const MaterialAsset& asset);
+
+    template MaterialAsset& AssetManager::Load(const Path& path);
+    template MaterialAsset& AssetManager::Load(const Guid& guid);
+    template MaterialAsset& AssetManager::Register(std::unique_ptr<MaterialAsset> asset);
+    template void AssetManager::Unload(const MaterialAsset& asset);
+
+    template TextureAsset& AssetManager::Load(const Path& path);
+    template TextureAsset& AssetManager::Load(const Guid& guid);
+    template TextureAsset& AssetManager::Register(std::unique_ptr<TextureAsset> asset);
+    template void AssetManager::Unload(const TextureAsset& asset);
 }

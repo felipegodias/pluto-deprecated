@@ -15,6 +15,7 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/package_manifest_asset.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/shader_asset.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/text_asset.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/asset/texture_asset.cpp
     # ./asset/events
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/events/on_asset_unload_event.cpp
     # ./di
@@ -58,10 +59,12 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/render/render_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/render_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/shader_program.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/texture_buffer.cpp
     # ./render/gl
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gl/gl_mesh_buffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gl/gl_render_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gl/gl_shader_program.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/render/gl/gl_texture_buffer.cpp
     # ./scene
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/component.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/game_object.cpp

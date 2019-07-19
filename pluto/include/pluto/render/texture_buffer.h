@@ -14,7 +14,7 @@ namespace pluto
         {
         public:
             explicit Factory(DiContainer& diContainer);
-            virtual std::unique_ptr<TextureBuffer> Create(const TextureAsset& textureAsset) const = 0;
+            virtual std::unique_ptr<TextureBuffer> Create() const = 0;
         };
 
         TextureBuffer();
@@ -25,6 +25,6 @@ namespace pluto
         TextureBuffer& operator=(const TextureBuffer& rhs) = delete;
         TextureBuffer& operator=(TextureBuffer&& rhs) noexcept;
 
-        virtual void Update() = 0;
+        virtual void Update(TextureAsset& textureAsset) = 0;
     };
 }

@@ -23,6 +23,7 @@
 #include <pluto/asset/mesh_asset.h>
 #include <pluto/asset/shader_asset.h>
 #include <pluto/asset/material_asset.h>
+#include <pluto/asset/texture_asset.h>
 
 #include <pluto/scene/scene_manager.h>
 #include <pluto/scene/scene.h>
@@ -34,6 +35,7 @@
 #include <pluto/render/render_manager.h>
 #include <pluto/render/mesh_buffer.h>
 #include <pluto/render/shader_program.h>
+#include <pluto/render/texture_buffer.h>
 
 #include "pluto/exception.h"
 
@@ -46,7 +48,6 @@ namespace pluto
 {
     class DiContainer::Impl
     {
-    private:
         std::unordered_map<std::type_index, std::unique_ptr<Singleton>> singletons;
 
     public:
@@ -172,6 +173,11 @@ namespace pluto
     template PLUTO_API void DiContainer::RemoveSingleton<MaterialAsset::Factory>();
     template PLUTO_API MaterialAsset::Factory& DiContainer::GetSingleton() const;
 
+    template PLUTO_API TextureAsset::Factory& DiContainer::AddSingleton(
+        std::unique_ptr<TextureAsset::Factory> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<TextureAsset::Factory>();
+    template PLUTO_API TextureAsset::Factory& DiContainer::GetSingleton() const;
+
     template PLUTO_API SceneManager& DiContainer::AddSingleton(std::unique_ptr<SceneManager> instance);
     template PLUTO_API void DiContainer::RemoveSingleton<SceneManager>();
     template PLUTO_API SceneManager& DiContainer::GetSingleton() const;
@@ -209,4 +215,9 @@ namespace pluto
         std::unique_ptr<ShaderProgram::Factory> instance);
     template PLUTO_API void DiContainer::RemoveSingleton<ShaderProgram::Factory>();
     template PLUTO_API ShaderProgram::Factory& DiContainer::GetSingleton() const;
+
+    template PLUTO_API TextureBuffer::Factory& DiContainer::AddSingleton(
+        std::unique_ptr<TextureBuffer::Factory> instance);
+    template PLUTO_API void DiContainer::RemoveSingleton<TextureBuffer::Factory>();
+    template PLUTO_API TextureBuffer::Factory& DiContainer::GetSingleton() const;
 }

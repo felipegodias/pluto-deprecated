@@ -9,6 +9,7 @@ namespace pluto
 {
     class Vector2I;
     class Color;
+    class TextureBuffer;
     class FileReader;
 
     /*
@@ -107,6 +108,8 @@ namespace pluto
 
         Filter GetFilter() const;
         void SetFilter(Filter value);
+
+        TextureBuffer& GetTextureBuffer();
 
         void Apply();
         void Clone(const TextureAsset& other);

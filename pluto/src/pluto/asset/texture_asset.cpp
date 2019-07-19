@@ -1,10 +1,15 @@
 #include "pluto/asset/texture_asset.h"
 
+#include "pluto/render/texture_buffer.h"
+
+#include "pluto/di/di_container.h"
+
 #include "pluto/math/color.h"
 #include "pluto/math/vector2i.h"
 
 #include "pluto/guid.h"
 
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -12,6 +17,8 @@ namespace pluto
 {
     class TextureAsset::Impl
     {
+        TextureAsset* instance;
+
         Guid guid;
         std::string name;
         Vector2I size;
@@ -21,10 +28,23 @@ namespace pluto
 
         std::vector<uint8_t> data;
 
+        std::unique_ptr<TextureBuffer> textureBuffer;
+
     public:
-        explicit Impl(const Guid& guid) : guid(guid), wrap(Wrap::Default), format(Format::Default),
-                                          filter(Filter::Default)
+        explicit Impl(const Guid& guid, std::unique_ptr<TextureBuffer> textureBuffer) : instance(nullptr),
+                                                                                        guid(guid),
+                                                                                        wrap(Wrap::Default),
+                                                                                        format(Format::Default),
+                                                                                        filter(Filter::Default),
+                                                                                        textureBuffer(
+                                                                                            std::move(textureBuffer))
+
         {
+        }
+
+        void Init(TextureAsset& textureAsset)
+        {
+            instance = &textureAsset;
         }
 
         const Guid& GetId() const
@@ -63,7 +83,7 @@ namespace pluto
 
         Color GetPixel(const Vector2I& pos) const
         {
-            const uint32_t index = (pos.y * size.x + size.x) * GetChannelsCount();
+            const size_t index = (pos.y * static_cast<size_t>(size.x) + size.x) * GetChannelsCount();
 
             switch (format)
             {
@@ -80,7 +100,7 @@ namespace pluto
 
         void SetPixel(const Vector2I& pos, const Color& value)
         {
-            const uint32_t index = (pos.y * size.x + size.x) * GetChannelsCount();
+            const size_t index = (pos.y * static_cast<size_t>(size.x) + pos.x) * GetChannelsCount();
             switch (format)
             {
             case Format::Alpha8:
@@ -183,6 +203,11 @@ namespace pluto
             filter = value;
         }
 
+        TextureBuffer& GetTextureBuffer()
+        {
+            return *textureBuffer;
+        }
+
         void Clone(const Impl& other)
         {
             name = other.name;
@@ -195,11 +220,11 @@ namespace pluto
 
         void Apply()
         {
-            // TODO: Send modified changes to the GPU.
+            textureBuffer->Update(*instance);
         }
 
     private:
-        uint8_t GetChannelsCount() const
+        size_t GetChannelsCount() const
         {
             switch (format)
             {
@@ -221,7 +246,14 @@ namespace pluto
 
     std::unique_ptr<TextureAsset> TextureAsset::Factory::Create() const
     {
-        auto textureAsset = std::make_unique<TextureAsset>(std::make_unique<Impl>(Guid::New()));
+        const auto& textureBufferFactory = diContainer.GetSingleton<TextureBuffer::Factory>();
+        auto textureBuffer = textureBufferFactory.Create();
+
+        auto textureAsset = std::make_unique<TextureAsset>(
+            std::make_unique<Impl>(Guid::New(), std::move(textureBuffer)));
+
+        textureAsset->impl->Init(*textureAsset);
+
         return textureAsset;
     }
 
@@ -330,6 +362,11 @@ namespace pluto
     void TextureAsset::SetFilter(const Filter value)
     {
         impl->SetFilter(value);
+    }
+
+    TextureBuffer& TextureAsset::GetTextureBuffer()
+    {
+        return impl->GetTextureBuffer();
     }
 
     void TextureAsset::Apply()
