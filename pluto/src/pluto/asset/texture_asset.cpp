@@ -84,7 +84,7 @@ namespace pluto
 
         Color GetPixel(const Vector2I& pos) const
         {
-            const size_t index = (pos.y * static_cast<size_t>(size.x) + size.x) * GetChannelsCount();
+            const size_t index = (pos.y * static_cast<size_t>(size.x) + pos.x) * GetChannelsCount();
 
             switch (format)
             {
