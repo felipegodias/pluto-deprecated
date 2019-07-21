@@ -9,39 +9,54 @@
 
 #include <iostream>
 
-class MainMenu final : pluto::BaseMenu
+class MainMenu final : public pluto::BaseMenu
 {
-    const pluto::MenuOptions* currentMenu;
+    BaseMenu* currentMenu;
     pluto::MenuOptions mainMenu;
+    pluto::TextAssetMenu textAssetMenu;
     pluto::TextureAssetMenu textureAssetMenu;
 
 public:
     MainMenu() : mainMenu(pluto::MenuOptions("Main Menu")),
+                 textAssetMenu(pluto::TextAssetMenu(std::bind(&MainMenu::SetMainAsCurrent, this))),
                  textureAssetMenu(pluto::TextureAssetMenu(std::bind(&MainMenu::SetMainAsCurrent, this)))
     {
         mainMenu.AddOption(0, "Exit", []()
         {
             exit(0);
         });
-        mainMenu.AddOption(5, "Textures", std::bind(&MainMenu::SetTextureAsCurrent, this));
 
-        currentMenu = &mainMenu;
+        mainMenu.AddOption(1, "Texts", std::bind(&MainMenu::SetTextAsCurrentContext, this));
+
+        //mainMenu.AddOption(5, "Textures", std::bind(&MainMenu::SetTextureAsCurrent, this));
+
+        currentMenu = this;
     }
 
     void SetMainAsCurrent()
     {
-        currentMenu = &mainMenu;
+        currentMenu = this;
+    }
+
+    void SetTextAsCurrentContext()
+    {
+        currentMenu = &textAssetMenu;
     }
 
     void SetTextureAsCurrent()
     {
-        currentMenu = &textureAssetMenu.GetCurrentMenuOptions();
+        //currentMenu = &textureAssetMenu.GetCurrentMenuOptions();
     }
 
     const pluto::MenuOptions& GetCurrentMenuOptions() const override
     {
-        return *currentMenu;
-    };
+        if (currentMenu == this)
+        {
+            return mainMenu;
+        }
+
+        return currentMenu->GetCurrentMenuOptions();
+    }
 };
 
 int main(int argc, char* argv[])

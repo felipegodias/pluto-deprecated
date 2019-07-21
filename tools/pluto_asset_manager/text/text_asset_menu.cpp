@@ -1,158 +1,85 @@
 #include "text_asset_menu.h"
 #include "text_asset_manager.h"
+#include "../asset_dumper.h"
+
 #include <pluto/guid.h>
-#include <pluto/di/di_container.h>
-#include <pluto/file/file_writer.h>
+#include <pluto/file/path.h>
+#include <pluto/asset/text_asset.h>
+
 #include <iostream>
-#include <sstream>
 
 namespace pluto
 {
-    void PrintTextAssetMenu()
+    TextAssetMenu::~TextAssetMenu() = default;
+
+    TextAssetMenu::TextAssetMenu(const std::function<void()>& backCallback) :
+        textAssetManager(std::make_unique<TextAssetManager>()),
+        mainMenu("Text Asset"), manageMenu("Manage Text Asset")
     {
-        std::cout << std::endl;
-        std::cout << "*** Text ***" << std::endl;
-        std::cout << "1: Create    2: Load    0: Exit" << std::endl;
-        std::cout << std::endl;
+        mainMenu.AddOption(0, "Cancel", backCallback);
+        mainMenu.AddOption(1, "Create", std::bind(&TextAssetMenu::OnCreateTextOptionSelected, this));
+        mainMenu.AddOption(2, "Load", std::bind(&TextAssetMenu::OnManageTextOptionSelected, this));
+
+        manageMenu.AddOption(0, "Cancel", std::bind(&TextAssetMenu::OnManageTextCancelOptionSelected, this));
+        manageMenu.AddOption(1, "Show Id", std::bind(&TextAssetMenu::OnManageTextShowIdOptionSelected, this));
+        manageMenu.AddOption(2, "Show Name", std::bind(&TextAssetMenu::OnManageTextShowNameOptionSelected, this));
+        manageMenu.AddOption(3, "Show Text", std::bind(&TextAssetMenu::OnManageTextShowTextOptionSelected, this));
+        manageMenu.AddOption(4, "Show All", std::bind(&TextAssetMenu::OnManageTextShowAllOptionSelected, this));
+
+        currentMenu = &mainMenu;
     }
 
-    void PrintTextAssetLoadMenu()
+    const MenuOptions& TextAssetMenu::GetCurrentMenuOptions() const
     {
-        std::cout << std::endl;
-        std::cout << "*** Text Actions ***" << std::endl;
-        std::cout << "1: Print guid    2: Print name    3: Print Text    4: Print All" << std::endl;
-        std::cout << "5: Clone         0: Exit" << std::endl;
-        std::cout << std::endl;
+        return *currentMenu;
     }
 
-    void DumpTextAsset(const TextAsset& textAsset)
+    void TextAssetMenu::OnCreateTextOptionSelected()
     {
-        DiContainer diContainer;
-        FileWriter::Factory fileWriterFactory(diContainer);
-        const std::string guidStr = textAsset.GetId().Str();
-        std::ofstream ofs(guidStr);
-        const auto fileWriter = fileWriterFactory.Create(std::move(ofs));
-        textAsset.Dump(*fileWriter);
-        std::cout << "Text Asset \"" << textAsset.GetName() << "\" saved with id " << guidStr << std::endl;
-    }
-
-    void CreateTextMenu()
-    {
-        std::cout << std::endl;
-        std::cout << "*** Create Text ***" << std::endl;
         std::cout << "Enter the text file path: ";
-        std::string filePath;
-        std::cin >> filePath;
+        std::string input;
+        std::cin >> input;
 
-        const auto textAsset = CreateTextAsset(filePath);
-        DumpTextAsset(*textAsset);
+        const auto textAsset = textAssetManager->Create(Path(input));
+        const Path path(input);
+        DumpAsset(path.GetDirectory(), *textAsset);
     }
 
-    void PrintGuid(const TextAsset& textAsset)
+    void TextAssetMenu::OnManageTextOptionSelected()
     {
-        std::stringstream ss;
-        ss << textAsset.GetId();
-        std::cout << "Guid: " << ss.str() << std::endl;
+        std::cout << "Enter the text asset path: ";
+        std::string input;
+        std::cin >> input;
+
+        currentManagedAsset = textAssetManager->Load(Path(input));
+        currentMenu = &manageMenu;
     }
 
-    void PrintName(const TextAsset& textAsset)
+    void TextAssetMenu::OnManageTextShowIdOptionSelected()
     {
-        std::cout << "Name: " << textAsset.GetName() << std::endl;
+        std::cout << "Id: " << currentManagedAsset->GetId() << std::endl;
     }
 
-    void PrintText(const TextAsset& textAsset)
+    void TextAssetMenu::OnManageTextShowNameOptionSelected()
     {
-        std::cout << "Text: " << textAsset.GetText() << std::endl;
+        std::cout << "Name: " << currentManagedAsset->GetName() << std::endl;
     }
 
-    void PrintAll(const TextAsset& textAsset)
+    void TextAssetMenu::OnManageTextShowTextOptionSelected()
     {
-        PrintGuid(textAsset);
-        PrintName(textAsset);
-        PrintText(textAsset);
+        std::cout << "Text: " << currentManagedAsset->GetText() << std::endl;
     }
 
-    void Clone(const TextAsset& textAsset)
+    void TextAssetMenu::OnManageTextShowAllOptionSelected()
     {
-        const auto newTextAsset = CreateTextAsset(textAsset);
-        DumpTextAsset(*newTextAsset);
+        OnManageTextShowIdOptionSelected();
+        OnManageTextShowNameOptionSelected();
+        OnManageTextShowTextOptionSelected();
     }
 
-    void LoadTextMenu()
+    void TextAssetMenu::OnManageTextCancelOptionSelected()
     {
-        std::cout << std::endl;
-        std::cout << "*** Load Text ***" << std::endl;
-        std::unique_ptr<TextAsset> textAsset = nullptr;
-        std::cout << "Enter the text file guid: ";
-        std::string guidStr;
-        std::cin >> guidStr;
-        try
-        {
-            const Guid guid(guidStr);
-            textAsset = LoadTextAsset(guid);
-        }
-        catch (std::exception& e)
-        {
-            std::cout << "Invalid guid or asset does not exist!" << std::endl;
-            return;
-        }
-
-        int option = 0;
-        do
-        {
-            PrintTextAssetLoadMenu();
-            std::cout << "Option: ";
-            std::cin >> option;
-            switch (option)
-            {
-            case 0:
-                break;
-            case 1:
-                PrintGuid(*textAsset);
-                break;
-            case 2:
-                PrintName(*textAsset);
-                break;
-            case 3:
-                PrintText(*textAsset);
-                break;
-            case 4:
-                PrintAll(*textAsset);
-                break;
-            case 5:
-                Clone(*textAsset);
-                break;
-            default:
-                std::cout << "Invalid option." << std::endl;
-                break;
-            }
-        }
-        while (option != 0);
-    }
-
-    void TextAssetMenu()
-    {
-        int option = 0;
-        do
-        {
-            PrintTextAssetMenu();
-            std::cout << "Option: ";
-            std::cin >> option;
-            switch (option)
-            {
-            case 0:
-                break;
-            case 1:
-                CreateTextMenu();
-                break;
-            case 2:
-                LoadTextMenu();
-                break;
-            default:
-                std::cout << "Invalid option." << std::endl;
-                break;
-            }
-        }
-        while (option != 0);
+        currentMenu = &mainMenu;
+        currentManagedAsset.reset();
     }
 }

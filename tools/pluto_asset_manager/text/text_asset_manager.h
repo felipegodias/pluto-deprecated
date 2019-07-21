@@ -1,11 +1,27 @@
 #pragma once
 
-#include <string>
-#include <pluto/asset/text_asset.h>
+#include <memory>
+#include <pluto/di/di_container.h>
 
 namespace pluto
 {
-    std::unique_ptr<TextAsset> CreateTextAsset(const TextAsset& other);
-    std::unique_ptr<TextAsset> CreateTextAsset(const std::string& path);
-    std::unique_ptr<TextAsset> LoadTextAsset(const Guid& guid);
+    class TextAsset;
+    class Path;
+
+    class TextAssetManager
+    {
+        std::unique_ptr<DiContainer> diContainer;
+
+    public:
+        ~TextAssetManager();
+        TextAssetManager();
+
+        TextAssetManager(const TextAssetManager& other) = delete;
+        TextAssetManager(TextAssetManager&& other) noexcept = delete;
+        TextAssetManager& operator=(const TextAssetManager& rhs) = delete;
+        TextAssetManager& operator=(TextAssetManager&& rhs) noexcept = delete;
+
+        std::unique_ptr<TextAsset> Create(const Path& path);
+        std::unique_ptr<TextAsset> Load(const Path& path);
+    };
 }

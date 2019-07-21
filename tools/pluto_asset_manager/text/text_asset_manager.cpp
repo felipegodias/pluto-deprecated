@@ -1,47 +1,61 @@
 #include "text_asset_manager.h"
 
-#include <pluto/guid.h>
-#include <pluto/di/di_container.h>
 #include <pluto/asset/text_asset.h>
 #include <pluto/file/file_reader.h>
+#include <pluto/file/file_writer.h>
+#include <pluto/file/file_manager.h>
+#include <pluto/file/path.h>
+#include <pluto/guid.h>
 
 #include <filesystem>
-#include <fstream>
+#include <yaml-cpp/yaml.h>
 
 namespace pluto
 {
-    std::unique_ptr<TextAsset> CreateTextAsset(const TextAsset& other)
+    TextAssetManager::~TextAssetManager() = default;
+
+    TextAssetManager::TextAssetManager() : diContainer(std::make_unique<DiContainer>())
     {
-        DiContainer diContainer;
-        const TextAsset::Factory factory(diContainer);
-        auto textAsset = factory.Create(other);
-        return textAsset;
+        diContainer->AddSingleton(std::make_unique<FileReader::Factory>(*diContainer));
+        diContainer->AddSingleton(std::make_unique<FileWriter::Factory>(*diContainer));
+
+        const FileManager::Factory fileManagerFactory(*diContainer);
+        diContainer->AddSingleton(fileManagerFactory.Create(Path(std::filesystem::current_path().string())));
+        diContainer->AddSingleton(std::make_unique<TextAsset::Factory>(*diContainer));
     }
 
-    std::unique_ptr<TextAsset> CreateTextAsset(const std::string& path)
+    std::unique_ptr<TextAsset> TextAssetManager::Create(const Path& path)
     {
-        DiContainer diContainer;
-        const TextAsset::Factory factory(diContainer);
+        Path plutoFilePath = path;
+        plutoFilePath.ChangeExtension(plutoFilePath.GetExtension() + ".pluto");
+        if (!diContainer->GetSingleton<FileManager>().Exists(plutoFilePath))
+        {
+            throw std::runtime_error("Pluto file not found at " + plutoFilePath.Str());
+        }
 
-        std::ifstream ifs(path, std::ios::binary);
-        const std::string fileContent{std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
+        YAML::Node plutoFile = YAML::LoadFile(plutoFilePath.Str());
+        Guid guid(plutoFile["guid"].as<std::string>());
 
-        auto textAsset = factory.Create();
-        const std::filesystem::path filePath(path);
-        textAsset->SetName(filePath.filename().replace_extension("").string());
+        const auto fr = diContainer->GetSingleton<FileManager>().OpenRead(path);
+        const std::string fileContent{
+            std::istreambuf_iterator<char>(fr->GetStream()), std::istreambuf_iterator<char>()
+        };
+
+        auto textAsset = diContainer->GetSingleton<TextAsset::Factory>().Create();
+        textAsset->SetName(path.GetNameWithoutExtension());
         textAsset->SetText(fileContent);
+
+        // Evil, I know. But it's better than expose the guid to changes directly.
+        Guid& shaderGuid = const_cast<Guid&>(textAsset->GetId());
+        shaderGuid = guid;
+
         return textAsset;
     }
 
-    std::unique_ptr<TextAsset> LoadTextAsset(const Guid& guid)
+    std::unique_ptr<TextAsset> TextAssetManager::Load(const Path& path)
     {
-        DiContainer diContainer;
-        const TextAsset::Factory textAssetFactory(diContainer);
-        const FileReader::Factory fileReaderFactory(diContainer);
-
-        std::ifstream ifs(guid.Str(), std::ios::binary);
-        const auto fileReader = fileReaderFactory.Create(std::move(ifs));
-        auto textAsset = textAssetFactory.Create(*fileReader);
+        const auto fileReader = diContainer->GetSingleton<FileManager>().OpenRead(path);
+        auto textAsset = diContainer->GetSingleton<TextAsset::Factory>().Create(*fileReader);
         return textAsset;
     }
 }
