@@ -116,7 +116,7 @@ namespace pluto
 
     std::ostream& operator<<(std::ostream& os, const Color& color)
     {
-        return os << "[" << color.r << ", " << color.g << ", " << color.b << ", " << color.a << "]";
+        return os << "[" << +color.r << ", " << +color.g << ", " << +color.b << ", " << +color.a << "]";
     }
 
     std::string Color::Str() const
