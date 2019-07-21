@@ -2,55 +2,71 @@
 #include "shader/shader_asset_menu.h"
 #include "text/text_asset_menu.h"
 #include "package/package_menu.h"
+#include "texture/texture_asset_menu.h"
+
+#include "base_menu.h"
+#include "menu_options.h"
 
 #include <iostream>
 
-void PrintMenu()
+class MainMenu final : pluto::BaseMenu
 {
-    std::cout << std::endl;
-    std::cout << "*** Menu ***" << std::endl;
-    std::cout << "1: Text    2: Mesh    3: Shader    4: Package" << std::endl;
-    std::cout << "0: Exit" << std::endl;
-    std::cout << std::endl;
-}
+    const pluto::MenuOptions* currentMenu;
+    pluto::MenuOptions mainMenu;
+    pluto::TextureAssetMenu textureAssetMenu;
+
+public:
+    MainMenu() : mainMenu(pluto::MenuOptions("Main Menu")),
+                 textureAssetMenu(pluto::TextureAssetMenu(std::bind(&MainMenu::SetMainAsCurrent, this)))
+    {
+        mainMenu.AddOption(0, "Exit", []()
+        {
+            exit(0);
+        });
+        mainMenu.AddOption(5, "Textures", std::bind(&MainMenu::SetTextureAsCurrent, this));
+
+        currentMenu = &mainMenu;
+    }
+
+    void SetMainAsCurrent()
+    {
+        currentMenu = &mainMenu;
+    }
+
+    void SetTextureAsCurrent()
+    {
+        currentMenu = &textureAssetMenu.GetCurrentMenuOptions();
+    }
+
+    const pluto::MenuOptions& GetCurrentMenuOptions() const override
+    {
+        return *currentMenu;
+    };
+};
 
 int main(int argc, char* argv[])
 {
-    int option = 0;
-    do
-    {
-        try
-        {
-            PrintMenu();
-            std::cout << "Option: ";
-            std::cin >> option;
-            switch (option)
-            {
-            case 0:
-                break;
-            case 1:
-                pluto::TextAssetMenu();
-                break;
-            case 2:
-                pluto::MeshAssetMenu();
-                break;
-            case 3:
-                pluto::ShaderAssetMenu();
-                break;
-            case 4:
-                pluto::PackageMenu();
-                break;
-            default:
-                std::cout << "Invalid option." << std::endl;
-                break;
-            }
-        }
-        catch (std::exception& e)
-        {
-            std::cout << e.what() << std::endl;
-        }
+    const MainMenu mainMenu;
 
+    try
+    {
+        while (true)
+        {
+            const pluto::MenuOptions& menuOptions = mainMenu.GetCurrentMenuOptions();
+            std::cout << menuOptions << std::endl;
+            std::cout << "Option: ";
+            int option = 0;
+            std::cin >> option;
+            if (!menuOptions.UseOption(option))
+            {
+                std::cout << "Invalid Option!" << std::endl;
+            }
+            std::cout << std::endl;
+        }
     }
-    while (option != 0);
-    return 0;
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
 }
