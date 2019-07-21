@@ -2,6 +2,7 @@ project(pluto_asset_manager CXX)
 
 list(APPEND ASSET_MANAGER_SOURCE_FILES
     # .
+    ${CMAKE_CURRENT_SOURCE_DIR}/asset_dumper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/base_menu.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menu_options.cpp
