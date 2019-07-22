@@ -31,6 +31,16 @@ namespace pluto
             std::cout << "FileManager terminated!" << std::endl;
         }
 
+        Path GetRootPath() const
+        {
+            return Path(std::filesystem::current_path().string());
+        }
+
+        void SetRootPath(const Path& value)
+        {
+            std::filesystem::current_path(value.Str());
+        }
+
         bool Exists(const Path& path) const
         {
             return std::filesystem::exists(path.Str());
@@ -151,6 +161,16 @@ namespace pluto
     }
 
     FileManager::~FileManager() = default;
+
+    Path FileManager::GetRootPath() const
+    {
+        return impl->GetRootPath();
+    }
+
+    void FileManager::SetRootPath(const Path& value)
+    {
+        impl->SetRootPath(value);
+    }
 
     bool FileManager::Exists(const Path& path) const
     {

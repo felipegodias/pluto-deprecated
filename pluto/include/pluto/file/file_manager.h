@@ -37,6 +37,10 @@ namespace pluto
 
         ~FileManager();
 
+        Path GetRootPath() const;
+
+        void SetRootPath(const Path& value);
+
         bool Exists(const Path& path) const;
 
         bool IsFile(const Path& path) const;
