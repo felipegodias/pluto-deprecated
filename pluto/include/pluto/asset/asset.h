@@ -11,6 +11,17 @@ namespace pluto
     class PLUTO_API Asset
     {
     public:
+        enum class Type
+        {
+            Unknown = 0,
+            PackageManifest = 1,
+            Text = 2,
+            Mesh = 3,
+            Shader = 4,
+            Texture = 5,
+            Material = 6
+        };
+
         virtual ~Asset() = 0;
 
         virtual const Guid& GetId() const = 0;
