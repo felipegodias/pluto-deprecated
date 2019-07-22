@@ -16,12 +16,14 @@ class MainMenu final : public pluto::BaseMenu
     BaseMenu* currentMenu;
     pluto::MenuOptions mainMenu;
     pluto::TextAssetMenu textAssetMenu;
+    pluto::MeshAssetMenu meshAssetMenu;
     pluto::ShaderAssetMenu shaderAssetMenu;
     pluto::TextureAssetMenu textureAssetMenu;
 
 public:
     MainMenu() : mainMenu(pluto::MenuOptions("Main Menu")),
                  textAssetMenu(pluto::TextAssetMenu(std::bind(&MainMenu::SetMainAsCurrent, this))),
+                 meshAssetMenu(pluto::MeshAssetMenu(std::bind(&MainMenu::SetMainAsCurrent, this))),
                  shaderAssetMenu(pluto::ShaderAssetMenu(std::bind(&MainMenu::SetMainAsCurrent, this))),
                  textureAssetMenu(pluto::TextureAssetMenu(std::bind(&MainMenu::SetMainAsCurrent, this)))
     {
@@ -32,6 +34,9 @@ public:
 
         mainMenu.AddOption(static_cast<int>(pluto::Asset::Type::Text), "Texts",
                            std::bind(&MainMenu::SetTextAsCurrentContext, this));
+
+        mainMenu.AddOption(static_cast<int>(pluto::Asset::Type::Mesh), "Meshes",
+                           std::bind(&MainMenu::SetMeshAsCurrentContext, this));
 
         mainMenu.AddOption(static_cast<int>(pluto::Asset::Type::Shader), "Shaders",
                            std::bind(&MainMenu::SetShaderAsCurrentContext, this));
@@ -49,6 +54,11 @@ public:
     void SetTextAsCurrentContext()
     {
         currentMenu = &textAssetMenu;
+    }
+
+    void SetMeshAsCurrentContext()
+    {
+        currentMenu = &meshAssetMenu;
     }
 
     void SetShaderAsCurrentContext()

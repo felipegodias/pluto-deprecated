@@ -57,7 +57,7 @@ namespace pluto
             }
             else if (fileExtension == ".obj")
             {
-                asset = CreateMeshAsset(file.Str());
+                //asset = CreateMeshAsset(file.Str());
             }
 
             packageManifest->AddAsset(file.Str(), asset->GetId());

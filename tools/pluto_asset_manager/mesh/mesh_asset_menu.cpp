@@ -1,75 +1,81 @@
 #include "mesh_asset_menu.h"
 #include "mesh_asset_manager.h"
+#include "../asset_dumper.h"
 
 #include <pluto/guid.h>
 #include <pluto/asset/mesh_asset.h>
-#include <pluto/di/di_container.h>
-#include <pluto/file/file_writer.h>
+#include <pluto/file/path.h>
 
 #include <pluto/math/vector2f.h>
 #include <pluto/math/vector3f.h>
 #include <pluto/math/vector3i.h>
 
 #include <iostream>
-#include <sstream>
 
 namespace pluto
 {
-    void PrintMeshAssetMenu()
+    MeshAssetMenu::~MeshAssetMenu() = default;
+
+    MeshAssetMenu::MeshAssetMenu(const std::function<void()>& backCallback) :
+        meshAssetManager(std::make_unique<MeshAssetManager>()),
+        mainMenu("Mesh Asset"), manageMenu("Manage Mesh Asset")
     {
-        std::cout << std::endl;
-        std::cout << "*** Mesh ***" << std::endl;
-        std::cout << "1: Create    2: Load    0: Exit" << std::endl;
-        std::cout << std::endl;
+        mainMenu.AddOption(0, "Cancel", backCallback);
+        mainMenu.AddOption(1, "Create", std::bind(&MeshAssetMenu::OnCreateMeshOptionSelected, this));
+        mainMenu.AddOption(2, "Load", std::bind(&MeshAssetMenu::OnManageMeshOptionSelected, this));
+
+        manageMenu.AddOption(0, "Cancel", std::bind(&MeshAssetMenu::OnManageMeshCancelOptionSelected, this));
+        manageMenu.AddOption(1, "Show Id", std::bind(&MeshAssetMenu::OnManageMeshShowIdOptionSelected, this));
+        manageMenu.AddOption(2, "Show Name", std::bind(&MeshAssetMenu::OnManageMeshShowNameOptionSelected, this));
+        manageMenu.AddOption(3, "Show Positions",
+                             std::bind(&MeshAssetMenu::OnManageMeshShowPositionsOptionSelected, this));
+        manageMenu.AddOption(4, "Show UVs", std::bind(&MeshAssetMenu::OnManageMeshShowUVsOptionSelected, this));
+        manageMenu.AddOption(5, "Show Triangles",
+                             std::bind(&MeshAssetMenu::OnManageMeshShowTrianglesOptionSelected, this));
+        manageMenu.AddOption(6, "Show All", std::bind(&MeshAssetMenu::OnManageMeshShowAllOptionSelected, this));
+
+        currentMenu = &mainMenu;
     }
 
-    void PrintMeshAssetLoadMenu()
+    const MenuOptions& MeshAssetMenu::GetCurrentMenuOptions() const
     {
-        std::cout << std::endl;
-        std::cout << "*** Mesh Actions ***" << std::endl;
-        std::cout << "1: Print guid         2: Print name    3: Print Positions    4: Print UVs" << std::endl;
-        std::cout << "5: Print Triangles    6: Print all     7: Clone              0: Exit" << std::endl;
-        std::cout << std::endl;
+        return *currentMenu;
     }
 
-    void DumpMeshAsset(const MeshAsset& meshAsset)
+    void MeshAssetMenu::OnCreateMeshOptionSelected()
     {
-        DiContainer diContainer;
-        const FileWriter::Factory fileWriterFactory(diContainer);
-        const std::string guidStr = meshAsset.GetId().Str();
-        std::ofstream ofs(guidStr);
-        const auto fileWriter = fileWriterFactory.Create(std::move(ofs));
-        meshAsset.Dump(*fileWriter);
-        std::cout << "Mesh Asset \"" << meshAsset.GetName() << "\" saved with id " << guidStr << std::endl;
-    }
-
-    void CreateMeshMenu()
-    {
-        std::cout << std::endl;
-        std::cout << "*** Create Mesh ***" << std::endl;
         std::cout << "Enter the mesh file path: ";
-        std::string filePath;
-        std::cin >> filePath;
+        std::string input;
+        std::cin >> input;
 
-        const auto textAsset = CreateMeshAsset(filePath);
-        DumpMeshAsset(*textAsset);
+        const Path path(input);
+        const auto shaderAsset = meshAssetManager->Create(path);
+        DumpAsset(path.GetDirectory(), *shaderAsset);
     }
 
-    void PrintGuid(const MeshAsset& meshAsset)
+    void MeshAssetMenu::OnManageMeshOptionSelected()
     {
-        std::stringstream ss;
-        ss << meshAsset.GetId();
-        std::cout << "Guid: " << ss.str() << std::endl;
+        std::cout << "Enter the mesh asset path: ";
+        std::string input;
+        std::cin >> input;
+
+        currentManagedAsset = meshAssetManager->Load(Path(input));
+        currentMenu = &manageMenu;
     }
 
-    void PrintName(const MeshAsset& meshAsset)
+    void MeshAssetMenu::OnManageMeshShowIdOptionSelected()
     {
-        std::cout << "Name: " << meshAsset.GetName() << std::endl;
+        std::cout << "Id: " << currentManagedAsset->GetId() << std::endl;
     }
 
-    void PrintPositions(const MeshAsset& meshAsset)
+    void MeshAssetMenu::OnManageMeshShowNameOptionSelected()
     {
-        const std::vector<Vector3F>& positions = meshAsset.GetPositions();
+        std::cout << "Name: " << currentManagedAsset->GetName() << std::endl;
+    }
+
+    void MeshAssetMenu::OnManageMeshShowPositionsOptionSelected()
+    {
+        const std::vector<Vector3F>& positions = currentManagedAsset->GetPositions();
         std::cout << "Positions: " << std::endl;
         for (const auto& position : positions)
         {
@@ -77,9 +83,9 @@ namespace pluto
         }
     }
 
-    void PrintUVs(const MeshAsset& meshAsset)
+    void MeshAssetMenu::OnManageMeshShowUVsOptionSelected()
     {
-        const std::vector<Vector2F>& uvs = meshAsset.GetUVs();
+        const std::vector<Vector2F>& uvs = currentManagedAsset->GetUVs();
         std::cout << "UVs: " << std::endl;
         for (const auto& uv : uvs)
         {
@@ -87,9 +93,9 @@ namespace pluto
         }
     }
 
-    void PrintTriangles(const MeshAsset& meshAsset)
+    void MeshAssetMenu::OnManageMeshShowTrianglesOptionSelected()
     {
-        const std::vector<Vector3I>& triangles = meshAsset.GetTriangles();
+        const std::vector<Vector3I>& triangles = currentManagedAsset->GetTriangles();
         std::cout << "Triangles: " << std::endl;
         for (const auto& triangle : triangles)
         {
@@ -97,102 +103,18 @@ namespace pluto
         }
     }
 
-    void PrintAll(const MeshAsset& meshAsset)
+    void MeshAssetMenu::OnManageMeshShowAllOptionSelected()
     {
-        PrintGuid(meshAsset);
-        PrintName(meshAsset);
-        PrintPositions(meshAsset);
-        PrintUVs(meshAsset);
-        PrintTriangles(meshAsset);
+        OnManageMeshShowIdOptionSelected();
+        OnManageMeshShowNameOptionSelected();
+        OnManageMeshShowPositionsOptionSelected();
+        OnManageMeshShowUVsOptionSelected();
+        OnManageMeshShowTrianglesOptionSelected();
     }
 
-    void CloneMeshAsset(const MeshAsset& meshAsset)
+    void MeshAssetMenu::OnManageMeshCancelOptionSelected()
     {
-        const auto newTextAsset = CreateMeshAsset(meshAsset);
-        DumpMeshAsset(*newTextAsset);
-    }
-
-    void LoadMeshMenu()
-    {
-        std::cout << std::endl;
-        std::cout << "*** Load Mesh ***" << std::endl;
-        std::unique_ptr<MeshAsset> meshAsset = nullptr;
-        std::cout << "Enter the mesh asset guid: ";
-        std::string guidStr;
-        std::cin >> guidStr;
-        try
-        {
-            const Guid guid(guidStr);
-            meshAsset = LoadMeshAsset(guid);
-        }
-        catch (std::exception& e)
-        {
-            std::cout << "Invalid guid or asset does not exist!" << std::endl;
-            return;
-        }
-
-        int option = 0;
-        do
-        {
-            PrintMeshAssetLoadMenu();
-            std::cout << "Option: ";
-            std::cin >> option;
-            switch (option)
-            {
-            case 0:
-                break;
-            case 1:
-                PrintGuid(*meshAsset);
-                break;
-            case 2:
-                PrintName(*meshAsset);
-                break;
-            case 3:
-                PrintPositions(*meshAsset);
-                break;
-            case 4:
-                PrintUVs(*meshAsset);
-                break;
-            case 5:
-                PrintTriangles(*meshAsset);
-                break;
-            case 6:
-                PrintAll(*meshAsset);
-                break;
-            case 7:
-                CloneMeshAsset(*meshAsset);
-                break;
-            default:
-                std::cout << "Invalid option." << std::endl;
-                break;
-            }
-        }
-        while (option != 0);
-    }
-
-    void MeshAssetMenu()
-    {
-        int option = 0;
-        do
-        {
-            PrintMeshAssetMenu();
-            std::cout << "Option: ";
-            std::cin >> option;
-            switch (option)
-            {
-            case 0:
-                break;
-            case 1:
-                CreateMeshMenu();
-                break;
-            case 2:
-                LoadMeshMenu();
-                break;
-            default:
-                std::cout << "Invalid option." << std::endl;
-                break;
-            }
-        }
-        while (option != 0);
+        currentMenu = &mainMenu;
+        currentManagedAsset.reset();
     }
 }

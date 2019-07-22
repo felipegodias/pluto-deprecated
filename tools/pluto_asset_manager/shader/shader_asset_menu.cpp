@@ -106,7 +106,7 @@ namespace pluto
 
     void ShaderAssetMenu::OnCreateShaderOptionSelected()
     {
-        std::cout << "Enter the text file path: ";
+        std::cout << "Enter the shader file path: ";
         std::string input;
         std::cin >> input;
 
@@ -117,7 +117,7 @@ namespace pluto
 
     void ShaderAssetMenu::OnManageShaderOptionSelected()
     {
-        std::cout << "Enter the text asset path: ";
+        std::cout << "Enter the shader asset path: ";
         std::string input;
         std::cin >> input;
 

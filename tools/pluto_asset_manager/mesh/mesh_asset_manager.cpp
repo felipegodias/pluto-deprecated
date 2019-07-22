@@ -4,6 +4,9 @@
 #include <pluto/di/di_container.h>
 #include <pluto/asset/mesh_asset.h>
 #include <pluto/file/file_reader.h>
+#include <pluto/file/file_writer.h>
+#include <pluto/file/file_manager.h>
+#include <pluto/file/path.h>
 
 #include <pluto/render/gl/gl_mesh_buffer.h>
 
@@ -20,30 +23,32 @@
 
 namespace pluto
 {
-    std::unique_ptr<MeshAsset> CreateMeshAsset(const MeshAsset& other)
+    MeshAssetManager::~MeshAssetManager() = default;
+
+    MeshAssetManager::MeshAssetManager() : diContainer(std::make_unique<DiContainer>())
     {
-        DiContainer diContainer;
-        const MeshAsset::Factory factory(diContainer);
-        auto textAsset = factory.Create(other);
-        return textAsset;
+        diContainer->AddSingleton(std::make_unique<FileReader::Factory>(*diContainer));
+        diContainer->AddSingleton(std::make_unique<FileWriter::Factory>(*diContainer));
+
+        const FileManager::Factory fileManagerFactory(*diContainer);
+        diContainer->AddSingleton(fileManagerFactory.Create(Path(std::filesystem::current_path().string())));
+        diContainer->AddSingleton<MeshBuffer::Factory>(std::make_unique<GlMeshBuffer::Factory>(*diContainer));
+        diContainer->AddSingleton(std::make_unique<MeshAsset::Factory>(*diContainer));
     }
 
-    std::unique_ptr<MeshAsset> CreateMeshAsset(const std::string& path)
+    std::unique_ptr<MeshAsset> MeshAssetManager::Create(const Path& path)
     {
-        std::string plutoFilePath = path + ".pluto";
-        if (!std::filesystem::exists(plutoFilePath))
+        Path plutoFilePath = path;
+        plutoFilePath.ChangeExtension(plutoFilePath.GetExtension() + ".pluto");
+        if (!diContainer->GetSingleton<FileManager>().Exists(plutoFilePath))
         {
-            throw std::runtime_error("Pluto file not found at " + plutoFilePath);
+            throw std::runtime_error("Pluto file not found at " + plutoFilePath.Str());
         }
 
-        YAML::Node plutoFile = YAML::LoadFile(plutoFilePath);
+        YAML::Node plutoFile = YAML::LoadFile(plutoFilePath.Str());
         Guid guid(plutoFile["guid"].as<std::string>());
 
-        std::ifstream ifs(path);
-        if (!ifs)
-        {
-            throw std::runtime_error("File not found or could not be opened!");
-        }
+        auto fr = diContainer->GetSingleton<FileManager>().OpenRead(path);
 
         std::vector<Vector3F> filePositions;
         std::vector<Vector2F> fileUVs;
@@ -55,6 +60,7 @@ namespace pluto
 
         std::vector<Face> fileFaces;
         std::string op;
+        std::ifstream& ifs = fr->GetStream();
         while (!ifs.eof())
         {
             ifs >> op;
@@ -120,23 +126,17 @@ namespace pluto
         Guid& shaderGuid = const_cast<Guid&>(meshAsset->GetId());
         shaderGuid = guid;
 
-        const std::filesystem::path filePath(path);
-        meshAsset->SetName(filePath.filename().replace_extension("").string());
+        meshAsset->SetName(path.GetNameWithoutExtension());
         meshAsset->SetPositions(std::move(positions));
         meshAsset->SetUVs(std::move(uvs));
         meshAsset->SetTriangles(std::move(triangles));
         return meshAsset;
     }
 
-    std::unique_ptr<MeshAsset> LoadMeshAsset(const Guid& guid)
+    std::unique_ptr<MeshAsset> MeshAssetManager::Load(const Path& path)
     {
-        DiContainer diContainer;
-        const MeshAsset::Factory meshAssetFactory(diContainer);
-        const FileReader::Factory fileReaderFactory(diContainer);
-
-        std::ifstream ifs(guid.Str(), std::ios::binary);
-        const auto fileReader = fileReaderFactory.Create(std::move(ifs));
-        auto meshAsset = meshAssetFactory.Create(*fileReader);
-        return meshAsset;
+        const auto fileReader = diContainer->GetSingleton<FileManager>().OpenRead(path);
+        auto shaderAsset = diContainer->GetSingleton<MeshAsset::Factory>().Create(*fileReader);
+        return shaderAsset;
     }
 }
