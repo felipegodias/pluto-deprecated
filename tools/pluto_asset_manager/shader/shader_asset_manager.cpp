@@ -5,13 +5,14 @@
 #include <pluto/asset/shader_asset.h>
 #include <pluto/render/gl/gl_shader_program.h>
 #include <pluto/file/file_reader.h>
+#include <pluto/file/file_writer.h>
+#include <pluto/file/file_manager.h>
+#include <pluto/file/path.h>
 
 #include <boost/algorithm/string.hpp>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-
 #include <yaml-cpp/yaml.h>
-
 #include <fmt/format.h>
 
 #include <filesystem>
@@ -89,6 +90,7 @@ namespace pluto
 
     ShaderFileData ParseShader(std::istream& is)
     {
+
         std::string line;
         int state = 0;
         ShaderFileData shaderData;
@@ -96,6 +98,7 @@ namespace pluto
         std::stringstream frag;
         while (std::getline(is, line))
         {
+            line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
             if (line.empty())
             {
                 continue;
@@ -310,27 +313,33 @@ namespace pluto
         }
     }
 
-    std::unique_ptr<ShaderAsset> CreateShaderAsset(const ShaderAsset& other)
+    ShaderAssetManager::~ShaderAssetManager() = default;
+
+    ShaderAssetManager::ShaderAssetManager() : diContainer(std::make_unique<DiContainer>())
     {
-        DiContainer diContainer;
-        const ShaderAsset::Factory factory(diContainer);
-        auto shaderAsset = factory.Create(other);
-        return shaderAsset;
+        diContainer->AddSingleton(std::make_unique<FileReader::Factory>(*diContainer));
+        diContainer->AddSingleton(std::make_unique<FileWriter::Factory>(*diContainer));
+
+        const FileManager::Factory fileManagerFactory(*diContainer);
+        diContainer->AddSingleton(fileManagerFactory.Create(Path(std::filesystem::current_path().string())));
+        diContainer->AddSingleton<ShaderProgram::Factory>(std::make_unique<GlShaderProgram::Factory>(*diContainer));
+        diContainer->AddSingleton(std::make_unique<ShaderAsset::Factory>(*diContainer));
     }
 
-    std::unique_ptr<ShaderAsset> CreateShaderAsset(const std::string& path)
+    std::unique_ptr<ShaderAsset> ShaderAssetManager::Create(const Path& path)
     {
-        std::string plutoFilePath = path + ".pluto";
-        if (!std::filesystem::exists(plutoFilePath))
+        Path plutoFilePath = path;
+        plutoFilePath.ChangeExtension(plutoFilePath.GetExtension() + ".pluto");
+        if (!diContainer->GetSingleton<FileManager>().Exists(plutoFilePath))
         {
-            throw std::runtime_error("Pluto file not found at " + plutoFilePath);
+            throw std::runtime_error("Pluto file not found at " + plutoFilePath.Str());
         }
 
-        YAML::Node plutoFile = YAML::LoadFile(plutoFilePath);
+        YAML::Node plutoFile = YAML::LoadFile(plutoFilePath.Str());
         Guid guid(plutoFile["guid"].as<std::string>());
 
-        std::ifstream file(path);
-        const ShaderFileData shaderData = ParseShader(file);
+        auto fr = diContainer->GetSingleton<FileManager>().OpenRead(path);
+        const ShaderFileData shaderData = ParseShader(fr->GetStream());
 
         InitGl();
         const GLuint programId = CreateShader(shaderData.vertex, shaderData.frag);
@@ -350,10 +359,7 @@ namespace pluto
         glDeleteProgram(programId);
         glfwTerminate();
 
-        DiContainer diContainer;
-        diContainer.AddSingleton<ShaderProgram::Factory>(std::make_unique<GlShaderProgram::Factory>(diContainer));
-        const ShaderAsset::Factory factory(diContainer);
-        auto shaderAsset = factory.Create();
+        auto shaderAsset = diContainer->GetSingleton<ShaderAsset::Factory>().Create();
 
         // Evil, I know. But it's better than expose the guid to changes directly.
         Guid& shaderGuid = const_cast<Guid&>(shaderAsset->GetId());
@@ -361,8 +367,7 @@ namespace pluto
 
         std::string ss = shaderAsset->GetId().Str();
 
-        const std::filesystem::path filePath(path);
-        shaderAsset->SetName(filePath.filename().replace_extension("").string());
+        shaderAsset->SetName(path.GetNameWithoutExtension());
         shaderAsset->SetBlendFunction(blend);
         shaderAsset->SetSrcBlendFactor(blendSrc);
         shaderAsset->SetDstBlendFactor(blendDst);
@@ -375,16 +380,10 @@ namespace pluto
         return shaderAsset;
     }
 
-    std::unique_ptr<ShaderAsset> LoadShaderAsset(const Guid& guid)
+    std::unique_ptr<ShaderAsset> ShaderAssetManager::Load(const Path& path)
     {
-        DiContainer diContainer;
-        diContainer.AddSingleton<ShaderProgram::Factory>(std::make_unique<GlShaderProgram::Factory>(diContainer));
-        const ShaderAsset::Factory shaderAssetFactory(diContainer);
-        const FileReader::Factory fileReaderFactory(diContainer);
-
-        std::ifstream ifs(guid.Str(), std::ios::binary);
-        const auto fileReader = fileReaderFactory.Create(std::move(ifs));
-        auto textAsset = shaderAssetFactory.Create(*fileReader);
-        return textAsset;
+        const auto fileReader = diContainer->GetSingleton<FileManager>().OpenRead(path);
+        auto shaderAsset = diContainer->GetSingleton<ShaderAsset::Factory>().Create(*fileReader);
+        return shaderAsset;
     }
 }

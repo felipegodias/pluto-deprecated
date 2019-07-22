@@ -1,14 +1,27 @@
 #pragma once
 
-#include <string>
 #include <memory>
+#include <pluto/di/di_container.h>
 
 namespace pluto
 {
     class ShaderAsset;
-    class Guid;
+    class Path;
 
-    std::unique_ptr<ShaderAsset> CreateShaderAsset(const ShaderAsset& other);
-    std::unique_ptr<ShaderAsset> CreateShaderAsset(const std::string& path);
-    std::unique_ptr<ShaderAsset> LoadShaderAsset(const Guid& guid);
+    class ShaderAssetManager
+    {
+        std::unique_ptr<DiContainer> diContainer;
+
+    public:
+        ~ShaderAssetManager();
+        ShaderAssetManager();
+
+        ShaderAssetManager(const ShaderAssetManager& other) = delete;
+        ShaderAssetManager(ShaderAssetManager&& other) noexcept = delete;
+        ShaderAssetManager& operator=(const ShaderAssetManager& rhs) = delete;
+        ShaderAssetManager& operator=(ShaderAssetManager&& rhs) noexcept = delete;
+
+        std::unique_ptr<ShaderAsset> Create(const Path& path);
+        std::unique_ptr<ShaderAsset> Load(const Path& path);
+    };
 }

@@ -53,7 +53,7 @@ namespace pluto
             std::unique_ptr<Asset> asset;
             if (fileExtension == ".glsl")
             {
-                asset = CreateShaderAsset(file.Str());
+                //asset = CreateShaderAsset(file.Str());
             }
             else if (fileExtension == ".obj")
             {

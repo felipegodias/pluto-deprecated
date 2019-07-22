@@ -7,13 +7,11 @@
 
 namespace pluto
 {
-    class DiContainer;
     class TextAssetManager;
     class TextAsset;
 
     class TextAssetMenu final : public BaseMenu
     {
-        std::unique_ptr<DiContainer> diContainer;
         std::unique_ptr<TextAssetManager> textAssetManager;
         std::unique_ptr<TextAsset> currentManagedAsset;
 

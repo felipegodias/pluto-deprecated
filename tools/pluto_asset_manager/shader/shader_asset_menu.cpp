@@ -1,14 +1,15 @@
 #include "shader_asset_menu.h"
 #include "shader_asset_manager.h"
+#include "../asset_dumper.h"
 
 #include <pluto/guid.h>
 #include <pluto/asset/shader_asset.h>
-#include <pluto/di/di_container.h>
-#include <pluto/file/file_writer.h>
+#include <pluto/file/path.h>
+
+#include <fmt/format.h>
 
 #include <iostream>
 #include <unordered_map>
-#include <fmt/format.h>
 
 namespace pluto
 {
@@ -65,213 +66,125 @@ namespace pluto
         {ShaderAsset::Property::Type::Matrix2X2, "Matrix2X2"},
         {ShaderAsset::Property::Type::Matrix3X3, "Matrix3X3"},
         {ShaderAsset::Property::Type::Matrix4X4, "Matrix4X4"},
+        {ShaderAsset::Property::Type::Sampler2D, "Sampler2D"},
     };
 
-    void PrintShaderAssetMenu()
+    ShaderAssetMenu::~ShaderAssetMenu() = default;
+
+    ShaderAssetMenu::ShaderAssetMenu(const std::function<void()>& backCallback) :
+        shaderAssetManager(std::make_unique<ShaderAssetManager>()),
+        mainMenu("Shader Asset"), manageMenu("Manage Shader Asset")
     {
-        std::cout << std::endl;
-        std::cout << "*** Shader ***" << std::endl;
-        std::cout << "1: Create    2: Load    0: Exit" << std::endl;
-        std::cout << std::endl;
+        mainMenu.AddOption(0, "Cancel", backCallback);
+        mainMenu.AddOption(1, "Create", std::bind(&ShaderAssetMenu::OnCreateShaderOptionSelected, this));
+        mainMenu.AddOption(2, "Load", std::bind(&ShaderAssetMenu::OnManageShaderOptionSelected, this));
+
+        manageMenu.AddOption(0, "Cancel", std::bind(&ShaderAssetMenu::OnManageShaderCancelOptionSelected, this));
+        manageMenu.AddOption(1, "Show Id", std::bind(&ShaderAssetMenu::OnManageShaderShowIdOptionSelected, this));
+        manageMenu.AddOption(2, "Show Name", std::bind(&ShaderAssetMenu::OnManageShaderShowNameOptionSelected, this));
+        manageMenu.AddOption(3, "Show Blend Function",
+                             std::bind(&ShaderAssetMenu::OnManageShaderShowBlendFunctionOptionSelected, this));
+        manageMenu.AddOption(4, "Show Source Blend Factor",
+                             std::bind(&ShaderAssetMenu::OnManageShaderShowSrcFactorOptionSelected, this));
+        manageMenu.AddOption(5, "Show Dest Blend Factor",
+                             std::bind(&ShaderAssetMenu::OnManageShaderShowDstFactorOptionSelected, this));
+        manageMenu.AddOption(6, "Show Depth Test",
+                             std::bind(&ShaderAssetMenu::OnManageShaderShowDepthTestOptionSelected, this));
+        manageMenu.AddOption(7, "Show Cull Mode",
+                             std::bind(&ShaderAssetMenu::OnManageShaderShowCullModeOptionSelected, this));
+        manageMenu.AddOption(8, "Show Properties",
+                             std::bind(&ShaderAssetMenu::OnManageShaderShowPropertiesOptionSelected, this));
+        manageMenu.AddOption(9, "Show All", std::bind(&ShaderAssetMenu::OnManageShaderShowAllOptionSelected, this));
+
+        currentMenu = &mainMenu;
     }
 
-    void PrintShaderAssetLoadMenu()
+    const MenuOptions& ShaderAssetMenu::GetCurrentMenuOptions() const
     {
-        std::cout << std::endl;
-        std::cout << "*** Shader Actions ***" << std::endl;
-        std::cout << "1: Print guid              2: Print name     3: Print blendFunction    4: Print srcBlendFactor" <<
-            std::endl;
-        std::cout << "5: Print dstBlendFactor    6: Print zTest    7: Print cullMode         8: Print properties" << std
-            ::endl;
-        std::cout << "9: Print binaryFormat     10: Print all     11: Clone                  0: Exit" << std::endl;
-        std::cout << std::endl;
+        return *currentMenu;
     }
 
-    void DumpShaderAsset(const ShaderAsset& shaderAsset)
+    void ShaderAssetMenu::OnCreateShaderOptionSelected()
     {
-        DiContainer diContainer;
-        const FileWriter::Factory fileWriterFactory(diContainer);
-        const std::string guidStr = shaderAsset.GetId().Str();
-        std::ofstream ofs(guidStr, std::ios::binary);
-        const auto fileWriter = fileWriterFactory.Create(std::move(ofs));
-        shaderAsset.Dump(*fileWriter);
-        std::cout << "Shader Asset \"" << shaderAsset.GetName() << "\" saved with id " << guidStr << std::endl;
+        std::cout << "Enter the text file path: ";
+        std::string input;
+        std::cin >> input;
+
+        const Path path(input);
+        const auto shaderAsset = shaderAssetManager->Create(path);
+        DumpAsset(path.GetDirectory(), *shaderAsset);
     }
 
-    void CreateShaderMenu()
+    void ShaderAssetMenu::OnManageShaderOptionSelected()
     {
-        std::cout << std::endl;
-        std::cout << "*** Create Shader ***" << std::endl;
-        std::cout << "Enter the shader file path: ";
-        std::string filePath;
-        std::cin >> filePath;
+        std::cout << "Enter the text asset path: ";
+        std::string input;
+        std::cin >> input;
 
-        const auto textAsset = CreateShaderAsset(filePath);
-        DumpShaderAsset(*textAsset);
+        currentManagedAsset = shaderAssetManager->Load(Path(input));
+        currentMenu = &manageMenu;
     }
 
-    void PrintGuid(const ShaderAsset& shaderAsset)
+    void ShaderAssetMenu::OnManageShaderShowIdOptionSelected()
     {
-        std::cout << "Guid: " << shaderAsset.GetId() << std::endl;
+        std::cout << "Id: " << currentManagedAsset->GetId() << std::endl;
     }
 
-    void PrintName(const ShaderAsset& shaderAsset)
+    void ShaderAssetMenu::OnManageShaderShowNameOptionSelected()
     {
-        std::cout << "Name: " << shaderAsset.GetName() << std::endl;
+        std::cout << "Name: " << currentManagedAsset->GetName() << std::endl;
     }
 
-    void PrintBlendFunction(const ShaderAsset& shaderAsset)
+    void ShaderAssetMenu::OnManageShaderShowBlendFunctionOptionSelected()
     {
-        std::cout << "Blend Function: " << blendFunctions.at(shaderAsset.GetBlendFunction()) << std::endl;
+        std::cout << "Blend Function: " << blendFunctions.at(currentManagedAsset->GetBlendFunction()) << std::endl;
     }
 
-    void PrintBlendSrcFactor(const ShaderAsset& shaderAsset)
+    void ShaderAssetMenu::OnManageShaderShowSrcFactorOptionSelected()
     {
-        std::cout << "Blend Src Factor: " << blendFactors.at(shaderAsset.GetSrcBlendFactor()) << std::endl;
+        std::cout << "Blend Source Factor: " << blendFactors.at(currentManagedAsset->GetSrcBlendFactor()) << std::endl;
     }
 
-    void PrintBlendDstFactor(const ShaderAsset& shaderAsset)
+    void ShaderAssetMenu::OnManageShaderShowDstFactorOptionSelected()
     {
-        std::cout << "Blend Dst Factor: " << blendFactors.at(shaderAsset.GetDstBlendFactor()) << std::endl;
+        std::cout << "Blend Dest Factor: " << blendFactors.at(currentManagedAsset->GetDstBlendFactor()) << std::endl;
     }
 
-    void PrintZTest(const ShaderAsset& shaderAsset)
+    void ShaderAssetMenu::OnManageShaderShowDepthTestOptionSelected()
     {
-        std::cout << "Z Test: " << zTests.at(shaderAsset.GetZTest()) << std::endl;
+        std::cout << "Depth Test: " << zTests.at(currentManagedAsset->GetZTest()) << std::endl;
     }
 
-    void PrintCullMode(const ShaderAsset& shaderAsset)
+    void ShaderAssetMenu::OnManageShaderShowCullModeOptionSelected()
     {
-        std::cout << "Cull Mode: " << cullModes.at(shaderAsset.GetCullMode()) << std::endl;
+        std::cout << "Cull Mode: " << cullModes.at(currentManagedAsset->GetCullMode()) << std::endl;
     }
 
-    void PrintProperties(const ShaderAsset& shaderAsset)
+    void ShaderAssetMenu::OnManageShaderShowPropertiesOptionSelected()
     {
         std::cout << "Properties: " << std::endl;
-        for (const auto& property : shaderAsset.GetProperties())
+        for (const auto& property : currentManagedAsset->GetProperties())
         {
             std::cout << fmt::format("[Id: {0}; Name: \"{1}\"; Type: {2}]", property.id, property.name,
                                      propertyTypes.at(property.type)) << std::endl;
         }
     }
 
-    void PrintBinaryFormat(const ShaderAsset& shaderAsset)
+    void ShaderAssetMenu::OnManageShaderShowAllOptionSelected()
     {
-        std::cout << "Cull Mode: " << shaderAsset.GetBinaryFormat() << std::endl;
+        OnManageShaderShowIdOptionSelected();
+        OnManageShaderShowNameOptionSelected();
+        OnManageShaderShowBlendFunctionOptionSelected();
+        OnManageShaderShowSrcFactorOptionSelected();
+        OnManageShaderShowDstFactorOptionSelected();
+        OnManageShaderShowDepthTestOptionSelected();
+        OnManageShaderShowCullModeOptionSelected();
+        OnManageShaderShowPropertiesOptionSelected();
     }
 
-    void PrintAll(const ShaderAsset& shaderAsset)
+    void ShaderAssetMenu::OnManageShaderCancelOptionSelected()
     {
-        PrintGuid(shaderAsset);
-        PrintName(shaderAsset);
-        PrintBlendFunction(shaderAsset);
-        PrintBlendSrcFactor(shaderAsset);
-        PrintBlendDstFactor(shaderAsset);
-        PrintZTest(shaderAsset);
-        PrintCullMode(shaderAsset);
-        PrintProperties(shaderAsset);
-        PrintBinaryFormat(shaderAsset);
-    }
-
-    void CloneShaderAsset(const ShaderAsset& shaderAsset)
-    {
-        const auto newTextAsset = CreateShaderAsset(shaderAsset);
-        DumpShaderAsset(*newTextAsset);
-    }
-
-    void LoadShaderMenu()
-    {
-        std::cout << std::endl;
-        std::cout << "*** Load Shader ***" << std::endl;
-        std::unique_ptr<ShaderAsset> shaderAsset = nullptr;
-        std::cout << "Enter the shader asset guid: ";
-        std::string guidStr;
-        std::cin >> guidStr;
-        try
-        {
-            const Guid guid(guidStr);
-            shaderAsset = LoadShaderAsset(guid);
-        }
-        catch (std::exception& e)
-        {
-            std::cout << "Invalid guid or asset does not exist!" << std::endl;
-            return;
-        }
-
-        int option = 0;
-        do
-        {
-            PrintShaderAssetLoadMenu();
-            std::cout << "Option: ";
-            std::cin >> option;
-            switch (option)
-            {
-            case 0:
-                break;
-            case 1:
-                PrintGuid(*shaderAsset);
-                break;
-            case 2:
-                PrintName(*shaderAsset);
-                break;
-            case 3:
-                PrintBlendFunction(*shaderAsset);
-                break;
-            case 4:
-                PrintBlendSrcFactor(*shaderAsset);
-                break;
-            case 5:
-                PrintBlendDstFactor(*shaderAsset);
-                break;
-            case 6:
-                PrintZTest(*shaderAsset);
-                break;
-            case 7:
-                PrintCullMode(*shaderAsset);
-                break;
-            case 8:
-                PrintProperties(*shaderAsset);
-                break;
-            case 9:
-                PrintBinaryFormat(*shaderAsset);
-                break;
-            case 10:
-                PrintAll(*shaderAsset);
-                break;
-            case 11:
-                CloneShaderAsset(*shaderAsset);
-                break;
-            default:
-                std::cout << "Invalid option." << std::endl;
-                break;
-            }
-        }
-        while (option != 0);
-    }
-
-    void ShaderAssetMenu()
-    {
-        int option = 0;
-        do
-        {
-            PrintShaderAssetMenu();
-            std::cout << "Option: ";
-            std::cin >> option;
-            switch (option)
-            {
-            case 0:
-                break;
-            case 1:
-                CreateShaderMenu();
-                break;
-            case 2:
-                LoadShaderMenu();
-                break;
-            default:
-                std::cout << "Invalid option." << std::endl;
-                break;
-            }
-        }
-        while (option != 0);
+        currentMenu = &mainMenu;
+        currentManagedAsset.reset();
     }
 }
