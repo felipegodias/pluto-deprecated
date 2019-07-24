@@ -9,7 +9,6 @@
 
 #include <boost/algorithm/string.hpp>
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
 #include <yaml-cpp/yaml.h>
 #include <fmt/format.h>
 
@@ -288,28 +287,6 @@ namespace pluto
         return ShaderAsset::CullMode::Default;
     }
 
-    void InitGl()
-    {
-        if (!glfwInit())
-        {
-            throw std::runtime_error("Failed to initialize glfw.");
-        }
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-        GLFWwindow* window = glfwCreateWindow(1, 1, "", nullptr, nullptr);
-        if (!window)
-        {
-            glfwTerminate();
-            throw std::runtime_error("Failed to create glfw window.");
-        }
-        glfwMakeContextCurrent(window);
-
-        const GLenum err = glewInit();
-        if (GLEW_OK != err)
-        {
-            throw std::runtime_error(fmt::format("Failed to initialize glew. Error: {0}", glewGetErrorString(err)));
-        }
-    }
-
     ShaderAssetManager::~ShaderAssetManager() = default;
 
     ShaderAssetManager::
@@ -334,7 +311,6 @@ namespace pluto
         auto fr = fileManager->OpenRead(path);
         const ShaderFileData shaderData = ParseShader(fr->GetStream());
 
-        InitGl();
         const GLuint programId = CreateShader(shaderData.vertex, shaderData.frag);
         GLint binLength = -1;
         GLenum binFormat = -1;
@@ -350,7 +326,6 @@ namespace pluto
         ShaderAsset::CullMode cullMode = ParseCull(shaderData.cullMode);
         std::vector<ShaderAsset::Property> uniforms = FetchUniforms(programId);
         glDeleteProgram(programId);
-        glfwTerminate();
 
         auto shaderAsset = shaderAssetFactory->Create();
 

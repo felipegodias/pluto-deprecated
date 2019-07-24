@@ -18,6 +18,9 @@ list(APPEND ASSET_MANAGER_SOURCE_FILES
     # ./text
     ${CMAKE_CURRENT_SOURCE_DIR}/text/text_asset_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/text/text_asset_menu.cpp
+    # ./texture
+    ${CMAKE_CURRENT_SOURCE_DIR}/texture/texture_asset_manager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/texture/texture_asset_menu.cpp
 )
 
 add_executable(pluto_asset_manager ${ASSET_MANAGER_SOURCE_FILES})

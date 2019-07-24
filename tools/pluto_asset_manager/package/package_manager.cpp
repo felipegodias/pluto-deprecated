@@ -2,6 +2,7 @@
 #include "../mesh/mesh_asset_manager.h"
 #include "../shader/shader_asset_manager.h"
 #include "../text/text_asset_manager.h"
+#include "../texture/texture_asset_manager.h"
 
 #include <pluto/asset/asset.h>
 #include <pluto/asset/package_manifest_asset.h>
@@ -20,12 +21,13 @@ namespace pluto
 {
     PackageManager::PackageManager(FileManager& fileManager, PackageManifestAsset::Factory& packageManifestAssetFactory,
                                    TextAssetManager& textAssetManager, MeshAssetManager& meshAssetManager,
-                                   ShaderAssetManager& shaderAssetManager) : fileManager(&fileManager),
-                                                                             packageManifestAssetFactory(
-                                                                                 &packageManifestAssetFactory),
-                                                                             textAssetManager(&textAssetManager),
-                                                                             meshAssetManager(&meshAssetManager),
-                                                                             shaderAssetManager(&shaderAssetManager)
+                                   ShaderAssetManager& shaderAssetManager, TextureAssetManager& textureAssetManager) :
+        fileManager(&fileManager),
+        packageManifestAssetFactory(&packageManifestAssetFactory),
+        textAssetManager(&textAssetManager),
+        meshAssetManager(&meshAssetManager),
+        shaderAssetManager(&shaderAssetManager),
+        textureAssetManager(&textureAssetManager)
     {
     }
 
@@ -33,12 +35,13 @@ namespace pluto
     {
         fileManager->SetRootPath(path);
 
-        fileManager->Delete(Path(path.GetName()));
+        const Path outputDir = Path(path.GetName());
+        fileManager->Delete(outputDir);
 
         const Regex plutoFileFilter("^.*pluto$");
         std::vector<Path> plutoFiles = fileManager->GetFiles(path, plutoFileFilter, FileManager::AllDirectories);
 
-        fileManager->CreateDirectory(Path(path.GetName()));
+        fileManager->CreateDirectory(outputDir);
 
         auto packageManifest = packageManifestAssetFactory->Create();
 
@@ -65,14 +68,18 @@ namespace pluto
             {
                 asset = textAssetManager->Create(file);
             }
+            else if (fileExtension == ".png")
+            {
+                asset = textureAssetManager->Create(file, outputDir);
+            }
 
             if (asset != nullptr)
             {
                 packageManifest->AddAsset(file.GetRelativePath(path).Str(), asset->GetId());
-                const auto fileWriter = fileManager->OpenWrite(Path(path.GetName() + "/" + asset->GetId().Str()));
-                asset->Dump(*fileWriter);
-                std::cout << "Asset \"" << asset->GetName() << "\" saved with id " << asset->GetId() << "." << std::
-                    endl;
+                //const auto fileWriter = fileManager->OpenWrite(Path(path.GetName() + "/" + asset->GetId().Str()));
+                //asset->Dump(*fileWriter);
+                //std::cout << "Asset \"" << asset->GetName() << "\" saved with id " << asset->GetId() << "." << std::
+                //    endl;
             }
         }
 

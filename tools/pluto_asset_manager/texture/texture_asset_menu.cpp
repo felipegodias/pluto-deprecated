@@ -1,19 +1,17 @@
 #include "texture_asset_menu.h"
 #include "texture_asset_manager.h"
 
-#include <pluto/di/di_container.h>
+#include <pluto/file/path.h>
+
 #include <iostream>
 
 namespace pluto
 {
-    TextureAssetMenu::~TextureAssetMenu() = default;
-
-    TextureAssetMenu::TextureAssetMenu(const std::function<void()>& backCallback) : mainMenu(
-        MenuOptions("Texture Asset"))
+    TextureAssetMenu::TextureAssetMenu(TextureAssetManager& textureAssetManager,
+                                       const std::function<void()>& backCallback) :
+        textureAssetManager(&textureAssetManager),
+        mainMenu(MenuOptions("Texture Asset"))
     {
-        diContainer = std::make_unique<DiContainer>();
-        textureAssetManager = std::make_unique<TextureAssetManager>(*diContainer);
-
         mainMenu.AddOption(0, "Cancel", backCallback);
         mainMenu.AddOption(1, "Create", std::bind(&TextureAssetMenu::OnCreateTextureOptionSelected, this));
 
@@ -27,9 +25,11 @@ namespace pluto
 
     void TextureAssetMenu::OnCreateTextureOptionSelected()
     {
-        //std::cout << "File Path: ";
-        //std::string input;
-        //std::cin >> input;
-        //textureAssetManager->Create(input);
+        std::cout << "Enter the texture file path: ";
+        std::string input;
+        std::cin >> input;
+
+        const Path inputPath(input);
+        auto asset = textureAssetManager->Create(inputPath, inputPath.GetDirectory());
     }
 }

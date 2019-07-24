@@ -2,17 +2,20 @@
 
 #include <pluto/asset/texture_asset.h>
 
-#include <string>
 #include <memory>
 
 namespace pluto
 {
+    class FileManager;
+    class Path;
+
     class TextureAssetManager
     {
+        FileManager* fileManager;
+        TextureAsset::Factory* textureAssetFactory;
+
     public:
-        explicit TextureAssetManager(DiContainer& diContainer);
-        std::unique_ptr<TextureAsset> Create(const TextureAsset& other);
-        std::unique_ptr<TextureAsset> Create(const std::string& path);
-        std::unique_ptr<TextureAsset> Load(const Guid& guid);
+        TextureAssetManager(FileManager& fileManager, TextureAsset::Factory& textureAssetFactory);
+        std::unique_ptr<TextureAsset> Create(const Path& inputPath, const Path& outputDir);
     };
 }
