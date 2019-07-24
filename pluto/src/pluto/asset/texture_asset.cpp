@@ -17,29 +17,36 @@ namespace pluto
 {
     class TextureAsset::Impl
     {
-        TextureAsset* instance;
-
         Guid guid;
         std::string name;
-        Vector2I size;
+
+        uint16_t width;
+        uint16_t height;
+
         Wrap wrap;
         Format format;
         Filter filter;
 
-        std::vector<uint8_t> data;
-
         std::unique_ptr<TextureBuffer> textureBuffer;
 
+        std::vector<uint8_t> data;
+
+        TextureAsset* instance;
+
     public:
-        explicit Impl(const Guid& guid, std::unique_ptr<TextureBuffer> textureBuffer) : instance(nullptr),
-                                                                                        guid(guid),
-                                                                                        wrap(Wrap::Default),
-                                                                                        format(Format::Default),
-                                                                                        filter(Filter::Default),
-                                                                                        textureBuffer(
-                                                                                            std::move(textureBuffer))
+        explicit Impl(const Guid& guid, const uint16_t width, const uint16_t height, const Format format,
+                      std::unique_ptr<TextureBuffer> textureBuffer) : guid(guid),
+                                                                      width(width),
+                                                                      height(height),
+                                                                      wrap(Wrap::Default),
+                                                                      format(format),
+                                                                      filter(Filter::Default),
+                                                                      textureBuffer(
+                                                                          std::move(textureBuffer)),
+                                                                      instance(nullptr)
 
         {
+            data = std::vector<uint8_t>(width * height * GetChannelsCount(), 0);
         }
 
         void Init(TextureAsset& textureAsset)
@@ -71,20 +78,19 @@ namespace pluto
             return data;
         }
 
-        const Vector2I& GetSize() const
+        uint16_t GetWidth() const
         {
-            return size;
+            return width;
         }
 
-        void SetSize(const Vector2I& value)
+        uint16_t GetHeight() const
         {
-            size = value;
-            data = std::vector<uint8_t>(size.x * size.y * 4, 0);
+            return height;
         }
 
-        Color GetPixel(const Vector2I& pos) const
+        Color GetPixel(const uint16_t x, const uint16_t y) const
         {
-            const size_t index = (pos.y * static_cast<size_t>(size.x) + pos.x) * GetChannelsCount();
+            const size_t index = (y * static_cast<size_t>(width) + x) * GetChannelsCount();
 
             switch (format)
             {
@@ -99,9 +105,9 @@ namespace pluto
             return Color::CLEAR;
         }
 
-        void SetPixel(const Vector2I& pos, const Color& value)
+        void SetPixel(const uint16_t x, const uint16_t y, const Color& value)
         {
-            const size_t index = (pos.y * static_cast<size_t>(size.x) + pos.x) * GetChannelsCount();
+            const size_t index = (y * static_cast<size_t>(width) + x) * GetChannelsCount();
             switch (format)
             {
             case Format::Alpha8:
@@ -124,6 +130,7 @@ namespace pluto
 
         std::vector<Color> GetPixels() const
         {
+            // TODO: Check for possible division by zero when format is not true color.
             std::vector<Color> buffer(data.size() / GetChannelsCount());
             switch (format)
             {
@@ -151,6 +158,7 @@ namespace pluto
 
         void SetPixels(const std::vector<Color>& value)
         {
+            // TODO: Check for value size, must be the same size as width times height.
             switch (format)
             {
             case Format::Alpha8:
@@ -189,11 +197,6 @@ namespace pluto
             return format;
         }
 
-        void SetFormat(const Format value)
-        {
-            format = value;
-        }
-
         Filter GetFilter() const
         {
             return filter;
@@ -211,11 +214,10 @@ namespace pluto
 
         void Clone(const Impl& other)
         {
+            // TODO: Validate size and formats.
             name = other.name;
-            size = other.size;
             data = other.data;
             wrap = other.wrap;
-            format = other.format;
             filter = other.filter;
         }
 
@@ -245,13 +247,19 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<TextureAsset> TextureAsset::Factory::Create() const
+    std::unique_ptr<TextureAsset> TextureAsset::Factory::Create(const uint16_t width, const uint16_t height) const
+    {
+        return Create(width, height, Format::Default);
+    }
+
+    std::unique_ptr<TextureAsset> TextureAsset::Factory::Create(const uint16_t width, const uint16_t height,
+                                                                const Format format) const
     {
         const auto& textureBufferFactory = diContainer.GetSingleton<TextureBuffer::Factory>();
         auto textureBuffer = textureBufferFactory.Create();
 
         auto textureAsset = std::make_unique<TextureAsset>(
-            std::make_unique<Impl>(Guid::New(), std::move(textureBuffer)));
+            std::make_unique<Impl>(Guid::New(), width, height, format, std::move(textureBuffer)));
 
         textureAsset->impl->Init(*textureAsset);
 
@@ -260,14 +268,14 @@ namespace pluto
 
     std::unique_ptr<TextureAsset> TextureAsset::Factory::Create(const TextureAsset& original) const
     {
-        auto textureAsset = Create();
+        auto textureAsset = Create(original.GetWidth(), original.GetHeight(), original.GetFormat());
         textureAsset->Clone(original);
         return textureAsset;
     }
 
     std::unique_ptr<TextureAsset> TextureAsset::Factory::Create(FileReader& fileReader) const
     {
-        return Create();
+        return nullptr;
     }
 
     TextureAsset::TextureAsset(std::unique_ptr<Impl> impl) : impl(std::move(impl))
@@ -305,24 +313,24 @@ namespace pluto
         return impl->Data();
     }
 
-    const Vector2I& TextureAsset::GetSize() const
+    uint16_t TextureAsset::GetWidth() const
     {
-        return impl->GetSize();
+        return impl->GetWidth();
     }
 
-    void TextureAsset::SetSize(const Vector2I& value)
+    uint16_t TextureAsset::GetHeight() const
     {
-        impl->SetSize(value);
+        return impl->GetHeight();
     }
 
-    Color TextureAsset::GetPixel(const Vector2I& pos) const
+    Color TextureAsset::GetPixel(uint16_t x, uint16_t y) const
     {
-        return impl->GetPixel(pos);
+        return impl->GetPixel(x, y);
     }
 
-    void TextureAsset::SetPixel(const Vector2I& pos, const Color& value)
+    void TextureAsset::SetPixel(uint16_t x, uint16_t y, const Color& value)
     {
-        impl->SetPixel(pos, value);
+        return impl->SetPixel(x, y, value);
     }
 
     std::vector<Color> TextureAsset::GetPixels() const
@@ -348,11 +356,6 @@ namespace pluto
     TextureAsset::Format TextureAsset::GetFormat() const
     {
         return impl->GetFormat();
-    }
-
-    void TextureAsset::SetFormat(const Format value)
-    {
-        impl->SetFormat(value);
     }
 
     TextureAsset::Filter TextureAsset::GetFilter() const

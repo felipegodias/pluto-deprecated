@@ -68,8 +68,6 @@ namespace pluto
 
             const GLint format = FORMATS[static_cast<int>(textureAsset.GetFormat())];
 
-            const Vector2I& size = textureAsset.GetSize();
-
             std::vector<uint8_t> data = textureAsset.Data();
 
             int channelCount = 0;
@@ -87,19 +85,21 @@ namespace pluto
             default: ;
             }
 
-            const int bytesPerLine = size.x * channelCount;
-            const int halfHeight = size.y / 2;
+            const uint16_t width = textureAsset.GetWidth();
+            const uint16_t height = textureAsset.GetHeight();
+            const int bytesPerLine = width * channelCount;
+            const int halfHeight = height / 2;
             for (int i = 0; i < bytesPerLine; ++i)
             {
                 for (int j = 0; j < halfHeight; ++j)
                 {
                     const int topDownIndex = j * bytesPerLine + i;
-                    const int bottomUpIndex = (size.y - j - 1) * bytesPerLine + i;
+                    const int bottomUpIndex = (height - j - 1) * bytesPerLine + i;
                     std::swap(data[topDownIndex], data[bottomUpIndex]);
                 }
             }
 
-            GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, format, size.x, size.y, 0, format, GL_UNSIGNED_BYTE, data.data()));
+            GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data.data()));
 
             GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
         }

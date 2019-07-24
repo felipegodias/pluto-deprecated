@@ -66,7 +66,8 @@ namespace pluto
         {
         public:
             explicit Factory(DiContainer& diContainer);
-            std::unique_ptr<TextureAsset> Create() const;
+            std::unique_ptr<TextureAsset> Create(uint16_t width, uint16_t height) const;
+            std::unique_ptr<TextureAsset> Create(uint16_t width, uint16_t height, Format format) const;
             std::unique_ptr<TextureAsset> Create(const TextureAsset& original) const;
             std::unique_ptr<TextureAsset> Create(FileReader& fileReader) const;
         };
@@ -91,11 +92,11 @@ namespace pluto
 
         std::vector<uint8_t> Data();
 
-        const Vector2I& GetSize() const;
-        void SetSize(const Vector2I& value);
+        uint16_t GetWidth() const;
+        uint16_t GetHeight() const;
 
-        Color GetPixel(const Vector2I& pos) const;
-        void SetPixel(const Vector2I& pos, const Color& value);
+        Color GetPixel(uint16_t x, uint16_t y) const;
+        void SetPixel(uint16_t x, uint16_t y, const Color& value);
 
         std::vector<Color> GetPixels() const;
         void SetPixels(const std::vector<Color>& value) const;
@@ -104,7 +105,6 @@ namespace pluto
         void SetWrap(Wrap value);
 
         Format GetFormat() const;
-        void SetFormat(Format value);
 
         Filter GetFilter() const;
         void SetFilter(Filter value);
