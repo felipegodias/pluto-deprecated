@@ -9,12 +9,11 @@ namespace pluto
 {
     class PLUTO_API Path
     {
-    private:
         class Impl;
         std::unique_ptr<Impl> impl;
 
     public:
-        explicit Path(std::string path);
+        explicit Path(const std::string& path);
 
         Path(const Path& other);
         Path(Path&& other) noexcept;
@@ -32,6 +31,8 @@ namespace pluto
         bool HasExtension() const;
         std::string GetExtension() const;
         Path GetDirectory() const;
+
+        Path GetRelativePath(const Path& directoryPath);
 
         std::string Str() const;
 

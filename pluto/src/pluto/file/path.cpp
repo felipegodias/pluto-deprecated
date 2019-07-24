@@ -7,14 +7,14 @@ namespace pluto
 {
     class Path::Impl
     {
-    private:
         std::filesystem::path path;
 
     public:
-        explicit Impl(std::string pathStr)
+        explicit Impl(const std::string& pathStr)
         {
-            std::replace(pathStr.begin(), pathStr.end(), '\\', '/');
-            path = std::filesystem::path(std::move(pathStr));
+            std::string p = pathStr;
+            std::replace(p.begin(), p.end(), '\\', '/');
+            path = std::filesystem::path(p);
         }
 
         explicit Impl(std::filesystem::path path) : path(std::move(path))
@@ -46,6 +46,13 @@ namespace pluto
             return Path(path.parent_path().string());
         }
 
+        Path GetRelativePath(const Path& directoryPath)
+        {
+            const std::filesystem::path base(directoryPath.Str());
+            const std::filesystem::path path = relative(this->path, base);
+            return Path(path.string());
+        }
+
         std::string Str() const
         {
             return path.string();
@@ -67,7 +74,7 @@ namespace pluto
         }
     };
 
-    Path::Path(std::string path) : impl(std::make_unique<Impl>(std::move(path)))
+    Path::Path(const std::string& path) : impl(std::make_unique<Impl>(path))
     {
     }
 
@@ -132,6 +139,11 @@ namespace pluto
     Path Path::GetDirectory() const
     {
         return impl->GetDirectory();
+    }
+
+    Path Path::GetRelativePath(const Path& directoryPath)
+    {
+        return impl->GetRelativePath(directoryPath);
     }
 
     std::string Path::Str() const
