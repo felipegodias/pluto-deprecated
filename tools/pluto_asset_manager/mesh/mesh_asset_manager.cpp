@@ -20,6 +20,7 @@
 #include <fstream>
 #include <sstream>
 #include <unordered_map>
+#include <iostream>
 
 namespace pluto
 {
@@ -32,9 +33,9 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<MeshAsset> MeshAssetManager::Create(const Path& path)
+    std::unique_ptr<MeshAsset> MeshAssetManager::Create(const Path& inputPath, const Path& outputDir)
     {
-        Path plutoFilePath = path;
+        Path plutoFilePath = inputPath;
         plutoFilePath.ChangeExtension(plutoFilePath.GetExtension() + ".pluto");
         if (!fileManager->Exists(plutoFilePath))
         {
@@ -44,7 +45,7 @@ namespace pluto
         YAML::Node plutoFile = YAML::LoadFile(plutoFilePath.Str());
         Guid guid(plutoFile["guid"].as<std::string>());
 
-        auto fr = fileManager->OpenRead(path);
+        auto fr = fileManager->OpenRead(inputPath);
 
         std::vector<Vector3F> filePositions;
         std::vector<Vector2F> fileUVs;
@@ -119,13 +120,17 @@ namespace pluto
         auto meshAsset = factory.Create();
 
         // Evil, I know. But it's better than expose the guid to changes directly.
-        Guid& shaderGuid = const_cast<Guid&>(meshAsset->GetId());
-        shaderGuid = guid;
+        const_cast<Guid&>(meshAsset->GetId()) = guid;
 
-        meshAsset->SetName(path.GetNameWithoutExtension());
+        meshAsset->SetName(inputPath.GetNameWithoutExtension());
         meshAsset->SetPositions(std::move(positions));
         meshAsset->SetUVs(std::move(uvs));
         meshAsset->SetTriangles(std::move(triangles));
+
+        const auto fileWriter = fileManager->OpenWrite(Path(outputDir.Str() + "/" + meshAsset->GetId().Str()));
+        meshAsset->Dump(*fileWriter);
+        std::cout << "Asset \"" << meshAsset->GetName() << "\" saved with id " << meshAsset->GetId() << "."
+            << std::endl;
         return meshAsset;
     }
 

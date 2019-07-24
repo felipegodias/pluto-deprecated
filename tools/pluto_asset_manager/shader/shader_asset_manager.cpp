@@ -4,6 +4,7 @@
 #include <pluto/di/di_container.h>
 #include <pluto/asset/shader_asset.h>
 #include <pluto/file/file_reader.h>
+#include <pluto/file/file_writer.h>
 #include <pluto/file/file_manager.h>
 #include <pluto/file/path.h>
 
@@ -15,6 +16,7 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 namespace pluto
 {
@@ -296,9 +298,9 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<ShaderAsset> ShaderAssetManager::Create(const Path& path)
+    std::unique_ptr<ShaderAsset> ShaderAssetManager::Create(const Path& inputPath, const Path& outputDir)
     {
-        Path plutoFilePath = path;
+        Path plutoFilePath = inputPath;
         plutoFilePath.ChangeExtension(plutoFilePath.GetExtension() + ".pluto");
         if (!fileManager->Exists(plutoFilePath))
         {
@@ -308,7 +310,7 @@ namespace pluto
         YAML::Node plutoFile = YAML::LoadFile(plutoFilePath.Str());
         Guid guid(plutoFile["guid"].as<std::string>());
 
-        auto fr = fileManager->OpenRead(path);
+        auto fr = fileManager->OpenRead(inputPath);
         const ShaderFileData shaderData = ParseShader(fr->GetStream());
 
         const GLuint programId = CreateShader(shaderData.vertex, shaderData.frag);
@@ -330,12 +332,11 @@ namespace pluto
         auto shaderAsset = shaderAssetFactory->Create();
 
         // Evil, I know. But it's better than expose the guid to changes directly.
-        Guid& shaderGuid = const_cast<Guid&>(shaderAsset->GetId());
-        shaderGuid = guid;
+        const_cast<Guid&>(shaderAsset->GetId()) = guid;
 
         std::string ss = shaderAsset->GetId().Str();
 
-        shaderAsset->SetName(path.GetNameWithoutExtension());
+        shaderAsset->SetName(inputPath.GetNameWithoutExtension());
         shaderAsset->SetBlendFunction(blend);
         shaderAsset->SetSrcBlendFactor(blendSrc);
         shaderAsset->SetDstBlendFactor(blendDst);
@@ -344,6 +345,11 @@ namespace pluto
         shaderAsset->SetProperties(std::move(uniforms));
         shaderAsset->SetBinaryFormat(binFormat);
         shaderAsset->SetBinary(std::move(programBinary));
+
+        const auto fileWriter = fileManager->OpenWrite(Path(outputDir.Str() + "/" + shaderAsset->GetId().Str()));
+        shaderAsset->Dump(*fileWriter);
+        std::cout << "Asset \"" << shaderAsset->GetName() << "\" saved with id " << shaderAsset->GetId() << "."
+            << std::endl;
 
         return shaderAsset;
     }

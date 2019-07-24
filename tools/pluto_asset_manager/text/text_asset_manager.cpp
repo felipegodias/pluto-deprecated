@@ -2,12 +2,15 @@
 
 #include <pluto/asset/text_asset.h>
 #include <pluto/file/file_reader.h>
+#include <pluto/file/file_writer.h>
 #include <pluto/file/file_manager.h>
 #include <pluto/file/path.h>
 #include <pluto/guid.h>
 
-#include <filesystem>
 #include <yaml-cpp/yaml.h>
+
+#include <filesystem>
+#include <iostream>
 
 namespace pluto
 {
@@ -20,9 +23,9 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<TextAsset> TextAssetManager::Create(const Path& path)
+    std::unique_ptr<TextAsset> TextAssetManager::Create(const Path& inputPath, const Path& outputDir)
     {
-        Path plutoFilePath = path;
+        Path plutoFilePath = inputPath;
         plutoFilePath.ChangeExtension(plutoFilePath.GetExtension() + ".pluto");
         if (!fileManager->Exists(plutoFilePath))
         {
@@ -32,18 +35,22 @@ namespace pluto
         YAML::Node plutoFile = YAML::LoadFile(plutoFilePath.Str());
         Guid guid(plutoFile["guid"].as<std::string>());
 
-        const auto fr = fileManager->OpenRead(path);
+        const auto fr = fileManager->OpenRead(inputPath);
         const std::string fileContent{
             std::istreambuf_iterator<char>(fr->GetStream()), std::istreambuf_iterator<char>()
         };
 
         auto textAsset = textAssetFactory->Create();
-        textAsset->SetName(path.GetNameWithoutExtension());
+        textAsset->SetName(inputPath.GetNameWithoutExtension());
         textAsset->SetText(fileContent);
 
         // Evil, I know. But it's better than expose the guid to changes directly.
-        Guid& shaderGuid = const_cast<Guid&>(textAsset->GetId());
-        shaderGuid = guid;
+        const_cast<Guid&>(textAsset->GetId()) = guid;
+
+        const auto fileWriter = fileManager->OpenWrite(Path(outputDir.Str() + "/" + textAsset->GetId().Str()));
+        textAsset->Dump(*fileWriter);
+        std::cout << "Asset \"" << textAsset->GetName() << "\" saved with id " << textAsset->GetId() << "."
+            << std::endl;
 
         return textAsset;
     }

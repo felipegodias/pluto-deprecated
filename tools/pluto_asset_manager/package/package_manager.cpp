@@ -58,15 +58,15 @@ namespace pluto
             std::unique_ptr<Asset> asset = nullptr;
             if (fileExtension == ".glsl")
             {
-                asset = shaderAssetManager->Create(file);
+                asset = shaderAssetManager->Create(file, outputDir);
             }
             else if (fileExtension == ".obj")
             {
-                asset = meshAssetManager->Create(file);
+                asset = meshAssetManager->Create(file, outputDir);
             }
             else if (fileExtension == ".txt")
             {
-                asset = textAssetManager->Create(file);
+                asset = textAssetManager->Create(file, outputDir);
             }
             else if (fileExtension == ".png")
             {
@@ -76,10 +76,6 @@ namespace pluto
             if (asset != nullptr)
             {
                 packageManifest->AddAsset(file.GetRelativePath(path).Str(), asset->GetId());
-                //const auto fileWriter = fileManager->OpenWrite(Path(path.GetName() + "/" + asset->GetId().Str()));
-                //asset->Dump(*fileWriter);
-                //std::cout << "Asset \"" << asset->GetName() << "\" saved with id " << asset->GetId() << "." << std::
-                //    endl;
             }
         }
 

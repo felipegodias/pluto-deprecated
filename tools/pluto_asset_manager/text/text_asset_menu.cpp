@@ -40,9 +40,8 @@ namespace pluto
         std::string input;
         std::cin >> input;
 
-        const auto textAsset = textAssetManager->Create(Path(input));
-        const Path path(input);
-        DumpAsset(path.GetDirectory(), *textAsset);
+        const Path inputPath(input);
+        const auto textAsset = textAssetManager->Create(inputPath, inputPath.GetDirectory());
     }
 
     void TextAssetMenu::OnManageTextOptionSelected()

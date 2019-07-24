@@ -23,7 +23,7 @@ namespace pluto
         TextAssetManager& operator=(const TextAssetManager& rhs) = delete;
         TextAssetManager& operator=(TextAssetManager&& rhs) noexcept = delete;
 
-        std::unique_ptr<TextAsset> Create(const Path& path);
+        std::unique_ptr<TextAsset> Create(const Path& inputPath, const Path& outputDir);
         std::unique_ptr<TextAsset> Load(const Path& path);
     };
 }

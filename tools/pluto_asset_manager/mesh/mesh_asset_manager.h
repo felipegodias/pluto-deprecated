@@ -24,7 +24,7 @@ namespace pluto
         MeshAssetManager& operator=(const MeshAssetManager& rhs) = delete;
         MeshAssetManager& operator=(MeshAssetManager&& rhs) noexcept = delete;
 
-        std::unique_ptr<MeshAsset> Create(const Path& path);
+        std::unique_ptr<MeshAsset> Create(const Path& inputPath, const Path& outputDir);
         std::unique_ptr<MeshAsset> Load(const Path& path);
     };
 }

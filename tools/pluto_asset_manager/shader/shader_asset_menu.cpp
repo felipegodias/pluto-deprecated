@@ -111,9 +111,8 @@ namespace pluto
         std::string input;
         std::cin >> input;
 
-        const Path path(input);
-        const auto shaderAsset = shaderAssetManager->Create(path);
-        DumpAsset(path.GetDirectory(), *shaderAsset);
+        const Path inputPath(input);
+        const auto shaderAsset = shaderAssetManager->Create(inputPath, inputPath.GetDirectory());
     }
 
     void ShaderAssetMenu::OnManageShaderOptionSelected()

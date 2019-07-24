@@ -57,7 +57,7 @@ namespace pluto
         uint8_t* bytes = stbi_load(inputPath.Str().c_str(), &width, &height, &channels, 0);
 
         auto textureAsset = textureAssetFactory->Create(width, height, GetTrueColorTextureFormat(channels));
-        textureAsset->SetName(inputPath.GetName());
+        textureAsset->SetName(inputPath.GetNameWithoutExtension());
 
         std::vector<Color> colors;
         for (int i = 0; i < width * height * channels; i += channels)

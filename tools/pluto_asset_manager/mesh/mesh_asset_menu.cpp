@@ -47,9 +47,8 @@ namespace pluto
         std::string input;
         std::cin >> input;
 
-        const Path path(input);
-        const auto shaderAsset = meshAssetManager->Create(path);
-        DumpAsset(path.GetDirectory(), *shaderAsset);
+        const Path inputPath(input);
+        const auto shaderAsset = meshAssetManager->Create(inputPath, inputPath.GetDirectory());
     }
 
     void MeshAssetMenu::OnManageMeshOptionSelected()

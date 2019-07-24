@@ -23,7 +23,7 @@ namespace pluto
         ShaderAssetManager& operator=(const ShaderAssetManager& rhs) = delete;
         ShaderAssetManager& operator=(ShaderAssetManager&& rhs) noexcept = delete;
 
-        std::unique_ptr<ShaderAsset> Create(const Path& path);
+        std::unique_ptr<ShaderAsset> Create(const Path& inputPath, const Path& outputDir);
         std::unique_ptr<ShaderAsset> Load(const Path& path);
     };
 }
