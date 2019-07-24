@@ -16,9 +16,8 @@ namespace pluto
 {
     MeshAssetMenu::~MeshAssetMenu() = default;
 
-    MeshAssetMenu::MeshAssetMenu(const std::function<void()>& backCallback) :
-        meshAssetManager(std::make_unique<MeshAssetManager>()),
-        mainMenu("Mesh Asset"), manageMenu("Manage Mesh Asset")
+    MeshAssetMenu::MeshAssetMenu(MeshAssetManager& meshAssetManager, const std::function<void()>& backCallback) :
+        meshAssetManager(&meshAssetManager), mainMenu("Mesh Asset"), manageMenu("Manage Mesh Asset")
     {
         mainMenu.AddOption(0, "Cancel", backCallback);
         mainMenu.AddOption(1, "Create", std::bind(&MeshAssetMenu::OnCreateMeshOptionSelected, this));

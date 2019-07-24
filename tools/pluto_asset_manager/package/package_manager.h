@@ -1,13 +1,20 @@
 #pragma once
 
-#include <string>
 #include <memory>
 
 namespace pluto
 {
+    class DiContainer;
     class PackageManifestAsset;
-    class Guid;
+    class Path;
 
-    void CreatePackage(const std::string& path);
-    std::unique_ptr<PackageManifestAsset> LoadPackageManifest(const Guid& guid);
+    class PackageManager
+    {
+        DiContainer* diContainer;
+
+    public:
+        explicit PackageManager(DiContainer& diContainer);
+
+        std::unique_ptr<PackageManifestAsset> Create(const Path& path);
+    };
 }

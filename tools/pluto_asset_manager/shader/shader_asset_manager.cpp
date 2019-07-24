@@ -3,9 +3,7 @@
 #include <pluto/guid.h>
 #include <pluto/di/di_container.h>
 #include <pluto/asset/shader_asset.h>
-#include <pluto/render/gl/gl_shader_program.h>
 #include <pluto/file/file_reader.h>
-#include <pluto/file/file_writer.h>
 #include <pluto/file/file_manager.h>
 #include <pluto/file/path.h>
 
@@ -90,7 +88,6 @@ namespace pluto
 
     ShaderFileData ParseShader(std::istream& is)
     {
-
         std::string line;
         int state = 0;
         ShaderFileData shaderData;
@@ -315,22 +312,18 @@ namespace pluto
 
     ShaderAssetManager::~ShaderAssetManager() = default;
 
-    ShaderAssetManager::ShaderAssetManager() : diContainer(std::make_unique<DiContainer>())
+    ShaderAssetManager::
+    ShaderAssetManager(FileManager& fileManager, ShaderAsset::Factory& shaderAssetFactory) : fileManager(&fileManager),
+                                                                                             shaderAssetFactory(
+                                                                                                 &shaderAssetFactory)
     {
-        diContainer->AddSingleton(std::make_unique<FileReader::Factory>(*diContainer));
-        diContainer->AddSingleton(std::make_unique<FileWriter::Factory>(*diContainer));
-
-        const FileManager::Factory fileManagerFactory(*diContainer);
-        diContainer->AddSingleton(fileManagerFactory.Create(Path(std::filesystem::current_path().string())));
-        diContainer->AddSingleton<ShaderProgram::Factory>(std::make_unique<GlShaderProgram::Factory>(*diContainer));
-        diContainer->AddSingleton(std::make_unique<ShaderAsset::Factory>(*diContainer));
     }
 
     std::unique_ptr<ShaderAsset> ShaderAssetManager::Create(const Path& path)
     {
         Path plutoFilePath = path;
         plutoFilePath.ChangeExtension(plutoFilePath.GetExtension() + ".pluto");
-        if (!diContainer->GetSingleton<FileManager>().Exists(plutoFilePath))
+        if (!fileManager->Exists(plutoFilePath))
         {
             throw std::runtime_error("Pluto file not found at " + plutoFilePath.Str());
         }
@@ -338,7 +331,7 @@ namespace pluto
         YAML::Node plutoFile = YAML::LoadFile(plutoFilePath.Str());
         Guid guid(plutoFile["guid"].as<std::string>());
 
-        auto fr = diContainer->GetSingleton<FileManager>().OpenRead(path);
+        auto fr = fileManager->OpenRead(path);
         const ShaderFileData shaderData = ParseShader(fr->GetStream());
 
         InitGl();
@@ -359,7 +352,7 @@ namespace pluto
         glDeleteProgram(programId);
         glfwTerminate();
 
-        auto shaderAsset = diContainer->GetSingleton<ShaderAsset::Factory>().Create();
+        auto shaderAsset = shaderAssetFactory->Create();
 
         // Evil, I know. But it's better than expose the guid to changes directly.
         Guid& shaderGuid = const_cast<Guid&>(shaderAsset->GetId());
@@ -382,8 +375,8 @@ namespace pluto
 
     std::unique_ptr<ShaderAsset> ShaderAssetManager::Load(const Path& path)
     {
-        const auto fileReader = diContainer->GetSingleton<FileManager>().OpenRead(path);
-        auto shaderAsset = diContainer->GetSingleton<ShaderAsset::Factory>().Create(*fileReader);
+        const auto fileReader = fileManager->OpenRead(path);
+        auto shaderAsset = shaderAssetFactory->Create(*fileReader);
         return shaderAsset;
     }
 }

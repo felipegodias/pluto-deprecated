@@ -1,20 +1,23 @@
 #pragma once
 
+#include <pluto/asset/mesh_asset.h>
+
 #include <memory>
-#include <pluto/di/di_container.h>
 
 namespace pluto
 {
-    class MeshAsset;
+    class FileManager;
+
     class Path;
 
     class MeshAssetManager
     {
-        std::unique_ptr<DiContainer> diContainer;
+        FileManager* fileManager;
+        MeshAsset::Factory* meshAssetFactory;
 
     public:
         ~MeshAssetManager();
-        MeshAssetManager();
+        MeshAssetManager(FileManager& fileManager, MeshAsset::Factory& meshAssetFactory);
 
         MeshAssetManager(const MeshAssetManager& other) = delete;
         MeshAssetManager(MeshAssetManager&& other) noexcept = delete;

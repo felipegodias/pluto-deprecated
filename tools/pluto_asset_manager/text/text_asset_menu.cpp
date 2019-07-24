@@ -12,8 +12,8 @@ namespace pluto
 {
     TextAssetMenu::~TextAssetMenu() = default;
 
-    TextAssetMenu::TextAssetMenu(const std::function<void()>& backCallback) :
-        textAssetManager(std::make_unique<TextAssetManager>()),
+    TextAssetMenu::TextAssetMenu(TextAssetManager& textAssetManager, const std::function<void()>& backCallback) :
+        textAssetManager(&textAssetManager),
         mainMenu("Text Asset"), manageMenu("Manage Text Asset")
     {
         mainMenu.AddOption(0, "Cancel", backCallback);

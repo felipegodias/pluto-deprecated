@@ -25,22 +25,18 @@ namespace pluto
 {
     MeshAssetManager::~MeshAssetManager() = default;
 
-    MeshAssetManager::MeshAssetManager() : diContainer(std::make_unique<DiContainer>())
+    MeshAssetManager::
+    MeshAssetManager(FileManager& fileManager, MeshAsset::Factory& meshAssetFactory) : fileManager(&fileManager),
+                                                                                       meshAssetFactory(
+                                                                                           &meshAssetFactory)
     {
-        diContainer->AddSingleton(std::make_unique<FileReader::Factory>(*diContainer));
-        diContainer->AddSingleton(std::make_unique<FileWriter::Factory>(*diContainer));
-
-        const FileManager::Factory fileManagerFactory(*diContainer);
-        diContainer->AddSingleton(fileManagerFactory.Create(Path(std::filesystem::current_path().string())));
-        diContainer->AddSingleton<MeshBuffer::Factory>(std::make_unique<GlMeshBuffer::Factory>(*diContainer));
-        diContainer->AddSingleton(std::make_unique<MeshAsset::Factory>(*diContainer));
     }
 
     std::unique_ptr<MeshAsset> MeshAssetManager::Create(const Path& path)
     {
         Path plutoFilePath = path;
         plutoFilePath.ChangeExtension(plutoFilePath.GetExtension() + ".pluto");
-        if (!diContainer->GetSingleton<FileManager>().Exists(plutoFilePath))
+        if (!fileManager->Exists(plutoFilePath))
         {
             throw std::runtime_error("Pluto file not found at " + plutoFilePath.Str());
         }
@@ -48,7 +44,7 @@ namespace pluto
         YAML::Node plutoFile = YAML::LoadFile(plutoFilePath.Str());
         Guid guid(plutoFile["guid"].as<std::string>());
 
-        auto fr = diContainer->GetSingleton<FileManager>().OpenRead(path);
+        auto fr = fileManager->OpenRead(path);
 
         std::vector<Vector3F> filePositions;
         std::vector<Vector2F> fileUVs;
@@ -135,8 +131,8 @@ namespace pluto
 
     std::unique_ptr<MeshAsset> MeshAssetManager::Load(const Path& path)
     {
-        const auto fileReader = diContainer->GetSingleton<FileManager>().OpenRead(path);
-        auto shaderAsset = diContainer->GetSingleton<MeshAsset::Factory>().Create(*fileReader);
+        const auto fileReader = fileManager->OpenRead(path);
+        auto shaderAsset = meshAssetFactory->Create(*fileReader);
         return shaderAsset;
     }
 }

@@ -12,7 +12,7 @@ namespace pluto
 
     class MeshAssetMenu final : public BaseMenu
     {
-        std::unique_ptr<MeshAssetManager> meshAssetManager;
+        MeshAssetManager* meshAssetManager;
         std::unique_ptr<MeshAsset> currentManagedAsset;
 
         MenuOptions* currentMenu;
@@ -21,7 +21,7 @@ namespace pluto
 
     public:
         ~MeshAssetMenu() override;
-        explicit MeshAssetMenu(const std::function<void()>& backCallback);
+        MeshAssetMenu(MeshAssetManager& meshAssetManager, const std::function<void()>& backCallback);
 
         MeshAssetMenu(const MeshAssetMenu& other) = delete;
         MeshAssetMenu(MeshAssetMenu&& other) noexcept = delete;

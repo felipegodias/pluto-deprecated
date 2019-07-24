@@ -12,7 +12,7 @@ namespace pluto
 
     class TextAssetMenu final : public BaseMenu
     {
-        std::unique_ptr<TextAssetManager> textAssetManager;
+        TextAssetManager* textAssetManager;
         std::unique_ptr<TextAsset> currentManagedAsset;
 
         MenuOptions* currentMenu;
@@ -21,7 +21,7 @@ namespace pluto
 
     public:
         ~TextAssetMenu() override;
-        explicit TextAssetMenu(const std::function<void()>& backCallback);
+        TextAssetMenu(TextAssetManager& textAssetManager, const std::function<void()>& backCallback);
 
         TextAssetMenu(const TextAssetMenu& other) = delete;
         TextAssetMenu(TextAssetMenu&& other) noexcept = delete;

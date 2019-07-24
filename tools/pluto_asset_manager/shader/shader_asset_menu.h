@@ -12,7 +12,7 @@ namespace pluto
 
     class ShaderAssetMenu final : public BaseMenu
     {
-        std::unique_ptr<ShaderAssetManager> shaderAssetManager;
+        ShaderAssetManager* shaderAssetManager;
         std::unique_ptr<ShaderAsset> currentManagedAsset;
 
         MenuOptions* currentMenu;
@@ -21,7 +21,7 @@ namespace pluto
 
     public:
         ~ShaderAssetMenu() override;
-        explicit ShaderAssetMenu(const std::function<void()>& backCallback);
+        ShaderAssetMenu(ShaderAssetManager& shaderAssetManager, const std::function<void()>& backCallback);
 
         ShaderAssetMenu(const ShaderAssetMenu& other) = delete;
         ShaderAssetMenu(ShaderAssetMenu&& other) noexcept = delete;

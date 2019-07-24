@@ -71,8 +71,9 @@ namespace pluto
 
     ShaderAssetMenu::~ShaderAssetMenu() = default;
 
-    ShaderAssetMenu::ShaderAssetMenu(const std::function<void()>& backCallback) :
-        shaderAssetManager(std::make_unique<ShaderAssetManager>()),
+    ShaderAssetMenu::ShaderAssetMenu(ShaderAssetManager& shaderAssetManager,
+                                     const std::function<void()>& backCallback) :
+        shaderAssetManager(&shaderAssetManager),
         mainMenu("Shader Asset"), manageMenu("Manage Shader Asset")
     {
         mainMenu.AddOption(0, "Cancel", backCallback);

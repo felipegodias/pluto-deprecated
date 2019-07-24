@@ -1,20 +1,22 @@
 #pragma once
 
+#include <pluto/asset/shader_asset.h>
+
 #include <memory>
-#include <pluto/di/di_container.h>
 
 namespace pluto
 {
-    class ShaderAsset;
+    class FileManager;
     class Path;
 
     class ShaderAssetManager
     {
-        std::unique_ptr<DiContainer> diContainer;
+        FileManager* fileManager;
+        ShaderAsset::Factory* shaderAssetFactory;
 
     public:
         ~ShaderAssetManager();
-        ShaderAssetManager();
+        ShaderAssetManager(FileManager& fileManager, ShaderAsset::Factory& shaderAssetFactory);
 
         ShaderAssetManager(const ShaderAssetManager& other) = delete;
         ShaderAssetManager(ShaderAssetManager&& other) noexcept = delete;
