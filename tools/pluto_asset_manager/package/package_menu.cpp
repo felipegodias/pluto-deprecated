@@ -2,52 +2,37 @@
 
 #include "package_manager.h"
 
+#include <pluto/file/path.h>
+
 #include <iostream>
 
 namespace pluto
 {
-    void PrintPackageMenu()
+    PackageMenu::PackageMenu(PackageManager& packageManager, const std::function<void()>& backCallback) :
+        packageManager(
+            &packageManager),
+        mainMenu(MenuOptions(
+            "Package"))
     {
-        std::cout << std::endl;
-        std::cout << "*** Package ***" << std::endl;
-        std::cout << "1: Create    2: Load    0: Exit" << std::endl;
-        std::cout << std::endl;
+        mainMenu.AddOption(0, "Cancel", backCallback);
+        mainMenu.AddOption(1, "Create", std::bind(&PackageMenu::OnCreatePackageOptionSelected, this));
+
+        currentMenu = &mainMenu;
     }
 
-    void CreatePackageMenu()
+    const MenuOptions& PackageMenu::GetCurrentMenuOptions() const
     {
-        std::cout << std::endl;
-        std::cout << "*** Create Package ***" << std::endl;
-        std::cout << "Enter the package folder path: ";
-        std::string filePath;
-        std::cin >> filePath;
-
-        //CreatePackage(filePath);
+        return *currentMenu;
     }
 
-    void PackageMenu()
+    void PackageMenu::OnCreatePackageOptionSelected()
     {
-        int option = 0;
-        do
-        {
-            PrintPackageMenu();
-            std::cout << "Option: ";
-            std::cin >> option;
-            switch (option)
-            {
-            case 0:
-                break;
-            case 1:
-                CreatePackageMenu();
-                break;
-            case 2:
-                //LoadMeshMenu();
-                break;
-            default:
-                std::cout << "Invalid option." << std::endl;
-                break;
-            }
-        }
-        while (option != 0);
+        std::cout << "Enter the package directory path: ";
+        std::string input;
+        std::cin >> input;
+
+        Path path(input);
+        packageManager->Create(path);
+        std::cout << "" << std::endl;
     }
 }

@@ -4,6 +4,8 @@
 #include "mesh/mesh_asset_menu.h"
 #include "shader/shader_asset_manager.h"
 #include "shader/shader_asset_menu.h"
+#include "package/package_manager.h"
+#include "package/package_menu.h"
 
 #include "base_menu.h"
 #include "menu_options.h"
@@ -35,10 +37,12 @@ namespace pluto
         std::unique_ptr<TextAssetManager> textAssetManager;
         std::unique_ptr<MeshAssetManager> meshAssetManager;
         std::unique_ptr<ShaderAssetManager> shaderAssetManager;
+        std::unique_ptr<PackageManager> packageManager;
 
         std::unique_ptr<TextAssetMenu> textAssetMenu;
         std::unique_ptr<MeshAssetMenu> meshAssetMenu;
         std::unique_ptr<ShaderAssetMenu> shaderAssetMenu;
+        std::unique_ptr<PackageMenu> packageMenu;
 
         BaseMenu* currentMenu;
         MenuOptions mainMenu;
@@ -63,9 +67,18 @@ namespace pluto
             ShaderAsset::Factory& shaderAssetFactory = diContainer->AddSingleton(
                 std::make_unique<ShaderAsset::Factory>(*diContainer));
 
+            PackageManifestAsset::Factory& packageManifestAssetFactory = diContainer->AddSingleton(
+                std::make_unique<PackageManifestAsset::Factory>(*diContainer));
+
             textAssetManager = std::make_unique<TextAssetManager>(fileManager, textAssetFactory);
             meshAssetManager = std::make_unique<MeshAssetManager>(fileManager, meshAssetFactory);
             shaderAssetManager = std::make_unique<ShaderAssetManager>(fileManager, shaderAssetFactory);
+
+            packageManager = std::make_unique<PackageManager>(fileManager, packageManifestAssetFactory,
+                                                              *textAssetManager, *meshAssetManager,
+                                                              *shaderAssetManager);
+
+            packageMenu = std::make_unique<PackageMenu>(*packageManager, std::bind(&MainMenu::SetMainAsCurrent, this));
 
             textAssetMenu = std::make_unique<TextAssetMenu>(*textAssetManager,
                                                             std::bind(&MainMenu::SetMainAsCurrent, this));
@@ -78,6 +91,9 @@ namespace pluto
             {
                 exit(0);
             });
+
+            mainMenu.AddOption(static_cast<int>(Asset::Type::PackageManifest), "Package",
+                               std::bind(&MainMenu::SetPackageAsCurrentContext, this));
 
             mainMenu.AddOption(static_cast<int>(Asset::Type::Text), "Texts",
                                std::bind(&MainMenu::SetTextAsCurrentContext, this));
@@ -96,6 +112,11 @@ namespace pluto
         void SetMainAsCurrent()
         {
             currentMenu = this;
+        }
+
+        void SetPackageAsCurrentContext()
+        {
+            currentMenu = packageMenu.get();
         }
 
         void SetTextAsCurrentContext()

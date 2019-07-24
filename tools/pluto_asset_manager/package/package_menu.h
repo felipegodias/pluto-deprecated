@@ -14,17 +14,12 @@ namespace pluto
     class PackageMenu final : public BaseMenu
     {
         PackageManager* packageManager;
-        TextAssetManager* textAssetManager;
-        MeshAssetManager* meshAssetManager;
-        ShaderAssetManager* shaderAssetManager;
 
         MenuOptions* currentMenu;
         MenuOptions mainMenu;
 
     public:
-        ~PackageMenu() override;
-        PackageMenu(PackageManager& packageManager, TextAssetManager& textAssetManager,
-                    MeshAssetManager& meshAssetManager, ShaderAssetManager& shaderAssetManager,
+        PackageMenu(PackageManager& packageManager,
                     const std::function<void()>& backCallback);
 
         PackageMenu(const PackageMenu& other) = delete;

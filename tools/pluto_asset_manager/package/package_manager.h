@@ -1,20 +1,28 @@
 #pragma once
 
-#include <memory>
+#include <pluto/asset/package_manifest_asset.h>
 
 namespace pluto
 {
-    class DiContainer;
-    class PackageManifestAsset;
     class Path;
+    class FileManager;
+    class TextAssetManager;
+    class MeshAssetManager;
+    class ShaderAssetManager;
 
     class PackageManager
     {
-        DiContainer* diContainer;
+        FileManager* fileManager;
+        PackageManifestAsset::Factory* packageManifestAssetFactory;
+        TextAssetManager* textAssetManager;
+        MeshAssetManager* meshAssetManager;
+        ShaderAssetManager* shaderAssetManager;
 
     public:
-        explicit PackageManager(DiContainer& diContainer);
+        PackageManager(FileManager& fileManager, PackageManifestAsset::Factory& packageManifestAssetFactory,
+                       TextAssetManager& textAssetManager, MeshAssetManager& meshAssetManager,
+                       ShaderAssetManager& shaderAssetManager);
 
-        std::unique_ptr<PackageManifestAsset> Create(const Path& path);
+        void Create(const Path& path);
     };
 }
