@@ -40,13 +40,16 @@ namespace pluto
     public:
         Impl(const FileManager& fileManager, const EventManager& eventManager,
              const PackageManifestAsset::Factory& packageManifestFactory, const TextAsset::Factory& textFactory,
-             const MeshAsset::Factory& meshFactory, const ShaderAsset::Factory& shaderFactory) :
-            fileManager(fileManager), eventManager(eventManager)
+             const MeshAsset::Factory& meshFactory, const ShaderAsset::Factory& shaderFactory,
+             const TextureAsset::Factory& textureFactory)
+            : fileManager(fileManager),
+              eventManager(eventManager)
         {
             factories.emplace(typeid(PackageManifestAsset), packageManifestFactory);
             factories.emplace(typeid(TextAsset), textFactory);
             factories.emplace(typeid(MeshAsset), meshFactory);
             factories.emplace(typeid(ShaderAsset), shaderFactory);
+            factories.emplace(typeid(TextureAsset), textureFactory);
         }
 
         void LoadPackage(const std::string& name)
@@ -186,7 +189,8 @@ namespace pluto
         }
     };
 
-    AssetManager::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    AssetManager::Factory::Factory(DiContainer& diContainer)
+        : BaseFactory(diContainer)
     {
     }
 
@@ -198,12 +202,14 @@ namespace pluto
         const auto& textFactory = diContainer.GetSingleton<TextAsset::Factory>();
         const auto& meshFactory = diContainer.GetSingleton<MeshAsset::Factory>();
         const auto& shaderFactory = diContainer.GetSingleton<ShaderAsset::Factory>();
+        const auto& textureFactory = diContainer.GetSingleton<TextureAsset::Factory>();
         return std::make_unique<AssetManager>(
             std::make_unique<Impl>(fileManager, eventManager, packageManifestFactory, textFactory, meshFactory,
-                                   shaderFactory));
+                                   shaderFactory, textureFactory));
     }
 
-    AssetManager::AssetManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
+    AssetManager::AssetManager(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
     }
 
