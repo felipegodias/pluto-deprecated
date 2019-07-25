@@ -68,6 +68,8 @@ namespace pluto
             explicit Factory(DiContainer& diContainer);
             std::unique_ptr<TextureAsset> Create(uint16_t width, uint16_t height) const;
             std::unique_ptr<TextureAsset> Create(uint16_t width, uint16_t height, Format format) const;
+            std::unique_ptr<TextureAsset> Create(uint16_t width, uint16_t height, Format format,
+                                                 std::vector<uint8_t> data) const;
             std::unique_ptr<TextureAsset> Create(const TextureAsset& original) const;
             std::unique_ptr<TextureAsset> Create(FileReader& fileReader) const;
         };

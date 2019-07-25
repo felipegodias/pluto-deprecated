@@ -4,10 +4,14 @@
 
 #include "pluto/di/di_container.h"
 
+#include "pluto/file/file_writer.h"
+#include "pluto/file/file_reader.h"
+
 #include "pluto/math/color.h"
 #include "pluto/math/vector2i.h"
 
 #include "pluto/guid.h"
+#include "pluto/exception.h"
 
 #include <memory>
 #include <utility>
@@ -22,9 +26,9 @@ namespace pluto
 
         uint16_t width;
         uint16_t height;
+        Format format;
 
         Wrap wrap;
-        Format format;
         Filter filter;
 
         std::unique_ptr<TextureBuffer> textureBuffer;
@@ -34,19 +38,19 @@ namespace pluto
         TextureAsset* instance;
 
     public:
-        explicit Impl(const Guid& guid, const uint16_t width, const uint16_t height, const Format format,
-                      std::unique_ptr<TextureBuffer> textureBuffer) : guid(guid),
-                                                                      width(width),
-                                                                      height(height),
-                                                                      wrap(Wrap::Default),
-                                                                      format(format),
-                                                                      filter(Filter::Default),
-                                                                      textureBuffer(
-                                                                          std::move(textureBuffer)),
-                                                                      instance(nullptr)
+        Impl(const Guid& guid, const uint16_t width, const uint16_t height, const Format format,
+             std::vector<uint8_t> data, std::unique_ptr<TextureBuffer> textureBuffer)
+            : guid(guid),
+              width(width),
+              height(height),
+              format(format),
+              wrap(Wrap::Default),
+              filter(Filter::Default),
+              textureBuffer(std::move(textureBuffer)),
+              data(std::move(data)),
+              instance(nullptr)
 
         {
-            data = std::vector<uint8_t>(width * height * GetChannelsCount(), 0);
         }
 
         void Init(TextureAsset& textureAsset)
@@ -71,6 +75,31 @@ namespace pluto
 
         void Dump(FileWriter& fileWriter) const
         {
+            fileWriter.Write(&Guid::PLUTO_IDENTIFIER, sizeof(Guid));
+            uint8_t serializerVersion = 1;
+            fileWriter.Write(&serializerVersion, sizeof(uint8_t));
+            auto assetType = static_cast<uint8_t>(Type::Texture);
+            fileWriter.Write(&assetType, sizeof(uint8_t));
+            fileWriter.Write(&guid, sizeof(Guid));
+            uint8_t assetNameLength = name.size();
+            fileWriter.Write(&assetNameLength, sizeof(uint8_t));
+            fileWriter.Write(name.data(), assetNameLength);
+
+            fileWriter.Write(&width, sizeof(uint16_t));
+            fileWriter.Write(&height, sizeof(uint16_t));
+
+            auto format = static_cast<uint8_t>(this->format);
+            fileWriter.Write(&format, sizeof(uint8_t));
+
+            auto wrap = static_cast<uint8_t>(this->wrap);
+            fileWriter.Write(&wrap, sizeof(uint8_t));
+
+            auto filter = static_cast<uint8_t>(this->filter);
+            fileWriter.Write(&filter, sizeof(uint8_t));
+
+            uint32_t dataSize = data.size();
+            fileWriter.Write(&dataSize, sizeof(uint32_t));
+            fileWriter.Write(data.data(), dataSize);
         }
 
         std::vector<uint8_t> Data()
@@ -243,7 +272,8 @@ namespace pluto
         }
     };
 
-    TextureAsset::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    TextureAsset::Factory::Factory(DiContainer& diContainer)
+        : BaseFactory(diContainer)
     {
     }
 
@@ -255,13 +285,36 @@ namespace pluto
     std::unique_ptr<TextureAsset> TextureAsset::Factory::Create(const uint16_t width, const uint16_t height,
                                                                 const Format format) const
     {
+        uint8_t bpp = 0;
+        switch (format)
+        {
+        case Format::Alpha8:
+            bpp = 1;
+            break;
+        case Format::RGB24:
+            bpp = 3;
+            break;
+        case Format::RGBA32:
+            bpp = 4;
+            break;
+        default: ;
+        }
+
+        std::vector<uint8_t> data(static_cast<size_t>(width) * height * bpp);
+        return Create(width, height, format, std::move(data));
+    }
+
+    std::unique_ptr<TextureAsset> TextureAsset::Factory::Create(uint16_t width, uint16_t height, Format format,
+                                                                std::vector<uint8_t> data) const
+    {
         const auto& textureBufferFactory = diContainer.GetSingleton<TextureBuffer::Factory>();
         auto textureBuffer = textureBufferFactory.Create();
 
         auto textureAsset = std::make_unique<TextureAsset>(
-            std::make_unique<Impl>(Guid::New(), width, height, format, std::move(textureBuffer)));
+            std::make_unique<Impl>(Guid::New(), width, height, format, std::move(data), std::move(textureBuffer)));
 
         textureAsset->impl->Init(*textureAsset);
+        textureAsset->Apply();
 
         return textureAsset;
     }
@@ -270,15 +323,70 @@ namespace pluto
     {
         auto textureAsset = Create(original.GetWidth(), original.GetHeight(), original.GetFormat());
         textureAsset->Clone(original);
+        textureAsset->Apply();
         return textureAsset;
     }
 
     std::unique_ptr<TextureAsset> TextureAsset::Factory::Create(FileReader& fileReader) const
     {
-        return nullptr;
+        Guid signature;
+        fileReader.Read(&signature, sizeof(Guid));
+
+        if (signature != Guid::PLUTO_IDENTIFIER)
+        {
+            Exception::Throw(
+                std::runtime_error("Trying to load a texture but file signature does not match with pluto."));
+        }
+
+        uint8_t serializerVersion;
+        fileReader.Read(&serializerVersion, sizeof(uint8_t));
+        uint8_t assetType;
+        fileReader.Read(&assetType, sizeof(uint8_t));
+
+        if (assetType != static_cast<uint8_t>(Type::Texture))
+        {
+            Exception::Throw(
+                std::runtime_error("Trying to load a texture but file is not a texture asset."));
+        }
+
+        Guid assetId;
+        fileReader.Read(&assetId, sizeof(Guid));
+        uint8_t assetNameLength;
+        fileReader.Read(&assetNameLength, sizeof(uint8_t));
+        std::string assetName(assetNameLength, ' ');
+        fileReader.Read(assetName.data(), assetNameLength);
+
+        uint16_t width;
+        fileReader.Read(&width, sizeof(uint16_t));
+
+        uint16_t height;
+        fileReader.Read(&height, sizeof(uint16_t));
+
+        uint8_t format;
+        fileReader.Read(&format, sizeof(uint8_t));
+
+        uint8_t wrap;
+        fileReader.Read(&wrap, sizeof(uint8_t));
+
+        uint8_t filter;
+        fileReader.Read(&filter, sizeof(uint8_t));
+
+        uint32_t dataSize;
+        fileReader.Read(&dataSize, sizeof(uint32_t));
+
+        std::vector<uint8_t> data(dataSize);
+        fileReader.Read(data.data(), dataSize);
+
+        auto textureAsset = Create(width, height, static_cast<Format>(format), std::move(data));
+        textureAsset->SetName(assetName);
+        textureAsset->SetWrap(static_cast<Wrap>(wrap));
+        textureAsset->SetFilter(static_cast<Filter>(filter));
+
+        return textureAsset;
     }
 
-    TextureAsset::TextureAsset(std::unique_ptr<Impl> impl) : impl(std::move(impl))
+    TextureAsset::TextureAsset(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
     }
 
