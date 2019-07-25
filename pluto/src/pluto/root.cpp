@@ -147,29 +147,8 @@ namespace pluto
                 meshRenderer.SetMesh(meshAsset);
                 meshRenderer.SetMaterial(*m);
 
-                const auto& textureAssetFactory = diContainer->GetSingleton<TextureAsset::Factory>();
-                auto textureAsset = textureAssetFactory.Create(2, 2, TextureAsset::Format::RGBA32);
-
-                std::vector<Color> colors = {
-                    Color::RED, Color::GREEN,
-                    Color::BLUE, Color::WHITE
-                };
-
-                //std::reverse(colors.begin(), colors.end());
-
-                textureAsset->SetPixels(colors);
-
-                std::cout << textureAsset->GetPixel(0, 0) << std::endl;
-                std::cout << textureAsset->GetPixel(1, 0) << std::endl;
-                std::cout << textureAsset->GetPixel(0, 1) << std::endl;
-                std::cout << textureAsset->GetPixel(1, 1) << std::endl;
-
-                textureAsset->SetWrap(TextureAsset::Wrap::Clamp);
-                textureAsset->SetFilter(TextureAsset::Filter::Point);
-                textureAsset->Apply();
-                m->SetTexture("u_mat.mainTex", *textureAsset);
-
-                assetManager.Register(std::move(textureAsset));
+                auto& textureAsset = assetManager.Load<TextureAsset>(Path("textures/pluto-logo.png"));
+                m->SetTexture("u_mat.mainTex", textureAsset);
             }
 
             int i = 0;
@@ -177,7 +156,6 @@ namespace pluto
             {
                 try
                 {
-                    //m->SetVector4F("u_mat.color", {sinf(i), cosf(i), tanf(i), 1});
                     simulationManager.Run();
                     ++i;
                 }
