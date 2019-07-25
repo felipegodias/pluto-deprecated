@@ -19,6 +19,7 @@ list(APPEND ASSET_MANAGER_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/text/text_asset_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/text/text_asset_menu.cpp
     # ./texture
+    ${CMAKE_CURRENT_SOURCE_DIR}/texture/dummy_texture_buffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/texture/texture_asset_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/texture/texture_asset_menu.cpp
 )

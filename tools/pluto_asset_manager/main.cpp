@@ -4,6 +4,7 @@
 #include "mesh/mesh_asset_menu.h"
 #include "shader/shader_asset_manager.h"
 #include "shader/shader_asset_menu.h"
+#include "texture/dummy_texture_buffer.h"
 #include "texture/texture_asset_manager.h"
 #include "texture/texture_asset_menu.h"
 #include "package/package_manager.h"
@@ -19,7 +20,6 @@
 #include <pluto/asset/shader_asset.h>
 
 #include <pluto/render/gl/gl_mesh_buffer.h>
-#include <pluto/render/gl/gl_texture_buffer.h>
 #include <pluto/render/gl/gl_shader_program.h>
 
 #include <pluto/di/di_container.h>
@@ -59,7 +59,8 @@ namespace pluto
         MenuOptions mainMenu;
 
     public:
-        MainMenu() : mainMenu(MenuOptions("Main Menu"))
+        MainMenu()
+            : mainMenu(MenuOptions("Main Menu"))
         {
             diContainer = std::make_unique<DiContainer>();
             diContainer->AddSingleton(std::make_unique<FileReader::Factory>(*diContainer));
@@ -78,7 +79,8 @@ namespace pluto
             ShaderAsset::Factory& shaderAssetFactory = diContainer->AddSingleton(
                 std::make_unique<ShaderAsset::Factory>(*diContainer));
 
-            diContainer->AddSingleton<TextureBuffer::Factory>(std::make_unique<GlTextureBuffer::Factory>(*diContainer));
+            diContainer->AddSingleton<TextureBuffer::Factory>(std::make_unique<DummyTextureBuffer::Factory>(*diContainer));
+
             TextureAsset::Factory& textureAssetFactory = diContainer->AddSingleton(
                 std::make_unique<TextureAsset::Factory>(*diContainer));
 
