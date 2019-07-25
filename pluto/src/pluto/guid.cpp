@@ -10,6 +10,14 @@ namespace pluto
     static boost::uuids::random_generator uuidRandomGenerator;
     static boost::uuids::string_generator uuidStringGenerator;
 
+    // 82891dbf-3c65-4bbb-99c9-6236ddb5fcfa
+    const Guid Guid::PLUTO_IDENTIFIER = Guid(std::array<uint8_t, 16>({
+        0x82, 0x89, 0x1d, 0xbf,
+        0x3c, 0x65, 0x4b, 0xbb,
+        0x99, 0xc9, 0x62, 0x36,
+        0xdd, 0xb5, 0xfc, 0xfa
+    }));
+
     inline boost::uuids::uuid& ToBoost(Guid& v)
     {
         return reinterpret_cast<boost::uuids::uuid&>(v);

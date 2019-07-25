@@ -12,6 +12,8 @@ namespace pluto
         std::array<uint8_t, 16> data;
 
     public:
+        static const Guid PLUTO_IDENTIFIER;
+
         Guid();
         explicit Guid(const std::array<uint8_t, 16>& data);
         explicit Guid(const std::string& guid);
