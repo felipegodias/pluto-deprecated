@@ -1,8 +1,6 @@
 #include "texture_asset_manager.h"
 
-#include <pluto/math/color.h>
 #include <pluto/file/file_manager.h>
-#include <pluto/file/file_writer.h>
 #include <pluto/file/path.h>
 #include <pluto/guid.h>
 
@@ -10,9 +8,6 @@
 #include <stb_image.h>
 
 #include <yaml-cpp/yaml.h>
-
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
 
 #include <fmt/format.h>
 
@@ -56,15 +51,9 @@ namespace pluto
         int width, height, channels;
         uint8_t* bytes = stbi_load(inputPath.Str().c_str(), &width, &height, &channels, 0);
 
-        auto textureAsset = textureAssetFactory->Create(width, height, GetTrueColorTextureFormat(channels));
+        std::vector<uint8_t> data(bytes, bytes + static_cast<size_t>(width) * height * channels);
+        auto textureAsset = textureAssetFactory->Create(width, height, GetTrueColorTextureFormat(channels), std::move(data));
         textureAsset->SetName(inputPath.GetNameWithoutExtension());
-
-        std::vector<Color> colors;
-        for (int i = 0; i < width * height * channels; i += channels)
-        {
-            colors.emplace_back(bytes[i], bytes[i + 1], bytes[i + 2], bytes[i + 3]);
-        }
-        textureAsset->SetPixels(colors);
 
         // Evil, I know. But it's better than expose the guid to changes directly.
         const_cast<Guid&>(textureAsset->GetId()) = guid;
