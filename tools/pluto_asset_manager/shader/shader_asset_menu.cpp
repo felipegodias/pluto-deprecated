@@ -13,13 +13,13 @@
 
 namespace pluto
 {
-    std::unordered_map<ShaderAsset::BlendFunction, std::string> blendFunctions = {
-        {ShaderAsset::BlendFunction::None, "None"},
-        {ShaderAsset::BlendFunction::Add, "Add"},
-        {ShaderAsset::BlendFunction::Subtract, "Subtract"},
-        {ShaderAsset::BlendFunction::ReverseSubtract, "ReverseSubtract"},
-        {ShaderAsset::BlendFunction::Min, "Min"},
-        {ShaderAsset::BlendFunction::Max, "Max"}
+    std::unordered_map<ShaderAsset::BlendEquation, std::string> blendFunctions = {
+        {ShaderAsset::BlendEquation::Off, "None"},
+        {ShaderAsset::BlendEquation::Add, "Add"},
+        {ShaderAsset::BlendEquation::Subtract, "Subtract"},
+        {ShaderAsset::BlendEquation::ReverseSubtract, "ReverseSubtract"},
+        {ShaderAsset::BlendEquation::Min, "Min"},
+        {ShaderAsset::BlendEquation::Max, "Max"}
     };
 
     std::unordered_map<ShaderAsset::BlendFactor, std::string> blendFactors = {
@@ -35,22 +35,22 @@ namespace pluto
         {ShaderAsset::BlendFactor::OneMinusDstAlpha, "OneMinusDstAlpha"}
     };
 
-    std::unordered_map<ShaderAsset::ZTest, std::string> zTests = {
-        {ShaderAsset::ZTest::None, "None"},
-        {ShaderAsset::ZTest::Never, "Never"},
-        {ShaderAsset::ZTest::Less, "Less"},
-        {ShaderAsset::ZTest::LessEqual, "LessEqual"},
-        {ShaderAsset::ZTest::Equal, "Equal"},
-        {ShaderAsset::ZTest::NotEqual, "NotEqual"},
-        {ShaderAsset::ZTest::Greater, "Greater"},
-        {ShaderAsset::ZTest::GreaterEqual, "GreaterEqual"},
-        {ShaderAsset::ZTest::Always, "Always"},
+    std::unordered_map<ShaderAsset::DepthTest, std::string> zTests = {
+        {ShaderAsset::DepthTest::Off, "None"},
+        {ShaderAsset::DepthTest::Never, "Never"},
+        {ShaderAsset::DepthTest::Less, "Less"},
+        {ShaderAsset::DepthTest::LessEqual, "LessEqual"},
+        {ShaderAsset::DepthTest::Equal, "Equal"},
+        {ShaderAsset::DepthTest::NotEqual, "NotEqual"},
+        {ShaderAsset::DepthTest::Greater, "Greater"},
+        {ShaderAsset::DepthTest::GreaterEqual, "GreaterEqual"},
+        {ShaderAsset::DepthTest::Always, "Always"},
     };
 
-    std::unordered_map<ShaderAsset::CullMode, std::string> cullModes = {
-        {ShaderAsset::CullMode::Front, "Front"},
-        {ShaderAsset::CullMode::Back, "Back"},
-        {ShaderAsset::CullMode::FrontAndBack, "FrontAndBack"},
+    std::unordered_map<ShaderAsset::CullFace, std::string> cullModes = {
+        {ShaderAsset::CullFace::Front, "Front"},
+        {ShaderAsset::CullFace::Back, "Back"},
+        {ShaderAsset::CullFace::Off, "FrontAndBack"},
     };
 
     std::unordered_map<ShaderAsset::Property::Type, std::string> propertyTypes = {
@@ -137,33 +137,33 @@ namespace pluto
 
     void ShaderAssetMenu::OnManageShaderShowBlendFunctionOptionSelected()
     {
-        std::cout << "Blend Function: " << blendFunctions.at(currentManagedAsset->GetBlendFunction()) << std::endl;
+        std::cout << "Blend Function: " << blendFunctions.at(currentManagedAsset->GetBlendEquation()) << std::endl;
     }
 
     void ShaderAssetMenu::OnManageShaderShowSrcFactorOptionSelected()
     {
-        std::cout << "Blend Source Factor: " << blendFactors.at(currentManagedAsset->GetSrcBlendFactor()) << std::endl;
+        std::cout << "Blend Source Factor: " << blendFactors.at(currentManagedAsset->GetBlendSrcFactor()) << std::endl;
     }
 
     void ShaderAssetMenu::OnManageShaderShowDstFactorOptionSelected()
     {
-        std::cout << "Blend Dest Factor: " << blendFactors.at(currentManagedAsset->GetDstBlendFactor()) << std::endl;
+        std::cout << "Blend Dest Factor: " << blendFactors.at(currentManagedAsset->GetBlendDstFactor()) << std::endl;
     }
 
     void ShaderAssetMenu::OnManageShaderShowDepthTestOptionSelected()
     {
-        std::cout << "Depth Test: " << zTests.at(currentManagedAsset->GetZTest()) << std::endl;
+        std::cout << "Depth Test: " << zTests.at(currentManagedAsset->GetDepthTest()) << std::endl;
     }
 
     void ShaderAssetMenu::OnManageShaderShowCullModeOptionSelected()
     {
-        std::cout << "Cull Mode: " << cullModes.at(currentManagedAsset->GetCullMode()) << std::endl;
+        std::cout << "Cull Mode: " << cullModes.at(currentManagedAsset->GetCullFace()) << std::endl;
     }
 
     void ShaderAssetMenu::OnManageShaderShowPropertiesOptionSelected()
     {
         std::cout << "Properties: " << std::endl;
-        for (const auto& property : currentManagedAsset->GetProperties())
+        for (const auto& property : currentManagedAsset->GetUniforms())
         {
             std::cout << fmt::format("[Id: {0}; Name: \"{1}\"; Type: {2}]", property.id, property.name,
                                      propertyTypes.at(property.type)) << std::endl;

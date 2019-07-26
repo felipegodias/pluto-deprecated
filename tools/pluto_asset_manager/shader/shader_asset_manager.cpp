@@ -383,39 +383,31 @@ namespace pluto
         GLsizei bytesWritten;
         glGetProgramBinary(programId, binLength, &bytesWritten, &binFormat, programBinary.data());
 
-        ShaderAsset::BlendEquation blendEquation = ParseBlendFunc(shaderData.blendEquation);
-        ShaderAsset::BlendEquation blendAlphaEquation = ParseBlendFunc(shaderData.blendAlphaEquation);
+        const ShaderAsset::BlendEquation blendEquation = ParseBlendFunc(shaderData.blendEquation);
+        const ShaderAsset::BlendEquation blendAlphaEquation = ParseBlendFunc(shaderData.blendAlphaEquation);
 
-        ShaderAsset::BlendFactor blendSrcFactor = ParseBlendFactor(shaderData.blendSrcFactor);
-        ShaderAsset::BlendFactor blendDstFactor = ParseBlendFactor(shaderData.blendDstFactor);
-        ShaderAsset::BlendFactor blendAlphaSrcFactor = ParseBlendFactor(shaderData.blendSrcAlphaFactor);
-        ShaderAsset::BlendFactor blendAlphaDstFactor = ParseBlendFactor(shaderData.blendDstFactor);
+        const ShaderAsset::BlendFactor blendSrcFactor = ParseBlendFactor(shaderData.blendSrcFactor);
+        const ShaderAsset::BlendFactor blendDstFactor = ParseBlendFactor(shaderData.blendDstFactor);
+        const ShaderAsset::BlendFactor blendAlphaSrcFactor = ParseBlendFactor(shaderData.blendSrcAlphaFactor);
+        const ShaderAsset::BlendFactor blendAlphaDstFactor = ParseBlendFactor(shaderData.blendDstFactor);
 
-        ShaderAsset::DepthTest depthTest = ParseZTest(shaderData.depthTest);
-        ShaderAsset::CullFace cullFace = ParseCull(shaderData.cullFace);
+        const ShaderAsset::DepthTest depthTest = ParseZTest(shaderData.depthTest);
+        const ShaderAsset::CullFace cullFace = ParseCull(shaderData.cullFace);
 
-        std::vector<ShaderAsset::Property> uniforms = FetchUniforms(programId);
+        const std::vector<ShaderAsset::Property> uniforms = FetchUniforms(programId);
 
-        std::vector<ShaderAsset::Property> attributes = FetchAttributes(programId);
+        const std::vector<ShaderAsset::Property> attributes = FetchAttributes(programId);
 
         glDeleteProgram(programId);
 
-        auto shaderAsset = shaderAssetFactory->Create();
+        auto shaderAsset = shaderAssetFactory->Create(blendEquation, blendAlphaEquation, blendSrcFactor, blendDstFactor,
+                                                      blendAlphaSrcFactor, blendAlphaDstFactor, depthTest, cullFace,
+                                                      attributes, uniforms, binFormat, programBinary);
 
         // Evil, I know. But it's better than expose the guid to changes directly.
         const_cast<Guid&>(shaderAsset->GetId()) = guid;
 
-        std::string ss = shaderAsset->GetId().Str();
-
         shaderAsset->SetName(inputPath.GetNameWithoutExtension());
-        shaderAsset->SetBlendAlphaEquation(blend);
-        shaderAsset->SetSrcBlendFactor(blendSrc);
-        shaderAsset->SetDstBlendFactor(blendDst);
-        shaderAsset->SetZTest(depthTest);
-        shaderAsset->SetCullMode(cullFace);
-        shaderAsset->SetProperties(std::move(uniforms));
-        shaderAsset->SetBinaryFormat(binFormat);
-        shaderAsset->SetBinary(std::move(programBinary));
 
         const auto fileWriter = fileManager->OpenWrite(Path(outputDir.Str() + "/" + shaderAsset->GetId().Str()));
         shaderAsset->Dump(*fileWriter);
