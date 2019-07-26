@@ -300,11 +300,11 @@ namespace pluto
         std::vector<Property> uniforms(uniformsCount);
         for (int i = 0; i < uniformsCount; ++i)
         {
-            fileReader.Read(&attributes[i].id, sizeof(uint8_t));
+            fileReader.Read(&uniforms[i].id, sizeof(uint8_t));
             uint8_t uniformNameSize;
             fileReader.Read(&uniformNameSize, sizeof(uint8_t));
             uniforms[i].name = std::string(uniformNameSize, ' ');
-            fileReader.Read(attributes[i].name.data(), uniformNameSize);
+            fileReader.Read(uniforms[i].name.data(), uniformNameSize);
             uint8_t uniformType;
             fileReader.Read(&uniformType, sizeof(uint8_t));
             uniforms[i].type = static_cast<Property::Type>(uniformType);
@@ -324,6 +324,8 @@ namespace pluto
             static_cast<BlendFactor>(blendSrcAlphaFactor), static_cast<BlendFactor>(blendDstAlphaFactor),
             static_cast<DepthTest>(depthTest), static_cast<CullFace>(cullFace), attributes, uniforms,
             binaryFormat, binaryData));
+
+        shaderAsset->SetName(assetName);
 
         auto& shaderProgramFactory = diContainer.GetSingleton<ShaderProgram::Factory>();
         shaderAsset->impl->SetShaderProgram(shaderProgramFactory.Create(*shaderAsset));
