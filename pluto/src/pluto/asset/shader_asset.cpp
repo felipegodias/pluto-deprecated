@@ -4,47 +4,55 @@
 #include <pluto/file/file_reader.h>
 #include <pluto/file/file_writer.h>
 #include <pluto/guid.h>
+#include <utility>
 #include <vector>
 
 namespace pluto
 {
     class ShaderAsset::Impl
     {
-    private:
-        ShaderAsset* instance;
-
         Guid guid;
         std::string name;
-        BlendFunction blendFunction;
-        BlendFactor srcBlendFactor;
-        BlendFactor dstBlendFactor;
-        ZTest zTest;
-        CullMode cullMode;
-        uint32_t binaryFormat;
-        std::vector<Property> properties;
-        std::vector<uint8_t> binary;
+        BlendEquation blendEquation;
+        BlendEquation blendAlphaEquation;
 
-        bool isDirty;
+        BlendFactor blendSrcFactor;
+        BlendFactor blendDstFactor;
+
+        BlendFactor blendSrcAlphaFactor;
+        BlendFactor blendDstAlphaFactor;
+
+        DepthTest depthTest;
+        CullFace cullFace;
+
+        std::vector<Property> attributes;
+        std::vector<Property> uniforms;
+
+        uint32_t binaryFormat;
+        std::vector<uint8_t> binaryData;
+
         std::unique_ptr<ShaderProgram> shaderProgram;
 
-        const ShaderProgram::Factory& shaderProgramFactory;
-
     public:
-        Impl(Guid guid, const ShaderProgram::Factory& shaderProgramFactory) : instance(nullptr), guid(std::move(guid)),
-                                                                              blendFunction(BlendFunction::Default),
-                                                                              srcBlendFactor(BlendFactor::Default),
-                                                                              dstBlendFactor(BlendFactor::Default),
-                                                                              zTest(ZTest::Default),
-                                                                              cullMode(CullMode::Default),
-                                                                              binaryFormat(0), isDirty(true),
-                                                                              shaderProgram(nullptr),
-                                                                              shaderProgramFactory(shaderProgramFactory)
+        Impl(const Guid& guid, const BlendEquation blendEquation, const BlendEquation blendAlphaEquation,
+             const BlendFactor blendSrcFactor, const BlendFactor blendDstFactor, const BlendFactor blendSrcAlphaFactor,
+             const BlendFactor blendDstAlphaFactor, const DepthTest depthTest, const CullFace cullFace,
+             std::vector<Property> attributes, std::vector<Property> uniforms, const uint32_t binaryFormat,
+             std::vector<uint8_t> binaryData)
+            : guid(guid),
+              blendEquation(blendEquation),
+              blendAlphaEquation(blendAlphaEquation),
+              blendSrcFactor(blendSrcFactor),
+              blendDstFactor(blendDstFactor),
+              blendSrcAlphaFactor(blendSrcAlphaFactor),
+              blendDstAlphaFactor(blendDstAlphaFactor),
+              depthTest(depthTest),
+              cullFace(cullFace),
+              attributes(std::move(attributes)),
+              uniforms(std::move(uniforms)),
+              binaryFormat(binaryFormat),
+              binaryData(std::move(binaryData))
         {
-        }
-
-        void SetInstance(ShaderAsset& value)
-        {
-            instance = &value;
         }
 
         const Guid& GetId() const
@@ -74,104 +82,115 @@ namespace pluto
             fileWriter.Write(&assetNameLength, sizeof(uint8_t));
             fileWriter.Write(name.data(), assetNameLength);
 
-            auto blendFunction = static_cast<uint8_t>(this->blendFunction);
+            auto blendFunction = static_cast<uint8_t>(this->blendEquation);
             fileWriter.Write(&blendFunction, sizeof(uint8_t));
 
-            auto srcBlendFactor = static_cast<uint8_t>(this->srcBlendFactor);
-            fileWriter.Write(&srcBlendFactor, sizeof(uint8_t));
+            auto blendAlphaEquation = static_cast<uint8_t>(this->blendAlphaEquation);
+            fileWriter.Write(&blendAlphaEquation, sizeof(uint8_t));
 
-            auto dstBlendFactor = static_cast<uint8_t>(this->dstBlendFactor);
-            fileWriter.Write(&dstBlendFactor, sizeof(uint8_t));
+            auto blendSrcFactor = static_cast<uint8_t>(this->blendSrcFactor);
+            fileWriter.Write(&blendSrcFactor, sizeof(uint8_t));
 
-            auto zTest = static_cast<uint8_t>(this->zTest);
-            fileWriter.Write(&zTest, sizeof(uint8_t));
+            auto blendDstFactor = static_cast<uint8_t>(this->blendDstFactor);
+            fileWriter.Write(&blendDstFactor, sizeof(uint8_t));
 
-            auto cullMode = static_cast<uint8_t>(this->cullMode);
-            fileWriter.Write(&cullMode, sizeof(uint8_t));
+            auto blendSrcAlphaFactor = static_cast<uint8_t>(this->blendSrcAlphaFactor);
+            fileWriter.Write(&blendSrcAlphaFactor, sizeof(uint8_t));
 
-            
-            uint8_t propertiesCount = properties.size();
-            fileWriter.Write(&propertiesCount, sizeof(uint8_t));
+            auto blendDstAlphaFactor = static_cast<uint8_t>(this->blendDstAlphaFactor);
+            fileWriter.Write(&blendDstAlphaFactor, sizeof(uint8_t));
 
-            for (const auto& property : properties)
+            auto depthTest = static_cast<uint8_t>(this->depthTest);
+            fileWriter.Write(&depthTest, sizeof(uint8_t));
+
+            auto cullFace = static_cast<uint8_t>(this->cullFace);
+            fileWriter.Write(&cullFace, sizeof(uint8_t));
+
+            uint8_t attributesCount = attributes.size();
+            fileWriter.Write(&attributesCount, sizeof(uint8_t));
+            for (const auto& attribute : attributes)
             {
-                fileWriter.Write(&property.id, sizeof(uint8_t));
+                fileWriter.Write(&attribute.id, sizeof(uint8_t));
 
-                uint8_t propertyNameSize = property.name.size();
-                fileWriter.Write(&propertyNameSize, sizeof(uint8_t));
-                fileWriter.Write(property.name.data(), propertyNameSize);
+                uint8_t attributeNameSize = attribute.name.size();
+                fileWriter.Write(&attributeNameSize, sizeof(uint8_t));
+                fileWriter.Write(attribute.name.data(), attributeNameSize);
 
-                auto propertyType = static_cast<uint8_t>(property.type);
-                fileWriter.Write(&propertyType, sizeof(uint8_t));
+                auto attributeType = static_cast<uint8_t>(attribute.type);
+                fileWriter.Write(&attributeType, sizeof(uint8_t));
+            }
+
+            uint8_t uniformsCount = uniforms.size();
+            fileWriter.Write(&uniformsCount, sizeof(uint8_t));
+            for (const auto& uniform : uniforms)
+            {
+                fileWriter.Write(&uniform.id, sizeof(uint8_t));
+
+                uint8_t uniformNameSize = uniform.name.size();
+                fileWriter.Write(&uniformNameSize, sizeof(uint8_t));
+                fileWriter.Write(uniform.name.data(), uniformNameSize);
+
+                auto uniformType = static_cast<uint8_t>(uniform.type);
+                fileWriter.Write(&uniformType, sizeof(uint8_t));
             }
 
             fileWriter.Write(&binaryFormat, sizeof(uint32_t));
 
-            uint32_t binarySize = binary.size();
-            fileWriter.Write(&binarySize, sizeof(uint32_t));
-            fileWriter.Write(binary.data(), binarySize);
+            uint32_t binaryDataSize = binaryData.size();
+            fileWriter.Write(&binaryDataSize, sizeof(uint32_t));
+            fileWriter.Write(binaryData.data(), binaryDataSize);
 
             fileWriter.Flush();
         }
 
-        BlendFunction GetBlendFunction() const
+        BlendEquation GetBlendEquation() const
         {
-            return blendFunction;
+            return blendEquation;
         }
 
-        void SetBlendFunction(const BlendFunction value)
+        BlendEquation GetBlendAlphaEquation() const
         {
-            blendFunction = value;
+            return blendAlphaEquation;
         }
 
-        BlendFactor GetSrcBlendFactor() const
+        BlendFactor GetBlendSrcFactor() const
         {
-            return srcBlendFactor;
+            return blendSrcFactor;
         }
 
-        void SetSrcBlendFactor(const BlendFactor value)
+        BlendFactor GetBlendDstFactor() const
         {
-            srcBlendFactor = value;
+            return blendDstFactor;
         }
 
-        BlendFactor GetDstBlendFactor() const
+        BlendFactor GetBlendSrcAlphaFactor() const
         {
-            return dstBlendFactor;
+            return blendSrcAlphaFactor;
         }
 
-        void SetDstBlendFactor(const BlendFactor value)
+        BlendFactor GetBlendDstAlphaFactor() const
         {
-            dstBlendFactor = value;
+            return blendDstAlphaFactor;
         }
 
-        ZTest GetZTest() const
+        DepthTest GetDepthTest() const
         {
-            return zTest;
+            return depthTest;
         }
 
-        void SetZTest(const ZTest value)
+        CullFace GetCullFace() const
         {
-            zTest = value;
+            return cullFace;
         }
 
-        CullMode GetCullMode() const
+        const std::vector<Property>& GetUniforms() const
         {
-            return cullMode;
+            return uniforms;
         }
 
-        void SetCullMode(const CullMode value)
+        const std::vector<Property>& GetAttributes() const
         {
-            cullMode = value;
-        }
-
-        const std::vector<Property>& GetProperties() const
-        {
-            return properties;
-        }
-
-        void SetProperties(std::vector<Property> value)
-        {
-            properties = std::move(value);
+            return attributes;
         }
 
         uint32_t GetBinaryFormat() const
@@ -179,64 +198,44 @@ namespace pluto
             return binaryFormat;
         }
 
-        void SetBinaryFormat(const uint32_t value)
+        const std::vector<uint8_t>& GetBinaryData() const
         {
-            binaryFormat = value;
-            isDirty = true;
-        }
-
-        const std::vector<uint8_t>& GetBinary() const
-        {
-            return binary;
-        }
-
-        void SetBinary(std::vector<uint8_t> value)
-        {
-            binary = std::move(value);
-            isDirty = true;
+            return binaryData;
         }
 
         ShaderProgram& GetShaderProgram()
         {
-            if (isDirty)
-            {
-                shaderProgram = shaderProgramFactory.Create(*instance);
-                isDirty = false;
-            }
-
             return *shaderProgram;
         }
 
-        void Clone(const Impl& other)
+        void SetShaderProgram(std::unique_ptr<ShaderProgram> value)
         {
-            name = other.name;
-            blendFunction = other.blendFunction;
-            srcBlendFactor = other.srcBlendFactor;
-            dstBlendFactor = other.dstBlendFactor;
-            zTest = other.zTest;
-            cullMode = other.cullMode;
-            properties = other.properties;
-            binaryFormat = other.binaryFormat;
-            binary = other.binary;
+            shaderProgram = std::move(value);
         }
     };
 
-    ShaderAsset::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    ShaderAsset::Factory::Factory(DiContainer& diContainer)
+        : BaseFactory(diContainer)
     {
     }
 
-    std::unique_ptr<ShaderAsset> ShaderAsset::Factory::Create() const
+    std::unique_ptr<ShaderAsset> ShaderAsset::Factory::Create(BlendEquation blendEquation,
+                                                              BlendEquation blendAlphaEquation,
+                                                              BlendFactor blendSrcFactor, BlendFactor blendDstFactor,
+                                                              BlendFactor blendSrcAlphaFactor,
+                                                              BlendFactor blendDstAlphaFactor, DepthTest depthTest,
+                                                              CullFace cullFace,
+                                                              const std::vector<Property>& attributes,
+                                                              const std::vector<Property>& uniforms,
+                                                              uint32_t binaryFormat,
+                                                              const std::vector<uint8_t>& binaryData) const
     {
+        auto shaderAsset = std::make_unique<ShaderAsset>(std::make_unique<Impl>(
+            Guid::New(), blendEquation, blendAlphaEquation, blendSrcFactor, blendDstFactor, blendSrcAlphaFactor,
+            blendDstAlphaFactor, depthTest, cullFace, attributes, uniforms, binaryFormat, binaryData));
+
         auto& shaderProgramFactory = diContainer.GetSingleton<ShaderProgram::Factory>();
-        auto shaderAsset = std::make_unique<ShaderAsset>(std::make_unique<Impl>(Guid::New(), shaderProgramFactory));
-        shaderAsset->impl->SetInstance(*shaderAsset);
-        return shaderAsset;
-    }
-
-    std::unique_ptr<ShaderAsset> ShaderAsset::Factory::Create(const ShaderAsset& original) const
-    {
-        auto shaderAsset = Create();
-        shaderAsset->impl->Clone(*original.impl);
+        shaderAsset->impl->SetShaderProgram(shaderProgramFactory.Create(*shaderAsset));
         return shaderAsset;
     }
 
@@ -248,87 +247,99 @@ namespace pluto
         fileReader.Read(&serializerVersion, sizeof(uint8_t));
         uint8_t assetType;
         fileReader.Read(&assetType, sizeof(uint8_t));
+
         Guid assetId;
         fileReader.Read(&assetId, sizeof(Guid));
-
-        auto& shaderProgramFactory = diContainer.GetSingleton<ShaderProgram::Factory>();
-        auto shaderAsset = std::make_unique<ShaderAsset>(std::make_unique<Impl>(assetId, shaderProgramFactory));
-        shaderAsset->impl->SetInstance(*shaderAsset);
 
         uint8_t assetNameLength;
         fileReader.Read(&assetNameLength, sizeof(uint8_t));
         std::string assetName(assetNameLength, ' ');
         fileReader.Read(assetName.data(), assetNameLength);
-        shaderAsset->SetName(assetName);
 
-        uint8_t blendFunction;
-        fileReader.Read(&blendFunction, sizeof(uint8_t));
-        shaderAsset->SetBlendFunction(static_cast<BlendFunction>(blendFunction));
+        uint8_t blendEquation;
+        fileReader.Read(&blendEquation, sizeof(uint8_t));
 
-        uint8_t srcBlendFactor;
-        fileReader.Read(&srcBlendFactor, sizeof(uint8_t));
-        shaderAsset->SetSrcBlendFactor(static_cast<BlendFactor>(srcBlendFactor));
+        uint8_t blendAlphaEquation;
+        fileReader.Read(&blendAlphaEquation, sizeof(uint8_t));
 
-        uint8_t dstBlendFactor;
-        fileReader.Read(&dstBlendFactor, sizeof(uint8_t));
-        shaderAsset->SetDstBlendFactor(static_cast<BlendFactor>(dstBlendFactor));
+        uint8_t blendSrcFactor;
+        fileReader.Read(&blendSrcFactor, sizeof(uint8_t));
 
-        uint8_t zTest;
-        fileReader.Read(&zTest, sizeof(uint8_t));
-        shaderAsset->SetZTest(static_cast<ZTest>(zTest));
+        uint8_t blendDstFactor;
+        fileReader.Read(&blendDstFactor, sizeof(uint8_t));
 
-        uint8_t cullMode;
-        fileReader.Read(&cullMode, sizeof(uint8_t));
-        shaderAsset->SetCullMode(static_cast<CullMode>(cullMode));
+        uint8_t blendSrcAlphaFactor;
+        fileReader.Read(&blendSrcAlphaFactor, sizeof(uint8_t));
 
-        uint8_t propertyCount;
-        fileReader.Read(&propertyCount, sizeof(uint8_t));
-        std::vector<Property> properties(propertyCount);
-        for (int i = 0; i < propertyCount; ++i)
+        uint8_t blendDstAlphaFactor;
+        fileReader.Read(&blendDstAlphaFactor, sizeof(uint8_t));
+
+        uint8_t depthTest;
+        fileReader.Read(&depthTest, sizeof(uint8_t));
+
+        uint8_t cullFace;
+        fileReader.Read(&cullFace, sizeof(uint8_t));
+
+        uint8_t attributesCount;
+        fileReader.Read(&attributesCount, sizeof(uint8_t));
+        std::vector<Property> attributes(attributesCount);
+        for (int i = 0; i < attributesCount; ++i)
         {
-            fileReader.Read(&properties[i].id, sizeof(uint8_t));
-            uint8_t propertyNameSize;
-            fileReader.Read(&propertyNameSize, sizeof(uint8_t));
-            properties[i].name = std::string(propertyNameSize, ' ');
-            fileReader.Read(properties[i].name.data(), propertyNameSize);
-            uint8_t propertyType;
-            fileReader.Read(&propertyType, sizeof(uint8_t));
-            properties[i].type = static_cast<Property::Type>(propertyType);
+            fileReader.Read(&attributes[i].id, sizeof(uint8_t));
+            uint8_t attributeNameSize;
+            fileReader.Read(&attributeNameSize, sizeof(uint8_t));
+            attributes[i].name = std::string(attributeNameSize, ' ');
+            fileReader.Read(attributes[i].name.data(), attributeNameSize);
+            uint8_t attributeType;
+            fileReader.Read(&attributeType, sizeof(uint8_t));
+            attributes[i].type = static_cast<Property::Type>(attributeType);
         }
-        shaderAsset->SetProperties(std::move(properties));
+
+        uint8_t uniformsCount;
+        fileReader.Read(&uniformsCount, sizeof(uint8_t));
+        std::vector<Property> uniforms(uniformsCount);
+        for (int i = 0; i < uniformsCount; ++i)
+        {
+            fileReader.Read(&attributes[i].id, sizeof(uint8_t));
+            uint8_t uniformNameSize;
+            fileReader.Read(&uniformNameSize, sizeof(uint8_t));
+            uniforms[i].name = std::string(uniformNameSize, ' ');
+            fileReader.Read(attributes[i].name.data(), uniformNameSize);
+            uint8_t uniformType;
+            fileReader.Read(&uniformType, sizeof(uint8_t));
+            uniforms[i].type = static_cast<Property::Type>(uniformType);
+        }
 
         uint32_t binaryFormat;
         fileReader.Read(&binaryFormat, sizeof(uint32_t));
-        shaderAsset->SetBinaryFormat(binaryFormat);
 
         uint32_t binarySize;
         fileReader.Read(&binarySize, sizeof(uint32_t));
-        std::vector<uint8_t> binary(binarySize);
-        fileReader.Read(binary.data(), binarySize);
-        shaderAsset->SetBinary(std::move(binary));
+        std::vector<uint8_t> binaryData(binarySize);
+        fileReader.Read(binaryData.data(), binarySize);
 
+        auto shaderAsset = std::make_unique<ShaderAsset>(std::make_unique<Impl>(
+            assetId, static_cast<BlendEquation>(blendEquation), static_cast<BlendEquation>(blendAlphaEquation),
+            static_cast<BlendFactor>(blendSrcFactor), static_cast<BlendFactor>(blendDstFactor),
+            static_cast<BlendFactor>(blendSrcAlphaFactor), static_cast<BlendFactor>(blendDstAlphaFactor),
+            static_cast<DepthTest>(depthTest), static_cast<CullFace>(cullFace), attributes, uniforms,
+            binaryFormat, binaryData));
+
+        auto& shaderProgramFactory = diContainer.GetSingleton<ShaderProgram::Factory>();
+        shaderAsset->impl->SetShaderProgram(shaderProgramFactory.Create(*shaderAsset));
         return shaderAsset;
-    }
-
-    ShaderAsset::ShaderAsset(std::unique_ptr<Impl> impl) : impl(std::move(impl))
-    {
-    }
-
-    ShaderAsset::ShaderAsset(ShaderAsset&& other) noexcept : ShaderAsset(std::move(other.impl))
-    {
     }
 
     ShaderAsset::~ShaderAsset() = default;
 
-    ShaderAsset& ShaderAsset::operator=(const ShaderAsset& rhs)
+    ShaderAsset::ShaderAsset(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
-        if (this == &rhs)
-        {
-            return *this;
-        }
+    }
 
-        impl->Clone(*rhs.impl);
-        return *this;
+    ShaderAsset::ShaderAsset(ShaderAsset&& other) noexcept
+        : ShaderAsset(std::move(other.impl))
+    {
     }
 
     ShaderAsset& ShaderAsset::operator=(ShaderAsset&& rhs) noexcept
@@ -362,64 +373,54 @@ namespace pluto
         impl->Dump(fileWriter);
     }
 
-    ShaderAsset::BlendFunction ShaderAsset::GetBlendFunction() const
+    ShaderAsset::BlendEquation ShaderAsset::GetBlendEquation() const
     {
-        return impl->GetBlendFunction();
+        return impl->GetBlendEquation();
     }
 
-    void ShaderAsset::SetBlendFunction(const BlendFunction value)
+    ShaderAsset::BlendEquation ShaderAsset::GetBlendAlphaEquation() const
     {
-        impl->SetBlendFunction(value);
+        return impl->GetBlendAlphaEquation();
     }
 
-    ShaderAsset::BlendFactor ShaderAsset::GetSrcBlendFactor() const
+    ShaderAsset::BlendFactor ShaderAsset::GetBlendSrcFactor() const
     {
-        return impl->GetSrcBlendFactor();
+        return impl->GetBlendSrcFactor();
     }
 
-    void ShaderAsset::SetSrcBlendFactor(const BlendFactor value)
+    ShaderAsset::BlendFactor ShaderAsset::GetBlendDstFactor() const
     {
-        impl->SetSrcBlendFactor(value);
+        return impl->GetBlendDstFactor();
     }
 
-    ShaderAsset::BlendFactor ShaderAsset::GetDstBlendFactor() const
+    ShaderAsset::BlendFactor ShaderAsset::GetBlendSrcAlphaFactor() const
     {
-        return impl->GetDstBlendFactor();
+        return impl->GetBlendSrcAlphaFactor();
     }
 
-    void ShaderAsset::SetDstBlendFactor(const BlendFactor value)
+    ShaderAsset::BlendFactor ShaderAsset::GetBlendDstAlphaFactor() const
     {
-        impl->SetDstBlendFactor(value);
+        return impl->GetBlendDstAlphaFactor();
     }
 
-    ShaderAsset::ZTest ShaderAsset::GetZTest() const
+    ShaderAsset::DepthTest ShaderAsset::GetDepthTest() const
     {
-        return impl->GetZTest();
+        return impl->GetDepthTest();
     }
 
-    void ShaderAsset::SetZTest(const ZTest value)
+    ShaderAsset::CullFace ShaderAsset::GetCullFace() const
     {
-        impl->SetZTest(value);
+        return impl->GetCullFace();
     }
 
-    ShaderAsset::CullMode ShaderAsset::GetCullMode() const
+    const std::vector<ShaderAsset::Property>& ShaderAsset::GetUniforms() const
     {
-        return impl->GetCullMode();
+        return impl->GetUniforms();
     }
 
-    void ShaderAsset::SetCullMode(const CullMode value)
+    const std::vector<ShaderAsset::Property>& ShaderAsset::GetAttributes() const
     {
-        impl->SetCullMode(value);
-    }
-
-    const std::vector<ShaderAsset::Property>& ShaderAsset::GetProperties() const
-    {
-        return impl->GetProperties();
-    }
-
-    void ShaderAsset::SetProperties(std::vector<Property> value)
-    {
-        impl->SetProperties(std::move(value));
+        return impl->GetAttributes();
     }
 
     uint32_t ShaderAsset::GetBinaryFormat() const
@@ -427,19 +428,9 @@ namespace pluto
         return impl->GetBinaryFormat();
     }
 
-    void ShaderAsset::SetBinaryFormat(const uint32_t value)
+    const std::vector<uint8_t>& ShaderAsset::GetBinaryData() const
     {
-        impl->SetBinaryFormat(value);
-    }
-
-    const std::vector<uint8_t>& ShaderAsset::GetBinary() const
-    {
-        return impl->GetBinary();
-    }
-
-    void ShaderAsset::SetBinary(std::vector<uint8_t> value)
-    {
-        impl->SetBinary(std::move(value));
+        return impl->GetBinaryData();
     }
 
     ShaderProgram& ShaderAsset::GetShaderProgram()

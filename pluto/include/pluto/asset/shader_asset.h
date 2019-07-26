@@ -36,15 +36,15 @@ namespace pluto
     class PLUTO_API ShaderAsset final : public Asset
     {
     public:
-        enum class BlendFunction
+        enum class BlendEquation
         {
-            None = 0,
+            Off = 0,
             Add = 1,
             Subtract = 2,
             ReverseSubtract = 3,
             Min = 4,
             Max = 5,
-            Default = None,
+            Default = Off,
             Last = Max,
             Count = Last + 1
         };
@@ -54,41 +54,41 @@ namespace pluto
             Zero = 0,
             One = 1,
             SrcColor = 2,
-            DstColor = 3,
-            SrcAlpha = 4,
-            DstAlpha = 5,
-            OneMinusSrcColor = 6,
-            OneMinusDstColor = 7,
-            OneMinusSrcAlpha = 8,
+            OneMinusSrcColor = 3,
+            DstColor = 4,
+            OneMinusDstColor = 5,
+            SrcAlpha = 6,
+            OneMinusSrcAlpha = 7,
+            DstAlpha = 8,
             OneMinusDstAlpha = 9,
             Default = Zero,
             Last = OneMinusDstAlpha,
             Count = Last + 1
         };
 
-        enum class ZTest
+        enum class DepthTest
         {
-            None = 0,
-            Never = 1,
-            Less = 2,
-            LessEqual = 3,
+            Off = 0,
+            Always = 1,
+            Never = 2,
+            Less = 3,
             Equal = 4,
-            NotEqual = 5,
-            GreaterEqual = 6,
-            Greater = 7,
-            Always = 8,
-            Default = None,
-            Last = Always,
+            LessEqual = 5,
+            Greater = 6,
+            NotEqual = 7,
+            GreaterEqual = 8,
+            Default = LessEqual,
+            Last = GreaterEqual,
             Count = Last + 1
         };
 
-        enum class CullMode
+        enum class CullFace
         {
-            Front = 0,
-            Back = 1,
-            FrontAndBack = 2,
+            Off = 0,
+            Front = 1,
+            Back = 2,
             Default = Front,
-            Last = FrontAndBack,
+            Last = Back,
             Count = Last + 1
         };
 
@@ -123,8 +123,14 @@ namespace pluto
         {
         public:
             explicit Factory(DiContainer& diContainer);
-            std::unique_ptr<ShaderAsset> Create() const;
-            std::unique_ptr<ShaderAsset> Create(const ShaderAsset& original) const;
+            std::unique_ptr<ShaderAsset> Create(BlendEquation blendEquation, BlendEquation blendAlphaEquation,
+                                                BlendFactor blendSrcFactor, BlendFactor blendDstFactor,
+                                                BlendFactor blendSrcAlphaFactor, BlendFactor blendDstAlphaFactor,
+                                                DepthTest depthTest, CullFace cullFace,
+                                                const std::vector<Property>& attributes,
+                                                const std::vector<Property>& uniforms, uint32_t binaryFormat,
+                                                const std::vector<uint8_t>& binaryData) const;
+
             std::unique_ptr<ShaderAsset> Create(FileReader& fileReader) const;
         };
 
@@ -133,12 +139,13 @@ namespace pluto
         std::unique_ptr<Impl> impl;
 
     public:
+        ~ShaderAsset() override;
         explicit ShaderAsset(std::unique_ptr<Impl> impl);
+
         ShaderAsset(const ShaderAsset& other) = delete;
         ShaderAsset(ShaderAsset&& other) noexcept;
-        ~ShaderAsset() override;
 
-        ShaderAsset& operator=(const ShaderAsset& rhs);
+        ShaderAsset& operator=(const ShaderAsset& rhs) = delete;
         ShaderAsset& operator=(ShaderAsset&& rhs) noexcept;
 
         const Guid& GetId() const override;
@@ -146,29 +153,29 @@ namespace pluto
         void SetName(std::string value) override;
         void Dump(FileWriter& fileWriter) const override;
 
-        BlendFunction GetBlendFunction() const;
-        void SetBlendFunction(BlendFunction value);
+        BlendEquation GetBlendEquation() const;
 
-        BlendFactor GetSrcBlendFactor() const;
-        void SetSrcBlendFactor(BlendFactor value);
+        BlendEquation GetBlendAlphaEquation() const;
 
-        BlendFactor GetDstBlendFactor() const;
-        void SetDstBlendFactor(BlendFactor value);
+        BlendFactor GetBlendSrcFactor() const;
 
-        ZTest GetZTest() const;
-        void SetZTest(ZTest value);
+        BlendFactor GetBlendDstFactor() const;
 
-        CullMode GetCullMode() const;
-        void SetCullMode(CullMode value);
+        BlendFactor GetBlendSrcAlphaFactor() const;
 
-        const std::vector<Property>& GetProperties() const;
-        void SetProperties(std::vector<Property> value);
+        BlendFactor GetBlendDstAlphaFactor() const;
+
+        DepthTest GetDepthTest() const;
+
+        CullFace GetCullFace() const;
+
+        const std::vector<Property>& GetUniforms() const;
+
+        const std::vector<Property>& GetAttributes() const;
 
         uint32_t GetBinaryFormat() const;
-        void SetBinaryFormat(uint32_t value);
 
-        const std::vector<uint8_t>& GetBinary() const;
-        void SetBinary(std::vector<uint8_t> value);
+        const std::vector<uint8_t>& GetBinaryData() const;
 
         ShaderProgram& GetShaderProgram();
     };
