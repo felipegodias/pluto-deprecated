@@ -32,7 +32,7 @@ namespace pluto
     {
         Guid guid;
         std::string name;
-        ShaderAsset& shaderAsset;
+        ShaderAsset* shaderAsset;
         std::unordered_map<std::string, float> floats;
         std::unordered_map<std::string, Vector4F> vectors;
         std::unordered_map<std::string, Matrix4X4> matrices;
@@ -44,7 +44,7 @@ namespace pluto
 
     public:
         Impl(Guid guid, ShaderAsset& shaderAsset, EventManager& eventManager, AssetManager& assetManager) :
-            guid(std::move(guid)), shaderAsset(shaderAsset), eventManager(eventManager), assetManager(assetManager)
+            guid(std::move(guid)), shaderAsset(&shaderAsset), eventManager(eventManager), assetManager(assetManager)
         {
             onAssetUnloadListenerId = eventManager.Subscribe<OnAssetUnloadEvent>(
                 std::bind(&Impl::OnAssetUnload, this, std::placeholders::_1));
@@ -76,12 +76,12 @@ namespace pluto
 
         ShaderAsset& GetShader() const
         {
-            return shaderAsset;
+            return *shaderAsset;
         }
 
         void SetShader(ShaderAsset& value)
         {
-            shaderAsset = value;
+            shaderAsset = &value;
             UpdateProperties();
         }
 
@@ -207,7 +207,7 @@ namespace pluto
     private:
         void OnAssetUnload(const OnAssetUnloadEvent& onAssetUnload)
         {
-            if (shaderAsset == onAssetUnload.GetAsset())
+            if (shaderAsset == &onAssetUnload.GetAsset())
             {
                 SetShader(assetManager.Load<ShaderAsset>(Path("shaders/pink.glsl")));
             }
@@ -215,7 +215,7 @@ namespace pluto
 
         void UpdateProperties()
         {
-            for (auto& property : shaderAsset.GetProperties())
+            for (auto& property : shaderAsset->GetUniforms())
             {
                 switch (property.type)
                 {
