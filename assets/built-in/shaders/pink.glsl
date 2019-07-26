@@ -1,19 +1,29 @@
-#set state shared
 #version 330 core
 
-#set state vertex
-layout (location = 0) in vec3 vertexPosition;
+#ifdef PLUTO_VERTEX_SHADER
+
+struct VertexData
+{
+    vec3 pos;
+};
+
+in VertexData vertex;
 uniform mat4 u_mvp;
 
 void main()
 {
-    gl_Position = u_mvp * vec4(vertexPosition, 1);
+    gl_Position = u_mvp * vec4(vertex.pos, 1);
 }
 
-#set state fragment
+#endif
+
+#ifdef PLUTO_FRAGMENT_SHADER
+
 out vec4 outColor;
 
 void main()
 {
     outColor = vec4(1, 0, 1, 1);
 }
+
+#endif

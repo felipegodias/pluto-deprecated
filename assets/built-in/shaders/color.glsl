@@ -1,26 +1,41 @@
-#set state shared
 #version 330 core
 
-struct MaterialData
+#ifdef PLUTO_VERTEX_SHADER
+
+struct VertexData
+{
+    vec3 pos;
+};
+
+in VertexData vertex;
+
+struct AppData {
+    mat4 mvp;
+};
+
+uniform AppData app;
+
+void main()
+{
+    gl_Position = app.mvp * vec4(vertex.pos, 1);
+}
+
+#endif
+
+#ifdef PLUTO_FRAGMENT_SHADER
+
+struct MaterialData 
 {
     vec4 color;
 };
 
-#set state vertex
-layout (location = 0) in vec3 vertexPosition;
-uniform mat4 u_mvp;
-
-void main()
-{
-    gl_Position = u_mvp * vec4(vertexPosition, 1);
-}
-
-#set state fragment
-uniform MaterialData u_mat;
+uniform MaterialData material;
 
 out vec4 outColor;
 
 void main()
 {
-    outColor = u_mat.color;
+    outColor = material.color;
 }
+
+#endif
