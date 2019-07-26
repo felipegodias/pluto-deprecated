@@ -2,6 +2,7 @@
 #include "text/text_asset_menu.h"
 #include "mesh/mesh_asset_manager.h"
 #include "mesh/mesh_asset_menu.h"
+#include "shader/dummy_shader_program.h"
 #include "shader/shader_asset_manager.h"
 #include "shader/shader_asset_menu.h"
 #include "texture/dummy_texture_buffer.h"
@@ -20,7 +21,6 @@
 #include <pluto/asset/shader_asset.h>
 
 #include <pluto/render/gl/gl_mesh_buffer.h>
-#include <pluto/render/gl/gl_shader_program.h>
 
 #include <pluto/di/di_container.h>
 
@@ -75,7 +75,7 @@ namespace pluto
             MeshAsset::Factory& meshAssetFactory = diContainer->AddSingleton(
                 std::make_unique<MeshAsset::Factory>(*diContainer));
 
-            diContainer->AddSingleton<ShaderProgram::Factory>(std::make_unique<GlShaderProgram::Factory>(*diContainer));
+            diContainer->AddSingleton<ShaderProgram::Factory>(std::make_unique<DummyShaderProgram::Factory>(*diContainer));
             ShaderAsset::Factory& shaderAssetFactory = diContainer->AddSingleton(
                 std::make_unique<ShaderAsset::Factory>(*diContainer));
 

@@ -13,6 +13,7 @@ list(APPEND ASSET_MANAGER_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/package/package_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/package/package_menu.cpp
     # ./shader
+    ${CMAKE_CURRENT_SOURCE_DIR}/shader/dummy_shader_program.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/shader/shader_asset_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/shader/shader_asset_menu.cpp
     # ./text
