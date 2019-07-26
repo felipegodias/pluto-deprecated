@@ -2,6 +2,7 @@
 
 #include <pluto/file/file_manager.h>
 #include <pluto/file/path.h>
+#include <pluto/file/file_writer.h>
 #include <pluto/guid.h>
 
 #define STB_IMAGE_IMPLEMENTATION
