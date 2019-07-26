@@ -20,44 +20,44 @@
 
 namespace pluto
 {
-    std::unordered_map<std::string, ShaderAsset::BlendFunction> blendFunctions = {
-        {"none", ShaderAsset::BlendFunction::None},
-        {"add", ShaderAsset::BlendFunction::Add},
-        {"sub", ShaderAsset::BlendFunction::Subtract},
-        {"rev_sub", ShaderAsset::BlendFunction::ReverseSubtract},
-        {"min", ShaderAsset::BlendFunction::Min},
-        {"max", ShaderAsset::BlendFunction::Max}
+    std::unordered_map<std::string, ShaderAsset::BlendEquation> blendEquations = {
+        {"OFF", ShaderAsset::BlendEquation::Off},
+        {"ADD", ShaderAsset::BlendEquation::Add},
+        {"SUB", ShaderAsset::BlendEquation::Subtract},
+        {"REV_SUB", ShaderAsset::BlendEquation::ReverseSubtract},
+        {"MIN", ShaderAsset::BlendEquation::Min},
+        {"MAX", ShaderAsset::BlendEquation::Max}
     };
 
     std::unordered_map<std::string, ShaderAsset::BlendFactor> blendFactors = {
-        {"zero", ShaderAsset::BlendFactor::Zero},
-        {"one", ShaderAsset::BlendFactor::One},
-        {"src_color", ShaderAsset::BlendFactor::SrcAlpha},
-        {"dst_color", ShaderAsset::BlendFactor::DstColor},
-        {"src_alpha", ShaderAsset::BlendFactor::SrcAlpha},
-        {"dst_alpha", ShaderAsset::BlendFactor::DstAlpha},
-        {"one_minus_src_color", ShaderAsset::BlendFactor::OneMinusSrcColor},
-        {"one_minus_src_alpha", ShaderAsset::BlendFactor::OneMinusSrcAlpha},
-        {"one_minus_dst_color", ShaderAsset::BlendFactor::OneMinusDstColor},
-        {"one_minus_dst_alpha", ShaderAsset::BlendFactor::OneMinusDstAlpha},
+        {"ZERO", ShaderAsset::BlendFactor::Zero},
+        {"ONE", ShaderAsset::BlendFactor::One},
+        {"SRC_COLOR", ShaderAsset::BlendFactor::SrcColor},
+        {"ONE_MINUS_SRC_COLOR", ShaderAsset::BlendFactor::OneMinusSrcColor},
+        {"DST_COLOR", ShaderAsset::BlendFactor::DstColor},
+        {"ONE_MINUS_DST_COLOR", ShaderAsset::BlendFactor::OneMinusDstColor},
+        {"SRC_ALPHA", ShaderAsset::BlendFactor::SrcAlpha},
+        {"ONE_MINUS_SRC_ALPHA", ShaderAsset::BlendFactor::OneMinusSrcAlpha},
+        {"DST_ALPHA", ShaderAsset::BlendFactor::DstAlpha},
+        {"ONE_MINUS_DST_ALPHA", ShaderAsset::BlendFactor::OneMinusDstAlpha},
     };
 
-    std::unordered_map<std::string, ShaderAsset::ZTest> zTests = {
-        {"none", ShaderAsset::ZTest::None},
-        {"never", ShaderAsset::ZTest::Never},
-        {"less", ShaderAsset::ZTest::Less},
-        {"less_equal", ShaderAsset::ZTest::LessEqual},
-        {"equal", ShaderAsset::ZTest::Equal},
-        {"not_equal", ShaderAsset::ZTest::NotEqual},
-        {"greater", ShaderAsset::ZTest::Greater},
-        {"greater_equal", ShaderAsset::ZTest::GreaterEqual},
-        {"always", ShaderAsset::ZTest::Always},
+    std::unordered_map<std::string, ShaderAsset::DepthTest> depthTests = {
+        {"OFF", ShaderAsset::DepthTest::Off},
+        {"ALWAYS", ShaderAsset::DepthTest::Always},
+        {"NEVER", ShaderAsset::DepthTest::Never},
+        {"LESS", ShaderAsset::DepthTest::Less},
+        {"EQUAL", ShaderAsset::DepthTest::Equal},
+        {"LESS_EQUAL", ShaderAsset::DepthTest::LessEqual},
+        {"GREATER", ShaderAsset::DepthTest::Greater},
+        {"NOT_EQUAL", ShaderAsset::DepthTest::NotEqual},
+        {"GREATER_EQUAL", ShaderAsset::DepthTest::GreaterEqual},
     };
 
-    std::unordered_map<std::string, ShaderAsset::CullMode> cullModes = {
-        {"front", ShaderAsset::CullMode::Front},
-        {"back", ShaderAsset::CullMode::Back},
-        {"front_and_back", ShaderAsset::CullMode::FrontAndBack},
+    std::unordered_map<std::string, ShaderAsset::CullFace> cullModes = {
+        {"OFF", ShaderAsset::CullFace::Off},
+        {"FRONT", ShaderAsset::CullFace::Front},
+        {"BACK", ShaderAsset::CullFace::Back},
     };
 
     std::unordered_map<GLuint, ShaderAsset::Property::Type> propertyTypes = {
@@ -78,25 +78,29 @@ namespace pluto
 
     struct ShaderFileData
     {
-        std::string vertex;
-        std::string frag;
-        std::string blend;
-        std::string blendSrc;
-        std::string blendDst;
-        std::string zTest;
-        std::string cullMode;
+        std::string vertexSrc;
+        std::string fragSrc;
+        std::string blendSrcFactor;
+        std::string blendDstFactor;
+        std::string blendSrcAlphaFactor;
+        std::string blendDstAlphaFactor;
+        std::string blendEquation;
+        std::string blendAlphaEquation;
+        std::string depthTest;
+        std::string cullFace;
     };
 
     ShaderFileData ParseShader(std::istream& is)
     {
+        ShaderFileData shaderData{};
+        std::stringstream vertexSrc;
+        std::stringstream fragSrc;
+
         std::string line;
-        int state = 0;
-        ShaderFileData shaderData;
-        std::stringstream vertex;
-        std::stringstream frag;
         while (std::getline(is, line))
         {
             line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
+            boost::trim(line);
             if (line.empty())
             {
                 continue;
@@ -105,56 +109,93 @@ namespace pluto
             {
                 std::vector<std::string> split;
                 boost::split(split, line, boost::is_any_of(" "));
-                if (split[0] == "#set")
+                if (split[0] == "#version")
                 {
-                    if (split[1] == "state")
+                    vertexSrc << line << '\n';
+                    vertexSrc << "#define PLUTO_VERTEX_SHADER\n";
+                    fragSrc << line << '\n';
+                    fragSrc << "#define PLUTO_FRAGMENT_SHADER\n";
+                }
+                else
+                {
+                    if (split[0] == "#define")
                     {
-                        if (split[2] == "vertex")
+                        if (split[1] == "PLUTO_BLEND")
                         {
-                            state = 1;
+                            if (split.size() == 4)
+                            {
+                                // Parse blend factors for RGBA
+                                shaderData.blendSrcFactor = split[2];
+                                shaderData.blendDstFactor = split[3];
+                                shaderData.blendSrcAlphaFactor = split[2];
+                                shaderData.blendDstAlphaFactor = split[3];
+                            }
+                            else if (split.size() == 6)
+                            {
+                                // Parse blend factors for RGB and A separately.
+                                shaderData.blendSrcFactor = split[2];
+                                shaderData.blendDstFactor = split[3];
+                                shaderData.blendSrcAlphaFactor = split[4];
+                                shaderData.blendDstAlphaFactor = split[5];
+                            }
+                            else
+                            {
+                                throw std::runtime_error("");
+                            }
                         }
-                        else if (split[2] == "fragment")
+                        else if (split[1] == "PLUTO_BLEND_EQUATION")
                         {
-                            state = 2;
+                            if (split.size() == 3)
+                            {
+                                shaderData.blendEquation = split[2];
+                                shaderData.blendAlphaEquation = split[2];
+                            }
+                            else if (split.size() == 4)
+                            {
+                                shaderData.blendEquation = split[2];
+                                shaderData.blendAlphaEquation = split[3];
+                            }
+                            else
+                            {
+                                throw std::runtime_error("");
+                            }
                         }
-                        else if (split[2] == "shared")
+                        else if (split[1] == "PLUTO_CULL_FACE")
                         {
-                            state = 3;
+                            if (split.size() == 3)
+                            {
+                                shaderData.cullFace = split[2];
+                            }
+                            else
+                            {
+                                throw std::runtime_error("");
+                            }
+                        }
+                        else if (split[1] == "PLUTO_DEPTH_TEST")
+                        {
+                            if (split.size() == 3)
+                            {
+                                shaderData.depthTest = split[2];
+                            }
+                            else
+                            {
+                                throw std::runtime_error("");
+                            }
                         }
                     }
-                    else if (split[1] == "blend")
-                    {
-                        shaderData.blend = split[2];
-                        shaderData.blendSrc = split[3];
-                        shaderData.blendDst = split[4];
-                    }
-                    else if (split[1] == "z_test")
-                    {
-                        shaderData.zTest = split[2];
-                    }
-                    else if (split[1] == "cull")
-                    {
-                        shaderData.cullMode = split[2];
-                    }
-                    continue;
+                    vertexSrc << line << '\n';
+                    fragSrc << line << '\n';
                 }
             }
-            if (state == 1)
+            else
             {
-                vertex << line << '\n';
-            }
-            else if (state == 2)
-            {
-                frag << line << '\n';
-            }
-            else if (state == 3)
-            {
-                vertex << line << '\n';
-                frag << line << '\n';
+                vertexSrc << line << '\n';
+                fragSrc << line << '\n';
             }
         }
-        shaderData.vertex = vertex.str();
-        shaderData.frag = frag.str();
+
+        shaderData.vertexSrc = vertexSrc.str();
+        shaderData.fragSrc = fragSrc.str();
         return shaderData;
     }
 
@@ -249,14 +290,34 @@ namespace pluto
         return uniforms;
     }
 
-    ShaderAsset::BlendFunction ParseBlendFunc(const std::string& str)
+    std::vector<ShaderAsset::Property> FetchAttributes(const GLuint programId)
     {
-        const auto it = blendFunctions.find(str);
-        if (it != blendFunctions.end())
+        std::vector<ShaderAsset::Property> attributes;
+        int bufferSize;
+        glGetProgramiv(programId, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &bufferSize);
+        int attributesCount;
+        glGetProgramiv(programId, GL_ACTIVE_ATTRIBUTES, &attributesCount);
+        auto* name = static_cast<char*>(alloca(sizeof(char) * bufferSize));
+        GLuint type;
+        int size;
+        int nameLength;
+        for (int i = 0; i < attributesCount; ++i)
+        {
+            const unsigned index = i;
+            glGetActiveAttrib(programId, index, bufferSize, &nameLength, &size, &type, name);
+            attributes.push_back({static_cast<uint8_t>(index), name, propertyTypes.at(type)});
+        }
+        return attributes;
+    }
+
+    ShaderAsset::BlendEquation ParseBlendFunc(const std::string& str)
+    {
+        const auto it = blendEquations.find(str);
+        if (it != blendEquations.end())
         {
             return it->second;
         }
-        return ShaderAsset::BlendFunction::Default;
+        return ShaderAsset::BlendEquation::Default;
     }
 
     ShaderAsset::BlendFactor ParseBlendFactor(const std::string& str)
@@ -269,32 +330,33 @@ namespace pluto
         return ShaderAsset::BlendFactor::Default;
     }
 
-    ShaderAsset::ZTest ParseZTest(const std::string& str)
+    ShaderAsset::DepthTest ParseZTest(const std::string& str)
     {
-        const auto it = zTests.find(str);
-        if (it != zTests.end())
+        const auto it = depthTests.find(str);
+        if (it != depthTests.end())
         {
             return it->second;
         }
-        return ShaderAsset::ZTest::Default;
+        return ShaderAsset::DepthTest::Default;
     }
 
-    ShaderAsset::CullMode ParseCull(const std::string& str)
+    ShaderAsset::CullFace ParseCull(const std::string& str)
     {
         const auto it = cullModes.find(str);
         if (it != cullModes.end())
         {
             return it->second;
         }
-        return ShaderAsset::CullMode::Default;
+        return ShaderAsset::CullFace::Default;
     }
 
     ShaderAssetManager::~ShaderAssetManager() = default;
 
     ShaderAssetManager::
-    ShaderAssetManager(FileManager& fileManager, ShaderAsset::Factory& shaderAssetFactory) : fileManager(&fileManager),
-                                                                                             shaderAssetFactory(
-                                                                                                 &shaderAssetFactory)
+    ShaderAssetManager(FileManager& fileManager, ShaderAsset::Factory& shaderAssetFactory)
+        : fileManager(&fileManager),
+          shaderAssetFactory(
+              &shaderAssetFactory)
     {
     }
 
@@ -313,7 +375,7 @@ namespace pluto
         auto fr = fileManager->OpenRead(inputPath);
         const ShaderFileData shaderData = ParseShader(fr->GetStream());
 
-        const GLuint programId = CreateShader(shaderData.vertex, shaderData.frag);
+        const GLuint programId = CreateShader(shaderData.vertexSrc, shaderData.fragSrc);
         GLint binLength = -1;
         GLenum binFormat = -1;
         glGetProgramiv(programId, GL_PROGRAM_BINARY_LENGTH, &binLength);
@@ -321,12 +383,21 @@ namespace pluto
         GLsizei bytesWritten;
         glGetProgramBinary(programId, binLength, &bytesWritten, &binFormat, programBinary.data());
 
-        ShaderAsset::BlendFunction blend = ParseBlendFunc(shaderData.blend);
-        ShaderAsset::BlendFactor blendSrc = ParseBlendFactor(shaderData.blendSrc);
-        ShaderAsset::BlendFactor blendDst = ParseBlendFactor(shaderData.blendDst);
-        ShaderAsset::ZTest zTest = ParseZTest(shaderData.zTest);
-        ShaderAsset::CullMode cullMode = ParseCull(shaderData.cullMode);
+        ShaderAsset::BlendEquation blendEquation = ParseBlendFunc(shaderData.blendEquation);
+        ShaderAsset::BlendEquation blendAlphaEquation = ParseBlendFunc(shaderData.blendAlphaEquation);
+
+        ShaderAsset::BlendFactor blendSrcFactor = ParseBlendFactor(shaderData.blendSrcFactor);
+        ShaderAsset::BlendFactor blendDstFactor = ParseBlendFactor(shaderData.blendDstFactor);
+        ShaderAsset::BlendFactor blendAlphaSrcFactor = ParseBlendFactor(shaderData.blendSrcAlphaFactor);
+        ShaderAsset::BlendFactor blendAlphaDstFactor = ParseBlendFactor(shaderData.blendDstFactor);
+
+        ShaderAsset::DepthTest depthTest = ParseZTest(shaderData.depthTest);
+        ShaderAsset::CullFace cullFace = ParseCull(shaderData.cullFace);
+
         std::vector<ShaderAsset::Property> uniforms = FetchUniforms(programId);
+
+        std::vector<ShaderAsset::Property> attributes = FetchAttributes(programId);
+
         glDeleteProgram(programId);
 
         auto shaderAsset = shaderAssetFactory->Create();
@@ -337,11 +408,11 @@ namespace pluto
         std::string ss = shaderAsset->GetId().Str();
 
         shaderAsset->SetName(inputPath.GetNameWithoutExtension());
-        shaderAsset->SetBlendFunction(blend);
+        shaderAsset->SetBlendAlphaEquation(blend);
         shaderAsset->SetSrcBlendFactor(blendSrc);
         shaderAsset->SetDstBlendFactor(blendDst);
-        shaderAsset->SetZTest(zTest);
-        shaderAsset->SetCullMode(cullMode);
+        shaderAsset->SetZTest(depthTest);
+        shaderAsset->SetCullMode(cullFace);
         shaderAsset->SetProperties(std::move(uniforms));
         shaderAsset->SetBinaryFormat(binFormat);
         shaderAsset->SetBinary(std::move(programBinary));
