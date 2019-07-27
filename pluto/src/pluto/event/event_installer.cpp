@@ -7,11 +7,11 @@ namespace pluto
     void EventInstaller::Install(ServiceCollection& diContainer)
     {
         const EventManager::Factory factory(diContainer);
-        diContainer.AddSingleton(factory.Create());
+        diContainer.AddService(factory.Create());
     }
 
     void EventInstaller::Uninstall(ServiceCollection& diContainer)
     {
-        diContainer.RemoveSingleton<EventManager>();
+        diContainer.RemoveService<EventManager>();
     }
 }

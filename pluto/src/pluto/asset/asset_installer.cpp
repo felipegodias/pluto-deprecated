@@ -12,25 +12,25 @@ namespace pluto
 {
     void AssetInstaller::Install(ServiceCollection& diContainer)
     {
-        diContainer.AddSingleton(std::make_unique<PackageManifestAsset::Factory>(diContainer));
-        diContainer.AddSingleton(std::make_unique<MeshAsset::Factory>(diContainer));
-        diContainer.AddSingleton(std::make_unique<TextAsset::Factory>(diContainer));
-        diContainer.AddSingleton(std::make_unique<ShaderAsset::Factory>(diContainer));
-        diContainer.AddSingleton(std::make_unique<MaterialAsset::Factory>(diContainer));
-        diContainer.AddSingleton(std::make_unique<TextureAsset::Factory>(diContainer));
+        diContainer.AddService(std::make_unique<PackageManifestAsset::Factory>(diContainer));
+        diContainer.AddService(std::make_unique<MeshAsset::Factory>(diContainer));
+        diContainer.AddService(std::make_unique<TextAsset::Factory>(diContainer));
+        diContainer.AddService(std::make_unique<ShaderAsset::Factory>(diContainer));
+        diContainer.AddService(std::make_unique<MaterialAsset::Factory>(diContainer));
+        diContainer.AddService(std::make_unique<TextureAsset::Factory>(diContainer));
 
         const AssetManager::Factory factory(diContainer);
-        diContainer.AddSingleton(factory.Create());
+        diContainer.AddService(factory.Create());
     }
 
     void AssetInstaller::Uninstall(ServiceCollection& diContainer)
     {
-        diContainer.RemoveSingleton<AssetManager>();
-        diContainer.RemoveSingleton<TextureAsset::Factory>();
-        diContainer.RemoveSingleton<MaterialAsset::Factory>();
-        diContainer.RemoveSingleton<ShaderAsset::Factory>();
-        diContainer.RemoveSingleton<TextAsset::Factory>();
-        diContainer.RemoveSingleton<MeshAsset::Factory>();
-        diContainer.RemoveSingleton<PackageManifestAsset::Factory>();
+        diContainer.RemoveService<AssetManager>();
+        diContainer.RemoveService<TextureAsset::Factory>();
+        diContainer.RemoveService<MaterialAsset::Factory>();
+        diContainer.RemoveService<ShaderAsset::Factory>();
+        diContainer.RemoveService<TextAsset::Factory>();
+        diContainer.RemoveService<MeshAsset::Factory>();
+        diContainer.RemoveService<PackageManifestAsset::Factory>();
     }
 }

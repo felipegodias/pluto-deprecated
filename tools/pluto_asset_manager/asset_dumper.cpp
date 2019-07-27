@@ -14,8 +14,8 @@ namespace pluto
     void DumpAsset(const Path& path, const Asset& asset)
     {
         ServiceCollection diContainer;
-        diContainer.AddSingleton(std::make_unique<FileWriter::Factory>(diContainer));
-        diContainer.AddSingleton(std::make_unique<FileReader::Factory>(diContainer));
+        diContainer.AddService(std::make_unique<FileWriter::Factory>(diContainer));
+        diContainer.AddService(std::make_unique<FileReader::Factory>(diContainer));
 
         const FileManager::Factory fileManagerFactory(diContainer);
         const std::unique_ptr<FileManager> fileManager = fileManagerFactory.Create(path);

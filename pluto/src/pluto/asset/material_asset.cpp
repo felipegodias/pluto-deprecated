@@ -287,9 +287,9 @@ namespace pluto
     std::unique_ptr<MaterialAsset> MaterialAsset::Factory::Create() const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
-        auto& assetManager = serviceCollection.GetSingleton<AssetManager>();
+        auto& assetManager = serviceCollection.GetService<AssetManager>();
         auto pinkShader = assetManager.Load<ShaderAsset>(Path("shaders/pink.glsl"));
-        auto& eventManager = serviceCollection.GetSingleton<EventManager>();
+        auto& eventManager = serviceCollection.GetService<EventManager>();
 
         return std::make_unique<MaterialAsset>(
             std::make_unique<Impl>(Guid::New(), *pinkShader, eventManager, assetManager));

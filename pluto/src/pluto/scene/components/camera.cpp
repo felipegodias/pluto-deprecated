@@ -161,7 +161,7 @@ namespace pluto
     std::unique_ptr<Camera> Camera::Factory::Create(GameObject& gameObject) const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
-        const auto& windowManager = serviceCollection.GetSingleton<WindowManager>();
+        const auto& windowManager = serviceCollection.GetService<WindowManager>();
         return std::make_unique<Camera>(std::make_unique<Impl>(Guid::New(), gameObject, windowManager));
     }
 

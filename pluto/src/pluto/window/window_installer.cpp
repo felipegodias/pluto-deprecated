@@ -7,11 +7,11 @@ namespace pluto
     void WindowInstaller::Install(ServiceCollection& diContainer)
     {
         const WindowManager::Factory factory(diContainer);
-        diContainer.AddSingleton(factory.Create());
+        diContainer.AddService(factory.Create());
     }
 
     void WindowInstaller::Uninstall(ServiceCollection& diContainer)
     {
-        diContainer.RemoveSingleton<WindowManager>();
+        diContainer.RemoveService<WindowManager>();
     }
 }

@@ -66,8 +66,8 @@ namespace pluto
     std::unique_ptr<SimulationManager> SimulationManager::Factory::Create() const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
-        auto& logManager = serviceCollection.GetSingleton<LogManager>();
-        auto& eventManager = serviceCollection.GetSingleton<EventManager>();
+        auto& logManager = serviceCollection.GetService<LogManager>();
+        auto& eventManager = serviceCollection.GetService<EventManager>();
         return std::make_unique<SimulationManager>(std::make_unique<Impl>(logManager, eventManager));
     }
 

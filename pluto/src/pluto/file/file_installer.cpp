@@ -9,17 +9,17 @@ namespace pluto
 {
     void FileInstaller::Install(const std::string& dataDirectoryName, ServiceCollection& diContainer)
     {
-        diContainer.AddSingleton(std::make_unique<FileReader::Factory>(diContainer));
-        diContainer.AddSingleton(std::make_unique<FileWriter::Factory>(diContainer));
+        diContainer.AddService(std::make_unique<FileReader::Factory>(diContainer));
+        diContainer.AddService(std::make_unique<FileWriter::Factory>(diContainer));
 
         const FileManager::Factory factory(diContainer);
-        diContainer.AddSingleton(factory.Create(Path(dataDirectoryName)));
+        diContainer.AddService(factory.Create(Path(dataDirectoryName)));
     }
 
     void FileInstaller::Uninstall(ServiceCollection& diContainer)
     {
-        diContainer.RemoveSingleton<FileManager>();
-        diContainer.RemoveSingleton<FileWriter::Factory>();
-        diContainer.RemoveSingleton<FileReader::Factory>();
+        diContainer.RemoveService<FileManager>();
+        diContainer.RemoveService<FileWriter::Factory>();
+        diContainer.RemoveService<FileReader::Factory>();
     }
 }

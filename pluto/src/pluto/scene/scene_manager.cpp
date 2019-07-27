@@ -91,10 +91,10 @@ namespace pluto
     std::unique_ptr<SceneManager> SceneManager::Factory::Create() const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
-        auto& sceneFactory = serviceCollection.GetSingleton<Scene::Factory>();
-        auto& gameObjectFactory = serviceCollection.GetSingleton<GameObject::Factory>();
-        auto& eventManager = serviceCollection.GetSingleton<EventManager>();
-        auto& logManager = serviceCollection.GetSingleton<LogManager>();
+        auto& sceneFactory = serviceCollection.GetService<Scene::Factory>();
+        auto& gameObjectFactory = serviceCollection.GetService<GameObject::Factory>();
+        auto& eventManager = serviceCollection.GetService<EventManager>();
+        auto& logManager = serviceCollection.GetService<LogManager>();
         return std::make_unique<SceneManager>(
             std::make_unique<Impl>(sceneFactory, gameObjectFactory, eventManager, logManager));
     }

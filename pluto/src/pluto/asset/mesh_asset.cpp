@@ -153,7 +153,7 @@ namespace pluto
     std::unique_ptr<MeshAsset> MeshAsset::Factory::Create() const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
-        auto& meshBufferFactory = serviceCollection.GetSingleton<MeshBuffer::Factory>();
+        auto& meshBufferFactory = serviceCollection.GetService<MeshBuffer::Factory>();
         auto meshAsset = std::make_unique<MeshAsset>(std::make_unique<Impl>(Guid::New(), meshBufferFactory));
         meshAsset->impl->SetInstance(*meshAsset);
         return meshAsset;
@@ -181,7 +181,7 @@ namespace pluto
         fileReader.Read(&assetId, sizeof(Guid));
 
         ServiceCollection& serviceCollection = GetServiceCollection();
-        auto& meshBufferFactory = serviceCollection.GetSingleton<MeshBuffer::Factory>();
+        auto& meshBufferFactory = serviceCollection.GetService<MeshBuffer::Factory>();
         auto meshAsset = std::make_unique<MeshAsset>(std::make_unique<Impl>(assetId, meshBufferFactory));
         meshAsset->impl->SetInstance(*meshAsset);
 

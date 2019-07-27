@@ -63,28 +63,28 @@ namespace pluto
             : mainMenu(MenuOptions("Main Menu"))
         {
             diContainer = std::make_unique<ServiceCollection>();
-            diContainer->AddSingleton(std::make_unique<FileReader::Factory>(*diContainer));
-            diContainer->AddSingleton(std::make_unique<FileWriter::Factory>(*diContainer));
+            diContainer->AddService(std::make_unique<FileReader::Factory>(*diContainer));
+            diContainer->AddService(std::make_unique<FileWriter::Factory>(*diContainer));
             const FileManager::Factory fileManagerFactory(*diContainer);
-            FileManager& fileManager = diContainer->AddSingleton(fileManagerFactory.Create(Path("C:/")));
+            FileManager& fileManager = diContainer->AddService(fileManagerFactory.Create(Path("C:/")));
 
-            TextAsset::Factory& textAssetFactory = diContainer->AddSingleton(
+            TextAsset::Factory& textAssetFactory = diContainer->AddService(
                 std::make_unique<TextAsset::Factory>(*diContainer));
 
-            diContainer->AddSingleton<MeshBuffer::Factory>(std::make_unique<GlMeshBuffer::Factory>(*diContainer));
-            MeshAsset::Factory& meshAssetFactory = diContainer->AddSingleton(
+            diContainer->AddService<MeshBuffer::Factory>(std::make_unique<GlMeshBuffer::Factory>(*diContainer));
+            MeshAsset::Factory& meshAssetFactory = diContainer->AddService(
                 std::make_unique<MeshAsset::Factory>(*diContainer));
 
-            diContainer->AddSingleton<ShaderProgram::Factory>(std::make_unique<DummyShaderProgram::Factory>(*diContainer));
-            ShaderAsset::Factory& shaderAssetFactory = diContainer->AddSingleton(
+            diContainer->AddService<ShaderProgram::Factory>(std::make_unique<DummyShaderProgram::Factory>(*diContainer));
+            ShaderAsset::Factory& shaderAssetFactory = diContainer->AddService(
                 std::make_unique<ShaderAsset::Factory>(*diContainer));
 
-            diContainer->AddSingleton<TextureBuffer::Factory>(std::make_unique<DummyTextureBuffer::Factory>(*diContainer));
+            diContainer->AddService<TextureBuffer::Factory>(std::make_unique<DummyTextureBuffer::Factory>(*diContainer));
 
-            TextureAsset::Factory& textureAssetFactory = diContainer->AddSingleton(
+            TextureAsset::Factory& textureAssetFactory = diContainer->AddService(
                 std::make_unique<TextureAsset::Factory>(*diContainer));
 
-            PackageManifestAsset::Factory& packageManifestAssetFactory = diContainer->AddSingleton(
+            PackageManifestAsset::Factory& packageManifestAssetFactory = diContainer->AddService(
                 std::make_unique<PackageManifestAsset::Factory>(*diContainer));
 
             textAssetManager = std::make_unique<TextAssetManager>(fileManager, textAssetFactory);

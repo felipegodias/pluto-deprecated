@@ -96,7 +96,7 @@ namespace pluto
     std::unique_ptr<ConfigManager> ConfigManager::Factory::Create(FileReader* configFile) const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
-        auto& logManager = serviceCollection.GetSingleton<LogManager>();
+        auto& logManager = serviceCollection.GetService<LogManager>();
         return std::make_unique<ConfigManager>(std::make_unique<Impl>(configFile, logManager));
     }
 

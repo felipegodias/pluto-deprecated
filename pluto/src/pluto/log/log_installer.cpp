@@ -8,11 +8,11 @@ namespace pluto
     void LogInstaller::Install(std::unique_ptr<FileWriter> logFile, ServiceCollection& diContainer)
     {
         const LogManager::Factory factory(diContainer);
-        diContainer.AddSingleton<LogManager>(factory.Create(std::move(logFile)));
+        diContainer.AddService<LogManager>(factory.Create(std::move(logFile)));
     }
 
     void LogInstaller::Uninstall(ServiceCollection& diContainer)
     {
-        diContainer.RemoveSingleton<LogManager>();
+        diContainer.RemoveService<LogManager>();
     }
 }

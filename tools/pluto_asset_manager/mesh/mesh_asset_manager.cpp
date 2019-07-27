@@ -114,7 +114,7 @@ namespace pluto
         }
 
         ServiceCollection diContainer;
-        diContainer.AddSingleton<MeshBuffer::Factory>(std::make_unique<GlMeshBuffer::Factory>(diContainer));
+        diContainer.AddService<MeshBuffer::Factory>(std::make_unique<GlMeshBuffer::Factory>(diContainer));
         const MeshAsset::Factory factory(diContainer);
 
         auto meshAsset = factory.Create();

@@ -103,9 +103,9 @@ namespace pluto
     std::unique_ptr<GlRenderManager> GlRenderManager::Factory::Create() const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
-        auto& logManager = serviceCollection.GetSingleton<LogManager>();
-        auto& eventManager = serviceCollection.GetSingleton<EventManager>();
-        auto& sceneManager = serviceCollection.GetSingleton<SceneManager>();
+        auto& logManager = serviceCollection.GetService<LogManager>();
+        auto& eventManager = serviceCollection.GetService<EventManager>();
+        auto& sceneManager = serviceCollection.GetService<SceneManager>();
         return std::make_unique<GlRenderManager>(std::make_unique<Impl>(logManager, eventManager, sceneManager));
     }
 

@@ -13,23 +13,23 @@ namespace pluto
 {
     void SceneInstaller::Install(ServiceCollection& diContainer)
     {
-        diContainer.AddSingleton(std::make_unique<GameObject::Factory>(diContainer));
-        diContainer.AddSingleton(std::make_unique<Transform::Factory>(diContainer));
-        diContainer.AddSingleton(std::make_unique<Camera::Factory>(diContainer));
-        diContainer.AddSingleton(std::make_unique<Scene::Factory>(diContainer));
-        diContainer.AddSingleton(std::make_unique<MeshRenderer::Factory>(diContainer));
+        diContainer.AddService(std::make_unique<GameObject::Factory>(diContainer));
+        diContainer.AddService(std::make_unique<Transform::Factory>(diContainer));
+        diContainer.AddService(std::make_unique<Camera::Factory>(diContainer));
+        diContainer.AddService(std::make_unique<Scene::Factory>(diContainer));
+        diContainer.AddService(std::make_unique<MeshRenderer::Factory>(diContainer));
 
         const SceneManager::Factory sceneManagerFactory(diContainer);
-        diContainer.AddSingleton(sceneManagerFactory.Create());
+        diContainer.AddService(sceneManagerFactory.Create());
     }
 
     void SceneInstaller::Uninstall(ServiceCollection& diContainer)
     {
-        diContainer.RemoveSingleton<SceneManager>();
-        diContainer.RemoveSingleton<MeshRenderer::Factory>();
-        diContainer.RemoveSingleton<Scene::Factory>();
-        diContainer.RemoveSingleton<Camera::Factory>();
-        diContainer.RemoveSingleton<Transform::Factory>();
-        diContainer.RemoveSingleton<GameObject::Factory>();
+        diContainer.RemoveService<SceneManager>();
+        diContainer.RemoveService<MeshRenderer::Factory>();
+        diContainer.RemoveService<Scene::Factory>();
+        diContainer.RemoveService<Camera::Factory>();
+        diContainer.RemoveService<Transform::Factory>();
+        diContainer.RemoveService<GameObject::Factory>();
     }
 }

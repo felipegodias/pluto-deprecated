@@ -7,11 +7,11 @@ namespace pluto
     void InputInstaller::Install(ServiceCollection& diContainer)
     {
         const InputManager::Factory factory(diContainer);
-        diContainer.AddSingleton(factory.Create());
+        diContainer.AddService(factory.Create());
     }
 
     void InputInstaller::Uninstall(ServiceCollection& diContainer)
     {
-        diContainer.RemoveSingleton<InputManager>();
+        diContainer.RemoveService<InputManager>();
     }
 }

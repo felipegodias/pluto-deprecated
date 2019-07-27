@@ -107,7 +107,7 @@ namespace pluto
     std::unique_ptr<EventManager> EventManager::Factory::Create() const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
-        auto& logManager = serviceCollection.GetSingleton<LogManager>();
+        auto& logManager = serviceCollection.GetService<LogManager>();
         return std::make_unique<EventManager>(std::make_unique<Impl>(logManager));
     }
 

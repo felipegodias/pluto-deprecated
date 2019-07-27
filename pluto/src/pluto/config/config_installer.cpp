@@ -7,11 +7,11 @@ namespace pluto
     void ConfigInstaller::Install(FileReader* configFile, ServiceCollection& diContainer)
     {
         const ConfigManager::Factory factory(diContainer);
-        diContainer.AddSingleton(factory.Create(configFile));
+        diContainer.AddService(factory.Create(configFile));
     }
 
     void ConfigInstaller::Uninstall(ServiceCollection& diContainer)
     {
-        diContainer.RemoveSingleton<ConfigManager>();
+        diContainer.RemoveService<ConfigManager>();
     }
 }

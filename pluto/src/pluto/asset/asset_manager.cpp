@@ -190,13 +190,13 @@ namespace pluto
     std::unique_ptr<AssetManager> AssetManager::Factory::Create() const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
-        const auto& fileManager = serviceCollection.GetSingleton<FileManager>();
-        const auto& eventManager = serviceCollection.GetSingleton<EventManager>();
-        const auto& packageManifestFactory = serviceCollection.GetSingleton<PackageManifestAsset::Factory>();
-        const auto& textFactory = serviceCollection.GetSingleton<TextAsset::Factory>();
-        const auto& meshFactory = serviceCollection.GetSingleton<MeshAsset::Factory>();
-        const auto& shaderFactory = serviceCollection.GetSingleton<ShaderAsset::Factory>();
-        const auto& textureFactory = serviceCollection.GetSingleton<TextureAsset::Factory>();
+        const auto& fileManager = serviceCollection.GetService<FileManager>();
+        const auto& eventManager = serviceCollection.GetService<EventManager>();
+        const auto& packageManifestFactory = serviceCollection.GetService<PackageManifestAsset::Factory>();
+        const auto& textFactory = serviceCollection.GetService<TextAsset::Factory>();
+        const auto& meshFactory = serviceCollection.GetService<MeshAsset::Factory>();
+        const auto& shaderFactory = serviceCollection.GetService<ShaderAsset::Factory>();
+        const auto& textureFactory = serviceCollection.GetService<TextureAsset::Factory>();
         return std::make_unique<AssetManager>(std::make_unique<Impl>(fileManager, eventManager, packageManifestFactory,
                                                                      textFactory, meshFactory, shaderFactory,
                                                                      textureFactory));

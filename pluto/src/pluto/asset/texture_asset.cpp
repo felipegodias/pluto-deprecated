@@ -314,7 +314,7 @@ namespace pluto
                                                                 std::vector<uint8_t> data) const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
-        const auto& textureBufferFactory = serviceCollection.GetSingleton<TextureBuffer::Factory>();
+        const auto& textureBufferFactory = serviceCollection.GetService<TextureBuffer::Factory>();
         auto textureBuffer = textureBufferFactory.Create();
 
         auto textureAsset = std::make_unique<TextureAsset>(

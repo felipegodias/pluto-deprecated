@@ -7,11 +7,11 @@ namespace pluto
     void SimulationInstaller::Install(ServiceCollection& diContainer)
     {
         const SimulationManager::Factory factory(diContainer);
-        diContainer.AddSingleton(factory.Create());
+        diContainer.AddService(factory.Create());
     }
 
     void SimulationInstaller::Uninstall(ServiceCollection& diContainer)
     {
-        diContainer.RemoveSingleton<SimulationManager>();
+        diContainer.RemoveService<SimulationManager>();
     }
 }

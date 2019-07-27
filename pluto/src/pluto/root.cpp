@@ -71,7 +71,7 @@ namespace pluto
             diContainer = std::make_unique<ServiceCollection>();
 
             FileInstaller::Install(dataDirectoryName, *diContainer);
-            auto& fileManager = diContainer->GetSingleton<FileManager>();
+            auto& fileManager = diContainer->GetService<FileManager>();
 
             std::unique_ptr<FileWriter> logFile = fileManager.OpenWrite(Path(logFileName));
             LogInstaller::Install(std::move(logFile), *diContainer);
@@ -91,7 +91,7 @@ namespace pluto
             SceneInstaller::Install(*diContainer);
             RenderInstaller::Install(*diContainer);
 
-            auto& logManager = diContainer->GetSingleton<LogManager>();
+            auto& logManager = diContainer->GetService<LogManager>();
             logManager.LogInfo("Pluto Engine Initialized!");
         }
 
@@ -111,21 +111,21 @@ namespace pluto
 
         int Run() const
         {
-            auto& windowManager = diContainer->GetSingleton<WindowManager>();
-            auto& simulationManager = diContainer->GetSingleton<SimulationManager>();
-            auto& logManager = diContainer->GetSingleton<LogManager>();
+            auto& windowManager = diContainer->GetService<WindowManager>();
+            auto& simulationManager = diContainer->GetService<SimulationManager>();
+            auto& logManager = diContainer->GetService<LogManager>();
             MaterialAsset* transparentMaterial = nullptr;
             MaterialAsset* unlitMaterial = nullptr;
 
             {
                 // TODO: Move to simulation manager.
-                auto& eventManager = diContainer->GetSingleton<EventManager>();
+                auto& eventManager = diContainer->GetService<EventManager>();
                 eventManager.Dispatch(OnStartupEvent());
-                auto& assetManager = diContainer->GetSingleton<AssetManager>();
+                auto& assetManager = diContainer->GetService<AssetManager>();
 
                 assetManager.LoadPackage("built-in");
 
-                auto& sceneManager = diContainer->GetSingleton<SceneManager>();
+                auto& sceneManager = diContainer->GetService<SceneManager>();
                 sceneManager.LoadEmptyScene();
 
                 GameObject& cameraGo = sceneManager.GetActiveScene().CreateGameObject("Camera");
@@ -137,7 +137,7 @@ namespace pluto
                 auto unlitShaderAsset = assetManager.Load<ShaderAsset>(Path("shaders/unlit.glsl"));
                 auto transparentShaderAsset = assetManager.Load<ShaderAsset>(Path("shaders/transparent.glsl"));
 
-                auto& materialFactory = diContainer->GetSingleton<MaterialAsset::Factory>();
+                auto& materialFactory = diContainer->GetService<MaterialAsset::Factory>();
                 
                 auto materialAssetPtr = materialFactory.Create();
                 materialAssetPtr->SetName("unlit"); 
