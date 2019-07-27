@@ -106,7 +106,6 @@ namespace pluto
                 UpdateBlendFunction();
                 UpdateDepthTest();
                 UpdateFaceCull();
-                UpdateAttributes();
                 isBound = true;
             }
 
@@ -195,33 +194,19 @@ namespace pluto
         void UpdateFaceCull()
         {
             GL_CALL(const bool isFaceCullOn = glIsEnabled(GL_CULL_FACE));
-            if (shaderAsset->GetCullFace() != ShaderAsset::CullFace::Off)
+            ShaderAsset::CullFace cullFace = shaderAsset->GetCullFace();
+            if (cullFace != ShaderAsset::CullFace::Off)
             {
                 if (!isFaceCullOn)
                 {
                     GL_CALL(glEnable(GL_CULL_FACE));
                 }
 
-                GL_CALL(glCullFace(FACE_CULLING[static_cast<int>(shaderAsset->GetCullFace())]));
+                GL_CALL(glCullFace(FACE_CULLING[static_cast<int>(cullFace)]));
             }
             else if (isFaceCullOn)
             {
-                GL_CALL(glDisable(GL_DEPTH_TEST));
-            }
-        }
-
-        void UpdateAttributes()
-        {
-            for (const auto& uniform : shaderAsset->GetUniforms())
-            {
-                if (uniform.name == "vertex.pos")
-                {
-                    glBindAttribLocation(programId, 0, "vertex.pos");
-                }
-                else if (uniform.name == "vertex.uv")
-                {
-                    glBindAttribLocation(programId, 1, "vertex.uv");
-                }
+                GL_CALL(glDisable(GL_CULL_FACE));
             }
         }
 
