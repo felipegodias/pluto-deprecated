@@ -42,7 +42,7 @@ namespace pluto
                 std::bind(&Impl::OnRender, this, std::placeholders::_1));
 
             glewInit();
-
+            glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
             logManager.LogInfo("OpenGL RenderManager initialized!");
         }
 
