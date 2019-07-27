@@ -1,7 +1,7 @@
 #include <pluto/log/log_manager.h>
 #include <pluto/file/file_manager.h>
 #include <pluto/file/file_writer.h>
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 #include <pluto/exception.h>
 #include <pluto/stack_trace.h>
 
@@ -71,7 +71,7 @@ namespace pluto
         }
     };
 
-    LogManager::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    LogManager::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
     {
     }
 

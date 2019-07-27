@@ -8,7 +8,7 @@
 #include <pluto/scene/game_object.h>
 
 #include <pluto/guid.h>
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 #include <pluto/scene/game_object.h>
 
 namespace pluto
@@ -84,13 +84,13 @@ namespace pluto
         }
     };
 
-    SceneManager::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    SceneManager::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
     {
     }
 
     std::unique_ptr<SceneManager> SceneManager::Factory::Create() const
     {
-        DiContainer& serviceCollection = GetServiceCollection();
+        ServiceCollection& serviceCollection = GetServiceCollection();
         auto& sceneFactory = serviceCollection.GetSingleton<Scene::Factory>();
         auto& gameObjectFactory = serviceCollection.GetSingleton<GameObject::Factory>();
         auto& eventManager = serviceCollection.GetSingleton<EventManager>();

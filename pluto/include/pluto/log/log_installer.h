@@ -5,13 +5,13 @@
 
 namespace pluto
 {
-    class DiContainer;
+    class ServiceCollection;
     class FileWriter;
 
     class PLUTO_API LogInstaller
     {
     public:
-        static void Install(std::unique_ptr<FileWriter> logFile, DiContainer& diContainer);
-        static void Uninstall(DiContainer& diContainer);
+        static void Install(std::unique_ptr<FileWriter> logFile, ServiceCollection& diContainer);
+        static void Uninstall(ServiceCollection& diContainer);
     };
 }

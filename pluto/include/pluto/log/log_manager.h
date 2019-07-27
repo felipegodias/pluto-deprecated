@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../di/singleton.h"
-#include "../di/base_factory.h"
+#include "pluto/service/base_service.h"
+#include "pluto/service/base_factory.h"
+
 #include <string>
 #include <memory>
 
@@ -10,13 +11,13 @@ namespace pluto
     class FileWriter;
     class Exception;
 
-    class PLUTO_API LogManager final : public Singleton
+    class PLUTO_API LogManager final : public BaseService
     {
     public:
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
-            explicit Factory(DiContainer& diContainer);
+            explicit Factory(ServiceCollection& diContainer);
             std::unique_ptr<LogManager> Create(std::unique_ptr<FileWriter> logFile) const;
         };
 

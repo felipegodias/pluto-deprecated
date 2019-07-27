@@ -4,7 +4,7 @@
 
 #include <pluto/guid.h>
 
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 
 #include <list>
 
@@ -73,13 +73,13 @@ namespace pluto
         }
     };
 
-    Scene::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    Scene::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
     {
     }
 
     std::unique_ptr<Scene> Scene::Factory::Create() const
     {
-        DiContainer& serviceCollection = GetServiceCollection();
+        ServiceCollection& serviceCollection = GetServiceCollection();
         const auto& gameObjectFactory = serviceCollection.GetSingleton<GameObject::Factory>();
         auto rootGameObject = gameObjectFactory.Create();
         rootGameObject->SetName("root");

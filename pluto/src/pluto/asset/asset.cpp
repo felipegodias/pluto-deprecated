@@ -1,12 +1,12 @@
 #include <pluto/asset/asset.h>
 #include <pluto/guid.h>
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 
 namespace pluto
 {
     Asset::Factory::~Factory() = default;
 
-    Asset::Factory::Factory(DiContainer& diContainer)
+    Asset::Factory::Factory(ServiceCollection& diContainer)
         : BaseFactory(diContainer)
     {
     }

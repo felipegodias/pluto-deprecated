@@ -22,7 +22,7 @@
 
 #include <pluto/render/gl/gl_mesh_buffer.h>
 
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 
 #include <pluto/file/path.h>
 #include <pluto/file/file_manager.h>
@@ -41,7 +41,7 @@ namespace pluto
 {
     class MainMenu final : public BaseMenu
     {
-        std::unique_ptr<DiContainer> diContainer;
+        std::unique_ptr<ServiceCollection> diContainer;
 
         std::unique_ptr<TextAssetManager> textAssetManager;
         std::unique_ptr<MeshAssetManager> meshAssetManager;
@@ -62,7 +62,7 @@ namespace pluto
         MainMenu()
             : mainMenu(MenuOptions("Main Menu"))
         {
-            diContainer = std::make_unique<DiContainer>();
+            diContainer = std::make_unique<ServiceCollection>();
             diContainer->AddSingleton(std::make_unique<FileReader::Factory>(*diContainer));
             diContainer->AddSingleton(std::make_unique<FileWriter::Factory>(*diContainer));
             const FileManager::Factory fileManagerFactory(*diContainer);

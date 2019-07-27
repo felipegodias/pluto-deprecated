@@ -8,7 +8,7 @@
 
 #include <pluto/log/log_manager.h>
 #include <pluto/event/event_manager.h>
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 #include <GLFW/glfw3.h>
 
 #include <sstream>
@@ -59,13 +59,13 @@ namespace pluto
         }
     };
 
-    SimulationManager::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    SimulationManager::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
     {
     }
 
     std::unique_ptr<SimulationManager> SimulationManager::Factory::Create() const
     {
-        DiContainer& serviceCollection = GetServiceCollection();
+        ServiceCollection& serviceCollection = GetServiceCollection();
         auto& logManager = serviceCollection.GetSingleton<LogManager>();
         auto& eventManager = serviceCollection.GetSingleton<EventManager>();
         return std::make_unique<SimulationManager>(std::make_unique<Impl>(logManager, eventManager));

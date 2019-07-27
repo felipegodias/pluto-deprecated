@@ -6,11 +6,11 @@
 #include <pluto/asset/shader_asset.h>
 #include <pluto/asset/material_asset.h>
 #include <pluto/asset/texture_asset.h>
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 
 namespace pluto
 {
-    void AssetInstaller::Install(DiContainer& diContainer)
+    void AssetInstaller::Install(ServiceCollection& diContainer)
     {
         diContainer.AddSingleton(std::make_unique<PackageManifestAsset::Factory>(diContainer));
         diContainer.AddSingleton(std::make_unique<MeshAsset::Factory>(diContainer));
@@ -23,7 +23,7 @@ namespace pluto
         diContainer.AddSingleton(factory.Create());
     }
 
-    void AssetInstaller::Uninstall(DiContainer& diContainer)
+    void AssetInstaller::Uninstall(ServiceCollection& diContainer)
     {
         diContainer.RemoveSingleton<AssetManager>();
         diContainer.RemoveSingleton<TextureAsset::Factory>();

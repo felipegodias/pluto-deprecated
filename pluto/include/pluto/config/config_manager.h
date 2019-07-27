@@ -1,22 +1,23 @@
 #pragma once
 
-#include "../di/singleton.h"
-#include "../di/base_factory.h"
+#include "pluto/service/base_service.h"
+#include "pluto/service/base_factory.h"
+
 #include <memory>
 #include <string>
 
 namespace pluto
 {
-    class DiContainer;
+    class ServiceCollection;
     class FileReader;
 
-    class PLUTO_API ConfigManager final : public Singleton
+    class PLUTO_API ConfigManager final : public BaseService
     {
     public:
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
-            explicit Factory(DiContainer& diContainer);
+            explicit Factory(ServiceCollection& diContainer);
             std::unique_ptr<ConfigManager> Create(FileReader* configFile) const;
         };
 

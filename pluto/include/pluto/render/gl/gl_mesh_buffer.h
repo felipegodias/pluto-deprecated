@@ -13,7 +13,7 @@ namespace pluto
         class PLUTO_API Factory final : public MeshBuffer::Factory
         {
         public:
-            explicit Factory(DiContainer& diContainer);
+            explicit Factory(ServiceCollection& diContainer);
             std::unique_ptr<MeshBuffer> Create(const MeshAsset& mesh) const override;
         };
 

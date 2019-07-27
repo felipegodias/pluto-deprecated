@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pluto/render/render_manager.h"
-#include "pluto/di/base_factory.h"
+#include "pluto/service/base_factory.h"
 
 #include <memory>
 
@@ -13,7 +13,7 @@ namespace pluto
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
-            explicit Factory(DiContainer& diContainer);
+            explicit Factory(ServiceCollection& diContainer);
             std::unique_ptr<GlRenderManager> Create() const;
         };
 

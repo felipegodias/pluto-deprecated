@@ -4,8 +4,8 @@
 #include <pluto/file/file_reader.h>
 #include <pluto/file/path.h>
 
-#include <pluto/di/di_container.h>
-#include <pluto/di/base_factory.h>
+#include <pluto/service/service_collection.h>
+#include <pluto/service/base_factory.h>
 #include <pluto/guid.h>
 #include <pluto/asset/asset.h>
 #include <pluto/asset/package_manifest_asset.h>
@@ -182,14 +182,14 @@ namespace pluto
         }
     };
 
-    AssetManager::Factory::Factory(DiContainer& diContainer)
+    AssetManager::Factory::Factory(ServiceCollection& diContainer)
         : BaseFactory(diContainer)
     {
     }
 
     std::unique_ptr<AssetManager> AssetManager::Factory::Create() const
     {
-        DiContainer& serviceCollection = GetServiceCollection();
+        ServiceCollection& serviceCollection = GetServiceCollection();
         const auto& fileManager = serviceCollection.GetSingleton<FileManager>();
         const auto& eventManager = serviceCollection.GetSingleton<EventManager>();
         const auto& packageManifestFactory = serviceCollection.GetSingleton<PackageManifestAsset::Factory>();

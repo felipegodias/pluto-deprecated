@@ -65,7 +65,7 @@ namespace pluto
 
     TextAsset::Factory::~Factory() = default;
 
-    TextAsset::Factory::Factory(DiContainer& diContainer)
+    TextAsset::Factory::Factory(ServiceCollection& diContainer)
         : Asset::Factory(diContainer)
     {
     }

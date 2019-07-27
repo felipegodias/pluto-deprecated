@@ -1,7 +1,7 @@
 #pragma once
 
 #include "component.h"
-#include "../di/base_factory.h"
+#include "pluto/service/base_factory.h"
 
 #include <memory>
 #include <vector>
@@ -20,7 +20,7 @@ namespace pluto
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
-            explicit Factory(DiContainer& diContainer);
+            explicit Factory(ServiceCollection& diContainer);
             std::unique_ptr<Transform> Create(GameObject& gameObject) const;
         };
 

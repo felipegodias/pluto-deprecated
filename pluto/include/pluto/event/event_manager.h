@@ -1,8 +1,9 @@
 #pragma once
 
-#include "../di/singleton.h"
-#include "../di/base_factory.h"
+#include "pluto/service/base_service.h"
+#include "pluto/service/base_factory.h"
 #include "base_event.h"
+
 #include <functional>
 #include <memory>
 #include <type_traits>
@@ -17,13 +18,13 @@ namespace pluto
     template <typename T, IsEvent<T>  = 0>
     using EventListener = std::function<void(const T&)>;
 
-    class PLUTO_API EventManager final : public Singleton
+    class PLUTO_API EventManager final : public BaseService
     {
     public:
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
-            explicit Factory(DiContainer& diContainer);
+            explicit Factory(ServiceCollection& diContainer);
             std::unique_ptr<EventManager> Create() const;
         };
 

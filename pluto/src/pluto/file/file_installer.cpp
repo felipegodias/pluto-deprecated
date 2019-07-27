@@ -3,11 +3,11 @@
 #include <pluto/file/file_reader.h>
 #include <pluto/file/file_writer.h>
 #include <pluto/file/path.h>
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 
 namespace pluto
 {
-    void FileInstaller::Install(const std::string& dataDirectoryName, DiContainer& diContainer)
+    void FileInstaller::Install(const std::string& dataDirectoryName, ServiceCollection& diContainer)
     {
         diContainer.AddSingleton(std::make_unique<FileReader::Factory>(diContainer));
         diContainer.AddSingleton(std::make_unique<FileWriter::Factory>(diContainer));
@@ -16,7 +16,7 @@ namespace pluto
         diContainer.AddSingleton(factory.Create(Path(dataDirectoryName)));
     }
 
-    void FileInstaller::Uninstall(DiContainer& diContainer)
+    void FileInstaller::Uninstall(ServiceCollection& diContainer)
     {
         diContainer.RemoveSingleton<FileManager>();
         diContainer.RemoveSingleton<FileWriter::Factory>();

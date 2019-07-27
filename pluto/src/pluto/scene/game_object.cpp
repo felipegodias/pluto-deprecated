@@ -5,7 +5,7 @@
 #include <pluto/scene/components/mesh_renderer.h>
 #include <pluto/scene/components/camera.h>
 
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 #include <pluto/guid.h>
 #include <pluto/exception.h>
 
@@ -202,13 +202,13 @@ namespace pluto
         }
     };
 
-    GameObject::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    GameObject::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
     {
     }
 
     std::unique_ptr<GameObject> GameObject::Factory::Create() const
     {
-        DiContainer& serviceCollection = GetServiceCollection();
+        ServiceCollection& serviceCollection = GetServiceCollection();
         auto& transformFactory = serviceCollection.GetSingleton<Transform::Factory>();
         auto& cameraFactory = serviceCollection.GetSingleton<Camera::Factory>();
         auto& meshRendererFactory = serviceCollection.GetSingleton<MeshRenderer::Factory>();

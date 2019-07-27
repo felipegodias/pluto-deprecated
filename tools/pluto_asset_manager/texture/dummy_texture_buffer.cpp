@@ -3,7 +3,7 @@
 
 namespace pluto
 {
-    DummyTextureBuffer::Factory::Factory(DiContainer& diContainer)
+    DummyTextureBuffer::Factory::Factory(ServiceCollection& diContainer)
         : TextureBuffer::Factory(diContainer)
     {
     }

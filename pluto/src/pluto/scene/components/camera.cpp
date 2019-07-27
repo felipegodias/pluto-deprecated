@@ -2,7 +2,7 @@
 #include "pluto/scene/game_object.h"
 #include "pluto/scene/transform.h"
 
-#include "pluto/di/di_container.h"
+#include "pluto/service/service_collection.h"
 #include "pluto/window/window_manager.h"
 #include "pluto/math/matrix4x4.h"
 #include "pluto/math/vector3f.h"
@@ -154,13 +154,13 @@ namespace pluto
         }
     };
 
-    Camera::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    Camera::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
     {
     }
 
     std::unique_ptr<Camera> Camera::Factory::Create(GameObject& gameObject) const
     {
-        DiContainer& serviceCollection = GetServiceCollection();
+        ServiceCollection& serviceCollection = GetServiceCollection();
         const auto& windowManager = serviceCollection.GetSingleton<WindowManager>();
         return std::make_unique<Camera>(std::make_unique<Impl>(Guid::New(), gameObject, windowManager));
     }

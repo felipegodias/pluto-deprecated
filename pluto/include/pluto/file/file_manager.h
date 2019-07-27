@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../di/singleton.h"
-#include "../di/base_factory.h"
+#include "pluto/service/base_service.h"
+#include "pluto/service/base_factory.h"
+
 #include <memory>
 #include <vector>
 
@@ -12,13 +13,13 @@ namespace pluto
     class Regex;
     class Path;
 
-    class PLUTO_API FileManager final : public Singleton
+    class PLUTO_API FileManager final : public BaseService
     {
     public:
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
-            explicit Factory(DiContainer& diContainer);
+            explicit Factory(ServiceCollection& diContainer);
             std::unique_ptr<FileManager> Create(const Path& rootPath) const;
         };
 

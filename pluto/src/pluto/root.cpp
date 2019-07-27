@@ -1,5 +1,5 @@
 #include <pluto/root.h>
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 
 #include <pluto/file/file_installer.h>
 #include <pluto/log/log_installer.h>
@@ -62,13 +62,13 @@ namespace pluto
     class Root::Impl
     {
     private:
-        std::unique_ptr<DiContainer> diContainer;
+        std::unique_ptr<ServiceCollection> diContainer;
 
     public:
         Impl(const std::string& configFileName, const std::string& logFileName,
              const std::string& dataDirectoryName)
         {
-            diContainer = std::make_unique<DiContainer>();
+            diContainer = std::make_unique<ServiceCollection>();
 
             FileInstaller::Install(dataDirectoryName, *diContainer);
             auto& fileManager = diContainer->GetSingleton<FileManager>();

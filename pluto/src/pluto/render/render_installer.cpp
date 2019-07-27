@@ -6,11 +6,11 @@
 #include <pluto/render/gl/gl_shader_program.h>
 #include <pluto/render/gl/gl_texture_buffer.h>
 
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 
 namespace pluto
 {
-    void InstallOpenGl(DiContainer& diContainer)
+    void InstallOpenGl(ServiceCollection& diContainer)
     {
         diContainer.AddSingleton<MeshBuffer::Factory>(std::make_unique<GlMeshBuffer::Factory>(diContainer));
         diContainer.AddSingleton<ShaderProgram::Factory>(std::make_unique<GlShaderProgram::Factory>(diContainer));
@@ -20,12 +20,12 @@ namespace pluto
         diContainer.AddSingleton<RenderManager>(factory.Create());
     }
 
-    void RenderInstaller::Install(DiContainer& diContainer)
+    void RenderInstaller::Install(ServiceCollection& diContainer)
     {
         InstallOpenGl(diContainer);
     }
 
-    void RenderInstaller::Uninstall(DiContainer& diContainer)
+    void RenderInstaller::Uninstall(ServiceCollection& diContainer)
     {
         diContainer.RemoveSingleton<RenderManager>();
         diContainer.RemoveSingleton<TextureBuffer::Factory>();

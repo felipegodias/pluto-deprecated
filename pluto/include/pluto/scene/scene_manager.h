@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../di/singleton.h"
-#include "../di/base_factory.h"
+#include "pluto/service/base_service.h"
+#include "pluto/service/base_factory.h"
 #include <memory>
 #include <string>
 
@@ -10,13 +10,13 @@ namespace pluto
     class Scene;
     class GameObject;
 
-    class PLUTO_API SceneManager final : public Singleton
+    class PLUTO_API SceneManager final : public BaseService
     {
     public:
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
-            explicit Factory(DiContainer& diContainer);
+            explicit Factory(ServiceCollection& diContainer);
             std::unique_ptr<SceneManager> Create() const;
         };
 

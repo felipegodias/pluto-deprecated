@@ -66,7 +66,7 @@ namespace pluto
         }
     };
 
-    GlMeshBuffer::Factory::Factory(DiContainer& diContainer) : MeshBuffer::Factory(diContainer)
+    GlMeshBuffer::Factory::Factory(ServiceCollection& diContainer) : MeshBuffer::Factory(diContainer)
     {
     }
 

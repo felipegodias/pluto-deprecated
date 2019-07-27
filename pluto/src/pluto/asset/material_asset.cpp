@@ -5,7 +5,7 @@
 #include <pluto/asset/asset_manager.h>
 #include <pluto/file/path.h>
 
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 
 #include <pluto/event/event_manager.h>
 
@@ -275,7 +275,7 @@ namespace pluto
 
     MaterialAsset::Factory::~Factory() = default;
 
-    MaterialAsset::Factory::Factory(DiContainer& diContainer)
+    MaterialAsset::Factory::Factory(ServiceCollection& diContainer)
         : Asset::Factory(diContainer)
     {
     }
@@ -286,7 +286,7 @@ namespace pluto
 
     std::unique_ptr<MaterialAsset> MaterialAsset::Factory::Create() const
     {
-        DiContainer& serviceCollection = GetServiceCollection();
+        ServiceCollection& serviceCollection = GetServiceCollection();
         auto& assetManager = serviceCollection.GetSingleton<AssetManager>();
         auto pinkShader = assetManager.Load<ShaderAsset>(Path("shaders/pink.glsl"));
         auto& eventManager = serviceCollection.GetSingleton<EventManager>();

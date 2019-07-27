@@ -4,13 +4,13 @@
 
 namespace pluto
 {
-    class DiContainer;
+    class ServiceCollection;
     class FileReader;
 
     class PLUTO_API ConfigInstaller
     {
     public:
-        static void Install(FileReader* configFile, DiContainer& diContainer);
-        static void Uninstall(DiContainer& diContainer);
+        static void Install(FileReader* configFile, ServiceCollection& diContainer);
+        static void Uninstall(ServiceCollection& diContainer);
     };
 }

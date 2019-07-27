@@ -1,20 +1,20 @@
 #pragma once
 
-#include "../di/singleton.h"
-#include "../di/base_factory.h"
+#include "pluto/service/base_service.h"
+#include "pluto/service/base_factory.h"
 #include <memory>
 
 namespace pluto
 {
     class Vector2I;
 
-    class PLUTO_API WindowManager final : public Singleton
+    class PLUTO_API WindowManager final : public BaseService
     {
     public:
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
-            explicit Factory(DiContainer& diContainer);
+            explicit Factory(ServiceCollection& diContainer);
             std::unique_ptr<WindowManager> Create() const;
         };
 

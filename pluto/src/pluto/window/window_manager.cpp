@@ -6,7 +6,7 @@
 #include <pluto/math/vector2i.h>
 
 #include <pluto/guid.h>
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 #include <GLFW/glfw3.h>
 #include <stdexcept>
 
@@ -93,13 +93,13 @@ namespace pluto
         }
     };
 
-    WindowManager::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    WindowManager::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
     {
     }
 
     std::unique_ptr<WindowManager> WindowManager::Factory::Create() const
     {
-        DiContainer& serviceCollection = GetServiceCollection();
+        ServiceCollection& serviceCollection = GetServiceCollection();
         auto& configManager = serviceCollection.GetSingleton<ConfigManager>();
         const int screenWidth = configManager.GetInt("screenWidth", 640);
         const int screenHeight = configManager.GetInt("screenHeight", 480);

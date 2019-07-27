@@ -14,7 +14,7 @@ namespace pluto
         class PLUTO_API Factory final : public ShaderProgram::Factory
         {
         public:
-            explicit Factory(DiContainer& diContainer);
+            explicit Factory(ServiceCollection& diContainer);
             std::unique_ptr<ShaderProgram> Create(const ShaderAsset& shaderAsset) const override;
         };
 

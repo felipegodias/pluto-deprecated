@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../di/base_factory.h"
+#include "pluto/service/base_factory.h"
 
 #include <memory>
 #include <string>
@@ -27,7 +27,7 @@ namespace pluto
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
-            explicit Factory(DiContainer& diContainer);
+            explicit Factory(ServiceCollection& diContainer);
             std::unique_ptr<GameObject> Create() const;
         };
 

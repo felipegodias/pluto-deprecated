@@ -1,16 +1,16 @@
 #include <pluto/simulation/simulation_installer.h>
 #include <pluto/simulation/simulation_manager.h>
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 
 namespace pluto
 {
-    void SimulationInstaller::Install(DiContainer& diContainer)
+    void SimulationInstaller::Install(ServiceCollection& diContainer)
     {
         const SimulationManager::Factory factory(diContainer);
         diContainer.AddSingleton(factory.Create());
     }
 
-    void SimulationInstaller::Uninstall(DiContainer& diContainer)
+    void SimulationInstaller::Uninstall(ServiceCollection& diContainer)
     {
         diContainer.RemoveSingleton<SimulationManager>();
     }

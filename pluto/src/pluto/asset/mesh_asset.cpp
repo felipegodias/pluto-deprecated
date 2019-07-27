@@ -1,6 +1,6 @@
 #include <pluto/asset/mesh_asset.h>
 
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 #include <pluto/render/mesh_buffer.h>
 
 #include <pluto/guid.h>
@@ -141,7 +141,7 @@ namespace pluto
 
     MeshAsset::Factory::~Factory() = default;
 
-    MeshAsset::Factory::Factory(DiContainer& diContainer)
+    MeshAsset::Factory::Factory(ServiceCollection& diContainer)
         : Asset::Factory(diContainer)
     {
     }
@@ -152,7 +152,7 @@ namespace pluto
 
     std::unique_ptr<MeshAsset> MeshAsset::Factory::Create() const
     {
-        DiContainer& serviceCollection = GetServiceCollection();
+        ServiceCollection& serviceCollection = GetServiceCollection();
         auto& meshBufferFactory = serviceCollection.GetSingleton<MeshBuffer::Factory>();
         auto meshAsset = std::make_unique<MeshAsset>(std::make_unique<Impl>(Guid::New(), meshBufferFactory));
         meshAsset->impl->SetInstance(*meshAsset);
@@ -180,7 +180,7 @@ namespace pluto
         Guid assetId;
         fileReader.Read(&assetId, sizeof(Guid));
 
-        DiContainer& serviceCollection = GetServiceCollection();
+        ServiceCollection& serviceCollection = GetServiceCollection();
         auto& meshBufferFactory = serviceCollection.GetSingleton<MeshBuffer::Factory>();
         auto meshAsset = std::make_unique<MeshAsset>(std::make_unique<Impl>(assetId, meshBufferFactory));
         meshAsset->impl->SetInstance(*meshAsset);

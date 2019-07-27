@@ -42,7 +42,7 @@ namespace pluto
         }
     };
 
-    FileReader::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    FileReader::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
     {
     }
 

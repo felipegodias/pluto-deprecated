@@ -1,7 +1,8 @@
 #pragma once
 
 #include "asset.h"
-#include "../di/base_factory.h"
+#include "pluto/service/base_factory.h"
+
 #include <memory>
 #include <vector>
 
@@ -66,7 +67,7 @@ namespace pluto
         {
         public:
             ~Factory() override;
-            explicit Factory(DiContainer& diContainer);
+            explicit Factory(ServiceCollection& diContainer);
 
             Factory(const Factory& other) = delete;
             Factory(Factory&& other) noexcept;

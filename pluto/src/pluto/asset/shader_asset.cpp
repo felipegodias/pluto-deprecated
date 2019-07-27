@@ -1,6 +1,6 @@
 #include <pluto/asset/shader_asset.h>
 #include <pluto/render/shader_program.h>
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 #include <pluto/file/file_reader.h>
 #include <pluto/file/file_writer.h>
 #include <pluto/guid.h>
@@ -216,7 +216,7 @@ namespace pluto
 
     ShaderAsset::Factory::~Factory() = default;
 
-    ShaderAsset::Factory::Factory(DiContainer& diContainer)
+    ShaderAsset::Factory::Factory(ServiceCollection& diContainer)
         : Asset::Factory(diContainer)
     {
     }
@@ -240,7 +240,7 @@ namespace pluto
             Guid::New(), blendEquation, blendAlphaEquation, blendSrcFactor, blendDstFactor, blendSrcAlphaFactor,
             blendDstAlphaFactor, depthTest, cullFace, attributes, uniforms, binaryFormat, binaryData));
 
-        DiContainer& serviceCollection = GetServiceCollection();
+        ServiceCollection& serviceCollection = GetServiceCollection();
         auto& shaderProgramFactory = serviceCollection.GetSingleton<ShaderProgram::Factory>();
         shaderAsset->impl->SetShaderProgram(shaderProgramFactory.Create(*shaderAsset));
         return shaderAsset;
@@ -334,7 +334,7 @@ namespace pluto
 
         shaderAsset->SetName(assetName);
 
-        DiContainer& serviceCollection = GetServiceCollection();
+        ServiceCollection& serviceCollection = GetServiceCollection();
         auto& shaderProgramFactory = serviceCollection.GetSingleton<ShaderProgram::Factory>();
         shaderAsset->impl->SetShaderProgram(shaderProgramFactory.Create(*shaderAsset));
         return shaderAsset;

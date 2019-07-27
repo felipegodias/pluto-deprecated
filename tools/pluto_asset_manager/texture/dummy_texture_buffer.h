@@ -11,7 +11,7 @@ namespace pluto
         class Factory final : public TextureBuffer::Factory
         {
         public:
-            explicit Factory(DiContainer& diContainer);
+            explicit Factory(ServiceCollection& diContainer);
             std::unique_ptr<TextureBuffer> Create() const override;
         };
 

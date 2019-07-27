@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../di/singleton.h"
-#include "../di/base_factory.h"
+#include "pluto/service/base_service.h"
+#include "pluto/service/base_factory.h"
 
 #include <typeindex>
 #include <memory>
@@ -17,13 +17,13 @@ namespace pluto
     template <typename T>
     using IsAsset = std::enable_if_t<std::is_base_of_v<Asset, T>, int>;
 
-    class PLUTO_API AssetManager final : public Singleton
+    class PLUTO_API AssetManager final : public BaseService
     {
     public:
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
-            explicit Factory(DiContainer& diContainer);
+            explicit Factory(ServiceCollection& diContainer);
             std::unique_ptr<AssetManager> Create() const;
         };
 

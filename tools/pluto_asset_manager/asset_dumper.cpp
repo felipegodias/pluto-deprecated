@@ -1,6 +1,6 @@
 #include "asset_dumper.h"
 
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 #include <pluto/file/file_reader.h>
 #include <pluto/file/file_writer.h>
 #include <pluto/file/file_manager.h>
@@ -13,7 +13,7 @@ namespace pluto
 {
     void DumpAsset(const Path& path, const Asset& asset)
     {
-        DiContainer diContainer;
+        ServiceCollection diContainer;
         diContainer.AddSingleton(std::make_unique<FileWriter::Factory>(diContainer));
         diContainer.AddSingleton(std::make_unique<FileReader::Factory>(diContainer));
 

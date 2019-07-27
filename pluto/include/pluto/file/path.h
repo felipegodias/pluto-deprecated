@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pluto/di/base_factory.h"
+#include "pluto/service/base_factory.h"
 
 #include <string>
 #include <memory>

@@ -18,10 +18,6 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/texture_asset.cpp
     # ./asset/events
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/events/on_asset_unload_event.cpp
-    # ./di
-    ${CMAKE_CURRENT_SOURCE_DIR}/di/base_factory.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/di/di_container.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/di/singleton.cpp
     # ./event
     ${CMAKE_CURRENT_SOURCE_DIR}/event/base_event.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/event/event_installer.cpp
@@ -77,6 +73,10 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/camera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/mesh_renderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/renderer.cpp
+    # ./service
+    ${CMAKE_CURRENT_SOURCE_DIR}/service/base_factory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/service/base_service.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/service/service_collection.cpp
     # ./simulation
     ${CMAKE_CURRENT_SOURCE_DIR}/simulation/simulation_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/simulation/simulation_manager.cpp

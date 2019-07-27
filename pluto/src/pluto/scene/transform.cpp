@@ -285,7 +285,7 @@ namespace pluto
         }
     };
 
-    Transform::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    Transform::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
     {
     }
 

@@ -1,6 +1,6 @@
 #include <pluto/scene/scene_installer.h>
 
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 
 #include <pluto/scene/scene_manager.h>
 #include <pluto/scene/scene.h>
@@ -11,7 +11,7 @@
 
 namespace pluto
 {
-    void SceneInstaller::Install(DiContainer& diContainer)
+    void SceneInstaller::Install(ServiceCollection& diContainer)
     {
         diContainer.AddSingleton(std::make_unique<GameObject::Factory>(diContainer));
         diContainer.AddSingleton(std::make_unique<Transform::Factory>(diContainer));
@@ -23,7 +23,7 @@ namespace pluto
         diContainer.AddSingleton(sceneManagerFactory.Create());
     }
 
-    void SceneInstaller::Uninstall(DiContainer& diContainer)
+    void SceneInstaller::Uninstall(ServiceCollection& diContainer)
     {
         diContainer.RemoveSingleton<SceneManager>();
         diContainer.RemoveSingleton<MeshRenderer::Factory>();

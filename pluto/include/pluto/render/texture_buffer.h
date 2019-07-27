@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pluto/di/base_factory.h"
+#include "pluto/service/base_factory.h"
 #include <memory>
 
 namespace pluto
@@ -13,7 +13,7 @@ namespace pluto
         class PLUTO_API Factory : public BaseFactory
         {
         public:
-            explicit Factory(DiContainer& diContainer);
+            explicit Factory(ServiceCollection& diContainer);
             virtual std::unique_ptr<TextureBuffer> Create() const = 0;
         };
 

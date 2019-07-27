@@ -128,7 +128,7 @@ namespace pluto
 
     PackageManifestAsset::Factory::~Factory() = default;
 
-    PackageManifestAsset::Factory::Factory(DiContainer& diContainer)
+    PackageManifestAsset::Factory::Factory(ServiceCollection& diContainer)
         : Asset::Factory(diContainer)
     {
     }

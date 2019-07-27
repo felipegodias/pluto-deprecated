@@ -1,7 +1,7 @@
 #include "mesh_asset_manager.h"
 
 #include <pluto/guid.h>
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 #include <pluto/asset/mesh_asset.h>
 #include <pluto/file/file_reader.h>
 #include <pluto/file/file_writer.h>
@@ -113,7 +113,7 @@ namespace pluto
             triangles.push_back(t);
         }
 
-        DiContainer diContainer;
+        ServiceCollection diContainer;
         diContainer.AddSingleton<MeshBuffer::Factory>(std::make_unique<GlMeshBuffer::Factory>(diContainer));
         const MeshAsset::Factory factory(diContainer);
 

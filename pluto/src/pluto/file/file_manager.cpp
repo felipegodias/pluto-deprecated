@@ -2,7 +2,7 @@
 #include "pluto/file/file_reader.h"
 #include "pluto/file/file_writer.h"
 #include "pluto/file/path.h"
-#include "pluto/di/di_container.h"
+#include "pluto/service/service_collection.h"
 #include "pluto/regex.h"
 
 #include <algorithm>
@@ -144,13 +144,13 @@ namespace pluto
         }
     };
 
-    FileManager::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    FileManager::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
     {
     }
 
     std::unique_ptr<FileManager> FileManager::Factory::Create(const Path& rootPath) const
     {
-        DiContainer& serviceCollection = GetServiceCollection();
+        ServiceCollection& serviceCollection = GetServiceCollection();
         auto& fileReaderFactory = serviceCollection.GetSingleton<FileReader::Factory>();
         auto& fileWriterFactory = serviceCollection.GetSingleton<FileWriter::Factory>();
         return std::make_unique<FileManager>(

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pluto/di/singleton.h"
+#include "pluto/service/base_service.h"
 
 namespace pluto
 {
@@ -8,7 +8,7 @@ namespace pluto
     class MeshAsset;
     class MaterialAsset;
 
-    class PLUTO_API RenderManager : public Singleton
+    class PLUTO_API RenderManager : public BaseService
     {
     public:
         virtual ~RenderManager() = 0;

@@ -61,7 +61,7 @@ namespace pluto
         }
     };
 
-    MeshRenderer::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    MeshRenderer::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
     {
     }
 

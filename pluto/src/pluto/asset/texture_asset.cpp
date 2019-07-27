@@ -2,7 +2,7 @@
 
 #include "pluto/render/texture_buffer.h"
 
-#include "pluto/di/di_container.h"
+#include "pluto/service/service_collection.h"
 
 #include "pluto/file/file_writer.h"
 #include "pluto/file/file_reader.h"
@@ -274,7 +274,7 @@ namespace pluto
 
     TextureAsset::Factory::~Factory() = default;
 
-    TextureAsset::Factory::Factory(DiContainer& diContainer)
+    TextureAsset::Factory::Factory(ServiceCollection& diContainer)
         : Asset::Factory(diContainer)
     {
     }
@@ -313,7 +313,7 @@ namespace pluto
     std::unique_ptr<TextureAsset> TextureAsset::Factory::Create(uint16_t width, uint16_t height, Format format,
                                                                 std::vector<uint8_t> data) const
     {
-        DiContainer& serviceCollection = GetServiceCollection();
+        ServiceCollection& serviceCollection = GetServiceCollection();
         const auto& textureBufferFactory = serviceCollection.GetSingleton<TextureBuffer::Factory>();
         auto textureBuffer = textureBufferFactory.Create();
 

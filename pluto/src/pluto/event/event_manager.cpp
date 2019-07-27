@@ -1,6 +1,6 @@
 #include <pluto/event/event_manager.h>
 #include <pluto/log/log_manager.h>
-#include <pluto/di/di_container.h>
+#include <pluto/service/service_collection.h>
 
 #include <pluto/guid.h>
 
@@ -100,13 +100,13 @@ namespace pluto
         }
     };
 
-    EventManager::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    EventManager::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
     {
     }
 
     std::unique_ptr<EventManager> EventManager::Factory::Create() const
     {
-        DiContainer& serviceCollection = GetServiceCollection();
+        ServiceCollection& serviceCollection = GetServiceCollection();
         auto& logManager = serviceCollection.GetSingleton<LogManager>();
         return std::make_unique<EventManager>(std::make_unique<Impl>(logManager));
     }

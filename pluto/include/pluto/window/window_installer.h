@@ -4,12 +4,12 @@
 
 namespace pluto
 {
-    class DiContainer;
+    class ServiceCollection;
 
     class PLUTO_API WindowInstaller
     {
     public:
-        static void Install(DiContainer& diContainer);
-        static void Uninstall(DiContainer& diContainer);
+        static void Install(ServiceCollection& diContainer);
+        static void Uninstall(ServiceCollection& diContainer);
     };
 }
