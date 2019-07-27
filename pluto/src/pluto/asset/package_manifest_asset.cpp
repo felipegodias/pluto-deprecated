@@ -18,7 +18,8 @@ namespace pluto
         std::unordered_map<std::string, Guid> guidsByPath;
 
     public:
-        explicit Impl(Guid guid) : guid(std::move(guid))
+        explicit Impl(Guid guid)
+            : guid(std::move(guid))
         {
         }
 
@@ -32,9 +33,9 @@ namespace pluto
             return name;
         }
 
-        void SetName(std::string value)
+        void SetName(const std::string& value)
         {
-            name = std::move(value);
+            name = value;
         }
 
         void Dump(FileWriter& fileWriter) const
@@ -125,9 +126,16 @@ namespace pluto
         }
     };
 
-    PackageManifestAsset::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    PackageManifestAsset::Factory::~Factory() = default;
+
+    PackageManifestAsset::Factory::Factory(DiContainer& diContainer)
+        : Asset::Factory(diContainer)
     {
     }
+
+    PackageManifestAsset::Factory::Factory(Factory&& other) noexcept = default;
+
+    PackageManifestAsset::Factory& PackageManifestAsset::Factory::operator=(Factory&& rhs) noexcept = default;
 
     std::unique_ptr<PackageManifestAsset> PackageManifestAsset::Factory::Create() const
     {
@@ -141,7 +149,7 @@ namespace pluto
         return instance;
     }
 
-    std::unique_ptr<PackageManifestAsset> PackageManifestAsset::Factory::Create(FileReader& fileReader) const
+    std::unique_ptr<Asset> PackageManifestAsset::Factory::Create(FileReader& fileReader) const
     {
         Guid signature;
         fileReader.Read(&signature, sizeof(Guid));
@@ -179,37 +187,16 @@ namespace pluto
         return instance;
     }
 
-    PackageManifestAsset::PackageManifestAsset(std::unique_ptr<Impl> impl) : impl(std::move(impl))
-    {
-    }
-
-    PackageManifestAsset::PackageManifestAsset(PackageManifestAsset&& other) noexcept : impl(std::move(other.impl))
-    {
-    }
-
     PackageManifestAsset::~PackageManifestAsset() = default;
 
-    PackageManifestAsset& PackageManifestAsset::operator=(const PackageManifestAsset& rhs)
+    PackageManifestAsset::PackageManifestAsset(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        impl->Clone(*rhs.impl);
-        return *this;
     }
 
-    PackageManifestAsset& PackageManifestAsset::operator=(PackageManifestAsset&& rhs) noexcept
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
+    PackageManifestAsset::PackageManifestAsset(PackageManifestAsset&& other) noexcept = default;
 
-        impl = std::move(rhs.impl);
-        return *this;
-    }
+    PackageManifestAsset& PackageManifestAsset::operator=(PackageManifestAsset&& rhs) noexcept = default;
 
     const Guid& PackageManifestAsset::GetId() const
     {
@@ -221,9 +208,9 @@ namespace pluto
         return impl->GetName();
     }
 
-    void PackageManifestAsset::SetName(std::string value)
+    void PackageManifestAsset::SetName(const std::string& value)
     {
-        impl->SetName(std::move(value));
+        impl->SetName(value);
     }
 
     void PackageManifestAsset::Dump(FileWriter& fileWriter) const

@@ -2,6 +2,8 @@
 
 #include "../di/singleton.h"
 #include "../di/base_factory.h"
+
+#include <typeindex>
 #include <memory>
 #include <string>
 #include <vector>
@@ -30,23 +32,52 @@ namespace pluto
         std::unique_ptr<Impl> impl;
 
     public:
-        explicit AssetManager(std::unique_ptr<Impl> impl);
         ~AssetManager();
+
+        explicit AssetManager(std::unique_ptr<Impl> impl);
+
+        AssetManager(const AssetManager& other) = delete;
+        AssetManager(AssetManager&& other) noexcept;
+        AssetManager& operator=(const AssetManager& rhs) = delete;
+        AssetManager& operator=(AssetManager&& rhs) noexcept;
 
         void LoadPackage(const std::string& name);
 
         template <typename T, IsAsset<T>  = 0>
-        T& Load(const Path& path);
+        T* Load(const Path& path);
+
+        Asset* Load(const std::type_index& type, const Path& path);
 
         template <typename T, IsAsset<T>  = 0>
-        T& Load(const Guid& guid);
+        T* Load(const Guid& guid);
 
-        template <typename T, IsAsset<T>  = 0>
-        void Unload(const T& asset);
+        Asset* Load(const std::type_index& type, const Guid& guid);
+
+        void Unload(const Asset& asset);
 
         template <typename T, IsAsset<T>  = 0>
         T& Register(std::unique_ptr<T> asset);
 
+        Asset& RegisterAsset(std::unique_ptr<Asset> asset);
+
         std::vector<Asset*> GetLoadedAssets() const;
     };
+
+    template <typename T, IsAsset<T>>
+    T* AssetManager::Load(const Path& path)
+    {
+        return static_cast<T*>(Load(typeid(T), path));
+    }
+
+    template <typename T, IsAsset<T>>
+    T* AssetManager::Load(const Guid& guid)
+    {
+        return static_cast<T*>(Load(typeid(T), guid));
+    }
+
+    template <typename T, IsAsset<T>>
+    T& AssetManager::Register(std::unique_ptr<T> asset)
+    {
+        return static_cast<T&>(RegisterAsset(std::move(asset)));
+    }
 }

@@ -2,9 +2,15 @@
 
 namespace pluto
 {
-    BaseFactory::BaseFactory(DiContainer& diContainer) : diContainer(diContainer)
+    BaseFactory::~BaseFactory() = default;
+
+    BaseFactory::BaseFactory(DiContainer& diContainer)
+        : diContainer(&diContainer)
     {
     }
 
-    BaseFactory::~BaseFactory() = default;
+    DiContainer& BaseFactory::GetServiceCollection() const
+    {
+        return *diContainer;
+    }
 }

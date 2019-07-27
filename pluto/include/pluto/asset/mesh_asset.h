@@ -36,13 +36,20 @@ namespace pluto
     class PLUTO_API MeshAsset final : public Asset
     {
     public:
-        class PLUTO_API Factory final : public BaseFactory
+        class PLUTO_API Factory final : public Asset::Factory
         {
         public:
+            ~Factory() override;
             explicit Factory(DiContainer& diContainer);
+
+            Factory(const Factory& other) = delete;
+            Factory(Factory&& other) noexcept;
+            Factory& operator=(const Factory& rhs) = delete;
+            Factory& operator=(Factory&& rhs) noexcept;
+
             std::unique_ptr<MeshAsset> Create() const;
             std::unique_ptr<MeshAsset> Create(const MeshAsset& original) const;
-            std::unique_ptr<MeshAsset> Create(FileReader& fileReader) const;
+            std::unique_ptr<Asset> Create(FileReader& fileReader) const override;
         };
 
     private:
@@ -50,17 +57,17 @@ namespace pluto
         std::unique_ptr<Impl> impl;
 
     public:
+        ~MeshAsset() override;
         explicit MeshAsset(std::unique_ptr<Impl> impl);
+
         MeshAsset(const MeshAsset& other) = delete;
         MeshAsset(MeshAsset&& other) noexcept;
-        ~MeshAsset() override;
-
-        MeshAsset& operator=(const MeshAsset& rhs);
+        MeshAsset& operator=(const MeshAsset& rhs) = delete;
         MeshAsset& operator=(MeshAsset&& rhs) noexcept;
 
         const Guid& GetId() const override;
         const std::string& GetName() const override;
-        void SetName(std::string value) override;
+        void SetName(const std::string& value) override;
         void Dump(FileWriter& fileWriter) const override;
 
         const std::vector<Vector3F>& GetPositions() const;

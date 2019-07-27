@@ -62,16 +62,23 @@ namespace pluto
             Count = Last + 1
         };
 
-        class PLUTO_API Factory final : public BaseFactory
+        class PLUTO_API Factory final : public Asset::Factory
         {
         public:
+            ~Factory() override;
             explicit Factory(DiContainer& diContainer);
+
+            Factory(const Factory& other) = delete;
+            Factory(Factory&& other) noexcept;
+            Factory& operator=(const Factory& rhs) = delete;
+            Factory& operator=(Factory&& rhs) noexcept;
+
             std::unique_ptr<TextureAsset> Create(uint16_t width, uint16_t height) const;
             std::unique_ptr<TextureAsset> Create(uint16_t width, uint16_t height, Format format) const;
             std::unique_ptr<TextureAsset> Create(uint16_t width, uint16_t height, Format format,
                                                  std::vector<uint8_t> data) const;
             std::unique_ptr<TextureAsset> Create(const TextureAsset& original) const;
-            std::unique_ptr<TextureAsset> Create(FileReader& fileReader) const;
+            std::unique_ptr<Asset> Create(FileReader& fileReader) const override;
         };
 
     private:
@@ -79,17 +86,17 @@ namespace pluto
         std::unique_ptr<Impl> impl;
 
     public:
+        ~TextureAsset() override;
         explicit TextureAsset(std::unique_ptr<Impl> impl);
+
         TextureAsset(const TextureAsset& other) = delete;
         TextureAsset(TextureAsset&& other) noexcept;
-        ~TextureAsset() override;
-
         TextureAsset& operator=(const TextureAsset& rhs) = delete;
         TextureAsset& operator=(TextureAsset&& rhs) noexcept;
 
         const Guid& GetId() const override;
         const std::string& GetName() const override;
-        void SetName(std::string value) override;
+        void SetName(const std::string& value) override;
         void Dump(FileWriter& fileWriter) const override;
 
         std::vector<uint8_t> Data();

@@ -17,7 +17,6 @@ namespace pluto
 {
     class InputManager::Impl
     {
-    private:
         LogManager& logManager;
         EventManager& eventManager;
 
@@ -163,9 +162,10 @@ namespace pluto
 
     std::unique_ptr<InputManager> InputManager::Factory::Create() const
     {
-        auto& logManager = diContainer.GetSingleton<LogManager>();
-        auto& eventManager = diContainer.GetSingleton<EventManager>();
-        auto& windowManager = diContainer.GetSingleton<WindowManager>();
+        DiContainer& serviceCollection = GetServiceCollection();
+        auto& logManager = serviceCollection.GetSingleton<LogManager>();
+        auto& eventManager = serviceCollection.GetSingleton<EventManager>();
+        auto& windowManager = serviceCollection.GetSingleton<WindowManager>();
         auto window = static_cast<GLFWwindow*>(windowManager.GetNativeWindow());
         return std::make_unique<InputManager>(std::make_unique<Impl>(logManager, eventManager, window));
     }

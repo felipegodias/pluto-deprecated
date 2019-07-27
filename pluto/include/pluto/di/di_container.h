@@ -12,13 +12,12 @@ namespace pluto
 
     class PLUTO_API DiContainer
     {
-    private:
         class Impl;
         std::unique_ptr<Impl> impl;
 
     public:
-        explicit DiContainer();
         ~DiContainer();
+        explicit DiContainer();
 
         template <typename T, IsSingleton<T>  = 0>
         T& AddSingleton(std::unique_ptr<T> instance);

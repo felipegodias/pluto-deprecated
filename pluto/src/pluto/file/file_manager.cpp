@@ -150,8 +150,9 @@ namespace pluto
 
     std::unique_ptr<FileManager> FileManager::Factory::Create(const Path& rootPath) const
     {
-        auto& fileReaderFactory = diContainer.GetSingleton<FileReader::Factory>();
-        auto& fileWriterFactory = diContainer.GetSingleton<FileWriter::Factory>();
+        DiContainer& serviceCollection = GetServiceCollection();
+        auto& fileReaderFactory = serviceCollection.GetSingleton<FileReader::Factory>();
+        auto& fileWriterFactory = serviceCollection.GetSingleton<FileWriter::Factory>();
         return std::make_unique<FileManager>(
             std::make_unique<Impl>(rootPath, fileReaderFactory, fileWriterFactory));
     }

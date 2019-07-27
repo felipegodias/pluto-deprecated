@@ -39,12 +39,15 @@ namespace pluto
         std::unordered_map<std::string, TextureAsset*> textures;
 
         Guid onAssetUnloadListenerId;
-        EventManager& eventManager;
-        AssetManager& assetManager;
+        EventManager* eventManager;
+        AssetManager* assetManager;
 
     public:
-        Impl(Guid guid, ShaderAsset& shaderAsset, EventManager& eventManager, AssetManager& assetManager) :
-            guid(std::move(guid)), shaderAsset(&shaderAsset), eventManager(eventManager), assetManager(assetManager)
+        Impl(Guid guid, ShaderAsset& shaderAsset, EventManager& eventManager, AssetManager& assetManager)
+            : guid(std::move(guid)),
+              shaderAsset(&shaderAsset),
+              eventManager(&eventManager),
+              assetManager(&assetManager)
         {
             onAssetUnloadListenerId = eventManager.Subscribe<OnAssetUnloadEvent>(
                 std::bind(&Impl::OnAssetUnload, this, std::placeholders::_1));
@@ -52,7 +55,7 @@ namespace pluto
 
         ~Impl()
         {
-            eventManager.Unsubscribe<OnAssetUnloadEvent>(onAssetUnloadListenerId);
+            eventManager->Unsubscribe<OnAssetUnloadEvent>(onAssetUnloadListenerId);
         }
 
         const Guid& GetId() const
@@ -65,9 +68,9 @@ namespace pluto
             return name;
         }
 
-        void SetName(std::string value)
+        void SetName(const std::string& value)
         {
-            name = std::move(value);
+            name = value;
         }
 
         void Dump(FileWriter& fileWriter) const
@@ -209,7 +212,7 @@ namespace pluto
         {
             if (shaderAsset == &onAssetUnload.GetAsset())
             {
-                SetShader(assetManager.Load<ShaderAsset>(Path("shaders/pink.glsl")));
+                SetShader(*assetManager->Load<ShaderAsset>(Path("shaders/pink.glsl")));
             }
         }
 
@@ -270,18 +273,26 @@ namespace pluto
         }
     };
 
-    MaterialAsset::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    MaterialAsset::Factory::~Factory() = default;
+
+    MaterialAsset::Factory::Factory(DiContainer& diContainer)
+        : Asset::Factory(diContainer)
     {
     }
 
+    MaterialAsset::Factory::Factory(Factory&& other) noexcept = default;
+
+    MaterialAsset::Factory& MaterialAsset::Factory::operator=(Factory&& rhs) noexcept = default;
+
     std::unique_ptr<MaterialAsset> MaterialAsset::Factory::Create() const
     {
-        auto& assetManager = diContainer.GetSingleton<AssetManager>();
-        auto& pinkShader = assetManager.Load<ShaderAsset>(Path("shaders/pink.glsl"));
-        auto& eventManager = diContainer.GetSingleton<EventManager>();
+        DiContainer& serviceCollection = GetServiceCollection();
+        auto& assetManager = serviceCollection.GetSingleton<AssetManager>();
+        auto pinkShader = assetManager.Load<ShaderAsset>(Path("shaders/pink.glsl"));
+        auto& eventManager = serviceCollection.GetSingleton<EventManager>();
 
         return std::make_unique<MaterialAsset>(
-            std::make_unique<Impl>(Guid::New(), pinkShader, eventManager, assetManager));
+            std::make_unique<Impl>(Guid::New(), *pinkShader, eventManager, assetManager));
     }
 
     std::unique_ptr<MaterialAsset> MaterialAsset::Factory::Create(const MaterialAsset& original) const
@@ -291,31 +302,21 @@ namespace pluto
         return materialAsset;
     }
 
-    std::unique_ptr<MaterialAsset> MaterialAsset::Factory::Create(FileReader& fileReader) const
+    std::unique_ptr<Asset> MaterialAsset::Factory::Create(FileReader& fileReader) const
     {
         return Create();
     }
 
-    MaterialAsset::MaterialAsset(std::unique_ptr<Impl> impl) : impl(std::move(impl))
-    {
-    }
-
-    MaterialAsset::MaterialAsset(MaterialAsset&& other) noexcept : impl(std::move(other.impl))
-    {
-    }
-
     MaterialAsset::~MaterialAsset() = default;
 
-    MaterialAsset& MaterialAsset::operator=(MaterialAsset&& rhs) noexcept
+    MaterialAsset::MaterialAsset(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        impl = std::move(rhs.impl);
-        return *this;
     }
+
+    MaterialAsset::MaterialAsset(MaterialAsset&& other) noexcept = default;
+
+    MaterialAsset& MaterialAsset::operator=(MaterialAsset&& rhs) noexcept = default;
 
     const Guid& MaterialAsset::GetId() const
     {
@@ -327,9 +328,9 @@ namespace pluto
         return impl->GetName();
     }
 
-    void MaterialAsset::SetName(std::string value)
+    void MaterialAsset::SetName(const std::string& value)
     {
-        impl->SetName(std::move(value));
+        impl->SetName(value);
     }
 
     void MaterialAsset::Dump(FileWriter& fileWriter) const

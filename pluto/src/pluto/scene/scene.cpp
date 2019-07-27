@@ -79,7 +79,8 @@ namespace pluto
 
     std::unique_ptr<Scene> Scene::Factory::Create() const
     {
-        const auto& gameObjectFactory = diContainer.GetSingleton<GameObject::Factory>();
+        DiContainer& serviceCollection = GetServiceCollection();
+        const auto& gameObjectFactory = serviceCollection.GetSingleton<GameObject::Factory>();
         auto rootGameObject = gameObjectFactory.Create();
         rootGameObject->SetName("root");
         return std::make_unique<Scene>(

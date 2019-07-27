@@ -272,10 +272,16 @@ namespace pluto
         }
     };
 
+    TextureAsset::Factory::~Factory() = default;
+
     TextureAsset::Factory::Factory(DiContainer& diContainer)
-        : BaseFactory(diContainer)
+        : Asset::Factory(diContainer)
     {
     }
+
+    TextureAsset::Factory::Factory(Factory&& other) noexcept = default;
+
+    TextureAsset::Factory& TextureAsset::Factory::operator=(Factory&& rhs) noexcept = default;
 
     std::unique_ptr<TextureAsset> TextureAsset::Factory::Create(const uint16_t width, const uint16_t height) const
     {
@@ -307,7 +313,8 @@ namespace pluto
     std::unique_ptr<TextureAsset> TextureAsset::Factory::Create(uint16_t width, uint16_t height, Format format,
                                                                 std::vector<uint8_t> data) const
     {
-        const auto& textureBufferFactory = diContainer.GetSingleton<TextureBuffer::Factory>();
+        DiContainer& serviceCollection = GetServiceCollection();
+        const auto& textureBufferFactory = serviceCollection.GetSingleton<TextureBuffer::Factory>();
         auto textureBuffer = textureBufferFactory.Create();
 
         auto textureAsset = std::make_unique<TextureAsset>(
@@ -327,7 +334,7 @@ namespace pluto
         return textureAsset;
     }
 
-    std::unique_ptr<TextureAsset> TextureAsset::Factory::Create(FileReader& fileReader) const
+    std::unique_ptr<Asset> TextureAsset::Factory::Create(FileReader& fileReader) const
     {
         Guid signature;
         fileReader.Read(&signature, sizeof(Guid));
@@ -406,7 +413,7 @@ namespace pluto
         return impl->GetName();
     }
 
-    void TextureAsset::SetName(const std::string value)
+    void TextureAsset::SetName(const std::string& value)
     {
         impl->SetName(value);
     }

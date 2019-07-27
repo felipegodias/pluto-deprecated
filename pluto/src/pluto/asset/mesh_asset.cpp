@@ -29,9 +29,12 @@ namespace pluto
         const MeshBuffer::Factory& meshBufferFactory;
 
     public:
-        Impl(Guid guid, const MeshBuffer::Factory& meshBufferFactory) : guid(std::move(guid)), instance(nullptr),
-                                                                        meshBuffer(nullptr), isBufferDirty(true),
-                                                                        meshBufferFactory(meshBufferFactory)
+        Impl(Guid guid, const MeshBuffer::Factory& meshBufferFactory)
+            : guid(std::move(guid)),
+              instance(nullptr),
+              meshBuffer(nullptr),
+              isBufferDirty(true),
+              meshBufferFactory(meshBufferFactory)
         {
         }
 
@@ -51,9 +54,9 @@ namespace pluto
             return name;
         }
 
-        void SetName(std::string value)
+        void SetName(const std::string& value)
         {
-            name = std::move(value);
+            name = value;
         }
 
         void Dump(FileWriter& fileWriter) const
@@ -136,13 +139,21 @@ namespace pluto
         }
     };
 
-    MeshAsset::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    MeshAsset::Factory::~Factory() = default;
+
+    MeshAsset::Factory::Factory(DiContainer& diContainer)
+        : Asset::Factory(diContainer)
     {
     }
 
+    MeshAsset::Factory::Factory(Factory&& other) noexcept = default;
+
+    MeshAsset::Factory& MeshAsset::Factory::operator=(Factory&& rhs) noexcept = default;
+
     std::unique_ptr<MeshAsset> MeshAsset::Factory::Create() const
     {
-        auto& meshBufferFactory = diContainer.GetSingleton<MeshBuffer::Factory>();
+        DiContainer& serviceCollection = GetServiceCollection();
+        auto& meshBufferFactory = serviceCollection.GetSingleton<MeshBuffer::Factory>();
         auto meshAsset = std::make_unique<MeshAsset>(std::make_unique<Impl>(Guid::New(), meshBufferFactory));
         meshAsset->impl->SetInstance(*meshAsset);
         return meshAsset;
@@ -158,7 +169,7 @@ namespace pluto
         return instance;
     }
 
-    std::unique_ptr<MeshAsset> MeshAsset::Factory::Create(FileReader& fileReader) const
+    std::unique_ptr<Asset> MeshAsset::Factory::Create(FileReader& fileReader) const
     {
         Guid signature;
         fileReader.Read(&signature, sizeof(Guid));
@@ -169,7 +180,8 @@ namespace pluto
         Guid assetId;
         fileReader.Read(&assetId, sizeof(Guid));
 
-        auto& meshBufferFactory = diContainer.GetSingleton<MeshBuffer::Factory>();
+        DiContainer& serviceCollection = GetServiceCollection();
+        auto& meshBufferFactory = serviceCollection.GetSingleton<MeshBuffer::Factory>();
         auto meshAsset = std::make_unique<MeshAsset>(std::make_unique<Impl>(assetId, meshBufferFactory));
         meshAsset->impl->SetInstance(*meshAsset);
 
@@ -201,37 +213,16 @@ namespace pluto
         return meshAsset;
     }
 
-    MeshAsset::MeshAsset(std::unique_ptr<Impl> impl) : impl(std::move(impl))
-    {
-    }
-
-    MeshAsset::MeshAsset(MeshAsset&& other) noexcept : MeshAsset(std::move(other.impl))
-    {
-    }
-
     MeshAsset::~MeshAsset() = default;
 
-    MeshAsset& MeshAsset::operator=(const MeshAsset& rhs)
+    MeshAsset::MeshAsset(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        impl->Clone(*rhs.impl);
-        return *this;
     }
 
-    MeshAsset& MeshAsset::operator=(MeshAsset&& rhs) noexcept
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
+    MeshAsset::MeshAsset(MeshAsset&& other) noexcept = default;
 
-        impl = std::move(rhs.impl);
-        return *this;
-    }
+    MeshAsset& MeshAsset::operator=(MeshAsset&& rhs) noexcept = default;
 
     const Guid& MeshAsset::GetId() const
     {
@@ -243,9 +234,9 @@ namespace pluto
         return impl->GetName();
     }
 
-    void MeshAsset::SetName(std::string value)
+    void MeshAsset::SetName(const std::string& value)
     {
-        impl->SetName(std::move(value));
+        impl->SetName(value);
     }
 
     void MeshAsset::Dump(FileWriter& fileWriter) const

@@ -119,10 +119,17 @@ namespace pluto
             Type type;
         };
 
-        class PLUTO_API Factory final : public BaseFactory
+        class PLUTO_API Factory final : public Asset::Factory
         {
         public:
+            ~Factory() override;
             explicit Factory(DiContainer& diContainer);
+
+            Factory(const Factory& other) = delete;
+            Factory(Factory&& other) noexcept;
+            Factory& operator=(const Factory& rhs) = delete;
+            Factory& operator=(Factory&& rhs) noexcept;
+
             std::unique_ptr<ShaderAsset> Create(BlendEquation blendEquation, BlendEquation blendAlphaEquation,
                                                 BlendFactor blendSrcFactor, BlendFactor blendDstFactor,
                                                 BlendFactor blendSrcAlphaFactor, BlendFactor blendDstAlphaFactor,
@@ -131,7 +138,7 @@ namespace pluto
                                                 const std::vector<Property>& uniforms, uint32_t binaryFormat,
                                                 const std::vector<uint8_t>& binaryData) const;
 
-            std::unique_ptr<ShaderAsset> Create(FileReader& fileReader) const;
+            std::unique_ptr<Asset> Create(FileReader& fileReader) const;
         };
 
     private:
@@ -144,13 +151,12 @@ namespace pluto
 
         ShaderAsset(const ShaderAsset& other) = delete;
         ShaderAsset(ShaderAsset&& other) noexcept;
-
         ShaderAsset& operator=(const ShaderAsset& rhs) = delete;
         ShaderAsset& operator=(ShaderAsset&& rhs) noexcept;
 
         const Guid& GetId() const override;
         const std::string& GetName() const override;
-        void SetName(std::string value) override;
+        void SetName(const std::string& value) override;
         void Dump(FileWriter& fileWriter) const override;
 
         BlendEquation GetBlendEquation() const;

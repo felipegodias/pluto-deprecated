@@ -8,11 +8,12 @@ namespace pluto
 
     class PLUTO_API BaseFactory : public Singleton
     {
-    protected:
-        DiContainer& diContainer;
+        DiContainer* diContainer;
 
     public:
-        explicit BaseFactory(DiContainer& diContainer);
         virtual ~BaseFactory() = 0;
+        explicit BaseFactory(DiContainer& diContainer);
+
+        DiContainer& GetServiceCollection() const;
     };
 }

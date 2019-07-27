@@ -99,13 +99,14 @@ namespace pluto
 
     std::unique_ptr<WindowManager> WindowManager::Factory::Create() const
     {
-        auto& configManager = diContainer.GetSingleton<ConfigManager>();
+        DiContainer& serviceCollection = GetServiceCollection();
+        auto& configManager = serviceCollection.GetSingleton<ConfigManager>();
         const int screenWidth = configManager.GetInt("screenWidth", 640);
         const int screenHeight = configManager.GetInt("screenHeight", 480);
         const std::string appName = configManager.GetString("appName", "Unknown");
 
-        auto& logManager = diContainer.GetSingleton<LogManager>();
-        auto& eventManager = diContainer.GetSingleton<EventManager>();
+        auto& logManager = serviceCollection.GetSingleton<LogManager>();
+        auto& eventManager = serviceCollection.GetSingleton<EventManager>();
         return std::make_unique<WindowManager>(
             std::make_unique<Impl>(appName, Vector2I(screenWidth, screenHeight), logManager, eventManager));
     }

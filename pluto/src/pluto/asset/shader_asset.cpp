@@ -65,9 +65,9 @@ namespace pluto
             return name;
         }
 
-        void SetName(std::string value)
+        void SetName(const std::string& value)
         {
-            name = std::move(value);
+            name = value;
         }
 
         void Dump(FileWriter& fileWriter) const
@@ -214,10 +214,16 @@ namespace pluto
         }
     };
 
+    ShaderAsset::Factory::~Factory() = default;
+
     ShaderAsset::Factory::Factory(DiContainer& diContainer)
-        : BaseFactory(diContainer)
+        : Asset::Factory(diContainer)
     {
     }
+
+    ShaderAsset::Factory::Factory(Factory&& other) noexcept = default;
+
+    ShaderAsset::Factory& ShaderAsset::Factory::operator=(Factory&& rhs) noexcept = default;
 
     std::unique_ptr<ShaderAsset> ShaderAsset::Factory::Create(BlendEquation blendEquation,
                                                               BlendEquation blendAlphaEquation,
@@ -234,12 +240,13 @@ namespace pluto
             Guid::New(), blendEquation, blendAlphaEquation, blendSrcFactor, blendDstFactor, blendSrcAlphaFactor,
             blendDstAlphaFactor, depthTest, cullFace, attributes, uniforms, binaryFormat, binaryData));
 
-        auto& shaderProgramFactory = diContainer.GetSingleton<ShaderProgram::Factory>();
+        DiContainer& serviceCollection = GetServiceCollection();
+        auto& shaderProgramFactory = serviceCollection.GetSingleton<ShaderProgram::Factory>();
         shaderAsset->impl->SetShaderProgram(shaderProgramFactory.Create(*shaderAsset));
         return shaderAsset;
     }
 
-    std::unique_ptr<ShaderAsset> ShaderAsset::Factory::Create(FileReader& fileReader) const
+    std::unique_ptr<Asset> ShaderAsset::Factory::Create(FileReader& fileReader) const
     {
         Guid signature;
         fileReader.Read(&signature, sizeof(Guid));
@@ -327,7 +334,8 @@ namespace pluto
 
         shaderAsset->SetName(assetName);
 
-        auto& shaderProgramFactory = diContainer.GetSingleton<ShaderProgram::Factory>();
+        DiContainer& serviceCollection = GetServiceCollection();
+        auto& shaderProgramFactory = serviceCollection.GetSingleton<ShaderProgram::Factory>();
         shaderAsset->impl->SetShaderProgram(shaderProgramFactory.Create(*shaderAsset));
         return shaderAsset;
     }
@@ -339,21 +347,9 @@ namespace pluto
     {
     }
 
-    ShaderAsset::ShaderAsset(ShaderAsset&& other) noexcept
-        : ShaderAsset(std::move(other.impl))
-    {
-    }
+    ShaderAsset::ShaderAsset(ShaderAsset&& other) noexcept = default;
 
-    ShaderAsset& ShaderAsset::operator=(ShaderAsset&& rhs) noexcept
-    {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        impl = std::move(rhs.impl);
-        return *this;
-    }
+    ShaderAsset& ShaderAsset::operator=(ShaderAsset&& rhs) noexcept = default;
 
     const Guid& ShaderAsset::GetId() const
     {
@@ -365,9 +361,9 @@ namespace pluto
         return impl->GetName();
     }
 
-    void ShaderAsset::SetName(std::string value)
+    void ShaderAsset::SetName(const std::string& value)
     {
-        impl->SetName(std::move(value));
+        impl->SetName(value);
     }
 
     void ShaderAsset::Dump(FileWriter& fileWriter) const

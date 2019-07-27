@@ -17,8 +17,9 @@ namespace pluto
         std::unordered_map<std::string, std::string> config;
 
     public:
-        Impl(FileReader* configFile, LogManager& logManager) : logManager(
-            logManager)
+        Impl(FileReader* configFile, LogManager& logManager)
+            : logManager(
+                logManager)
         {
             if (configFile != nullptr)
             {
@@ -87,17 +88,20 @@ namespace pluto
         }
     };
 
-    ConfigManager::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    ConfigManager::Factory::Factory(DiContainer& diContainer)
+        : BaseFactory(diContainer)
     {
     }
 
     std::unique_ptr<ConfigManager> ConfigManager::Factory::Create(FileReader* configFile) const
     {
-        auto& logManager = diContainer.GetSingleton<LogManager>();
+        DiContainer& serviceCollection = GetServiceCollection();
+        auto& logManager = serviceCollection.GetSingleton<LogManager>();
         return std::make_unique<ConfigManager>(std::make_unique<Impl>(configFile, logManager));
     }
 
-    ConfigManager::ConfigManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
+    ConfigManager::ConfigManager(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
     }
 

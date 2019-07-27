@@ -208,9 +208,10 @@ namespace pluto
 
     std::unique_ptr<GameObject> GameObject::Factory::Create() const
     {
-        auto& transformFactory = diContainer.GetSingleton<Transform::Factory>();
-        auto& cameraFactory = diContainer.GetSingleton<Camera::Factory>();
-        auto& meshRendererFactory = diContainer.GetSingleton<MeshRenderer::Factory>();
+        DiContainer& serviceCollection = GetServiceCollection();
+        auto& transformFactory = serviceCollection.GetSingleton<Transform::Factory>();
+        auto& cameraFactory = serviceCollection.GetSingleton<Camera::Factory>();
+        auto& meshRendererFactory = serviceCollection.GetSingleton<MeshRenderer::Factory>();
         auto gameObject = std::make_unique<GameObject>(
             std::make_unique<Impl>(Guid::New(), transformFactory, cameraFactory, meshRendererFactory));
         gameObject->impl->Init(*gameObject);

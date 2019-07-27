@@ -32,13 +32,20 @@ namespace pluto
     class PLUTO_API PackageManifestAsset final : public Asset
     {
     public:
-        class PLUTO_API Factory final : public BaseFactory
+        class PLUTO_API Factory final : public Asset::Factory
         {
         public:
+            ~Factory() override;
             explicit Factory(DiContainer& diContainer);
+
+            Factory(const Factory& other) = delete;
+            Factory(Factory&& other) noexcept;
+            Factory& operator=(const Factory& rhs) = delete;
+            Factory& operator=(Factory&& rhs) noexcept;
+
             std::unique_ptr<PackageManifestAsset> Create() const;
             std::unique_ptr<PackageManifestAsset> Create(const PackageManifestAsset& original) const;
-            std::unique_ptr<PackageManifestAsset> Create(FileReader& fileReader) const;
+            std::unique_ptr<Asset> Create(FileReader& fileReader) const override;
         };
 
     private:
@@ -46,17 +53,17 @@ namespace pluto
         std::unique_ptr<Impl> impl;
 
     public:
+        ~PackageManifestAsset() override;
         explicit PackageManifestAsset(std::unique_ptr<Impl> impl);
+
         PackageManifestAsset(const PackageManifestAsset& other) = delete;
         PackageManifestAsset(PackageManifestAsset&& other) noexcept;
-        ~PackageManifestAsset() override;
-
-        PackageManifestAsset& operator=(const PackageManifestAsset& rhs);
+        PackageManifestAsset& operator=(const PackageManifestAsset& rhs) = delete;
         PackageManifestAsset& operator=(PackageManifestAsset&& rhs) noexcept;
 
         const Guid& GetId() const override;
         const std::string& GetName() const override;
-        void SetName(std::string value) override;
+        void SetName(const std::string& value) override;
         void Dump(FileWriter& fileWriter) const override;
 
         bool Contains(const std::string& virtualPath) const;

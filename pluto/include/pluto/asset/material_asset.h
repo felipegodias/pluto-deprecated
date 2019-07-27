@@ -36,13 +36,20 @@ namespace pluto
     class PLUTO_API MaterialAsset final : public Asset
     {
     public:
-        class PLUTO_API Factory final : public BaseFactory
+        class PLUTO_API Factory final : public Asset::Factory
         {
         public:
+            ~Factory() override;
             explicit Factory(DiContainer& diContainer);
+
+            Factory(const Factory& other) = delete;
+            Factory(Factory&& other) noexcept;
+            Factory& operator=(const Factory& rhs) = delete;
+            Factory& operator=(Factory&& rhs) noexcept;
+
             std::unique_ptr<MaterialAsset> Create() const;
             std::unique_ptr<MaterialAsset> Create(const MaterialAsset& original) const;
-            std::unique_ptr<MaterialAsset> Create(FileReader& fileReader) const;
+            std::unique_ptr<Asset> Create(FileReader& fileReader) const override;
         };
 
     private:
@@ -50,17 +57,17 @@ namespace pluto
         std::unique_ptr<Impl> impl;
 
     public:
+        ~MaterialAsset() override;
         explicit MaterialAsset(std::unique_ptr<Impl> impl);
+
         MaterialAsset(const MaterialAsset& other) = delete;
         MaterialAsset(MaterialAsset&& other) noexcept;
-        ~MaterialAsset() override;
-
         MaterialAsset& operator=(const MaterialAsset& rhs) = delete;
         MaterialAsset& operator=(MaterialAsset&& rhs) noexcept;
 
         const Guid& GetId() const override;
         const std::string& GetName() const override;
-        void SetName(std::string value) override;
+        void SetName(const std::string& value) override;
         void Dump(FileWriter& fileWriter) const override;
 
         ShaderAsset& GetShader() const;

@@ -15,7 +15,8 @@ namespace pluto
         std::string text;
 
     public:
-        explicit Impl(Guid guid) : guid(std::move(guid))
+        explicit Impl(Guid guid)
+            : guid(std::move(guid))
         {
         }
 
@@ -62,9 +63,16 @@ namespace pluto
         }
     };
 
-    TextAsset::Factory::Factory(DiContainer& diContainer) : BaseFactory(diContainer)
+    TextAsset::Factory::~Factory() = default;
+
+    TextAsset::Factory::Factory(DiContainer& diContainer)
+        : Asset::Factory(diContainer)
     {
     }
+
+    TextAsset::Factory::Factory(Factory&& other) noexcept = default;
+
+    TextAsset::Factory& TextAsset::Factory::operator=(Factory&& rhs) noexcept = default;
 
     std::unique_ptr<TextAsset> TextAsset::Factory::Create() const
     {
@@ -79,7 +87,7 @@ namespace pluto
         return textAsset;
     }
 
-    std::unique_ptr<TextAsset> TextAsset::Factory::Create(FileReader& fileReader) const
+    std::unique_ptr<Asset> TextAsset::Factory::Create(FileReader& fileReader) const
     {
         Guid signature;
         fileReader.Read(&signature, sizeof(Guid));
@@ -104,23 +112,16 @@ namespace pluto
         return textAsset;
     }
 
-    TextAsset::TextAsset(std::unique_ptr<Impl> impl) : impl(std::move(impl))
-    {
-    }
-
     TextAsset::~TextAsset() = default;
 
-    TextAsset& TextAsset::operator=(const TextAsset& rhs)
+    TextAsset::TextAsset(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        this->SetName(rhs.GetName());
-        this->SetText(rhs.GetText());
-        return *this;
     }
+
+    TextAsset::TextAsset(TextAsset&& other) noexcept = default;
+
+    TextAsset& TextAsset::operator=(TextAsset&& rhs) noexcept = default;
 
     const Guid& TextAsset::GetId() const
     {
@@ -132,9 +133,9 @@ namespace pluto
         return impl->GetName();
     }
 
-    void TextAsset::SetName(std::string value)
+    void TextAsset::SetName(const std::string& value)
     {
-        impl->SetName(std::move(value));
+        impl->SetName(value);
     }
 
     void TextAsset::Dump(FileWriter& fileWriter) const
