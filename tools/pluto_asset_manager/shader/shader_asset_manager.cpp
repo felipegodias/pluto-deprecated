@@ -239,6 +239,10 @@ namespace pluto
         glAttachShader(programId, vertexShaderId);
         glAttachShader(programId, fragmentShaderId);
         glBindFragDataLocation(programId, 0, "outColor");
+
+        glBindAttribLocation(programId, 0, "vertex.pos");
+        glBindAttribLocation(programId, 1, "vertex.uv");
+
         int linkResult;
         glLinkProgram(programId);
         glGetProgramiv(programId, GL_LINK_STATUS, &linkResult);
@@ -252,6 +256,7 @@ namespace pluto
             ss << "Failed create shader program. (Linking Step)\nOpenGL message: " << message;
             throw std::runtime_error(ss.str());
         }
+
         int validationResult;
         glValidateProgram(programId);
         glGetProgramiv(programId, GL_VALIDATE_STATUS, &validationResult);
@@ -268,6 +273,26 @@ namespace pluto
         glDeleteShader(vertexShaderId);
         glDeleteShader(fragmentShaderId);
         return programId;
+    }
+
+    std::vector<ShaderAsset::Property> FetchAttributes(const GLuint programId)
+    {
+        std::vector<ShaderAsset::Property> attributes;
+        int bufferSize;
+        glGetProgramiv(programId, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &bufferSize);
+        int attributesCount;
+        glGetProgramiv(programId, GL_ACTIVE_ATTRIBUTES, &attributesCount);
+        auto* name = static_cast<char*>(alloca(sizeof(char) * bufferSize));
+        GLuint type;
+        int size;
+        int nameLength;
+        for (int i = 0; i < attributesCount; ++i)
+        {
+            const unsigned index = i;
+            glGetActiveAttrib(programId, index, bufferSize, &nameLength, &size, &type, name);
+            attributes.push_back({ static_cast<uint8_t>(index), name, propertyTypes.at(type) });
+        }
+        return attributes;
     }
 
     std::vector<ShaderAsset::Property> FetchUniforms(const GLuint programId)
@@ -288,26 +313,6 @@ namespace pluto
             uniforms.push_back({static_cast<uint8_t>(index), name, propertyTypes.at(type)});
         }
         return uniforms;
-    }
-
-    std::vector<ShaderAsset::Property> FetchAttributes(const GLuint programId)
-    {
-        std::vector<ShaderAsset::Property> attributes;
-        int bufferSize;
-        glGetProgramiv(programId, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &bufferSize);
-        int attributesCount;
-        glGetProgramiv(programId, GL_ACTIVE_ATTRIBUTES, &attributesCount);
-        auto* name = static_cast<char*>(alloca(sizeof(char) * bufferSize));
-        GLuint type;
-        int size;
-        int nameLength;
-        for (int i = 0; i < attributesCount; ++i)
-        {
-            const unsigned index = i;
-            glGetActiveAttrib(programId, index, bufferSize, &nameLength, &size, &type, name);
-            attributes.push_back({static_cast<uint8_t>(index), name, propertyTypes.at(type)});
-        }
-        return attributes;
     }
 
     ShaderAsset::BlendEquation ParseBlendFunc(const std::string& str)
