@@ -87,7 +87,7 @@ namespace pluto
             Off = 0,
             Front = 1,
             Back = 2,
-            Default = Front,
+            Default = Back,
             Last = Back,
             Count = Last + 1
         };
