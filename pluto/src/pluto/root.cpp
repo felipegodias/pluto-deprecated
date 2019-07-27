@@ -114,7 +114,8 @@ namespace pluto
             auto& windowManager = diContainer->GetSingleton<WindowManager>();
             auto& simulationManager = diContainer->GetSingleton<SimulationManager>();
             auto& logManager = diContainer->GetSingleton<LogManager>();
-            MaterialAsset* m = nullptr;
+            MaterialAsset* transparentMaterial = nullptr;
+            MaterialAsset* unlitMaterial = nullptr;
 
             {
                 // TODO: Move to simulation manager.
@@ -133,22 +134,36 @@ namespace pluto
                 auto& camera = cameraGo.AddComponent<Camera>();
 
                 auto& meshAsset = assetManager.Load<MeshAsset>(Path("meshes/quad.obj"));
-                auto& shaderAsset = assetManager.Load<ShaderAsset>(Path("shaders/unlit.glsl"));
+                auto& unlitShaderAsset = assetManager.Load<ShaderAsset>(Path("shaders/unlit.glsl"));
+                auto& transparentShaderAsset = assetManager.Load<ShaderAsset>(Path("shaders/transparent.glsl"));
 
                 auto& materialFactory = diContainer->GetSingleton<MaterialAsset::Factory>();
+                
                 auto materialAssetPtr = materialFactory.Create();
-                materialAssetPtr->SetName("default");
-                materialAssetPtr->SetShader(shaderAsset);
-                //materialAssetPtr->SetVector4F("u_mat.color", Vector4F(1, 1, 1, 1));
-                m = &assetManager.Register(std::move(materialAssetPtr));
+                materialAssetPtr->SetName("unlit"); 
+                materialAssetPtr->SetShader(transparentShaderAsset);
+                unlitMaterial = &assetManager.Register(std::move(materialAssetPtr));
 
-                GameObject& quadGo = sceneManager.GetActiveScene().CreateGameObject("Quad");
-                auto& meshRenderer = quadGo.AddComponent<MeshRenderer>();
-                meshRenderer.SetMesh(meshAsset);
-                meshRenderer.SetMaterial(*m);
+                materialAssetPtr = materialFactory.Create();
+                materialAssetPtr->SetName("transparent");
+                materialAssetPtr->SetShader(unlitShaderAsset);
+                transparentMaterial = &assetManager.Register(std::move(materialAssetPtr));
+
+                GameObject& tquadGo = sceneManager.GetActiveScene().CreateGameObject("Transparent");
+                tquadGo.GetTransform().SetPosition({ -5, 0, 0 });
+                auto& tmeshRenderer = tquadGo.AddComponent<MeshRenderer>();
+                tmeshRenderer.SetMesh(meshAsset);
+                tmeshRenderer.SetMaterial(*transparentMaterial);
+
+                GameObject& uquadGo = sceneManager.GetActiveScene().CreateGameObject("Unlit");
+                uquadGo.GetTransform().SetPosition({ 5, 0, 0 });
+                auto& umeshRenderer = uquadGo.AddComponent<MeshRenderer>();
+                umeshRenderer.SetMesh(meshAsset);
+                umeshRenderer.SetMaterial(*unlitMaterial);
 
                 auto& textureAsset = assetManager.Load<TextureAsset>(Path("textures/pluto-logo.png"));
-                m->SetTexture("u_mat.mainTex", textureAsset);
+                transparentMaterial->SetTexture("u_mat.mainTex", textureAsset);
+                unlitMaterial->SetTexture("u_mat.mainTex", textureAsset);
             }
 
             int i = 0;
