@@ -1,6 +1,6 @@
 #include <pluto/scene/scene.h>
 #include <pluto/scene/game_object.h>
-#include <pluto/scene/transform.h>
+#include <pluto/scene/components/transform.h>
 
 #include <pluto/guid.h>
 

@@ -2,6 +2,11 @@
 
 namespace pluto
 {
-    Renderer::Renderer() = default;
     Renderer::~Renderer() = default;
+
+    Renderer::Renderer() = default;
+
+    Renderer::Renderer(Renderer&& other) noexcept = default;
+
+    Renderer& Renderer::operator=(Renderer&& rhs) noexcept = default;
 }

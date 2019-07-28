@@ -1,4 +1,4 @@
-#include <pluto/scene/transform.h>
+#include <pluto/scene/components/transform.h>
 #include <pluto/scene/game_object.h>
 
 #include <pluto/guid.h>
@@ -13,7 +13,6 @@ namespace pluto
 {
     class Transform::Impl
     {
-    private:
         Guid guid;
         GameObject& gameObject;
 
@@ -31,11 +30,17 @@ namespace pluto
         Matrix4X4 worldMatrix;
 
     public:
-        Impl(Guid guid, GameObject& gameObject) : guid(std::move(guid)), gameObject(gameObject), parent(nullptr),
-                                                  localPosition(Vector3F::ZERO), localRotation(Quaternion::IDENTITY),
-                                                  localScale(Vector3F::ONE), isLocalMatrixDirty(true),
-                                                  localMatrix(Matrix4X4::IDENTITY), isWorldMatrixDirty(true),
-                                                  worldMatrix(Matrix4X4::IDENTITY)
+        Impl(Guid guid, GameObject& gameObject)
+            : guid(std::move(guid)),
+              gameObject(gameObject),
+              parent(nullptr),
+              localPosition(Vector3F::ZERO),
+              localRotation(Quaternion::IDENTITY),
+              localScale(Vector3F::ONE),
+              isLocalMatrixDirty(true),
+              localMatrix(Matrix4X4::IDENTITY),
+              isWorldMatrixDirty(true),
+              worldMatrix(Matrix4X4::IDENTITY)
         {
         }
 
@@ -285,35 +290,32 @@ namespace pluto
         }
     };
 
-    Transform::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
+    Transform::Factory::~Factory() = default;
+
+    Transform::Factory::Factory(ServiceCollection& diContainer)
+        : Component::Factory(diContainer)
     {
     }
 
-    std::unique_ptr<Transform> Transform::Factory::Create(GameObject& gameObject) const
+    Transform::Factory::Factory(Factory&& other) noexcept = default;
+
+    Transform::Factory& Transform::Factory::operator=(Factory&& rhs) noexcept = default;
+
+    std::unique_ptr<Component> Transform::Factory::Create(GameObject& gameObject) const
     {
         return std::make_unique<Transform>(std::make_unique<Impl>(Guid::New(), gameObject));
     }
 
-    Transform::Transform(std::unique_ptr<Impl> impl) : impl(std::move(impl))
-    {
-    }
-
-    Transform::Transform(Transform&& other) noexcept : impl(std::move(other.impl))
-    {
-    }
-
     Transform::~Transform() = default;
 
-    Transform& Transform::operator=(Transform&& rhs) noexcept
+    Transform::Transform(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        impl = std::move(rhs.impl);
-        return *this;
     }
+
+    Transform::Transform(Transform&& other) noexcept = default;
+
+    Transform& Transform::operator=(Transform&& rhs) noexcept = default;
 
     const Guid& Transform::GetId() const
     {

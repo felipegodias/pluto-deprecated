@@ -1,6 +1,6 @@
 #include <pluto/scene/game_object.h>
-#include <pluto/scene/transform.h>
-#include <pluto/scene/component.h>
+#include <pluto/scene/components/component.h>
+#include <pluto/scene/components/transform.h>
 #include <pluto/scene/components/renderer.h>
 #include <pluto/scene/components/mesh_renderer.h>
 #include <pluto/scene/components/camera.h>
@@ -17,37 +17,38 @@ namespace pluto
 {
     class GameObject::Impl
     {
-    private:
         Guid guid;
         std::string name;
         Flags flags;
 
-        GameObject* me;
         Transform* transform;
+
+        std::vector<std::unique_ptr<Component>> components;
+        std::unordered_map<std::type_index, const Component::Factory*> componentFactories;
 
         uint32_t lastFrame;
         bool isDestroyed;
-
-        std::vector<std::unique_ptr<Component>> components;
-        std::unordered_map<std::type_index, const BaseFactory&> componentFactories;
+        GameObject* instance;
 
     public:
-        Impl(Guid guid, const Transform::Factory& transformFactory, const Camera::Factory& cameraFactory,
-             const MeshRenderer::Factory& meshRendererFactory) :
-            guid(std::move(guid)),
-            flags(Flags::None), me(nullptr),
-            transform(nullptr),
-            lastFrame(0), isDestroyed(false)
+        Impl(const Guid& guid, const Transform::Factory& transformFactory, const Camera::Factory& cameraFactory,
+             const MeshRenderer::Factory& meshRendererFactory)
+            : guid(guid),
+              flags(Flags::None),
+              transform(nullptr),
+              lastFrame(0),
+              isDestroyed(false),
+              instance(nullptr)
         {
-            componentFactories.emplace(typeid(Transform), transformFactory);
-            componentFactories.emplace(typeid(Camera), cameraFactory);
-            componentFactories.emplace(typeid(MeshRenderer), meshRendererFactory);
+            componentFactories.emplace(typeid(Transform), &transformFactory);
+            componentFactories.emplace(typeid(Camera), &cameraFactory);
+            componentFactories.emplace(typeid(MeshRenderer), &meshRendererFactory);
         }
 
         void Init(GameObject& instance)
         {
-            me = &instance;
-            transform = &AddComponent<Transform>();
+            this->instance = &instance;
+            transform = dynamic_cast<Transform*>(&AddComponent(typeid(Transform)));
         }
 
         const Guid& GetId() const
@@ -80,49 +81,44 @@ namespace pluto
             return *transform;
         }
 
-        template <typename T, IsComponent<T>  = 0>
-        T& AddComponent()
+        Component& AddComponent(const std::type_info& type)
         {
-            const auto& factory = static_cast<const typename T::Factory&>(componentFactories.at(typeid(T)));
-            std::unique_ptr<T> componentPtr = factory.Create(*me);
-            T& component = *componentPtr;
+            const auto& factory = componentFactories.at(type);
+            std::unique_ptr<Component> componentPtr = factory->Create(*instance);
+            Component& component = *componentPtr;
             components.push_back(std::move(componentPtr));
             return component;
         }
 
-        template <typename T, IsComponent<T>  = 0>
-        T* GetComponent() const
+        Component* GetComponent(const std::function<bool(const Component& component)>& predicate) const
         {
             for (auto& component : components)
             {
-                T* result = dynamic_cast<T*>(component.get());
-                if (result != nullptr)
+                if (predicate(*component))
                 {
-                    return result;
+                    return component.get();
                 }
             }
             return nullptr;
         }
 
-        template <typename T, IsComponent<T>  = 0>
-        std::vector<std::reference_wrapper<T>> GetComponents() const
+        std::vector<std::reference_wrapper<Component>> GetComponents(
+            const std::function<bool(const Component& component)>& predicate) const
         {
-            std::vector<std::reference_wrapper<T>> result;
+            std::vector<std::reference_wrapper<Component>> result;
             for (auto& component : components)
             {
-                T* obj = dynamic_cast<T*>(component.get());
-                if (obj != nullptr)
+                if (predicate(*component))
                 {
-                    result.push_back(*obj);
+                    result.emplace_back(*component);
                 }
             }
             return result;
         }
 
-        template <typename T, IsComponent<T>  = 0>
-        T* GetComponentInChildren() const
+        Component* GetComponentInChildren(const std::function<bool(const Component& component)>& predicate) const
         {
-            T* result = GetComponent<T>();
+            Component* result = GetComponent(predicate);
             if (result != nullptr)
             {
                 return result;
@@ -131,7 +127,7 @@ namespace pluto
             for (auto it : GetTransform().GetChildren())
             {
                 Transform& child = it;
-                result = child.GetGameObject().GetComponentInChildren<T>();
+                result = child.GetGameObject().GetComponentInChildren(predicate);
                 if (result != nullptr)
                 {
                     return result;
@@ -140,14 +136,14 @@ namespace pluto
             return nullptr;
         }
 
-        template <typename T, IsComponent<T>  = 0>
-        std::vector<std::reference_wrapper<T>> GetComponentsInChildren() const
+        std::vector<std::reference_wrapper<Component>> GetComponentsInChildren(
+            const std::function<bool(const Component& component)>& predicate) const
         {
-            std::vector<std::reference_wrapper<T>> result = GetComponents<T>();
+            std::vector<std::reference_wrapper<Component>> result = GetComponents(predicate);
             for (auto it : GetTransform().GetChildren())
             {
                 Transform& child = it;
-                auto componentsFromChild = child.GetGameObject().GetComponentsInChildren<T>();
+                auto componentsFromChild = child.GetGameObject().GetComponentsInChildren(predicate);
                 result.insert(result.end(), componentsFromChild.begin(), componentsFromChild.end());
             }
             return result;
@@ -202,7 +198,8 @@ namespace pluto
         }
     };
 
-    GameObject::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
+    GameObject::Factory::Factory(ServiceCollection& diContainer)
+        : BaseFactory(diContainer)
     {
     }
 
@@ -218,26 +215,16 @@ namespace pluto
         return gameObject;
     }
 
-    GameObject::GameObject(std::unique_ptr<Impl> impl) : impl(std::move(impl))
-    {
-    }
-
-    GameObject::GameObject(GameObject&& other) noexcept : impl(std::move(other.impl))
-    {
-    }
-
     GameObject::~GameObject() = default;
 
-    GameObject& GameObject::operator=(GameObject&& rhs) noexcept
+    GameObject::GameObject(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        impl = std::move(rhs.impl);
-        return *this;
     }
+
+    GameObject::GameObject(GameObject&& other) noexcept = default;
+
+    GameObject& GameObject::operator=(GameObject&& rhs) noexcept = default;
 
     bool GameObject::operator==(const GameObject& rhs) const
     {
@@ -259,9 +246,9 @@ namespace pluto
         return impl->GetName();
     }
 
-    void GameObject::SetName(std::string value)
+    void GameObject::SetName(const std::string& value)
     {
-        impl->SetName(std::move(value));
+        impl->SetName(value);
     }
 
     GameObject::Flags GameObject::GetFlags() const
@@ -279,34 +266,32 @@ namespace pluto
         return impl->GetTransform();
     }
 
-    template <typename T, IsComponent<T>>
-    T& GameObject::AddComponent()
+    Component& GameObject::AddComponent(const std::type_info& type)
     {
-        return impl->AddComponent<T>();
+        return impl->AddComponent(type);
     }
 
-    template <typename T, IsComponent<T>>
-    T* GameObject::GetComponent() const
+    Component* GameObject::GetComponent(const std::function<bool(const Component& component)>& predicate) const
     {
-        return impl->GetComponent<T>();
+        return impl->GetComponent(predicate);
     }
 
-    template <typename T, IsComponent<T>>
-    std::vector<std::reference_wrapper<T>> GameObject::GetComponents() const
+    std::vector<std::reference_wrapper<Component>> GameObject::GetComponents(
+        const std::function<bool(const Component& component)>& predicate) const
     {
-        return impl->GetComponents<T>();
+        return impl->GetComponents(predicate);
     }
 
-    template <typename T, IsComponent<T>>
-    T* GameObject::GetComponentInChildren() const
+    Component* GameObject::GetComponentInChildren(
+        const std::function<bool(const Component& component)>& predicate) const
     {
-        return impl->GetComponentInChildren<T>();
+        return impl->GetComponentInChildren(predicate);
     }
 
-    template <typename T, IsComponent<T>>
-    std::vector<std::reference_wrapper<T>> GameObject::GetComponentsInChildren() const
+    std::vector<std::reference_wrapper<Component>> GameObject::GetComponentsInChildren(
+        const std::function<bool(const Component& component)>& predicate) const
     {
-        return impl->GetComponentsInChildren<T>();
+        return impl->GetComponentsInChildren(predicate);
     }
 
     void GameObject::Destroy()
@@ -318,27 +303,4 @@ namespace pluto
     {
         impl->OnUpdate(currentFrame);
     }
-
-    template Transform& GameObject::AddComponent();
-    template Transform* GameObject::GetComponent() const;
-    template std::vector<std::reference_wrapper<Transform>> GameObject::GetComponents() const;
-    template Transform* GameObject::GetComponentInChildren() const;
-    template std::vector<std::reference_wrapper<Transform>> GameObject::GetComponentsInChildren() const;
-
-    template Camera& GameObject::AddComponent();
-    template Camera* GameObject::GetComponent() const;
-    template std::vector<std::reference_wrapper<Camera>> GameObject::GetComponents() const;
-    template Camera* GameObject::GetComponentInChildren() const;
-    template std::vector<std::reference_wrapper<Camera>> GameObject::GetComponentsInChildren() const;
-
-    template Renderer* GameObject::GetComponent() const;
-    template std::vector<std::reference_wrapper<Renderer>> GameObject::GetComponents() const;
-    template Renderer* GameObject::GetComponentInChildren() const;
-    template std::vector<std::reference_wrapper<Renderer>> GameObject::GetComponentsInChildren() const;
-
-    template MeshRenderer& GameObject::AddComponent();
-    template MeshRenderer* GameObject::GetComponent() const;
-    template std::vector<std::reference_wrapper<MeshRenderer>> GameObject::GetComponents() const;
-    template MeshRenderer* GameObject::GetComponentInChildren() const;
-    template std::vector<std::reference_wrapper<MeshRenderer>> GameObject::GetComponentsInChildren() const;
 }

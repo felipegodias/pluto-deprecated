@@ -44,7 +44,7 @@
 
 #include <pluto/scene/scene.h>
 #include <pluto/scene/game_object.h>
-#include <pluto/scene/transform.h>
+#include <pluto/scene/components/transform.h>
 #include <pluto/scene/components/camera.h>
 #include <pluto/scene/components/mesh_renderer.h>
 
@@ -138,25 +138,25 @@ namespace pluto
                 auto transparentShaderAsset = assetManager.Load<ShaderAsset>(Path("shaders/transparent.glsl"));
 
                 auto& materialFactory = diContainer->GetService<MaterialAsset::Factory>();
-                
+
                 auto materialAssetPtr = materialFactory.Create();
-                materialAssetPtr->SetName("unlit"); 
+                materialAssetPtr->SetName("unlit");
                 materialAssetPtr->SetShader(*transparentShaderAsset);
                 unlitMaterial = &assetManager.Register(std::move(materialAssetPtr));
 
                 materialAssetPtr = materialFactory.Create();
                 materialAssetPtr->SetName("transparent");
-                materialAssetPtr->SetShader(*unlitShaderAsset); 
+                materialAssetPtr->SetShader(*unlitShaderAsset);
                 transparentMaterial = &assetManager.Register(std::move(materialAssetPtr));
 
                 GameObject& tquadGo = sceneManager.GetActiveScene().CreateGameObject("Transparent");
-                tquadGo.GetTransform().SetPosition({ -5, 0, 0 });
+                tquadGo.GetTransform().SetPosition({-5, 0, 0});
                 auto& tmeshRenderer = tquadGo.AddComponent<MeshRenderer>();
                 tmeshRenderer.SetMesh(*meshAsset);
                 tmeshRenderer.SetMaterial(*transparentMaterial);
 
                 GameObject& uquadGo = sceneManager.GetActiveScene().CreateGameObject("Unlit");
-                uquadGo.GetTransform().SetPosition({ 5, 0, 0 });
+                uquadGo.GetTransform().SetPosition({5, 0, 0});
                 auto& umeshRenderer = uquadGo.AddComponent<MeshRenderer>();
                 umeshRenderer.SetMesh(*meshAsset);
                 umeshRenderer.SetMaterial(*unlitMaterial);
@@ -184,8 +184,9 @@ namespace pluto
     };
 
     Root::Root(const std::string& configFileName, const std::string& logFileName,
-               const std::string& dataDirectoryName) : impl(
-        std::make_unique<Impl>(configFileName, logFileName, dataDirectoryName))
+               const std::string& dataDirectoryName)
+        : impl(
+            std::make_unique<Impl>(configFileName, logFileName, dataDirectoryName))
     {
     }
 

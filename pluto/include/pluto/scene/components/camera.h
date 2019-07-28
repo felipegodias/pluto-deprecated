@@ -1,7 +1,6 @@
 #pragma once
 
-#include "pluto/scene/component.h"
-#include "pluto/service/base_factory.h"
+#include "component.h"
 
 #include <memory>
 
@@ -18,11 +17,18 @@ namespace pluto
             Orthographic = 0
         };
 
-        class PLUTO_API Factory final : public BaseFactory
+        class PLUTO_API Factory final : public Component::Factory
         {
         public:
+            ~Factory() override;
             explicit Factory(ServiceCollection& diContainer);
-            std::unique_ptr<Camera> Create(GameObject& gameObject) const;
+
+            Factory(const Factory& other) = delete;
+            Factory(Factory&& other) noexcept;
+            Factory& operator=(const Factory& rhs) = delete;
+            Factory& operator=(Factory&& rhs) noexcept;
+
+            std::unique_ptr<Component> Create(GameObject& gameObject) const override;
         };
 
     private:

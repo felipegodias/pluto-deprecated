@@ -5,7 +5,7 @@
 #include <pluto/scene/scene_manager.h>
 #include <pluto/scene/scene.h>
 #include <pluto/scene/game_object.h>
-#include <pluto/scene/transform.h>
+#include <pluto/scene/components/transform.h>
 #include <pluto/scene/components/camera.h>
 #include <pluto/scene/components/mesh_renderer.h>
 

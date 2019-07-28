@@ -15,8 +15,11 @@ namespace pluto
         MaterialAsset* materialAsset;
 
     public:
-        Impl(Guid guid, GameObject& gameObject) : guid(std::move(guid)), gameObject(gameObject), meshAsset(nullptr),
-                                                  materialAsset(nullptr)
+        Impl(const Guid& guid, GameObject& gameObject)
+            : guid(guid),
+              gameObject(gameObject),
+              meshAsset(nullptr),
+              materialAsset(nullptr)
         {
         }
 
@@ -61,35 +64,32 @@ namespace pluto
         }
     };
 
-    MeshRenderer::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
+    MeshRenderer::Factory::~Factory() = default;
+
+    MeshRenderer::Factory::Factory(ServiceCollection& diContainer)
+        : Component::Factory(diContainer)
     {
     }
 
-    std::unique_ptr<MeshRenderer> MeshRenderer::Factory::Create(GameObject& gameObject) const
+    MeshRenderer::Factory::Factory(Factory&& other) noexcept = default;
+
+    MeshRenderer::Factory& MeshRenderer::Factory::operator=(Factory&& rhs) noexcept = default;
+
+    std::unique_ptr<Component> MeshRenderer::Factory::Create(GameObject& gameObject) const
     {
         return std::make_unique<MeshRenderer>(std::make_unique<Impl>(Guid::New(), gameObject));
     }
 
-    MeshRenderer::MeshRenderer(std::unique_ptr<Impl> impl) : impl(std::move(impl))
-    {
-    }
-
-    MeshRenderer::MeshRenderer(MeshRenderer&& other) noexcept : impl(std::move(other.impl))
-    {
-    }
-
     MeshRenderer::~MeshRenderer() = default;
 
-    MeshRenderer& MeshRenderer::operator=(MeshRenderer&& rhs) noexcept
+    MeshRenderer::MeshRenderer(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        impl = std::move(rhs.impl);
-        return *this;
     }
+
+    MeshRenderer::MeshRenderer(MeshRenderer&& other) noexcept = default;
+
+    MeshRenderer& MeshRenderer::operator=(MeshRenderer&& rhs) noexcept = default;
 
     const Guid& MeshRenderer::GetId() const
     {

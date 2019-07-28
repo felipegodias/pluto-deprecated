@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pluto/scene/component.h"
+#include "component.h"
 
 namespace pluto
 {
@@ -12,11 +12,13 @@ namespace pluto
     class PLUTO_API Renderer : public Component
     {
     public:
-        Renderer();
-        Renderer(const Renderer& other) = delete;
-
         virtual ~Renderer() = 0;
-        Component& operator=(const Renderer& rhs) = delete;
+        Renderer();
+
+        Renderer(const Renderer& other) = delete;
+        Renderer(Renderer&& other) noexcept;
+        Renderer& operator=(const Renderer& rhs) = delete;
+        Renderer& operator=(Renderer&& rhs) noexcept;
 
         virtual Bounds GetBounds() = 0;
 

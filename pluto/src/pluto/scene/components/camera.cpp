@@ -1,6 +1,6 @@
 #include "pluto/scene/components/camera.h"
 #include "pluto/scene/game_object.h"
-#include "pluto/scene/transform.h"
+#include "pluto/scene/components/transform.h"
 
 #include "pluto/service/service_collection.h"
 #include "pluto/window/window_manager.h"
@@ -13,11 +13,8 @@ namespace pluto
 {
     class Camera::Impl
     {
-    private:
         Guid guid;
         GameObject& gameObject;
-
-        const WindowManager& windowManager;
 
         Type type;
         float orthographicSize;
@@ -32,18 +29,22 @@ namespace pluto
         Matrix4X4 projectionMatrix;
         bool isProjectionMatrixDirty;
 
+        const WindowManager* windowManager;
+
     public:
-        Impl(Guid guid, GameObject& gameObject, const WindowManager& windowManager) : guid(std::move(guid)),
-                                                                                      gameObject(gameObject),
-                                                                                      windowManager(windowManager),
-                                                                                      type(Type::Orthographic),
-                                                                                      orthographicSize(5),
-                                                                                      nearPlane(0.1f), farPlane(100),
-                                                                                      viewMatrix(Matrix4X4::IDENTITY),
-                                                                                      isViewMatrixDirty(true),
-                                                                                      projectionMatrix(
-                                                                                          Matrix4X4::IDENTITY),
-                                                                                      isProjectionMatrixDirty(true)
+        Impl(const Guid& guid, GameObject& gameObject, const WindowManager& windowManager)
+            : guid(guid),
+              gameObject(gameObject),
+              type(Type::Orthographic),
+              orthographicSize(5),
+              nearPlane(0.1f),
+              farPlane(100),
+              viewMatrix(Matrix4X4::IDENTITY),
+              isViewMatrixDirty(true),
+              projectionMatrix(
+                  Matrix4X4::IDENTITY),
+              isProjectionMatrixDirty(true),
+              windowManager(&windowManager)
         {
         }
 
@@ -147,44 +148,41 @@ namespace pluto
     private:
         Matrix4X4 CreateOrthographicProjection()
         {
-            const float aspectRatio = windowManager.GetWindowAspectRatio();
+            const float aspectRatio = windowManager->GetWindowAspectRatio();
             const float right = orthographicSize * aspectRatio;
             const float top = orthographicSize;
             return Matrix4X4::Ortho(-right, right, -top, top, nearPlane, farPlane);
         }
     };
 
-    Camera::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
+    Camera::Factory::~Factory() = default;
+
+    Camera::Factory::Factory(ServiceCollection& diContainer)
+        : Component::Factory(diContainer)
     {
     }
 
-    std::unique_ptr<Camera> Camera::Factory::Create(GameObject& gameObject) const
+    Camera::Factory::Factory(Factory&& other) noexcept = default;
+
+    Camera::Factory& Camera::Factory::operator=(Factory&& rhs) noexcept = default;
+
+    std::unique_ptr<Component> Camera::Factory::Create(GameObject& gameObject) const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         const auto& windowManager = serviceCollection.GetService<WindowManager>();
         return std::make_unique<Camera>(std::make_unique<Impl>(Guid::New(), gameObject, windowManager));
     }
 
-    Camera::Camera(std::unique_ptr<Impl> impl) : impl(std::move(impl))
-    {
-    }
-
-    Camera::Camera(Camera&& other) noexcept : impl(std::move(other.impl))
-    {
-    }
-
     Camera::~Camera() = default;
 
-    Camera& Camera::operator=(Camera&& rhs) noexcept
+    Camera::Camera(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
-        if (this == &rhs)
-        {
-            return *this;
-        }
-
-        impl = std::move(rhs.impl);
-        return *this;
     }
+
+    Camera::Camera(Camera&& other) noexcept = default;
+
+    Camera& Camera::operator=(Camera&& rhs) noexcept = default;
 
     const Guid& Camera::GetId() const
     {

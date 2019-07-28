@@ -1,7 +1,6 @@
 #pragma once
 
 #include "pluto/scene/components/renderer.h"
-#include "pluto/service/base_factory.h"
 
 #include <memory>
 
@@ -10,11 +9,18 @@ namespace pluto
     class PLUTO_API MeshRenderer final : public Renderer
     {
     public:
-        class PLUTO_API Factory final : public BaseFactory
+        class PLUTO_API Factory final : public Component::Factory
         {
         public:
+            ~Factory() override;
             explicit Factory(ServiceCollection& diContainer);
-            std::unique_ptr<MeshRenderer> Create(GameObject& gameObject) const;
+
+            Factory(const Factory& other) = delete;
+            Factory(Factory&& other) noexcept;
+            Factory& operator=(const Factory& rhs) = delete;
+            Factory& operator=(Factory&& rhs) noexcept;
+
+            std::unique_ptr<Component> Create(GameObject& gameObject) const override;
         };
 
     private:

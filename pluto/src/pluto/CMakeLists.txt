@@ -63,16 +63,16 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gl/gl_shader_program.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/gl/gl_texture_buffer.cpp
     # ./scene
-    ${CMAKE_CURRENT_SOURCE_DIR}/scene/component.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/game_object.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/scene.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/scene_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/scene_manager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/scene/transform.cpp
     # ./scene/components
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/camera.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/component.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/mesh_renderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/renderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/transform.cpp
     # ./service
     ${CMAKE_CURRENT_SOURCE_DIR}/service/base_factory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/service/base_service.cpp
