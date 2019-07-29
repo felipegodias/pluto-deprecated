@@ -27,9 +27,10 @@ namespace pluto
     MeshAssetManager::~MeshAssetManager() = default;
 
     MeshAssetManager::
-    MeshAssetManager(FileManager& fileManager, MeshAsset::Factory& meshAssetFactory) : fileManager(&fileManager),
-                                                                                       meshAssetFactory(
-                                                                                           &meshAssetFactory)
+    MeshAssetManager(FileManager& fileManager, MeshAsset::Factory& meshAssetFactory)
+        : fileManager(&fileManager),
+          meshAssetFactory(
+              &meshAssetFactory)
     {
     }
 
@@ -137,7 +138,7 @@ namespace pluto
     std::unique_ptr<MeshAsset> MeshAssetManager::Load(const Path& path)
     {
         const auto fileReader = fileManager->OpenRead(path);
-        auto shaderAsset = meshAssetFactory->Create(*fileReader);
-        return shaderAsset;
+        std::unique_ptr<Asset> asset = meshAssetFactory->Create(*fileReader);
+        return std::unique_ptr<MeshAsset>(dynamic_cast<MeshAsset*>(asset.release()));
     }
 }

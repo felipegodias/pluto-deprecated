@@ -17,9 +17,10 @@ namespace pluto
     TextAssetManager::~TextAssetManager() = default;
 
     TextAssetManager::
-    TextAssetManager(FileManager& fileManager, TextAsset::Factory& textAssetFactory) : fileManager(&fileManager),
-                                                                                       textAssetFactory(
-                                                                                           &textAssetFactory)
+    TextAssetManager(FileManager& fileManager, TextAsset::Factory& textAssetFactory)
+        : fileManager(&fileManager),
+          textAssetFactory(
+              &textAssetFactory)
     {
     }
 
@@ -58,7 +59,7 @@ namespace pluto
     std::unique_ptr<TextAsset> TextAssetManager::Load(const Path& path)
     {
         const auto fileReader = fileManager->OpenRead(path);
-        auto textAsset = textAssetFactory->Create(*fileReader);
-        return textAsset;
+        auto asset = textAssetFactory->Create(*fileReader);
+        return std::unique_ptr<TextAsset>(dynamic_cast<TextAsset*>(asset.release()));
     }
 }

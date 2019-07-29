@@ -290,7 +290,7 @@ namespace pluto
         {
             const unsigned index = i;
             glGetActiveAttrib(programId, index, bufferSize, &nameLength, &size, &type, name);
-            attributes.push_back({ static_cast<uint8_t>(index), name, propertyTypes.at(type) });
+            attributes.push_back({static_cast<uint8_t>(index), name, propertyTypes.at(type)});
         }
         return attributes;
     }
@@ -425,7 +425,7 @@ namespace pluto
     std::unique_ptr<ShaderAsset> ShaderAssetManager::Load(const Path& path)
     {
         const auto fileReader = fileManager->OpenRead(path);
-        auto shaderAsset = shaderAssetFactory->Create(*fileReader);
-        return shaderAsset;
+        auto asset = shaderAssetFactory->Create(*fileReader);
+        return std::unique_ptr<ShaderAsset>(dynamic_cast<ShaderAsset*>(asset.release()));
     }
 }
