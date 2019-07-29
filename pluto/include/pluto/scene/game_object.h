@@ -66,13 +66,13 @@ namespace pluto
         template <typename T, IsComponent<T>  = 0>
         T* GetComponent() const;
 
-        Component* GetComponent(const std::function<bool(const Component& component)>& filter) const;
+        Component* GetComponent(const std::function<bool(const Component& component)>& predicate) const;
 
         template <typename T, IsComponent<T>  = 0>
         std::vector<std::reference_wrapper<T>> GetComponents() const;
 
         std::vector<std::reference_wrapper<Component>> GetComponents(
-            const std::function<bool(const Component& component)>& filter) const;
+            const std::function<bool(const Component& component)>& predicate) const;
 
         template <typename T, IsComponent<T>  = 0>
         T* GetComponentInChildren() const;
