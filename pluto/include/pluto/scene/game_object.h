@@ -37,12 +37,11 @@ namespace pluto
         std::unique_ptr<Impl> impl;
 
     public:
+        ~GameObject();
         explicit GameObject(std::unique_ptr<Impl> impl);
 
         GameObject(const GameObject& other) = delete;
         GameObject(GameObject&& other) noexcept;
-        ~GameObject();
-
         GameObject& operator=(const GameObject& rhs) = delete;
         GameObject& operator=(GameObject&& rhs) noexcept;
 

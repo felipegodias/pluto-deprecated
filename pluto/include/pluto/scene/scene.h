@@ -26,13 +26,11 @@ namespace pluto
         std::unique_ptr<Impl> impl;
 
     public:
+        ~Scene();
         explicit Scene(std::unique_ptr<Impl> impl);
 
         Scene(const Scene& other) = delete;
         Scene(Scene&& other) noexcept;
-
-        ~Scene();
-
         Scene& operator=(const Scene& rhs) = delete;
         Scene& operator=(Scene&& rhs) noexcept;
 
@@ -41,9 +39,9 @@ namespace pluto
         GameObject& GetRootGameObject() const;
 
         GameObject& CreateGameObject();
-        GameObject& CreateGameObject(std::string name);
+        GameObject& CreateGameObject(const std::string& name);
         GameObject& CreateGameObject(Transform& parent);
-        GameObject& CreateGameObject(Transform& parent, std::string name);
+        GameObject& CreateGameObject(Transform& parent, const std::string& name);
 
         void Destroy();
         void OnUpdate(uint32_t currentFrame);
