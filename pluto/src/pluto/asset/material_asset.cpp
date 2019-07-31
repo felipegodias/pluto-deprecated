@@ -4,6 +4,7 @@
 #include <pluto/asset/events/on_asset_unload_event.h>
 #include <pluto/asset/asset_manager.h>
 #include <pluto/file/path.h>
+#include <pluto/file/file_writer.h>
 
 #include <pluto/service/service_collection.h>
 
@@ -16,8 +17,6 @@
 #include <pluto/math/vector4f.h>
 #include <pluto/math/vector4i.h>
 
-#include <pluto/math/matrix2x2.h>
-#include <pluto/math/matrix3x3.h>
 #include <pluto/math/matrix4x4.h>
 
 #include <pluto/guid.h>
@@ -43,8 +42,8 @@ namespace pluto
         AssetManager* assetManager;
 
     public:
-        Impl(Guid guid, ShaderAsset& shaderAsset, EventManager& eventManager, AssetManager& assetManager)
-            : guid(std::move(guid)),
+        Impl(const Guid& guid, ShaderAsset& shaderAsset, EventManager& eventManager, AssetManager& assetManager)
+            : guid(guid),
               shaderAsset(&shaderAsset),
               eventManager(&eventManager),
               assetManager(&assetManager)
@@ -75,6 +74,73 @@ namespace pluto
 
         void Dump(FileWriter& fileWriter) const
         {
+            fileWriter.Write(&Guid::PLUTO_IDENTIFIER, sizeof(Guid));
+            uint8_t serializerVersion = 1;
+            fileWriter.Write(&serializerVersion, sizeof(uint8_t));
+            auto assetType = static_cast<uint8_t>(Type::Material);
+            fileWriter.Write(&assetType, sizeof(uint8_t));
+            fileWriter.Write(&guid, sizeof(Guid));
+            uint8_t assetNameLength = name.size();
+            fileWriter.Write(&assetNameLength, sizeof(uint8_t));
+            fileWriter.Write(name.data(), assetNameLength);
+
+            if (shaderAsset != nullptr)
+            {
+                fileWriter.Write(&shaderAsset->GetId(), sizeof(Guid));
+            }
+            else
+            {
+                Guid guid;
+                fileWriter.Write(&guid, sizeof(Guid));
+            }
+
+            uint8_t floatsCount = floats.size();
+            fileWriter.Write(&floatsCount, sizeof(uint8_t));
+            for (const auto& it : floats)
+            {
+                uint8_t uniformNameLength = it.first.size();
+                fileWriter.Write(&uniformNameLength, sizeof(uint8_t));
+                fileWriter.Write(it.first.data(), assetNameLength);
+                fileWriter.Write(&it.second, sizeof(float));
+            }
+
+            uint8_t vectorsCount = floats.size();
+            fileWriter.Write(&vectorsCount, sizeof(uint8_t));
+            for (const auto& it : vectors)
+            {
+                uint8_t uniformNameLength = it.first.size();
+                fileWriter.Write(&uniformNameLength, sizeof(uint8_t));
+                fileWriter.Write(it.first.data(), assetNameLength);
+                fileWriter.Write(&it.second, sizeof(Vector4F));
+            }
+
+            uint8_t matricesCount = floats.size();
+            fileWriter.Write(&matricesCount, sizeof(uint8_t));
+            for (const auto& it : matrices)
+            {
+                uint8_t uniformNameLength = it.first.size();
+                fileWriter.Write(&uniformNameLength, sizeof(uint8_t));
+                fileWriter.Write(it.first.data(), assetNameLength);
+                fileWriter.Write(&it.second, sizeof(Matrix4X4));
+            }
+
+            uint8_t texturesCount = floats.size();
+            fileWriter.Write(&texturesCount, sizeof(uint8_t));
+            for (const auto& it : textures)
+            {
+                uint8_t uniformNameLength = it.first.size();
+                fileWriter.Write(&uniformNameLength, sizeof(uint8_t));
+                fileWriter.Write(it.first.data(), assetNameLength);
+                if (it.second != nullptr)
+                {
+                    fileWriter.Write(&it.second->GetId(), sizeof(Guid));
+                }
+                else
+                {
+                    Guid guid;
+                    fileWriter.Write(&guid, sizeof(Guid));
+                }
+            }
         }
 
         ShaderAsset& GetShader() const
@@ -300,7 +366,7 @@ namespace pluto
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& assetManager = serviceCollection.GetService<AssetManager>();
-        auto pinkShader = assetManager.Load<ShaderAsset>(Path("shaders/pink.glsl"));
+        const auto pinkShader = assetManager.Load<ShaderAsset>(Path("shaders/pink.glsl"));
         auto& eventManager = serviceCollection.GetService<EventManager>();
 
         return std::make_unique<MaterialAsset>(
