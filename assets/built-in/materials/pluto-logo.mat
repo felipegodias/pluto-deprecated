@@ -1,0 +1,11 @@
+shader: fc9db0dc75f14cee8187fbceec39595a
+floats: []
+vectors:
+    - mainColor: 
+        - 1
+        - 1
+        - 1
+        - 1
+matrices: []
+textures:
+    - mainTex: 26ddf0804a4a451795b9a6d2a65f05f8
