@@ -23,7 +23,6 @@ struct VertexData
 {
     vec3 pos;
     vec2 uv;
-    vec4 color;
 };
 
 in VertexData vertex;
@@ -36,7 +35,7 @@ void main()
 {
     gl_Position = u_mvp * vec4(vertex.pos, 1);
     v2f.texCoord = vertex.uv;
-    v2f.color = vertex.color * u_mat.mainColor;
+    v2f.color = u_mat.mainColor;
 }
 
 #endif
