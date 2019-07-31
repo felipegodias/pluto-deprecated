@@ -210,9 +210,21 @@ namespace pluto
     private:
         void OnAssetUnload(const OnAssetUnloadEvent& onAssetUnload)
         {
+            const Asset* asset = &onAssetUnload.GetAsset();
             if (shaderAsset == &onAssetUnload.GetAsset())
             {
                 SetShader(*assetManager->Load<ShaderAsset>(Path("shaders/pink.glsl")));
+            }
+            else if (dynamic_cast<const TextureAsset*>(asset) != nullptr)
+            {
+                for (auto& it : textures)
+                {
+                    if (it.second == asset)
+                    {
+                        continue;
+                    }
+                    it.second = nullptr;
+                }
             }
         }
 
