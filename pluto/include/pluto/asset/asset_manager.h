@@ -59,8 +59,6 @@ namespace pluto
         T& Register(std::unique_ptr<T> asset);
 
         Asset& RegisterAsset(std::unique_ptr<Asset> asset);
-
-        std::vector<Asset*> GetLoadedAssets() const;
     };
 
     template <typename T, IsAsset<T>>

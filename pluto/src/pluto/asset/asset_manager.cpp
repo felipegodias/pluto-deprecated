@@ -19,8 +19,11 @@
 #include <pluto/event/event_manager.h>
 #include <pluto/asset/events/on_asset_unload_event.h>
 
-#include <string>
+#include <pluto/memory/memory_manager.h>
+
 #include <fmt/ostream.h>
+
+#include <string>
 #include <memory>
 #include <typeindex>
 #include <unordered_map>
@@ -31,17 +34,18 @@ namespace pluto
     {
         std::unordered_map<std::string, PackageManifestAsset*> manifests;
         std::unordered_map<std::type_index, const Asset::Factory*> factories;
-        std::unordered_map<Guid, std::unique_ptr<Asset>> loadedAssets;
 
+        MemoryManager* memoryManager;
         const FileManager* fileManager;
         const EventManager* eventManager;
 
     public:
-        Impl(const FileManager& fileManager, const EventManager& eventManager,
+        Impl(MemoryManager& memoryManager, const FileManager& fileManager, const EventManager& eventManager,
              const PackageManifestAsset::Factory& packageManifestFactory, const TextAsset::Factory& textFactory,
              const MeshAsset::Factory& meshFactory, const ShaderAsset::Factory& shaderFactory,
              const TextureAsset::Factory& textureFactory)
-            : fileManager(&fileManager),
+            : memoryManager(&memoryManager),
+              fileManager(&fileManager),
               eventManager(&eventManager)
         {
             factories.emplace(typeid(PackageManifestAsset), &packageManifestFactory);
@@ -80,10 +84,10 @@ namespace pluto
             }
 
             const Guid guid = package->GetAssetGuid(path.Str());
-            const auto& it = loadedAssets.find(guid);
-            if (it != loadedAssets.end())
+            Object* object = memoryManager->Get(guid);
+            if (object != nullptr)
             {
-                return it->second.get();
+                return dynamic_cast<Asset*>(object);
             }
 
             const Path physicalFilePath(fmt::format("packages/{0}/{1}", package->GetName(), guid));
@@ -92,10 +96,10 @@ namespace pluto
 
         Asset* Load(const std::type_index& type, const Guid& guid)
         {
-            const auto& it = loadedAssets.find(guid);
-            if (it != loadedAssets.end())
+            Object* object = memoryManager->Get(guid);
+            if (object != nullptr)
             {
-                return it->second.get();
+                return dynamic_cast<Asset*>(object);
             }
 
             const PackageManifestAsset* package = nullptr;
@@ -119,27 +123,19 @@ namespace pluto
 
         void Unload(const Asset& asset)
         {
-            const auto& it = loadedAssets.find(asset.GetId());
-            if (it == loadedAssets.end())
-            {
-                throw std::runtime_error(fmt::format(
-                    "Trying to unload a unloaded asset with id {0} or not managed by the asset manager.",
-                    asset.GetId()));
-            }
-
             if (dynamic_cast<const PackageManifestAsset*>(&asset) != nullptr)
             {
                 manifests.erase(asset.GetName());
             }
 
             eventManager->Dispatch(OnAssetUnloadEvent(asset));
-            loadedAssets.erase(it);
+            memoryManager->Remove(asset.GetId());
         }
 
         Asset& Register(std::unique_ptr<Asset> asset)
         {
             Asset* result = asset.get();
-            loadedAssets.emplace(asset->GetId(), std::move(asset));
+            memoryManager->Add(std::move(asset));
 
             auto packageManifestAsset = dynamic_cast<PackageManifestAsset*>(result);
             if (packageManifestAsset != nullptr)
@@ -154,17 +150,6 @@ namespace pluto
             }
 
             return *result;
-        }
-
-        std::vector<Asset*> GetLoadedAssets() const
-        {
-            std::vector<Asset*> result(loadedAssets.size());
-            int i = 0;
-            for (const auto& loadedAsset : loadedAssets)
-            {
-                result[i++] = loadedAsset.second.get();
-            }
-            return result;
         }
 
     private:
@@ -190,6 +175,7 @@ namespace pluto
     std::unique_ptr<AssetManager> AssetManager::Factory::Create() const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
+        auto& memoryManager = serviceCollection.GetService<MemoryManager>();
         const auto& fileManager = serviceCollection.GetService<FileManager>();
         const auto& eventManager = serviceCollection.GetService<EventManager>();
         const auto& packageManifestFactory = serviceCollection.GetService<PackageManifestAsset::Factory>();
@@ -197,7 +183,8 @@ namespace pluto
         const auto& meshFactory = serviceCollection.GetService<MeshAsset::Factory>();
         const auto& shaderFactory = serviceCollection.GetService<ShaderAsset::Factory>();
         const auto& textureFactory = serviceCollection.GetService<TextureAsset::Factory>();
-        return std::make_unique<AssetManager>(std::make_unique<Impl>(fileManager, eventManager, packageManifestFactory,
+        return std::make_unique<AssetManager>(std::make_unique<Impl>(memoryManager, fileManager, eventManager,
+                                                                     packageManifestFactory,
                                                                      textFactory, meshFactory, shaderFactory,
                                                                      textureFactory));
     }
@@ -236,10 +223,5 @@ namespace pluto
     Asset& AssetManager::RegisterAsset(std::unique_ptr<Asset> asset)
     {
         return impl->Register(std::move(asset));
-    }
-
-    std::vector<Asset*> AssetManager::GetLoadedAssets() const
-    {
-        return impl->GetLoadedAssets();
     }
 }
