@@ -8,6 +8,7 @@
 #include <pluto/window/window_installer.h>
 #include <pluto/input/input_installer.h>
 #include <pluto/simulation/simulation_installer.h>
+#include <pluto/memory/memory_installer.h>
 #include <pluto/asset/asset_installer.h>
 #include <pluto/scene/scene_installer.h>
 #include <pluto/render/render_installer.h>
@@ -61,71 +62,72 @@ namespace pluto
 {
     class Root::Impl
     {
-    private:
-        std::unique_ptr<ServiceCollection> diContainer;
+        std::unique_ptr<ServiceCollection> serviceCollection;
 
     public:
         Impl(const std::string& configFileName, const std::string& logFileName,
              const std::string& dataDirectoryName)
         {
-            diContainer = std::make_unique<ServiceCollection>();
+            serviceCollection = std::make_unique<ServiceCollection>();
 
-            FileInstaller::Install(dataDirectoryName, *diContainer);
-            auto& fileManager = diContainer->GetService<FileManager>();
+            FileInstaller::Install(dataDirectoryName, *serviceCollection);
+            auto& fileManager = serviceCollection->GetService<FileManager>();
 
             std::unique_ptr<FileWriter> logFile = fileManager.OpenWrite(Path(logFileName));
-            LogInstaller::Install(std::move(logFile), *diContainer);
+            LogInstaller::Install(std::move(logFile), *serviceCollection);
 
             std::unique_ptr<FileReader> configFile;
             if (fileManager.Exists(Path(configFileName)))
             {
                 configFile = fileManager.OpenRead(Path(configFileName));
             }
-            ConfigInstaller::Install(configFile.get(), *diContainer);
+            ConfigInstaller::Install(configFile.get(), *serviceCollection);
 
-            EventInstaller::Install(*diContainer);
-            WindowInstaller::Install(*diContainer);
-            InputInstaller::Install(*diContainer);
-            SimulationInstaller::Install(*diContainer);
-            AssetInstaller::Install(*diContainer);
-            SceneInstaller::Install(*diContainer);
-            RenderInstaller::Install(*diContainer);
+            EventInstaller::Install(*serviceCollection);
+            WindowInstaller::Install(*serviceCollection);
+            InputInstaller::Install(*serviceCollection);
+            SimulationInstaller::Install(*serviceCollection);
+            MemoryInstaller::Install(*serviceCollection);
+            AssetInstaller::Install(*serviceCollection);
+            SceneInstaller::Install(*serviceCollection);
+            RenderInstaller::Install(*serviceCollection);
 
-            auto& logManager = diContainer->GetService<LogManager>();
+            auto& logManager = serviceCollection->GetService<LogManager>();
             logManager.LogInfo("Pluto Engine Initialized!");
         }
 
         ~Impl()
         {
-            RenderInstaller::Uninstall(*diContainer);
-            SceneInstaller::Uninstall(*diContainer);
-            AssetInstaller::Uninstall(*diContainer);
-            SimulationInstaller::Uninstall(*diContainer);
-            InputInstaller::Uninstall(*diContainer);
-            WindowInstaller::Uninstall(*diContainer);
-            EventInstaller::Uninstall(*diContainer);
-            ConfigInstaller::Uninstall(*diContainer);
-            LogInstaller::Uninstall(*diContainer);
-            FileInstaller::Uninstall(*diContainer);
+            RenderInstaller::Uninstall(*serviceCollection);
+            SceneInstaller::Uninstall(*serviceCollection);
+            AssetInstaller::Uninstall(*serviceCollection);
+            MemoryInstaller::Uninstall(*serviceCollection);
+            SimulationInstaller::Uninstall(*serviceCollection);
+            InputInstaller::Uninstall(*serviceCollection);
+            WindowInstaller::Uninstall(*serviceCollection);
+            EventInstaller::Uninstall(*serviceCollection);
+            ConfigInstaller::Uninstall(*serviceCollection);
+            LogInstaller::Uninstall(*serviceCollection);
+            FileInstaller::Uninstall(*serviceCollection);
         }
 
         int Run() const
         {
-            auto& windowManager = diContainer->GetService<WindowManager>();
-            auto& simulationManager = diContainer->GetService<SimulationManager>();
-            auto& logManager = diContainer->GetService<LogManager>();
+            auto& windowManager = serviceCollection->GetService<WindowManager>();
+            auto& simulationManager = serviceCollection->GetService<SimulationManager>();
+            auto& logManager = serviceCollection->GetService<LogManager>();
             MaterialAsset* transparentMaterial = nullptr;
             MaterialAsset* unlitMaterial = nullptr;
 
             {
                 // TODO: Move to simulation manager.
-                auto& eventManager = diContainer->GetService<EventManager>();
+                auto& eventManager = serviceCollection->GetService<EventManager>();
                 eventManager.Dispatch(OnStartupEvent());
-                auto& assetManager = diContainer->GetService<AssetManager>();
+                auto& assetManager = serviceCollection->GetService<AssetManager>();
 
                 assetManager.LoadPackage("built-in");
 
-                auto& sceneManager = diContainer->GetService<SceneManager>();
+                auto& sceneManager = serviceCollection->GetService<SceneManager>();
                 sceneManager.LoadEmptyScene();
 
                 GameObject& cameraGo = sceneManager.GetActiveScene().CreateGameObject("Camera");
@@ -137,7 +139,7 @@ namespace pluto
                 auto unlitShaderAsset = assetManager.Load<ShaderAsset>(Path("shaders/unlit.glsl"));
                 auto transparentShaderAsset = assetManager.Load<ShaderAsset>(Path("shaders/transparent.glsl"));
 
-                auto& materialFactory = diContainer->GetService<MaterialAsset::Factory>();
+                auto& materialFactory = serviceCollection->GetService<MaterialAsset::Factory>();
 
                 auto materialAssetPtr = materialFactory.Create();
                 materialAssetPtr->SetName("unlit");
