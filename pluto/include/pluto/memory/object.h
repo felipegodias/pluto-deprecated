@@ -19,12 +19,12 @@ namespace pluto
         Object& operator=(const Object& rhs) = delete;
         Object& operator=(Object&& rhs) noexcept;
 
+        bool operator==(const Object& rhs) const;
+        bool operator!=(const Object& rhs) const;
+
         virtual const Guid& GetId() const = 0;
 
         virtual std::shared_ptr<LazyPtr> GetPtr() const = 0;
         virtual void SetPtr(std::shared_ptr<LazyPtr> value) = 0;
-
-        bool operator==(const Object& rhs) const;
-        bool operator!=(const Object& rhs) const;
     };
 }
