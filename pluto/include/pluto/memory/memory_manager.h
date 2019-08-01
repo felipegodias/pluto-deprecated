@@ -9,6 +9,7 @@
 namespace pluto
 {
     class Object;
+    class Guid;
 
     class PLUTO_API MemoryManager final : public BaseService
     {
@@ -33,7 +34,8 @@ namespace pluto
         MemoryManager& operator=(const MemoryManager& rhs) = delete;
         MemoryManager& operator=(MemoryManager&& rhs) noexcept;
 
-        void Register(std::unique_ptr<Object> object);
+        Object& Add(std::unique_ptr<Object> object);
+        void Remove(const Guid& objectId);
         Object* Get(const Guid& objectId);
     };
 }
