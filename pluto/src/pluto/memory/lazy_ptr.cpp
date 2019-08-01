@@ -27,7 +27,7 @@ namespace pluto
             return objectId;
         }
 
-        Object* LazyPtr::Get() const
+        Object* Get() const
         {
             return memoryManager->Get(instanceId);
         }
