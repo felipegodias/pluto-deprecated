@@ -64,14 +64,14 @@ namespace pluto
             }
         }
 
-        Object* Get(const Guid& objectId)
+        Object* Get(const Guid& objectId) const
         {
             const auto it = objects.find(objectId);
             if (it == objects.end())
             {
-                return it->second.get();
+                return nullptr;
             }
-            return nullptr;
+            return it->second.get();
         }
     };
 
@@ -110,7 +110,7 @@ namespace pluto
         impl->Remove(objectId);
     }
 
-    Object* MemoryManager::Get(const Guid& objectId)
+    Object* MemoryManager::Get(const Guid& objectId) const
     {
         return impl->Get(objectId);
     }
