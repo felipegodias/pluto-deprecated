@@ -360,6 +360,15 @@ namespace pluto
         impl->SetName(value);
     }
 
+    std::shared_ptr<LazyPtr> ShaderAsset::GetPtr() const
+    {
+        return nullptr;
+    }
+
+    void ShaderAsset::SetPtr(std::shared_ptr<LazyPtr> value)
+    {
+    }
+
     void ShaderAsset::Dump(FileWriter& fileWriter) const
     {
         impl->Dump(fileWriter);

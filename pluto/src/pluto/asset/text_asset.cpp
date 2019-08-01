@@ -132,6 +132,15 @@ namespace pluto
         impl->SetName(value);
     }
 
+    std::shared_ptr<LazyPtr> TextAsset::GetPtr() const
+    {
+        return nullptr;
+    }
+
+    void TextAsset::SetPtr(std::shared_ptr<LazyPtr> value)
+    {
+    }
+
     void TextAsset::Dump(FileWriter& fileWriter) const
     {
         impl->Dump(fileWriter);

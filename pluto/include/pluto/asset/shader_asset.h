@@ -151,6 +151,9 @@ namespace pluto
         const Guid& GetId() const override;
         const std::string& GetName() const override;
         void SetName(const std::string& value) override;
+        std::shared_ptr<LazyPtr> GetPtr() const override;
+        void SetPtr(std::shared_ptr<LazyPtr> value) override;
+
         void Dump(FileWriter& fileWriter) const override;
 
         BlendEquation GetBlendEquation() const;

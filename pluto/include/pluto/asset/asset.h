@@ -3,6 +3,8 @@
 #include "pluto/api.h"
 #include "pluto/service/base_factory.h"
 
+#include "pluto/memory/object.h"
+
 #include <string>
 #include <memory>
 
@@ -12,10 +14,10 @@ namespace pluto
     class FileWriter;
     class FileReader;
 
-    class PLUTO_API Asset
+    class PLUTO_API Asset : public Object
     {
     public:
-        class Factory : public BaseFactory
+        class PLUTO_API Factory : public BaseFactory
         {
         public:
             explicit Factory(ServiceCollection& serviceCollection);
@@ -41,12 +43,6 @@ namespace pluto
         Asset& operator=(const Asset& rhs) = delete;
         Asset& operator=(Asset&& rhs) noexcept;
 
-        virtual const Guid& GetId() const = 0;
-        virtual const std::string& GetName() const = 0;
-        virtual void SetName(const std::string& value) = 0;
         virtual void Dump(FileWriter& fileWriter) const = 0;
-
-        bool operator==(const Asset& rhs) const;
-        bool operator!=(const Asset& rhs) const;
     };
 }

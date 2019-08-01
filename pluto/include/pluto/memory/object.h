@@ -2,6 +2,7 @@
 
 #include "pluto/api.h"
 #include <memory>
+#include <string>
 
 namespace pluto
 {
@@ -23,6 +24,8 @@ namespace pluto
         bool operator!=(const Object& rhs) const;
 
         virtual const Guid& GetId() const = 0;
+        virtual const std::string& GetName() const = 0;
+        virtual void SetName(const std::string& value) = 0;
 
         virtual std::shared_ptr<LazyPtr> GetPtr() const = 0;
         virtual void SetPtr(std::shared_ptr<LazyPtr> value) = 0;
