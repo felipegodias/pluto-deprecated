@@ -351,16 +351,10 @@ namespace pluto
         }
     };
 
-    MaterialAsset::Factory::~Factory() = default;
-
-    MaterialAsset::Factory::Factory(ServiceCollection& diContainer)
-        : Asset::Factory(diContainer)
+    MaterialAsset::Factory::Factory(ServiceCollection& serviceCollection)
+        : Asset::Factory(serviceCollection)
     {
     }
-
-    MaterialAsset::Factory::Factory(Factory&& other) noexcept = default;
-
-    MaterialAsset::Factory& MaterialAsset::Factory::operator=(Factory&& rhs) noexcept = default;
 
     std::unique_ptr<MaterialAsset> MaterialAsset::Factory::Create() const
     {

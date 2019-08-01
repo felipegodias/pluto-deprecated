@@ -214,16 +214,10 @@ namespace pluto
         }
     };
 
-    ShaderAsset::Factory::~Factory() = default;
-
-    ShaderAsset::Factory::Factory(ServiceCollection& diContainer)
-        : Asset::Factory(diContainer)
+    ShaderAsset::Factory::Factory(ServiceCollection& serviceCollection)
+        : Asset::Factory(serviceCollection)
     {
     }
-
-    ShaderAsset::Factory::Factory(Factory&& other) noexcept = default;
-
-    ShaderAsset::Factory& ShaderAsset::Factory::operator=(Factory&& rhs) noexcept = default;
 
     std::unique_ptr<ShaderAsset> ShaderAsset::Factory::Create(BlendEquation blendEquation,
                                                               BlendEquation blendAlphaEquation,

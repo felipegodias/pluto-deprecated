@@ -126,16 +126,10 @@ namespace pluto
         }
     };
 
-    PackageManifestAsset::Factory::~Factory() = default;
-
-    PackageManifestAsset::Factory::Factory(ServiceCollection& diContainer)
-        : Asset::Factory(diContainer)
+    PackageManifestAsset::Factory::Factory(ServiceCollection& serviceCollection)
+        : Asset::Factory(serviceCollection)
     {
     }
-
-    PackageManifestAsset::Factory::Factory(Factory&& other) noexcept = default;
-
-    PackageManifestAsset::Factory& PackageManifestAsset::Factory::operator=(Factory&& rhs) noexcept = default;
 
     std::unique_ptr<PackageManifestAsset> PackageManifestAsset::Factory::Create() const
     {

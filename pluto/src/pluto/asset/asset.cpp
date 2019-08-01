@@ -4,16 +4,10 @@
 
 namespace pluto
 {
-    Asset::Factory::~Factory() = default;
-
-    Asset::Factory::Factory(ServiceCollection& diContainer)
-        : BaseFactory(diContainer)
+    Asset::Factory::Factory(ServiceCollection& serviceCollection)
+        : BaseFactory(serviceCollection)
     {
     }
-
-    Asset::Factory::Factory(Factory&& other) noexcept = default;
-
-    Asset::Factory& Asset::Factory::operator=(Factory&& rhs) noexcept = default;
 
     Asset::~Asset() = default;
 

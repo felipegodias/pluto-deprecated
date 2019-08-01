@@ -272,16 +272,10 @@ namespace pluto
         }
     };
 
-    TextureAsset::Factory::~Factory() = default;
-
-    TextureAsset::Factory::Factory(ServiceCollection& diContainer)
-        : Asset::Factory(diContainer)
+    TextureAsset::Factory::Factory(ServiceCollection& serviceCollection)
+        : Asset::Factory(serviceCollection)
     {
     }
-
-    TextureAsset::Factory::Factory(Factory&& other) noexcept = default;
-
-    TextureAsset::Factory& TextureAsset::Factory::operator=(Factory&& rhs) noexcept = default;
 
     std::unique_ptr<TextureAsset> TextureAsset::Factory::Create(const uint16_t width, const uint16_t height) const
     {

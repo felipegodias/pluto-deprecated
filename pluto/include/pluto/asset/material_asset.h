@@ -40,14 +40,7 @@ namespace pluto
         class PLUTO_API Factory final : public Asset::Factory
         {
         public:
-            ~Factory() override;
             explicit Factory(ServiceCollection& diContainer);
-
-            Factory(const Factory& other) = delete;
-            Factory(Factory&& other) noexcept;
-            Factory& operator=(const Factory& rhs) = delete;
-            Factory& operator=(Factory&& rhs) noexcept;
-
             std::unique_ptr<MaterialAsset> Create() const;
             std::unique_ptr<MaterialAsset> Create(const MaterialAsset& original) const;
             std::unique_ptr<Asset> Create(FileReader& fileReader) const override;

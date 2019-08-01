@@ -66,13 +66,7 @@ namespace pluto
         class PLUTO_API Factory final : public Asset::Factory
         {
         public:
-            ~Factory() override;
-            explicit Factory(ServiceCollection& diContainer);
-
-            Factory(const Factory& other) = delete;
-            Factory(Factory&& other) noexcept;
-            Factory& operator=(const Factory& rhs) = delete;
-            Factory& operator=(Factory&& rhs) noexcept;
+            explicit Factory(ServiceCollection& serviceCollection);
 
             std::unique_ptr<TextureAsset> Create(uint16_t width, uint16_t height) const;
             std::unique_ptr<TextureAsset> Create(uint16_t width, uint16_t height, Format format) const;

@@ -63,16 +63,10 @@ namespace pluto
         }
     };
 
-    TextAsset::Factory::~Factory() = default;
-
-    TextAsset::Factory::Factory(ServiceCollection& diContainer)
-        : Asset::Factory(diContainer)
+    TextAsset::Factory::Factory(ServiceCollection& serviceCollection)
+        : Asset::Factory(serviceCollection)
     {
     }
-
-    TextAsset::Factory::Factory(Factory&& other) noexcept = default;
-
-    TextAsset::Factory& TextAsset::Factory::operator=(Factory&& rhs) noexcept = default;
 
     std::unique_ptr<TextAsset> TextAsset::Factory::Create() const
     {

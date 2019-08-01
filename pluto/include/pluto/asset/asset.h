@@ -18,14 +18,7 @@ namespace pluto
         class Factory : public BaseFactory
         {
         public:
-            ~Factory() override;
-            explicit Factory(ServiceCollection& diContainer);
-
-            Factory(const Factory& other) = delete;
-            Factory(Factory&& other) noexcept;
-            Factory& operator=(const Factory& rhs) = delete;
-            Factory& operator=(Factory&& rhs) noexcept;
-
+            explicit Factory(ServiceCollection& serviceCollection);
             virtual std::unique_ptr<Asset> Create(FileReader& fileReader) const = 0;
         };
 

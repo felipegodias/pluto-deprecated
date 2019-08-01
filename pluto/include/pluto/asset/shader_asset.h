@@ -123,14 +123,7 @@ namespace pluto
         class PLUTO_API Factory final : public Asset::Factory
         {
         public:
-            ~Factory() override;
-            explicit Factory(ServiceCollection& diContainer);
-
-            Factory(const Factory& other) = delete;
-            Factory(Factory&& other) noexcept;
-            Factory& operator=(const Factory& rhs) = delete;
-            Factory& operator=(Factory&& rhs) noexcept;
-
+            explicit Factory(ServiceCollection& serviceCollection);
             std::unique_ptr<ShaderAsset> Create(BlendEquation blendEquation, BlendEquation blendAlphaEquation,
                                                 BlendFactor blendSrcFactor, BlendFactor blendDstFactor,
                                                 BlendFactor blendSrcAlphaFactor, BlendFactor blendDstAlphaFactor,
@@ -139,7 +132,7 @@ namespace pluto
                                                 const std::vector<Property>& uniforms, uint32_t binaryFormat,
                                                 const std::vector<uint8_t>& binaryData) const;
 
-            std::unique_ptr<Asset> Create(FileReader& fileReader) const;
+            std::unique_ptr<Asset> Create(FileReader& fileReader) const override;
         };
 
     private:
