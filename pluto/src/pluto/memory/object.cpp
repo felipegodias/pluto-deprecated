@@ -3,6 +3,8 @@
 
 namespace pluto
 {
+    Object::~Object() = default;
+
     Object::Object() = default;
 
     Object::Object(Object&& other) noexcept = default;
