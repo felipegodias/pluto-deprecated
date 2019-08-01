@@ -17,8 +17,8 @@ namespace pluto
         {
         public:
             explicit Factory(ServiceCollection& serviceCollection);
-            std::unique_ptr<LazyPtr> Create(size_t instanceId, const Object& object) const;
-            std::unique_ptr<LazyPtr> Create(size_t instanceId, const Guid& objectId) const;
+            std::unique_ptr<LazyPtr> Create(const Object& object) const;
+            std::unique_ptr<LazyPtr> Create(const Guid& objectId) const;
         };
 
     private:

@@ -8,16 +8,13 @@ namespace pluto
 {
     class LazyPtr::Impl
     {
-        size_t instanceId;
         Guid objectId;
 
         MemoryManager* memoryManager;
 
     public:
-
-        Impl(const size_t instanceId, const Guid& objectId, MemoryManager& memoryManager)
-            : instanceId(instanceId),
-              objectId(objectId),
+        Impl(const Guid& objectId, MemoryManager& memoryManager)
+            : objectId(objectId),
               memoryManager(&memoryManager)
         {
         }
@@ -29,7 +26,7 @@ namespace pluto
 
         Object* Get() const
         {
-            return memoryManager->Get(instanceId);
+            return memoryManager->Get(objectId);
         }
     };
 
@@ -38,16 +35,16 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<LazyPtr> LazyPtr::Factory::Create(const size_t instanceId, const Object& object) const
+    std::unique_ptr<LazyPtr> LazyPtr::Factory::Create(const Object& object) const
     {
-        return Create(instanceId, object.GetId());
+        return Create(object.GetId());
     }
 
-    std::unique_ptr<LazyPtr> LazyPtr::Factory::Create(const size_t instanceId, const Guid& objectId) const
+    std::unique_ptr<LazyPtr> LazyPtr::Factory::Create(const Guid& objectId) const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& memoryManager = serviceCollection.GetService<MemoryManager>();
-        return std::make_unique<LazyPtr>(std::make_unique<Impl>(instanceId, objectId, memoryManager));
+        return std::make_unique<LazyPtr>(std::make_unique<Impl>(objectId, memoryManager));
     }
 
     LazyPtr::~LazyPtr() = default;

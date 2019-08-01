@@ -17,6 +17,7 @@ namespace pluto
         {
         public:
             explicit Factory(ServiceCollection& serviceCollection);
+            std::unique_ptr<MemoryManager> Create() const;
         };
 
     private:
@@ -33,6 +34,6 @@ namespace pluto
         MemoryManager& operator=(MemoryManager&& rhs) noexcept;
 
         void Register(std::unique_ptr<Object> object);
-        Object* Get(size_t instanceId);
+        Object* Get(const Guid& objectId);
     };
 }
