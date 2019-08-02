@@ -1,13 +1,12 @@
 #pragma once
 
 #include "pluto/api.h"
-#include <memory>
 #include <string>
 
 namespace pluto
 {
     class Guid;
-    class LazyPtr;
+    class ResourceControl;
 
     class PLUTO_API Object
     {
@@ -26,8 +25,5 @@ namespace pluto
         virtual const Guid& GetId() const = 0;
         virtual const std::string& GetName() const = 0;
         virtual void SetName(const std::string& value) = 0;
-
-        virtual std::shared_ptr<LazyPtr> GetPtr() const = 0;
-        virtual void SetPtr(std::shared_ptr<LazyPtr> value) = 0;
     };
 }

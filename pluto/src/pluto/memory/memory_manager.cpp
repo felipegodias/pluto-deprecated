@@ -1,5 +1,5 @@
 #include "pluto/memory/memory_manager.h"
-#include "pluto/memory/lazy_ptr.h"
+#include "pluto/memory/resource_control.h"
 #include "pluto/memory/object.h"
 
 #include "pluto/service/service_collection.h"
@@ -17,7 +17,7 @@ namespace pluto
         std::unordered_map<Guid, std::unique_ptr<Object>> objects;
 
         LogManager* logManager;
-        LazyPtr::Factory* lazyPtrFactory;
+        ResourceControl::Factory* lazyPtrFactory;
 
     public:
         ~Impl()
@@ -25,7 +25,7 @@ namespace pluto
             logManager->LogInfo("MemoryManager terminated!");
         }
 
-        Impl(LogManager& logManager, LazyPtr::Factory& lazyPtrFactory)
+        Impl(LogManager& logManager, ResourceControl::Factory& lazyPtrFactory)
             : logManager(&logManager),
               lazyPtrFactory(&lazyPtrFactory)
         {
@@ -49,7 +49,7 @@ namespace pluto
             }
 
             auto lazyPtr = lazyPtrFactory->Create(*object);
-            object->SetPtr(std::shared_ptr<LazyPtr>(lazyPtr.release()));
+            //object->SetPtr(std::shared_ptr<ResourceControl>(lazyPtr.release()));
             Object& out = *object;
             objects.emplace(object->GetId(), std::move(object));
             return out;
@@ -84,7 +84,7 @@ namespace pluto
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& logManager = serviceCollection.GetService<LogManager>();
-        auto& lazyPtrFactory = serviceCollection.GetService<LazyPtr::Factory>();
+        auto& lazyPtrFactory = serviceCollection.GetService<ResourceControl::Factory>();
 
         return std::make_unique<MemoryManager>(std::make_unique<Impl>(logManager, lazyPtrFactory));
     }

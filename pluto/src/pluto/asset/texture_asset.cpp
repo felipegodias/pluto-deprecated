@@ -412,15 +412,6 @@ namespace pluto
         impl->SetName(value);
     }
 
-    std::shared_ptr<LazyPtr> TextureAsset::GetPtr() const
-    {
-        return nullptr;
-    }
-
-    void TextureAsset::SetPtr(std::shared_ptr<LazyPtr> value)
-    {
-    }
-
     void TextureAsset::Dump(FileWriter& fileWriter) const
     {
         impl->Dump(fileWriter);

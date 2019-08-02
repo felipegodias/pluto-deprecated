@@ -233,15 +233,6 @@ namespace pluto
         impl->SetName(value);
     }
 
-    std::shared_ptr<LazyPtr> MeshAsset::GetPtr() const
-    {
-        return nullptr;
-    }
-
-    void MeshAsset::SetPtr(std::shared_ptr<LazyPtr> value)
-    {
-    }
-
     void MeshAsset::Dump(FileWriter& fileWriter) const
     {
         impl->Dump(fileWriter);

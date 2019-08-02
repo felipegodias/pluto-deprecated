@@ -1,4 +1,4 @@
-#include "pluto/memory/lazy_ptr.h"
+#include "pluto/memory/resource_control.h"
 #include "pluto/memory/memory_manager.h"
 #include "pluto/memory/object.h"
 #include "pluto/service/service_collection.h"
@@ -6,7 +6,7 @@
 
 namespace pluto
 {
-    class LazyPtr::Impl
+    class ResourceControl::Impl
     {
         Guid objectId;
 
@@ -30,40 +30,40 @@ namespace pluto
         }
     };
 
-    LazyPtr::Factory::Factory(ServiceCollection& serviceCollection)
+    ResourceControl::Factory::Factory(ServiceCollection& serviceCollection)
         : BaseFactory(serviceCollection)
     {
     }
 
-    std::unique_ptr<LazyPtr> LazyPtr::Factory::Create(const Object& object) const
+    std::unique_ptr<ResourceControl> ResourceControl::Factory::Create(const Object& object) const
     {
         return Create(object.GetId());
     }
 
-    std::unique_ptr<LazyPtr> LazyPtr::Factory::Create(const Guid& objectId) const
+    std::unique_ptr<ResourceControl> ResourceControl::Factory::Create(const Guid& objectId) const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& memoryManager = serviceCollection.GetService<MemoryManager>();
-        return std::make_unique<LazyPtr>(std::make_unique<Impl>(objectId, memoryManager));
+        return std::make_unique<ResourceControl>(std::make_unique<Impl>(objectId, memoryManager));
     }
 
-    LazyPtr::~LazyPtr() = default;
+    ResourceControl::~ResourceControl() = default;
 
-    LazyPtr::LazyPtr(std::unique_ptr<Impl> impl)
+    ResourceControl::ResourceControl(std::unique_ptr<Impl> impl)
         : impl(std::move(impl))
     {
     }
 
-    LazyPtr::LazyPtr(LazyPtr&& other) noexcept = default;
+    ResourceControl::ResourceControl(ResourceControl&& other) noexcept = default;
 
-    LazyPtr& LazyPtr::operator=(LazyPtr&& rhs) noexcept = default;
+    ResourceControl& ResourceControl::operator=(ResourceControl&& rhs) noexcept = default;
 
-    const Guid& LazyPtr::GetObjectId() const
+    const Guid& ResourceControl::GetObjectId() const
     {
         return impl->GetObjectId();
     }
 
-    Object* LazyPtr::Get() const
+    Object* ResourceControl::Get() const
     {
         return impl->Get();
     }

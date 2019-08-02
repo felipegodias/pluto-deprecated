@@ -207,15 +207,6 @@ namespace pluto
         impl->SetName(value);
     }
 
-    std::shared_ptr<LazyPtr> PackageManifestAsset::GetPtr() const
-    {
-        return nullptr;
-    }
-
-    void PackageManifestAsset::SetPtr(std::shared_ptr<LazyPtr> value)
-    {
-    }
-
     void PackageManifestAsset::Dump(FileWriter& fileWriter) const
     {
         impl->Dump(fileWriter);
