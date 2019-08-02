@@ -10,7 +10,7 @@ namespace pluto
     class Object;
 
     template <typename T1, typename T2>
-    using CanCast = std::enable_if_t<std::is_base_of_v<T1, T2> || std::is_base_of_v<T2, T1>, int>;
+    using IsBaseOf = std::enable_if_t<std::is_base_of_v<T1, T2>, int>;
 
     template <typename T>
     using IsObject = std::enable_if_t<std::is_base_of_v<Object, T>, int>;
@@ -19,45 +19,110 @@ namespace pluto
     class PLUTO_API Resource
     {
         friend class MemoryManager;
+        friend class ResourceUtils;
 
-        std::shared_ptr<ResourceControl> resourceControl;
+        std::shared_ptr<ResourceControl> control;
 
-        explicit Resource(std::unique_ptr<ResourceControl> resourceControl)
-            : resourceControl(resourceControl.release())
+        explicit Resource(std::unique_ptr<ResourceControl> control)
+            : control(control.release())
         {
         }
 
     public:
-        template <typename T2, IsObject<T2>  = 0, CanCast<T, T2>  = 0>
-        explicit Resource(const Resource<T2>& other)
-            : resourceControl(other.resourceControl)
+        Resource()
         {
+        }
+
+        Resource(nullptr_t)
+        {
+        }
+
+        template <typename T2, IsBaseOf<T, T2>  = 0>
+        Resource(const Resource<T2>& other)
+            : control(other.control)
+        {
+        }
+
+        template <typename T2, IsBaseOf<T, T2>  = 0>
+        Resource(Resource<T2>&& other) noexcept
+            : control(std::move(other.control))
+        {
+        }
+
+        template <typename T2, IsBaseOf<T, T2>  = 0>
+        Resource& operator=(const Resource<T2>& rhs)
+        {
+            control = rhs.control;
+            return *this;
+        }
+
+        template <typename T2, IsBaseOf<T, T2>  = 0>
+        Resource& operator=(Resource<T2>&& rhs)
+        {
+            control = std::move(rhs.control);
+            return *this;
+        }
+
+        bool operator==(nullptr_t) const
+        {
+            return control == nullptr || control->Get() == nullptr;
+        }
+
+        bool operator!=(nullptr_t) const
+        {
+            return !(this == nullptr);
         }
 
         T* Get() const
         {
-            return dynamic_cast<const T*>(resourceControl->Get());
+            if (control == nullptr)
+            {
+                return nullptr;
+            }
+            return dynamic_cast<const T*>(control->Get());
         }
 
         T* Get()
         {
-            return dynamic_cast<T*>(resourceControl->Get());
+            if (control == nullptr)
+            {
+                return nullptr;
+            }
+            return dynamic_cast<T*>(control->Get());
         }
 
         T* operator->() const
         {
-            return dynamic_cast<const T*>(resourceControl->Get());
+            if (control == nullptr)
+            {
+                return nullptr;
+            }
+            return dynamic_cast<const T*>(control->Get());
         }
 
         T* operator->()
         {
-            return dynamic_cast<T*>(resourceControl->Get());
+            if (control == nullptr)
+            {
+                return nullptr;
+            }
+            return dynamic_cast<T*>(control->Get());
         }
     };
 
-    template <typename T1, typename T2, IsObject<T2>  = 0, CanCast<T1, T2>  = 0>
-    std::shared_ptr<Resource<T1>> ResourceCast(const std::shared_ptr<Resource<T2>>& resource)
+    class ResourceUtils
     {
-        return std::make_shared<Resource<T1>>(*resource);
-    }
+    public:
+        template <typename T1, typename T2, IsObject<T2>  = 0, IsBaseOf<T2, T1>  = 0>
+        static Resource<T1> Cast(const Resource<T2>& resource)
+        {
+            if (dynamic_cast<T1>(resource.Get()) == nullptr)
+            {
+                return nullptr;
+            }
+            Resource<T1> out;
+            out.control = resource.control;
+            return out;
+        }
+    };
 }

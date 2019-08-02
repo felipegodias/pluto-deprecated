@@ -67,7 +67,7 @@ namespace pluto
             LoadFromFile(typeid(PackageManifestAsset), Path(physicalFilePath));
         }
 
-        std::shared_ptr<Resource<Asset>> Load(const std::type_index& type, const Path& path)
+        Resource<Asset> Load(const std::type_index& type, const Path& path)
         {
             const PackageManifestAsset* package = nullptr;
             for (const auto& manifest : manifests)
@@ -85,22 +85,23 @@ namespace pluto
             }
 
             const Guid guid = package->GetAssetGuid(path.Str());
-            const std::shared_ptr<Resource<Object>> resource = memoryManager->Get(guid);
+
+            const Resource<Object> resource = memoryManager->Get(guid);
             if (resource != nullptr)
             {
-                ResourcePointerCast<Asset, Object>(resource);
+                return ResourceUtils::Cast<Asset>(resource);
             }
 
             const Path physicalFilePath(fmt::format("packages/{0}/{1}", package->GetName(), guid));
             return LoadFromFile(type, physicalFilePath);
         }
 
-        Asset* Load(const std::type_index& type, const Guid& guid)
+        Resource<Asset> Load(const std::type_index& type, const Guid& guid)
         {
-            Object* object = memoryManager->Get(guid);
-            if (object != nullptr)
+            const Resource<Object> resource = memoryManager->Get(guid);
+            if (resource != nullptr)
             {
-                return dynamic_cast<Asset*>(object);
+                return ResourceUtils::Cast<Asset>(resource);
             }
 
             const PackageManifestAsset* package = nullptr;
@@ -133,10 +134,10 @@ namespace pluto
             memoryManager->Remove(asset.GetId());
         }
 
-        Asset& Register(std::unique_ptr<Asset> asset)
+        Resource<Asset> Register(std::unique_ptr<Asset> asset)
         {
             Asset* result = asset.get();
-            memoryManager->Add(std::move(asset));
+            Resource<Asset> resource = ResourceUtils::Cast<Asset>(memoryManager->Add(std::move(asset)));
 
             auto packageManifestAsset = dynamic_cast<PackageManifestAsset*>(result);
             if (packageManifestAsset != nullptr)
@@ -150,11 +151,11 @@ namespace pluto
                 manifests.emplace(result->GetName(), packageManifestAsset);
             }
 
-            return *result;
+            return resource;
         }
 
     private:
-        Asset* LoadFromFile(const std::type_index& type, const Path& path)
+        Resource<Asset> LoadFromFile(const std::type_index& type, const Path& path)
         {
             if (!fileManager->Exists(path))
             {
@@ -164,7 +165,7 @@ namespace pluto
 
             const std::unique_ptr<FileReader> file = fileManager->OpenRead(path);
             const auto factory = factories.at(type);
-            return &Register(factory->Create(*file));
+            return ResourceUtils::Cast<Asset>(Register(factory->Create(*file)));
         }
     };
 
@@ -206,12 +207,12 @@ namespace pluto
         impl->LoadPackage(name);
     }
 
-    Asset* AssetManager::Load(const std::type_index& type, const Path& path)
+    Resource<Asset> AssetManager::Load(const std::type_index& type, const Path& path)
     {
         return impl->Load(type, path);
     }
 
-    Asset* AssetManager::Load(const std::type_index& type, const Guid& guid)
+    Resource<Asset> AssetManager::Load(const std::type_index& type, const Guid& guid)
     {
         return impl->Load(type, guid);
     }
@@ -221,7 +222,7 @@ namespace pluto
         impl->Unload(asset);
     }
 
-    Asset& AssetManager::RegisterAsset(std::unique_ptr<Asset> asset)
+    Resource<Asset> AssetManager::RegisterAsset(std::unique_ptr<Asset> asset)
     {
         return impl->Register(std::move(asset));
     }

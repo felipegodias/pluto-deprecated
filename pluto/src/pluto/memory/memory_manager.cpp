@@ -41,7 +41,7 @@ namespace pluto
 
         Impl& operator=(Impl&& other) noexcept = default;
 
-        std::shared_ptr<Resource<Object>> Add(std::unique_ptr<Object> object)
+        Resource<Object> Add(std::unique_ptr<Object> object)
         {
             const auto it = objects.find(object->GetId());
             if (it != objects.end())
@@ -49,12 +49,12 @@ namespace pluto
                 Exception::Throw(std::runtime_error("Object with id already exists in memory manager."));
             }
 
-            auto resource = std::make_shared<Resource<Object>>(resourceControlFactory->Create(*object));
+            Resource<Object> resource(resourceControlFactory->Create(*object));
             objects.emplace(object->GetId(), std::move(object));
             return resource;
         }
 
-        std::shared_ptr<Resource<Object>> Get(const Guid& objectId) const
+        Resource<Object> Get(const Guid& objectId) const
         {
             Object* object = GetPtr(objectId);
             if (object == nullptr)
@@ -62,7 +62,7 @@ namespace pluto
                 return nullptr;
             }
 
-            return std::make_shared<Resource<Object>>(resourceControlFactory->Create(*object));
+            return Resource<Object>(resourceControlFactory->Create(*object));
         }
 
         void Remove(const Guid& objectId)
@@ -110,12 +110,12 @@ namespace pluto
 
     MemoryManager& MemoryManager::operator=(MemoryManager&& rhs) noexcept = default;
 
-    std::shared_ptr<Resource<Object>> MemoryManager::Add(std::unique_ptr<Object> object)
+    Resource<Object> MemoryManager::Add(std::unique_ptr<Object> object)
     {
         return impl->Add(std::move(object));
     }
 
-    std::shared_ptr<Resource<Object>> MemoryManager::Get(const Guid& objectId) const
+    Resource<Object> MemoryManager::Get(const Guid& objectId) const
     {
         return impl->Get(objectId);
     }
