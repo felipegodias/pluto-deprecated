@@ -1,5 +1,6 @@
 #include "pluto/memory/memory_manager.h"
 #include "pluto/memory/resource_control.h"
+#include "pluto/memory/resource.h"
 #include "pluto/memory/object.h"
 
 #include "pluto/service/service_collection.h"
@@ -17,7 +18,7 @@ namespace pluto
         std::unordered_map<Guid, std::unique_ptr<Object>> objects;
 
         LogManager* logManager;
-        ResourceControl::Factory* lazyPtrFactory;
+        ResourceControl::Factory* resourceControlFactory;
 
     public:
         ~Impl()
@@ -25,9 +26,9 @@ namespace pluto
             logManager->LogInfo("MemoryManager terminated!");
         }
 
-        Impl(LogManager& logManager, ResourceControl::Factory& lazyPtrFactory)
+        Impl(LogManager& logManager, ResourceControl::Factory& resourceControlFactory)
             : logManager(&logManager),
-              lazyPtrFactory(&lazyPtrFactory)
+              resourceControlFactory(&resourceControlFactory)
         {
             logManager.LogInfo("MemoryManager initialized!");
         }
@@ -40,7 +41,7 @@ namespace pluto
 
         Impl& operator=(Impl&& other) noexcept = default;
 
-        Object& Add(std::unique_ptr<Object> object)
+        std::shared_ptr<Resource<Object>> Add(std::unique_ptr<Object> object)
         {
             const auto it = objects.find(object->GetId());
             if (it != objects.end())
@@ -48,11 +49,20 @@ namespace pluto
                 Exception::Throw(std::runtime_error("Object with id already exists in memory manager."));
             }
 
-            auto lazyPtr = lazyPtrFactory->Create(*object);
-            //object->SetPtr(std::shared_ptr<ResourceControl>(lazyPtr.release()));
-            Object& out = *object;
+            auto resource = std::make_shared<Resource<Object>>(resourceControlFactory->Create(*object));
             objects.emplace(object->GetId(), std::move(object));
-            return out;
+            return resource;
+        }
+
+        std::shared_ptr<Resource<Object>> Get(const Guid& objectId) const
+        {
+            Object* object = GetPtr(objectId);
+            if (object == nullptr)
+            {
+                return nullptr;
+            }
+
+            return std::make_shared<Resource<Object>>(resourceControlFactory->Create(*object));
         }
 
         void Remove(const Guid& objectId)
@@ -64,7 +74,7 @@ namespace pluto
             }
         }
 
-        Object* Get(const Guid& objectId) const
+        Object* GetPtr(const Guid& objectId) const
         {
             const auto it = objects.find(objectId);
             if (it == objects.end())
@@ -84,9 +94,9 @@ namespace pluto
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& logManager = serviceCollection.GetService<LogManager>();
-        auto& lazyPtrFactory = serviceCollection.GetService<ResourceControl::Factory>();
+        auto& resourceControlFactory = serviceCollection.GetService<ResourceControl::Factory>();
 
-        return std::make_unique<MemoryManager>(std::make_unique<Impl>(logManager, lazyPtrFactory));
+        return std::make_unique<MemoryManager>(std::make_unique<Impl>(logManager, resourceControlFactory));
     }
 
     MemoryManager::~MemoryManager() = default;
@@ -100,9 +110,14 @@ namespace pluto
 
     MemoryManager& MemoryManager::operator=(MemoryManager&& rhs) noexcept = default;
 
-    Object& MemoryManager::Add(std::unique_ptr<Object> object)
+    std::shared_ptr<Resource<Object>> MemoryManager::Add(std::unique_ptr<Object> object)
     {
         return impl->Add(std::move(object));
+    }
+
+    std::shared_ptr<Resource<Object>> MemoryManager::Get(const Guid& objectId) const
+    {
+        return impl->Get(objectId);
     }
 
     void MemoryManager::Remove(const Guid& objectId)
@@ -110,8 +125,8 @@ namespace pluto
         impl->Remove(objectId);
     }
 
-    Object* MemoryManager::Get(const Guid& objectId) const
+    Object* MemoryManager::GetPtr(const Guid& objectId) const
     {
-        return impl->Get(objectId);
+        return impl->GetPtr(objectId);
     }
 }

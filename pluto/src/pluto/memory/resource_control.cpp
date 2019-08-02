@@ -26,7 +26,7 @@ namespace pluto
 
         Object* Get() const
         {
-            return memoryManager->Get(objectId);
+            return memoryManager->GetPtr(objectId);
         }
     };
 

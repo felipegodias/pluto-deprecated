@@ -20,6 +20,7 @@
 #include <pluto/asset/events/on_asset_unload_event.h>
 
 #include <pluto/memory/memory_manager.h>
+#include <pluto/memory/resource.h>
 
 #include <fmt/ostream.h>
 
@@ -66,7 +67,7 @@ namespace pluto
             LoadFromFile(typeid(PackageManifestAsset), Path(physicalFilePath));
         }
 
-        Asset* Load(const std::type_index& type, const Path& path)
+        std::shared_ptr<Resource<Asset>> Load(const std::type_index& type, const Path& path)
         {
             const PackageManifestAsset* package = nullptr;
             for (const auto& manifest : manifests)
@@ -84,10 +85,10 @@ namespace pluto
             }
 
             const Guid guid = package->GetAssetGuid(path.Str());
-            Object* object = memoryManager->Get(guid);
-            if (object != nullptr)
+            const std::shared_ptr<Resource<Object>> resource = memoryManager->Get(guid);
+            if (resource != nullptr)
             {
-                return dynamic_cast<Asset*>(object);
+                ResourcePointerCast<Asset, Object>(resource);
             }
 
             const Path physicalFilePath(fmt::format("packages/{0}/{1}", package->GetName(), guid));

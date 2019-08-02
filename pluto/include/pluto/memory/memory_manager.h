@@ -11,6 +11,12 @@ namespace pluto
     class Object;
     class Guid;
 
+    template <typename T>
+    using IsObject = std::enable_if_t<std::is_base_of_v<Object, T>, int>;
+
+    template <typename T, IsObject<T>  = 0>
+    class Resource;
+
     class PLUTO_API MemoryManager final : public BaseService
     {
     public:
@@ -34,8 +40,9 @@ namespace pluto
         MemoryManager& operator=(const MemoryManager& rhs) = delete;
         MemoryManager& operator=(MemoryManager&& rhs) noexcept;
 
-        Object& Add(std::unique_ptr<Object> object);
+        std::shared_ptr<Resource<Object>> Add(std::unique_ptr<Object> object);
+        std::shared_ptr<Resource<Object>> Get(const Guid& objectId) const;
         void Remove(const Guid& objectId);
-        Object* Get(const Guid& objectId) const;
+        Object* GetPtr(const Guid& objectId) const;
     };
 }
