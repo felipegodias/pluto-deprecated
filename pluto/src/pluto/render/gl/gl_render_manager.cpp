@@ -6,6 +6,8 @@
 #include "pluto/log/log_manager.h"
 #include "pluto/event/event_manager.h"
 
+#include "pluto/memory/resource.h"
+
 #include "pluto/asset/mesh_asset.h"
 #include "pluto/asset/material_asset.h"
 #include "pluto/asset/shader_asset.h"
@@ -35,8 +37,10 @@ namespace pluto
 
         Guid onRenderListenerId;
     public:
-        Impl(LogManager& logManager, EventManager& eventManager, const SceneManager& sceneManager) :
-            logManager(logManager), eventManager(eventManager), sceneManager(sceneManager)
+        Impl(LogManager& logManager, EventManager& eventManager, const SceneManager& sceneManager)
+            : logManager(logManager),
+              eventManager(eventManager),
+              sceneManager(sceneManager)
         {
             onRenderListenerId = eventManager.Subscribe<OnRenderEvent>(
                 std::bind(&Impl::OnRender, this, std::placeholders::_1));
@@ -65,7 +69,8 @@ namespace pluto
                 return;
             }
 
-            std::vector<std::reference_wrapper<Renderer>> renderers = rootGameObject.GetComponentsInChildren<Renderer>();
+            std::vector<std::reference_wrapper<Renderer>> renderers = rootGameObject.GetComponentsInChildren<Renderer
+            >();
             for (auto& it : renderers)
             {
                 Renderer& renderer = it;
@@ -74,7 +79,7 @@ namespace pluto
                     continue;
                 }
 
-                Draw(*camera, renderer.GetTransform(), renderer.GetMesh(), renderer.GetMaterial());
+                Draw(*camera, renderer.GetTransform(), *renderer.GetMesh().Get(), *renderer.GetMaterial().Get());
             }
         }
 
@@ -84,8 +89,8 @@ namespace pluto
 
             auto& meshBuffer = dynamic_cast<GlMeshBuffer&>(meshAsset.GetMeshBuffer());
 
-            ShaderAsset& shaderAsset = materialAsset.GetShader();
-            auto& shaderProgram = dynamic_cast<GlShaderProgram&>(shaderAsset.GetShaderProgram());
+            Resource<ShaderAsset> shaderAsset = materialAsset.GetShader();
+            auto& shaderProgram = dynamic_cast<GlShaderProgram&>(shaderAsset->GetShaderProgram());
             shaderProgram.Bind(mvp, materialAsset);
 
             meshBuffer.Bind();
@@ -96,7 +101,8 @@ namespace pluto
         }
     };
 
-    GlRenderManager::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
+    GlRenderManager::Factory::Factory(ServiceCollection& diContainer)
+        : BaseFactory(diContainer)
     {
     }
 
@@ -109,11 +115,13 @@ namespace pluto
         return std::make_unique<GlRenderManager>(std::make_unique<Impl>(logManager, eventManager, sceneManager));
     }
 
-    GlRenderManager::GlRenderManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
+    GlRenderManager::GlRenderManager(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
     }
 
-    GlRenderManager::GlRenderManager(GlRenderManager&& other) noexcept : impl(std::move(other.impl))
+    GlRenderManager::GlRenderManager(GlRenderManager&& other) noexcept
+        : impl(std::move(other.impl))
     {
     }
 

@@ -1,6 +1,10 @@
 #include "pluto/scene/components/mesh_renderer.h"
 #include "pluto/scene/game_object.h"
 
+#include "pluto/asset/mesh_asset.h"
+#include "pluto/asset/material_asset.h"
+#include "pluto/memory/resource.h"
+
 #include "pluto/math/bounds.h"
 #include "pluto/guid.h"
 
@@ -11,8 +15,8 @@ namespace pluto
         Guid guid;
         GameObject& gameObject;
 
-        MeshAsset* meshAsset;
-        MaterialAsset* materialAsset;
+        Resource<MeshAsset> meshAsset;
+        Resource<MaterialAsset> materialAsset;
 
     public:
         Impl(const Guid& guid, GameObject& gameObject)
@@ -43,24 +47,24 @@ namespace pluto
             return gameObject.GetTransform();
         }
 
-        MeshAsset& GetMesh() const
+        Resource<MeshAsset> GetMesh() const
         {
-            return *meshAsset;
+            return meshAsset;
         }
 
-        void SetMesh(MeshAsset& value)
+        void SetMesh(const Resource<MeshAsset>& value)
         {
-            meshAsset = &value;
+            meshAsset = value;
         }
 
-        MaterialAsset& GetMaterial() const
+        Resource<MaterialAsset> GetMaterial() const
         {
-            return *materialAsset;
+            return materialAsset;
         }
 
-        void SetMaterial(MaterialAsset& value)
+        void SetMaterial(const Resource<MaterialAsset>& value)
         {
-            materialAsset = &value;
+            materialAsset = value;
         }
     };
 
@@ -111,22 +115,22 @@ namespace pluto
         return impl->GetTransform();
     }
 
-    MeshAsset& MeshRenderer::GetMesh() const
+    Resource<MeshAsset> MeshRenderer::GetMesh() const
     {
         return impl->GetMesh();
     }
 
-    void MeshRenderer::SetMesh(MeshAsset& value)
+    void MeshRenderer::SetMesh(const Resource<MeshAsset>& value)
     {
         impl->SetMesh(value);
     }
 
-    MaterialAsset& MeshRenderer::GetMaterial() const
+    Resource<MaterialAsset> MeshRenderer::GetMaterial() const
     {
         return impl->GetMaterial();
     }
 
-    void MeshRenderer::SetMaterial(MaterialAsset& value)
+    void MeshRenderer::SetMaterial(const Resource<MaterialAsset>& value)
     {
         impl->SetMaterial(value);
     }

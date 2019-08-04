@@ -4,6 +4,9 @@
 
 namespace pluto
 {
+    template <typename T, typename Enable = void>
+    class Resource;
+
     class Transform;
     class MeshAsset;
     class MaterialAsset;
@@ -23,7 +26,7 @@ namespace pluto
         virtual Bounds GetBounds() = 0;
 
         virtual Transform& GetTransform() const = 0;
-        virtual MeshAsset& GetMesh() const = 0;
-        virtual MaterialAsset& GetMaterial() const = 0;
+        virtual Resource<MeshAsset> GetMesh() const = 0;
+        virtual Resource<MaterialAsset> GetMaterial() const = 0;
     };
 }

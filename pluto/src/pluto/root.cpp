@@ -155,18 +155,18 @@ namespace pluto
                 GameObject& tquadGo = sceneManager.GetActiveScene().CreateGameObject("Transparent");
                 tquadGo.GetTransform().SetPosition({-5, 0, 0});
                 auto& tmeshRenderer = tquadGo.AddComponent<MeshRenderer>();
-                tmeshRenderer.SetMesh(*meshAsset);
-                tmeshRenderer.SetMaterial(*transparentMaterial);
+                tmeshRenderer.SetMesh(meshAsset);
+                tmeshRenderer.SetMaterial(transparentMaterial);
 
                 GameObject& uquadGo = sceneManager.GetActiveScene().CreateGameObject("Unlit");
                 uquadGo.GetTransform().SetPosition({5, 0, 0});
                 auto& umeshRenderer = uquadGo.AddComponent<MeshRenderer>();
-                umeshRenderer.SetMesh(*meshAsset);
-                umeshRenderer.SetMaterial(*unlitMaterial);
+                umeshRenderer.SetMesh(meshAsset);
+                umeshRenderer.SetMaterial(unlitMaterial);
 
                 auto textureAsset = assetManager.Load<TextureAsset>(Path("textures/pluto-logo.png"));
-                transparentMaterial->SetTexture("u_mat.mainTex", *textureAsset);
-                unlitMaterial->SetTexture("u_mat.mainTex", *textureAsset);
+                transparentMaterial->SetTexture("u_mat.mainTex", textureAsset);
+                unlitMaterial->SetTexture("u_mat.mainTex", textureAsset);
             }
 
             int i = 0;

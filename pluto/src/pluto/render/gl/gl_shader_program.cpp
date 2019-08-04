@@ -1,6 +1,9 @@
 #include "pluto/render/gl/gl_shader_program.h"
 #include "pluto/render/gl/gl_texture_buffer.h"
 #include "pluto/render/gl/gl_call.h"
+
+#include "pluto/memory/resource.h"
+
 #include "pluto/asset/shader_asset.h"
 #include "pluto/asset/material_asset.h"
 #include "pluto/asset/texture_asset.h"
@@ -273,8 +276,8 @@ namespace pluto
 
         void BindTexture(const ShaderAsset::Property& uniform)
         {
-            TextureAsset& textureAsset = lastMaterialAsset->GetTexture(uniform.name);
-            auto& textureBuffer = dynamic_cast<GlTextureBuffer&>(textureAsset.GetTextureBuffer());
+            Resource<TextureAsset> textureAsset = lastMaterialAsset->GetTexture(uniform.name);
+            auto& textureBuffer = dynamic_cast<GlTextureBuffer&>(textureAsset->GetTextureBuffer());
             textureBuffer.Bind(0);
             GL_CALL(glUniform1i(uniform.id, 0));
         }

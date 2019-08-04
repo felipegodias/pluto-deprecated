@@ -44,10 +44,10 @@ namespace pluto
 
         Transform& GetTransform() const override;
 
-        MeshAsset& GetMesh() const override;
-        void SetMesh(MeshAsset& value);
+        Resource<MeshAsset> GetMesh() const override;
+        void SetMesh(const Resource<MeshAsset>& value);
 
-        MaterialAsset& GetMaterial() const override;
-        void SetMaterial(MaterialAsset& value);
+        Resource<MaterialAsset> GetMaterial() const override;
+        void SetMaterial(const Resource<MaterialAsset>& value);
     };
 }

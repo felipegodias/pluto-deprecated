@@ -73,10 +73,10 @@ namespace pluto
 
         bool operator!=(nullptr_t) const
         {
-            return !(this == nullptr);
+            return !(*this == nullptr);
         }
 
-        T* Get() const
+        const T* Get() const
         {
             if (control == nullptr)
             {
@@ -94,7 +94,7 @@ namespace pluto
             return dynamic_cast<T*>(control->Get());
         }
 
-        T* operator->() const
+        const T* operator->() const
         {
             if (control == nullptr)
             {
@@ -119,7 +119,7 @@ namespace pluto
         template <typename T1, typename T2, IsObject<T2>  = 0, IsBaseOf<T2, T1>  = 0>
         static Resource<T1> Cast(const Resource<T2>& resource)
         {
-            if (dynamic_cast<T1>(resource.Get()) == nullptr)
+            if (dynamic_cast<const T1*>(resource.Get()) == nullptr)
             {
                 return nullptr;
             }
