@@ -9,12 +9,14 @@ namespace pluto
     class ResourceControl::Impl
     {
         Guid objectId;
+        std::weak_ptr<Object> object;
 
         MemoryManager* memoryManager;
 
     public:
-        Impl(const Guid& objectId, MemoryManager& memoryManager)
+        Impl(const Guid& objectId, const std::shared_ptr<Object>& object, MemoryManager& memoryManager)
             : objectId(objectId),
+              object(object),
               memoryManager(&memoryManager)
         {
         }
@@ -24,9 +26,13 @@ namespace pluto
             return objectId;
         }
 
-        Object* Get() const
+        Object* Get()
         {
-            return memoryManager->GetPtr(objectId);
+            if (object.expired())
+            {
+                object = memoryManager->GetPtr(objectId);
+            }
+            return object.lock().get();
         }
     };
 
@@ -35,16 +41,18 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<ResourceControl> ResourceControl::Factory::Create(const Object& object) const
+    std::unique_ptr<ResourceControl> ResourceControl::Factory::Create(const std::shared_ptr<Object>& object) const
     {
-        return Create(object.GetId());
+        ServiceCollection& serviceCollection = GetServiceCollection();
+        auto& memoryManager = serviceCollection.GetService<MemoryManager>();
+        return std::make_unique<ResourceControl>(std::make_unique<Impl>(object->GetId(), object, memoryManager));
     }
 
     std::unique_ptr<ResourceControl> ResourceControl::Factory::Create(const Guid& objectId) const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& memoryManager = serviceCollection.GetService<MemoryManager>();
-        return std::make_unique<ResourceControl>(std::make_unique<Impl>(objectId, memoryManager));
+        return std::make_unique<ResourceControl>(std::make_unique<Impl>(objectId, nullptr, memoryManager));
     }
 
     ResourceControl::~ResourceControl() = default;

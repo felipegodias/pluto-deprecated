@@ -17,7 +17,7 @@ namespace pluto
         {
         public:
             explicit Factory(ServiceCollection& serviceCollection);
-            std::unique_ptr<ResourceControl> Create(const Object& object) const;
+            std::unique_ptr<ResourceControl> Create(const std::shared_ptr<Object>& object) const;
             std::unique_ptr<ResourceControl> Create(const Guid& objectId) const;
         };
 

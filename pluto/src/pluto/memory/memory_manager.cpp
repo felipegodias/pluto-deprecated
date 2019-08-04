@@ -15,7 +15,7 @@ namespace pluto
 {
     class MemoryManager::Impl
     {
-        std::unordered_map<Guid, std::unique_ptr<Object>> objects;
+        std::unordered_map<Guid, std::shared_ptr<Object>> objects;
 
         LogManager* logManager;
         ResourceControl::Factory* resourceControlFactory;
@@ -49,20 +49,21 @@ namespace pluto
                 Exception::Throw(std::runtime_error("Object with id already exists in memory manager."));
             }
 
-            Resource<Object> resource(resourceControlFactory->Create(*object));
-            objects.emplace(object->GetId(), std::move(object));
+            std::shared_ptr<Object> ptr(object.release());
+            Resource<Object> resource(resourceControlFactory->Create(ptr));
+            objects.emplace(ptr->GetId(), ptr);
             return resource;
         }
 
         Resource<Object> Get(const Guid& objectId) const
         {
-            Object* object = GetPtr(objectId);
+            const std::shared_ptr<Object> object = GetPtr(objectId);
             if (object == nullptr)
             {
                 return nullptr;
             }
 
-            return Resource<Object>(resourceControlFactory->Create(*object));
+            return Resource<Object>(resourceControlFactory->Create(object));
         }
 
         void Remove(const Object& object)
@@ -74,14 +75,14 @@ namespace pluto
             }
         }
 
-        Object* GetPtr(const Guid& objectId) const
+        std::shared_ptr<Object> GetPtr(const Guid& objectId) const
         {
             const auto it = objects.find(objectId);
             if (it == objects.end())
             {
                 return nullptr;
             }
-            return it->second.get();
+            return it->second;
         }
     };
 
@@ -125,7 +126,7 @@ namespace pluto
         impl->Remove(object);
     }
 
-    Object* MemoryManager::GetPtr(const Guid& objectId) const
+    std::shared_ptr<Object> MemoryManager::GetPtr(const Guid& objectId) const
     {
         return impl->GetPtr(objectId);
     }

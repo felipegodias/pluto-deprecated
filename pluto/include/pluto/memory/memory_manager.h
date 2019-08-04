@@ -38,6 +38,6 @@ namespace pluto
         Resource<Object> Add(std::unique_ptr<Object> object);
         Resource<Object> Get(const Guid& objectId) const;
         void Remove(const Object& object);
-        Object* GetPtr(const Guid& objectId) const;
+        std::shared_ptr<Object> GetPtr(const Guid& objectId) const;
     };
 }
