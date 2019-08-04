@@ -37,7 +37,7 @@ namespace pluto
 
         Resource<Object> Add(std::unique_ptr<Object> object);
         Resource<Object> Get(const Guid& objectId) const;
-        void Remove(const Guid& objectId);
+        void Remove(const Object& object);
         Object* GetPtr(const Guid& objectId) const;
     };
 }

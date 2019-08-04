@@ -65,9 +65,9 @@ namespace pluto
             return Resource<Object>(resourceControlFactory->Create(*object));
         }
 
-        void Remove(const Guid& objectId)
+        void Remove(const Object& object)
         {
-            const auto it = objects.find(objectId);
+            const auto it = objects.find(object.GetId());
             if (it != objects.end())
             {
                 objects.erase(it);
@@ -120,9 +120,9 @@ namespace pluto
         return impl->Get(objectId);
     }
 
-    void MemoryManager::Remove(const Guid& objectId)
+    void MemoryManager::Remove(const Object& object)
     {
-        impl->Remove(objectId);
+        impl->Remove(object);
     }
 
     Object* MemoryManager::GetPtr(const Guid& objectId) const

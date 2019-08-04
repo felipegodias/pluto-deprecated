@@ -131,7 +131,7 @@ namespace pluto
             }
 
             eventManager->Dispatch(OnAssetUnloadEvent(asset));
-            memoryManager->Remove(asset.GetId());
+            memoryManager->Remove(asset);
         }
 
         Resource<Asset> Register(std::unique_ptr<Asset> asset)

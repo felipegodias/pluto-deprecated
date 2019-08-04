@@ -7,6 +7,9 @@
 
 namespace pluto
 {
+    template <typename T, typename Enable = void>
+    class Resource;
+
     class Guid;
     class GameObject;
     class Transform;
@@ -36,12 +39,12 @@ namespace pluto
 
         const Guid& GetId() const;
 
-        GameObject& GetRootGameObject() const;
+        Resource<GameObject> GetRootGameObject() const;
 
-        GameObject& CreateGameObject();
-        GameObject& CreateGameObject(const std::string& name);
-        GameObject& CreateGameObject(Transform& parent);
-        GameObject& CreateGameObject(Transform& parent, const std::string& name);
+        Resource<GameObject> CreateGameObject();
+        Resource<GameObject> CreateGameObject(const std::string& name);
+        Resource<GameObject> CreateGameObject(Transform& parent);
+        Resource<GameObject> CreateGameObject(Transform& parent, const std::string& name);
 
         void Destroy();
         void OnUpdate(uint32_t currentFrame);

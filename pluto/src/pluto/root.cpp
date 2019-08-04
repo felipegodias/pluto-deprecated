@@ -131,10 +131,10 @@ namespace pluto
                 auto& sceneManager = serviceCollection->GetService<SceneManager>();
                 sceneManager.LoadEmptyScene();
 
-                GameObject& cameraGo = sceneManager.GetActiveScene().CreateGameObject("Camera");
-                cameraGo.GetTransform().SetLocalPosition({0, 0, -1});
+                Resource<GameObject> cameraGo = sceneManager.GetActiveScene().CreateGameObject("Camera");
+                cameraGo->GetTransform().SetLocalPosition({0, 0, -1});
 
-                auto& camera = cameraGo.AddComponent<Camera>();
+                auto& camera = cameraGo->AddComponent<Camera>();
 
                 auto meshAsset = assetManager.Load<MeshAsset>(Path("meshes/quad.obj"));
                 auto unlitShaderAsset = assetManager.Load<ShaderAsset>(Path("shaders/unlit.glsl"));
@@ -152,15 +152,15 @@ namespace pluto
                 materialAssetPtr->SetShader(unlitShaderAsset);
                 transparentMaterial = assetManager.Register(std::move(materialAssetPtr));
 
-                GameObject& tquadGo = sceneManager.GetActiveScene().CreateGameObject("Transparent");
-                tquadGo.GetTransform().SetPosition({-5, 0, 0});
-                auto& tmeshRenderer = tquadGo.AddComponent<MeshRenderer>();
+                Resource<GameObject> tquadGo = sceneManager.GetActiveScene().CreateGameObject("Transparent");
+                tquadGo->GetTransform().SetPosition({-5, 0, 0});
+                auto& tmeshRenderer = tquadGo->AddComponent<MeshRenderer>();
                 tmeshRenderer.SetMesh(meshAsset);
                 tmeshRenderer.SetMaterial(transparentMaterial);
 
-                GameObject& uquadGo = sceneManager.GetActiveScene().CreateGameObject("Unlit");
-                uquadGo.GetTransform().SetPosition({5, 0, 0});
-                auto& umeshRenderer = uquadGo.AddComponent<MeshRenderer>();
+                Resource<GameObject> uquadGo = sceneManager.GetActiveScene().CreateGameObject("Unlit");
+                uquadGo->GetTransform().SetPosition({5, 0, 0});
+                auto& umeshRenderer = uquadGo->AddComponent<MeshRenderer>();
                 umeshRenderer.SetMesh(meshAsset);
                 umeshRenderer.SetMaterial(unlitMaterial);
 

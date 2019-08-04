@@ -1,6 +1,7 @@
 #pragma once
 
 #include "pluto/service/base_factory.h"
+#include "pluto/memory/object.h"
 
 #include <functional>
 #include <memory>
@@ -13,10 +14,7 @@ namespace pluto
     class Transform;
     class Component;
 
-    template <typename T>
-    using IsComponent = std::enable_if_t<std::is_base_of_v<Component, T>, int>;
-
-    class PLUTO_API GameObject
+    class PLUTO_API GameObject final : public Object
     {
     public:
         enum class Flags
@@ -37,7 +35,7 @@ namespace pluto
         std::unique_ptr<Impl> impl;
 
     public:
-        ~GameObject();
+        ~GameObject() override;
         explicit GameObject(std::unique_ptr<Impl> impl);
 
         GameObject(const GameObject& other) = delete;
@@ -48,37 +46,37 @@ namespace pluto
         bool operator==(const GameObject& rhs) const;
         bool operator!=(const GameObject& rhs) const;
 
-        const Guid& GetId() const;
-        const std::string& GetName() const;
-        void SetName(const std::string& value);
+        const Guid& GetId() const override;
+        const std::string& GetName() const override;
+        void SetName(const std::string& value) override;
 
         Flags GetFlags() const;
         bool IsDestroyed() const;
 
         Transform& GetTransform() const;
 
-        template <typename T, IsComponent<T>  = 0>
+        template <typename T, std::enable_if_t<std::is_base_of_v<Component, T>, bool>  = false>
         T& AddComponent();
 
         Component& AddComponent(const std::type_info& type);
 
-        template <typename T, IsComponent<T>  = 0>
+        template <typename T, std::enable_if_t<std::is_base_of_v<Component, T>, bool>  = false>
         T* GetComponent() const;
 
         Component* GetComponent(const std::function<bool(const Component& component)>& predicate) const;
 
-        template <typename T, IsComponent<T>  = 0>
+        template <typename T, std::enable_if_t<std::is_base_of_v<Component, T>, bool>  = false>
         std::vector<std::reference_wrapper<T>> GetComponents() const;
 
         std::vector<std::reference_wrapper<Component>> GetComponents(
             const std::function<bool(const Component& component)>& predicate) const;
 
-        template <typename T, IsComponent<T>  = 0>
+        template <typename T, std::enable_if_t<std::is_base_of_v<Component, T>, bool>  = false>
         T* GetComponentInChildren() const;
 
         Component* GetComponentInChildren(const std::function<bool(const Component& component)>& predicate) const;
 
-        template <typename T, IsComponent<T>  = 0>
+        template <typename T, std::enable_if_t<std::is_base_of_v<Component, T>, bool>  = false>
         std::vector<std::reference_wrapper<T>> GetComponentsInChildren() const;
 
         std::vector<std::reference_wrapper<Component>> GetComponentsInChildren(
@@ -88,59 +86,6 @@ namespace pluto
 
         void OnUpdate(uint32_t currentFrame);
     };
-
-    template <typename T, IsComponent<T>>
-    T& GameObject::AddComponent()
-    {
-        return static_cast<T&>(AddComponent(typeid(T)));
-    }
-
-    template <typename T, IsComponent<T>>
-    T* GameObject::GetComponent() const
-    {
-        return dynamic_cast<T*>(GetComponent([](const Component& component)
-        {
-            return dynamic_cast<const T*>(&component) != nullptr;
-        }));
-    }
-
-    template <typename T, IsComponent<T>>
-    std::vector<std::reference_wrapper<T>> GameObject::GetComponents() const
-    {
-        std::vector<std::reference_wrapper<Component>> components = GetComponents([](const Component& component)
-        {
-            return dynamic_cast<const T*>(&component) != nullptr;
-        });
-        std::vector<std::reference_wrapper<T>> result;
-        for (auto& it : components)
-        {
-            result.emplace_back(static_cast<T&>(it.get()));
-        }
-        return result;
-    }
-
-    template <typename T, IsComponent<T>>
-    T* GameObject::GetComponentInChildren() const
-    {
-        return dynamic_cast<T*>(GetComponentInChildren([](const Component& component)
-        {
-            return dynamic_cast<const T*>(&component) != nullptr;
-        }));
-    }
-
-    template <typename T, IsComponent<T>>
-    std::vector<std::reference_wrapper<T>> GameObject::GetComponentsInChildren() const
-    {
-        std::vector<std::reference_wrapper<Component>> components = GetComponentsInChildren(
-            [](const Component& component)
-            {
-                return dynamic_cast<const T*>(&component) != nullptr;
-            });
-        std::vector<std::reference_wrapper<T>> result;
-        for (auto& it : components)
-        {
-            result.emplace_back(static_cast<T&>(it.get()));
-        }
-        return result;
-    }
 }
+
+#include "game_object.inl"

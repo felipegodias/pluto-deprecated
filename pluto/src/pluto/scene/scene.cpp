@@ -5,6 +5,7 @@
 #include <pluto/guid.h>
 
 #include <pluto/service/service_collection.h>
+#include <pluto/memory/memory_manager.h>
 
 #include <list>
 
@@ -13,17 +14,21 @@ namespace pluto
     class Scene::Impl
     {
         Guid guid;
-        std::list<std::unique_ptr<GameObject>> gameObjects;
+        Resource<GameObject> root;
+        std::list<GameObject*> gameObjects;
 
-        const GameObject::Factory& gameObjectFactory;
+        MemoryManager* memoryManager;
+        GameObject::Factory* gameObjectFactory;
 
     public:
-        Impl(const Guid& guid, std::unique_ptr<GameObject> rootGameObject,
-             const GameObject::Factory& gameObjectFactory)
+        Impl(const Guid& guid, std::unique_ptr<GameObject> rootGameObject, MemoryManager& memoryManager,
+             GameObject::Factory& gameObjectFactory)
             : guid(guid),
-              gameObjectFactory(gameObjectFactory)
+              memoryManager(&memoryManager),
+              gameObjectFactory(&gameObjectFactory)
         {
-            gameObjects.push_back(std::move(rootGameObject));
+            root = ResourceUtils::Cast<GameObject>(memoryManager.Add(gameObjectFactory.Create()));
+            gameObjects.push_back(root.Get());
         }
 
         const Guid& GetId() const
@@ -31,20 +36,22 @@ namespace pluto
             return guid;
         }
 
-        GameObject& GetRootGameObject() const
+        Resource<GameObject> GetRootGameObject() const
         {
-            return *gameObjects.front();
+            return root;
         }
 
-        GameObject& CreateGameObject(Transform& parent, const std::string& name)
+        Resource<GameObject> CreateGameObject(Transform& parent, const std::string& name)
         {
-            std::unique_ptr<GameObject> gameObjectPtr = gameObjectFactory.Create();
-            GameObject& gameObject = *gameObjectPtr;
-            gameObjects.push_back(std::move(gameObjectPtr));
+            Resource<GameObject> gameObjectResource = ResourceUtils::Cast<GameObject>(
+                memoryManager->Add(gameObjectFactory->Create()));
 
-            gameObject.SetName(name);
-            gameObject.GetTransform().SetParent(parent);
-            return gameObject;
+            GameObject* gameObject = gameObjectResource.Get();
+            gameObjects.push_back(gameObject);
+
+            gameObject->SetName(name);
+            gameObject->GetTransform().SetParent(parent);
+            return gameObjectResource;
         }
 
         void Destroy()
@@ -62,8 +69,10 @@ namespace pluto
             auto it = gameObjects.begin();
             while (it != gameObjects.end())
             {
-                if ((*it)->IsDestroyed())
+                GameObject* go = *it;
+                if (go->IsDestroyed())
                 {
+                    memoryManager->Remove(*go);
                     gameObjects.erase(it++);
                 }
                 else
@@ -82,11 +91,12 @@ namespace pluto
     std::unique_ptr<Scene> Scene::Factory::Create() const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
-        const auto& gameObjectFactory = serviceCollection.GetService<GameObject::Factory>();
+        auto& memoryManager = serviceCollection.GetService<MemoryManager>();
+        auto& gameObjectFactory = serviceCollection.GetService<GameObject::Factory>();
         auto rootGameObject = gameObjectFactory.Create();
         rootGameObject->SetName("root");
         return std::make_unique<Scene>(
-            std::make_unique<Impl>(Guid::New(), std::move(rootGameObject), gameObjectFactory));
+            std::make_unique<Impl>(Guid::New(), std::move(rootGameObject), memoryManager, gameObjectFactory));
     }
 
     Scene::Scene(std::unique_ptr<Impl> impl)
@@ -117,27 +127,27 @@ namespace pluto
         return impl->GetId();
     }
 
-    GameObject& Scene::GetRootGameObject() const
+    Resource<GameObject> Scene::GetRootGameObject() const
     {
         return impl->GetRootGameObject();
     }
 
-    GameObject& Scene::CreateGameObject()
+    Resource<GameObject> Scene::CreateGameObject()
     {
-        return impl->CreateGameObject(GetRootGameObject().GetTransform(), "New Game Object");
+        return impl->CreateGameObject(GetRootGameObject()->GetTransform(), "New Game Object");
     }
 
-    GameObject& Scene::CreateGameObject(const std::string& name)
+    Resource<GameObject> Scene::CreateGameObject(const std::string& name)
     {
-        return impl->CreateGameObject(GetRootGameObject().GetTransform(), name);
+        return impl->CreateGameObject(GetRootGameObject()->GetTransform(), name);
     }
 
-    GameObject& Scene::CreateGameObject(Transform& parent)
+    Resource<GameObject> Scene::CreateGameObject(Transform& parent)
     {
         return impl->CreateGameObject(parent, "New Game Object");
     }
 
-    GameObject& Scene::CreateGameObject(Transform& parent, const std::string& name)
+    Resource<GameObject> Scene::CreateGameObject(Transform& parent, const std::string& name)
     {
         return impl->CreateGameObject(parent, name);
     }

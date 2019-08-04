@@ -30,17 +30,16 @@ namespace pluto
 {
     class GlRenderManager::Impl
     {
-    private:
-        LogManager& logManager;
-        EventManager& eventManager;
-        const SceneManager& sceneManager;
+        LogManager* logManager;
+        EventManager* eventManager;
+        SceneManager* sceneManager;
 
         Guid onRenderListenerId;
     public:
-        Impl(LogManager& logManager, EventManager& eventManager, const SceneManager& sceneManager)
-            : logManager(logManager),
-              eventManager(eventManager),
-              sceneManager(sceneManager)
+        Impl(LogManager& logManager, EventManager& eventManager, SceneManager& sceneManager)
+            : logManager(&logManager),
+              eventManager(&eventManager),
+              sceneManager(&sceneManager)
         {
             onRenderListenerId = eventManager.Subscribe<OnRenderEvent>(
                 std::bind(&Impl::OnRender, this, std::placeholders::_1));
@@ -52,24 +51,24 @@ namespace pluto
 
         ~Impl()
         {
-            eventManager.Unsubscribe<OnRenderEvent>(onRenderListenerId);
-            logManager.LogInfo("OpenGL RenderManager terminated!");
+            eventManager->Unsubscribe<OnRenderEvent>(onRenderListenerId);
+            logManager->LogInfo("OpenGL RenderManager terminated!");
         }
 
         void OnRender(const OnRenderEvent& evt)
         {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            const Scene& activeScene = sceneManager.GetActiveScene();
-            const GameObject& rootGameObject = activeScene.GetRootGameObject();
+            const Scene& activeScene = sceneManager->GetActiveScene();
+            const Resource<GameObject> rootGameObject = activeScene.GetRootGameObject();
 
-            auto* camera = rootGameObject.GetComponentInChildren<Camera>();
+            auto* camera = rootGameObject->GetComponentInChildren<Camera>();
             if (camera == nullptr)
             {
                 return;
             }
 
-            std::vector<std::reference_wrapper<Renderer>> renderers = rootGameObject.GetComponentsInChildren<Renderer
+            std::vector<std::reference_wrapper<Renderer>> renderers = rootGameObject->GetComponentsInChildren<Renderer
             >();
             for (auto& it : renderers)
             {
