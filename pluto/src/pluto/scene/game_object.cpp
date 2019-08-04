@@ -11,7 +11,6 @@
 
 #include <typeindex>
 #include <unordered_map>
-#include <iostream>
 
 namespace pluto
 {
@@ -172,7 +171,6 @@ namespace pluto
 
         void OnUpdate(const uint32_t currentFrame)
         {
-            std::cout << name << std::endl;
             // Only run update if the object was not destroyed or already updated in the current frame.
             if (isDestroyed || lastFrame >= currentFrame)
             {

@@ -11,13 +11,12 @@
 #include <pluto/service/service_collection.h>
 #include <GLFW/glfw3.h>
 
-#include <sstream>
+#include <iostream>
 
 namespace pluto
 {
     class SimulationManager::Impl
     {
-    private:
         const double maxFps = 60.0;
         const double maxPeriod = 1.0 / maxFps;
 
@@ -26,9 +25,19 @@ namespace pluto
         double lastTime;
         double deltaTime;
 
+        double lastSecond;
+        uint16_t fps;
+        uint32_t frameCount;
+
     public:
-        Impl(LogManager& logManager, EventManager& eventManager) : logManager(logManager), eventManager(eventManager),
-                                                                   lastTime(0), deltaTime(0)
+        Impl(LogManager& logManager, EventManager& eventManager)
+            : logManager(logManager),
+              eventManager(eventManager),
+              lastTime(0),
+              deltaTime(0),
+              lastSecond(0),
+              fps(0),
+              frameCount(0)
         {
             logManager.LogInfo("SimulationManager initialized!");
         }
@@ -55,11 +64,22 @@ namespace pluto
                 eventManager.Dispatch(OnPostUpdateEvent());
                 eventManager.Dispatch(OnRenderEvent());
                 eventManager.Dispatch(OnPostRenderEvent());
+                ++fps;
+                ++frameCount;
+            }
+
+            const double fpsDelta = time - lastSecond;
+            if (fpsDelta > 1.0)
+            {
+                std::cout << fps << std::endl;
+                lastSecond = time + 1.0 - fpsDelta;
+                fps = 0;
             }
         }
     };
 
-    SimulationManager::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
+    SimulationManager::Factory::Factory(ServiceCollection& diContainer)
+        : BaseFactory(diContainer)
     {
     }
 
@@ -71,7 +91,8 @@ namespace pluto
         return std::make_unique<SimulationManager>(std::make_unique<Impl>(logManager, eventManager));
     }
 
-    SimulationManager::SimulationManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
+    SimulationManager::SimulationManager(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
     }
 

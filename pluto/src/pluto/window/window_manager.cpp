@@ -14,7 +14,6 @@ namespace pluto
 {
     class WindowManager::Impl
     {
-    private:
         Vector2I windowSize;
 
         GLFWwindow* window;
@@ -25,8 +24,10 @@ namespace pluto
         Guid onPostRenderListenerId;
 
     public:
-        Impl(const std::string& screenTitle, Vector2I windowSize, LogManager& logManager, EventManager& eventManager) :
-            windowSize(std::move(windowSize)), logManager(logManager), eventManager(eventManager)
+        Impl(const std::string& screenTitle, Vector2I windowSize, LogManager& logManager, EventManager& eventManager)
+            : windowSize(std::move(windowSize)),
+              logManager(logManager),
+              eventManager(eventManager)
         {
             if (!glfwInit())
             {
@@ -40,7 +41,7 @@ namespace pluto
                 throw std::runtime_error("Failed to create GLFW Window.");
             }
             glfwMakeContextCurrent(window);
-
+            glfwSwapInterval(0);
             onPostRenderListenerId = eventManager.Subscribe<OnPostRenderEvent>(
                 std::bind(&Impl::OnPostRender, this, std::placeholders::_1));
 
@@ -70,9 +71,9 @@ namespace pluto
             return windowSize;
         }
 
-        void SetWindowSize(Vector2I value)
+        void SetWindowSize(const Vector2I& value)
         {
-            windowSize = std::move(value);
+            windowSize = value;
             glfwSetWindowSize(window, windowSize.x, windowSize.y);
         }
 
@@ -93,7 +94,8 @@ namespace pluto
         }
     };
 
-    WindowManager::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
+    WindowManager::Factory::Factory(ServiceCollection& diContainer)
+        : BaseFactory(diContainer)
     {
     }
 
@@ -111,11 +113,16 @@ namespace pluto
             std::make_unique<Impl>(appName, Vector2I(screenWidth, screenHeight), logManager, eventManager));
     }
 
-    WindowManager::WindowManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
+    WindowManager::~WindowManager() = default;
+
+    WindowManager::WindowManager(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
     }
 
-    WindowManager::~WindowManager() = default;
+    WindowManager::WindowManager(WindowManager&& other) noexcept = default;
+
+    WindowManager& WindowManager::operator=(WindowManager&& rhs) noexcept = default;
 
     bool WindowManager::IsOpen() const
     {
@@ -132,9 +139,9 @@ namespace pluto
         return impl->GetWindowSize();
     }
 
-    void WindowManager::SetWindowSize(Vector2I value)
+    void WindowManager::SetWindowSize(const Vector2I& value)
     {
-        impl->SetWindowSize(std::move(value));
+        impl->SetWindowSize(value);
     }
 
     float WindowManager::GetWindowAspectRatio() const

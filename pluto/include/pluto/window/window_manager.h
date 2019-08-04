@@ -23,14 +23,19 @@ namespace pluto
         std::unique_ptr<Impl> impl;
 
     public:
-        explicit WindowManager(std::unique_ptr<Impl> impl);
         ~WindowManager();
+        explicit WindowManager(std::unique_ptr<Impl> impl);
+
+        WindowManager(const WindowManager& other) = delete;
+        WindowManager(WindowManager&& other) noexcept;
+        WindowManager& operator=(const WindowManager& rhs) = delete;
+        WindowManager& operator=(WindowManager&& rhs) noexcept;
 
         bool IsOpen() const;
         void Close();
 
         const Vector2I& GetWindowSize() const;
-        void SetWindowSize(Vector2I value);
+        void SetWindowSize(const Vector2I& value);
 
         float GetWindowAspectRatio() const;
 
