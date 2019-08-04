@@ -2,7 +2,6 @@
 
 #include "pluto/service/base_service.h"
 #include "pluto/service/base_factory.h"
-#include "pluto/memory/resource.h"
 
 #include <typeindex>
 #include <memory>
@@ -11,6 +10,9 @@
 
 namespace pluto
 {
+    template <typename T, typename Enable = void>
+    class Resource;
+
     class Asset;
     class Guid;
     class Path;
@@ -47,19 +49,19 @@ namespace pluto
         template <typename T, IsAsset<T>  = 0>
         Resource<T> Load(const Path& path);
 
-        Resource<Asset, 0> Load(const std::type_index& type, const Path& path);
+        Resource<Asset> Load(const std::type_index& type, const Path& path);
 
         template <typename T, IsAsset<T>  = 0>
         Resource<T> Load(const Guid& guid);
 
-        Resource<Asset, 0> Load(const std::type_index& type, const Guid& guid);
+        Resource<Asset> Load(const std::type_index& type, const Guid& guid);
 
         void Unload(const Asset& asset);
 
         template <typename T, IsAsset<T>  = 0>
         Resource<T> Register(std::unique_ptr<T> asset);
 
-        Resource<Asset, 0> RegisterAsset(std::unique_ptr<Asset> asset);
+        Resource<Asset> RegisterAsset(std::unique_ptr<Asset> asset);
     };
 
     template <typename T, IsAsset<T>>

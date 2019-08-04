@@ -7,6 +7,7 @@
 #include <pluto/file/file_writer.h>
 
 #include <pluto/service/service_collection.h>
+#include <pluto/memory/resource.h>
 
 #include <pluto/event/event_manager.h>
 
@@ -24,6 +25,7 @@
 
 #include <fmt/format.h>
 #include <unordered_map>
+#include <utility>
 
 namespace pluto
 {
@@ -31,30 +33,17 @@ namespace pluto
     {
         Guid guid;
         std::string name;
-        ShaderAsset* shaderAsset;
+        Resource<ShaderAsset> shaderAsset;
         std::unordered_map<std::string, float> floats;
         std::unordered_map<std::string, Vector4F> vectors;
         std::unordered_map<std::string, Matrix4X4> matrices;
-        std::unordered_map<std::string, TextureAsset*> textures;
-
-        Guid onAssetUnloadListenerId;
-        EventManager* eventManager;
-        AssetManager* assetManager;
+        std::unordered_map<std::string, Resource<TextureAsset>> textures;
 
     public:
-        Impl(const Guid& guid, ShaderAsset& shaderAsset, EventManager& eventManager, AssetManager& assetManager)
+        Impl(const Guid& guid, Resource<ShaderAsset> shaderAsset)
             : guid(guid),
-              shaderAsset(&shaderAsset),
-              eventManager(&eventManager),
-              assetManager(&assetManager)
+              shaderAsset(std::move(shaderAsset))
         {
-            onAssetUnloadListenerId = eventManager.Subscribe<OnAssetUnloadEvent>(
-                std::bind(&Impl::OnAssetUnload, this, std::placeholders::_1));
-        }
-
-        ~Impl()
-        {
-            eventManager->Unsubscribe<OnAssetUnloadEvent>(onAssetUnloadListenerId);
         }
 
         const Guid& GetId() const
@@ -143,14 +132,14 @@ namespace pluto
             }
         }
 
-        ShaderAsset& GetShader() const
+        Resource<ShaderAsset> GetShader() const
         {
-            return *shaderAsset;
+            return shaderAsset;
         }
 
-        void SetShader(ShaderAsset& value)
+        void SetShader(const Resource<ShaderAsset>& value)
         {
-            shaderAsset = &value;
+            shaderAsset = value;
             UpdateProperties();
         }
 
@@ -257,14 +246,14 @@ namespace pluto
             GetProperty<Matrix4X4>(propertyName, matrices)->second = value;
         }
 
-        TextureAsset& GetTexture(const std::string& propertyName) const
+        Resource<TextureAsset> GetTexture(const std::string& propertyName) const
         {
-            return *GetProperty<TextureAsset>(propertyName, textures)->second;
+            return GetProperty<Resource<TextureAsset>>(propertyName, textures)->second;
         }
 
-        void SetTexture(const std::string& propertyName, TextureAsset& textureAsset)
+        void SetTexture(const std::string& propertyName, const Resource<TextureAsset>& textureAsset)
         {
-            GetProperty<TextureAsset>(propertyName, textures)->second = &textureAsset;
+            GetProperty<Resource<TextureAsset>>(propertyName, textures)->second = textureAsset;
         }
 
         void Clone(const Impl& other)
@@ -274,26 +263,6 @@ namespace pluto
         }
 
     private:
-        void OnAssetUnload(const OnAssetUnloadEvent& onAssetUnload)
-        {
-            const Asset* asset = &onAssetUnload.GetAsset();
-            if (shaderAsset == &onAssetUnload.GetAsset())
-            {
-                SetShader(*assetManager->Load<ShaderAsset>(Path("shaders/pink.glsl")));
-            }
-            else if (dynamic_cast<const TextureAsset*>(asset) != nullptr)
-            {
-                for (auto& it : textures)
-                {
-                    if (it.second == asset)
-                    {
-                        continue;
-                    }
-                    it.second = nullptr;
-                }
-            }
-        }
-
         void UpdateProperties()
         {
             for (auto& property : shaderAsset->GetUniforms())
@@ -360,11 +329,8 @@ namespace pluto
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& assetManager = serviceCollection.GetService<AssetManager>();
-        const auto pinkShader = assetManager.Load<ShaderAsset>(Path("shaders/pink.glsl"));
-        auto& eventManager = serviceCollection.GetService<EventManager>();
-
-        return std::make_unique<MaterialAsset>(
-            std::make_unique<Impl>(Guid::New(), *pinkShader, eventManager, assetManager));
+        auto pinkShader = assetManager.Load<ShaderAsset>(Path("shaders/pink.glsl"));
+        return std::make_unique<MaterialAsset>(std::make_unique<Impl>(Guid::New(), pinkShader));
     }
 
     std::unique_ptr<MaterialAsset> MaterialAsset::Factory::Create(const MaterialAsset& original) const
@@ -410,12 +376,12 @@ namespace pluto
         impl->Dump(fileWriter);
     }
 
-    ShaderAsset& MaterialAsset::GetShader() const
+    Resource<ShaderAsset> MaterialAsset::GetShader() const
     {
         return impl->GetShader();
     }
 
-    void MaterialAsset::SetShader(ShaderAsset& value)
+    void MaterialAsset::SetShader(const Resource<ShaderAsset>& value)
     {
         impl->SetShader(value);
     }
@@ -520,12 +486,12 @@ namespace pluto
         impl->SetMatrix4X4(propertyName, value);
     }
 
-    TextureAsset& MaterialAsset::GetTexture(const std::string& propertyName) const
+    Resource<TextureAsset> MaterialAsset::GetTexture(const std::string& propertyName) const
     {
         return impl->GetTexture(propertyName);
     }
 
-    void MaterialAsset::SetTexture(const std::string& propertyName, TextureAsset& textureAsset)
+    void MaterialAsset::SetTexture(const std::string& propertyName, const Resource<TextureAsset>& textureAsset)
     {
         impl->SetTexture(propertyName, textureAsset);
     }

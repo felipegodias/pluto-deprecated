@@ -10,13 +10,16 @@ namespace pluto
     class Object;
 
     template <typename T1, typename T2>
-    using IsBaseOf = std::enable_if_t<std::is_base_of_v<T1, T2>, int>;
+    using IsBaseOf = std::enable_if_t<std::is_base_of_v<T1, T2>, bool>;
 
     template <typename T>
-    using IsObject = std::enable_if_t<std::is_base_of_v<Object, T>, int>;
+    using IsObject = std::enable_if_t<std::is_base_of_v<Object, T>, bool>;
 
-    template <typename T, IsObject<T>  = 0>
-    class PLUTO_API Resource
+    template <typename T, typename Enable = void>
+    class PLUTO_API Resource;
+
+    template <typename T>
+    class Resource<T, std::enable_if_t<std::is_base_of_v<Object, T>>>
     {
         friend class MemoryManager;
         friend class ResourceUtils;

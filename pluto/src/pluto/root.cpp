@@ -13,6 +13,7 @@
 #include <pluto/scene/scene_installer.h>
 #include <pluto/render/render_installer.h>
 
+#include <pluto/memory/resource.h>
 #include <pluto/log/log_manager.h>
 #include <pluto/input/input_manager.h>
 #include <pluto/input/key_code.h>
@@ -116,8 +117,8 @@ namespace pluto
             auto& windowManager = serviceCollection->GetService<WindowManager>();
             auto& simulationManager = serviceCollection->GetService<SimulationManager>();
             auto& logManager = serviceCollection->GetService<LogManager>();
-            MaterialAsset* transparentMaterial = nullptr;
-            MaterialAsset* unlitMaterial = nullptr;
+            Resource<MaterialAsset> transparentMaterial = nullptr;
+            Resource<MaterialAsset> unlitMaterial = nullptr;
 
             {
                 // TODO: Move to simulation manager.
@@ -143,13 +144,13 @@ namespace pluto
 
                 auto materialAssetPtr = materialFactory.Create();
                 materialAssetPtr->SetName("unlit");
-                materialAssetPtr->SetShader(*transparentShaderAsset);
-                unlitMaterial = &assetManager.Register(std::move(materialAssetPtr));
+                materialAssetPtr->SetShader(transparentShaderAsset);
+                unlitMaterial = assetManager.Register(std::move(materialAssetPtr));
 
                 materialAssetPtr = materialFactory.Create();
                 materialAssetPtr->SetName("transparent");
-                materialAssetPtr->SetShader(*unlitShaderAsset);
-                transparentMaterial = &assetManager.Register(std::move(materialAssetPtr));
+                materialAssetPtr->SetShader(unlitShaderAsset);
+                transparentMaterial = assetManager.Register(std::move(materialAssetPtr));
 
                 GameObject& tquadGo = sceneManager.GetActiveScene().CreateGameObject("Transparent");
                 tquadGo.GetTransform().SetPosition({-5, 0, 0});

@@ -8,6 +8,9 @@
 
 namespace pluto
 {
+    template <typename T, typename Enable = void>
+    class Resource;
+
     class ShaderAsset;
     class TextureAsset;
     class FileReader;
@@ -65,8 +68,8 @@ namespace pluto
 
         void Dump(FileWriter& fileWriter) const override;
 
-        ShaderAsset& GetShader() const;
-        void SetShader(ShaderAsset& value);
+        Resource<ShaderAsset> GetShader() const;
+        void SetShader(const Resource<ShaderAsset>& value);
 
         bool GetBool(const std::string& propertyName) const;
         void SetBool(const std::string& propertyName, bool value);
@@ -98,7 +101,7 @@ namespace pluto
         const Matrix4X4& GetMatrix4X4(const std::string& propertyName) const;
         void SetMatrix4X4(const std::string& propertyName, const Matrix4X4& value);
 
-        TextureAsset& GetTexture(const std::string& propertyName) const;
-        void SetTexture(const std::string& propertyName, TextureAsset& textureAsset);
+        Resource<TextureAsset> GetTexture(const std::string& propertyName) const;
+        void SetTexture(const std::string& propertyName, const Resource<TextureAsset>& textureAsset);
     };
 }
