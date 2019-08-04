@@ -10,6 +10,8 @@ namespace pluto
     template <typename T, typename Enable = void>
     class PLUTO_API Resource;
 
+    class Guid;
+
     template <typename T>
     class Resource<T, std::enable_if_t<std::is_base_of_v<Object, T>>>
     {
@@ -37,6 +39,9 @@ namespace pluto
         bool operator!=(nullptr_t) const;
         bool operator==(const Resource& rhs) const;
         bool operator!=(const Resource& rhs) const;
+
+        const Guid& GetObjectId() const;
+        const Guid& GetObjectId();
 
         const T* Get() const;
         T* Get();

@@ -74,6 +74,18 @@ namespace pluto
     }
 
     template <typename T>
+    const Guid& Resource<T, std::enable_if_t<std::is_base_of_v<Object, T>>>::GetObjectId() const
+    {
+        return control->GetObjectId();
+    }
+
+    template <typename T>
+    const Guid& Resource<T, std::enable_if_t<std::is_base_of_v<Object, T>>>::GetObjectId()
+    {
+        return control->GetObjectId();
+    }
+
+    template <typename T>
     const T* Resource<T, std::enable_if_t<std::is_base_of_v<Object, T>>>::Get() const
     {
         if (control == nullptr)
