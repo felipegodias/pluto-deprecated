@@ -79,7 +79,7 @@ namespace pluto
         void SetParent(const Resource<Transform>& value)
         {
             Resource<Transform> me = gameObject->GetTransform();
-            if (value.Get()->impl->IsMyParent(me))
+            if (value->impl->IsMyParent(me))
             {
                 Exception::Throw(std::runtime_error("Can not set a transform parent if the same is it's child."));
             }
@@ -88,7 +88,7 @@ namespace pluto
             {
                 parent->impl->RemoveChild(me);
             }
-            value.Get()->impl->AddChild(me);
+            value->impl->AddChild(me);
             parent = value;
         }
 

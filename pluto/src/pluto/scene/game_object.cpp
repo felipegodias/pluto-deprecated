@@ -29,7 +29,6 @@ namespace pluto
 
         uint32_t lastFrame;
         bool isDestroyed;
-        GameObject* instance;
 
         MemoryManager* memoryManager;
         std::unordered_map<std::type_index, Component::Factory*> componentFactories;
@@ -43,18 +42,11 @@ namespace pluto
               transform(nullptr),
               lastFrame(0),
               isDestroyed(false),
-              instance(nullptr),
               memoryManager(&memoryManager)
         {
             componentFactories.emplace(typeid(Transform), &transformFactory);
             componentFactories.emplace(typeid(Camera), &cameraFactory);
             componentFactories.emplace(typeid(MeshRenderer), &meshRendererFactory);
-        }
-
-        void Init(GameObject& instance)
-        {
-            this->instance = &instance;
-            transform = instance.AddComponent<Transform>();
         }
 
         const Guid& GetId() const
@@ -93,10 +85,15 @@ namespace pluto
 
             // TODO: FIX ME - GameObject does not exists when trying to add transform.
             const Resource<GameObject> gameObject = ResourceUtils::Cast<GameObject>(
-                memoryManager->Get(instance->GetId()));
+                memoryManager->Get(guid));
 
             Resource<Component> component = ResourceUtils::Cast<Component>(
                 memoryManager->Add(factory->Create(gameObject)));
+
+            if (type == typeid(Transform))
+            {
+                transform = ResourceUtils::Cast<Transform>(component);
+            }
 
             components.push_back(component);
             return component;
@@ -220,7 +217,6 @@ namespace pluto
         auto& meshRendererFactory = serviceCollection.GetService<MeshRenderer::Factory>();
         auto gameObject = std::make_unique<GameObject>(
             std::make_unique<Impl>(Guid::New(), memoryManager, transformFactory, cameraFactory, meshRendererFactory));
-        gameObject->impl->Init(*gameObject);
         return gameObject;
     }
 

@@ -21,13 +21,14 @@ namespace pluto
         GameObject::Factory* gameObjectFactory;
 
     public:
-        Impl(const Guid& guid, std::unique_ptr<GameObject> rootGameObject, MemoryManager& memoryManager,
-             GameObject::Factory& gameObjectFactory)
+        Impl(const Guid& guid, MemoryManager& memoryManager, GameObject::Factory& gameObjectFactory)
             : guid(guid),
               memoryManager(&memoryManager),
               gameObjectFactory(&gameObjectFactory)
         {
             root = ResourceUtils::Cast<GameObject>(memoryManager.Add(gameObjectFactory.Create()));
+            root->SetName("root");
+            root->AddComponent<Transform>();
             gameObjects.push_back(root.Get());
         }
 
@@ -47,6 +48,7 @@ namespace pluto
                 memoryManager->Add(gameObjectFactory->Create()));
 
             GameObject* gameObject = gameObjectResource.Get();
+            gameObject->AddComponent<Transform>();
             gameObjects.push_back(gameObject);
 
             gameObject->SetName(name);
@@ -93,10 +95,8 @@ namespace pluto
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& memoryManager = serviceCollection.GetService<MemoryManager>();
         auto& gameObjectFactory = serviceCollection.GetService<GameObject::Factory>();
-        auto rootGameObject = gameObjectFactory.Create();
-        rootGameObject->SetName("root");
-        return std::make_unique<Scene>(
-            std::make_unique<Impl>(Guid::New(), std::move(rootGameObject), memoryManager, gameObjectFactory));
+
+        return std::make_unique<Scene>(std::make_unique<Impl>(Guid::New(), memoryManager, gameObjectFactory));
     }
 
     Scene::Scene(std::unique_ptr<Impl> impl)
