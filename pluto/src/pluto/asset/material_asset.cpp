@@ -1,15 +1,13 @@
 #include <pluto/asset/material_asset.h>
 #include <pluto/asset/shader_asset.h>
 #include <pluto/asset/texture_asset.h>
-#include <pluto/asset/events/on_asset_unload_event.h>
 #include <pluto/asset/asset_manager.h>
 #include <pluto/file/path.h>
 #include <pluto/file/file_writer.h>
+#include <pluto/file/file_reader.h>
 
 #include <pluto/service/service_collection.h>
 #include <pluto/memory/resource.h>
-
-#include <pluto/event/event_manager.h>
 
 #include <pluto/math/vector2f.h>
 #include <pluto/math/vector2i.h>
@@ -75,7 +73,7 @@ namespace pluto
 
             if (shaderAsset != nullptr)
             {
-                fileWriter.Write(&shaderAsset->GetId(), sizeof(Guid));
+                fileWriter.Write(&shaderAsset.GetObjectId(), sizeof(Guid));
             }
             else
             {
@@ -122,7 +120,7 @@ namespace pluto
                 fileWriter.Write(it.first.data(), assetNameLength);
                 if (it.second != nullptr)
                 {
-                    fileWriter.Write(&it.second->GetId(), sizeof(Guid));
+                    fileWriter.Write(&it.second.GetObjectId(), sizeof(Guid));
                 }
                 else
                 {
@@ -342,7 +340,97 @@ namespace pluto
 
     std::unique_ptr<Asset> MaterialAsset::Factory::Create(FileReader& fileReader) const
     {
-        return Create();
+        ServiceCollection& serviceCollection = GetServiceCollection();
+        auto& assetManager = serviceCollection.GetService<AssetManager>();
+
+        Guid signature;
+        fileReader.Read(&signature, sizeof(Guid));
+
+        if (signature != Guid::PLUTO_IDENTIFIER)
+        {
+            Exception::Throw(
+                std::runtime_error("Trying to load a asset but file signature does not match with pluto."));
+        }
+
+        uint8_t serializerVersion;
+        fileReader.Read(&serializerVersion, sizeof(uint8_t));
+        uint8_t assetType;
+        fileReader.Read(&assetType, sizeof(uint8_t));
+
+        if (assetType != static_cast<uint8_t>(Type::Material))
+        {
+            Exception::Throw(
+                std::runtime_error("Trying to load a material but file is not a material asset."));
+        }
+
+        Guid assetId;
+        fileReader.Read(&assetId, sizeof(Guid));
+        uint8_t assetNameLength;
+        fileReader.Read(&assetNameLength, sizeof(uint8_t));
+        std::string assetName(assetNameLength, ' ');
+        fileReader.Read(assetName.data(), assetNameLength);
+
+        Guid shaderGuid;
+        fileReader.Read(&shaderGuid, sizeof(Guid));
+        Resource<ShaderAsset> shader = assetManager.Load<ShaderAsset>(shaderGuid);
+
+        auto materialAsset = std::make_unique<MaterialAsset>(std::make_unique<Impl>(Guid::New(), shader));
+
+        uint8_t floatsCount;
+        fileReader.Read(&floatsCount, sizeof(uint8_t));
+        for (uint8_t i = 0; i < floatsCount; ++i)
+        {
+            uint8_t uniformNameLength;
+            fileReader.Read(&uniformNameLength, sizeof(uint8_t));
+            std::string uniformName(uniformNameLength, ' ');
+            fileReader.Read(uniformName.data(), assetNameLength);
+            float value;
+            fileReader.Read(&value, sizeof(float));
+            materialAsset->SetFloat(uniformName, value);
+        }
+
+        uint8_t vectorsCount;
+        fileReader.Read(&vectorsCount, sizeof(uint8_t));
+        for (uint8_t i = 0; i < vectorsCount; ++i)
+        {
+            uint8_t uniformNameLength;
+            fileReader.Read(&uniformNameLength, sizeof(uint8_t));
+            std::string uniformName(uniformNameLength, ' ');
+            fileReader.Read(uniformName.data(), assetNameLength);
+            Vector4F value;
+            fileReader.Read(&value, sizeof(Vector4F));
+            materialAsset->SetVector4F(uniformName, value);
+        }
+
+        uint8_t matricesCount;
+        fileReader.Read(&matricesCount, sizeof(uint8_t));
+        for (uint8_t i = 0; i < matricesCount; ++i)
+        {
+            uint8_t uniformNameLength;
+            fileReader.Read(&uniformNameLength, sizeof(uint8_t));
+            std::string uniformName(uniformNameLength, ' ');
+            fileReader.Read(uniformName.data(), assetNameLength);
+            Matrix4X4 value;
+            fileReader.Read(&value, sizeof(Matrix4X4));
+            materialAsset->SetMatrix4X4(uniformName, value);
+        }
+
+        uint8_t texturesCount;
+        fileReader.Read(&texturesCount, sizeof(uint8_t));
+        for (uint8_t i = 0; i < texturesCount; ++i)
+        {
+            uint8_t uniformNameLength;
+            fileReader.Read(&uniformNameLength, sizeof(uint8_t));
+            std::string uniformName(uniformNameLength, ' ');
+            fileReader.Read(uniformName.data(), assetNameLength);
+
+            Guid textureGuid;
+            fileReader.Read(&textureGuid, sizeof(Guid));
+            Resource<TextureAsset> texture = assetManager.Load<TextureAsset>(textureGuid);
+            materialAsset->SetTexture(uniformName, texture);
+        }
+
+        return materialAsset;
     }
 
     MaterialAsset::~MaterialAsset() = default;
