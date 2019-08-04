@@ -119,7 +119,6 @@ namespace pluto
             auto& logManager = serviceCollection->GetService<LogManager>();
             Resource<MaterialAsset> transparentMaterial = nullptr;
             Resource<MaterialAsset> unlitMaterial = nullptr;
-
             {
                 // TODO: Move to simulation manager.
                 auto& eventManager = serviceCollection->GetService<EventManager>();
@@ -132,7 +131,7 @@ namespace pluto
                 sceneManager.LoadEmptyScene();
 
                 Resource<GameObject> cameraGo = sceneManager.GetActiveScene().CreateGameObject("Camera");
-                cameraGo->GetTransform().SetLocalPosition({0, 0, -1});
+                cameraGo->GetTransform()->SetLocalPosition({0, 0, -1});
 
                 auto& camera = cameraGo->AddComponent<Camera>();
 
@@ -153,16 +152,16 @@ namespace pluto
                 transparentMaterial = assetManager.Register(std::move(materialAssetPtr));
 
                 Resource<GameObject> tquadGo = sceneManager.GetActiveScene().CreateGameObject("Transparent");
-                tquadGo->GetTransform().SetPosition({-5, 0, 0});
+                tquadGo->GetTransform()->SetPosition({-5, 0, 0});
                 auto& tmeshRenderer = tquadGo->AddComponent<MeshRenderer>();
-                tmeshRenderer.SetMesh(meshAsset);
-                tmeshRenderer.SetMaterial(transparentMaterial);
+                tmeshRenderer->SetMesh(meshAsset);
+                tmeshRenderer->SetMaterial(transparentMaterial);
 
                 Resource<GameObject> uquadGo = sceneManager.GetActiveScene().CreateGameObject("Unlit");
-                uquadGo->GetTransform().SetPosition({5, 0, 0});
+                uquadGo->GetTransform()->SetPosition({5, 0, 0});
                 auto& umeshRenderer = uquadGo->AddComponent<MeshRenderer>();
-                umeshRenderer.SetMesh(meshAsset);
-                umeshRenderer.SetMaterial(unlitMaterial);
+                umeshRenderer->SetMesh(meshAsset);
+                umeshRenderer->SetMaterial(unlitMaterial);
 
                 auto textureAsset = assetManager.Load<TextureAsset>(Path("textures/pluto-logo.png"));
                 transparentMaterial->SetTexture("u_mat.mainTex", textureAsset);

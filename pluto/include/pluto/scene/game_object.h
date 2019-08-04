@@ -10,6 +10,9 @@
 
 namespace pluto
 {
+    template <typename T, typename Enable = void>
+    class Resource;
+
     class Guid;
     class Transform;
     class Component;
@@ -43,9 +46,6 @@ namespace pluto
         GameObject& operator=(const GameObject& rhs) = delete;
         GameObject& operator=(GameObject&& rhs) noexcept;
 
-        bool operator==(const GameObject& rhs) const;
-        bool operator!=(const GameObject& rhs) const;
-
         const Guid& GetId() const override;
         const std::string& GetName() const override;
         void SetName(const std::string& value) override;
@@ -53,33 +53,34 @@ namespace pluto
         Flags GetFlags() const;
         bool IsDestroyed() const;
 
-        Transform& GetTransform() const;
+        Resource<Transform> GetTransform() const;
 
         template <typename T, std::enable_if_t<std::is_base_of_v<Component, T>, bool>  = false>
-        T& AddComponent();
+        Resource<T> AddComponent();
 
-        Component& AddComponent(const std::type_info& type);
-
-        template <typename T, std::enable_if_t<std::is_base_of_v<Component, T>, bool>  = false>
-        T* GetComponent() const;
-
-        Component* GetComponent(const std::function<bool(const Component& component)>& predicate) const;
+        Resource<Component> AddComponent(const std::type_info& type);
 
         template <typename T, std::enable_if_t<std::is_base_of_v<Component, T>, bool>  = false>
-        std::vector<std::reference_wrapper<T>> GetComponents() const;
+        Resource<T> GetComponent() const;
 
-        std::vector<std::reference_wrapper<Component>> GetComponents(
+        Resource<Component> GetComponent(const std::function<bool(const Component& component)>& predicate) const;
+
+        template <typename T, std::enable_if_t<std::is_base_of_v<Component, T>, bool>  = false>
+        std::vector<Resource<T>> GetComponents() const;
+
+        std::vector<Resource<Component>> GetComponents(
             const std::function<bool(const Component& component)>& predicate) const;
 
         template <typename T, std::enable_if_t<std::is_base_of_v<Component, T>, bool>  = false>
-        T* GetComponentInChildren() const;
+        Resource<T> GetComponentInChildren() const;
 
-        Component* GetComponentInChildren(const std::function<bool(const Component& component)>& predicate) const;
+        Resource<Component> GetComponentInChildren(
+            const std::function<bool(const Component& component)>& predicate) const;
 
         template <typename T, std::enable_if_t<std::is_base_of_v<Component, T>, bool>  = false>
-        std::vector<std::reference_wrapper<T>> GetComponentsInChildren() const;
+        std::vector<Resource<T>> GetComponentsInChildren() const;
 
-        std::vector<std::reference_wrapper<Component>> GetComponentsInChildren(
+        std::vector<Resource<Component>> GetComponentsInChildren(
             const std::function<bool(const Component& component)>& predicate) const;
 
         void Destroy();

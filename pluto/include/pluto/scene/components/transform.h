@@ -19,15 +19,8 @@ namespace pluto
         class PLUTO_API Factory final : public Component::Factory
         {
         public:
-            ~Factory() override;
-            explicit Factory(ServiceCollection& diContainer);
-
-            Factory(const Factory& other) = delete;
-            Factory(Factory&& other) noexcept;
-            Factory& operator=(const Factory& rhs) = delete;
-            Factory& operator=(Factory&& rhs) noexcept;
-
-            std::unique_ptr<Component> Create(GameObject& gameObject) const override;
+            explicit Factory(ServiceCollection& serviceCollection);
+            std::unique_ptr<Component> Create(const Resource<GameObject>& gameObject) const override;
         };
 
     private:
@@ -35,32 +28,34 @@ namespace pluto
         std::unique_ptr<Impl> impl;
 
     public:
+        ~Transform() override;
         explicit Transform(std::unique_ptr<Impl> impl);
+
         Transform(const Transform& other) = delete;
         Transform(Transform&& other) noexcept;
-        ~Transform();
-
         Transform& operator=(const Transform& rhs) = delete;
         Transform& operator=(Transform&& rhs) noexcept;
 
         const Guid& GetId() const override;
+        const std::string& GetName() const override;
+        void SetName(const std::string& value) override;
 
-        GameObject& GetGameObject() const override;
+        Resource<GameObject> GetGameObject() const override;
 
         bool IsRoot();
-        Transform& GetParent() const;
-        void SetParent(Transform& value) const;
+        Resource<Transform> GetParent() const;
+        void SetParent(const Resource<Transform>& value) const;
 
-        const std::vector<std::reference_wrapper<Transform>>& GetChildren() const;
+        const std::vector<Resource<Transform>>& GetChildren() const;
 
         const Vector3F& GetLocalPosition() const;
-        void SetLocalPosition(Vector3F value);
+        void SetLocalPosition(const Vector3F& value);
 
         const Quaternion& GetLocalRotation() const;
-        void SetLocalRotation(Quaternion value);
+        void SetLocalRotation(const Quaternion& value);
 
         const Vector3F& GetLocalScale() const;
-        void SetLocalScale(Vector3F value);
+        void SetLocalScale(const Vector3F& value);
 
         Vector3F GetPosition();
         void SetPosition(const Vector3F& value);

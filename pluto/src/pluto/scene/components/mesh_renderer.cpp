@@ -13,15 +13,15 @@ namespace pluto
     class MeshRenderer::Impl
     {
         Guid guid;
-        GameObject& gameObject;
+        Resource<GameObject> gameObject;
 
         Resource<MeshAsset> meshAsset;
         Resource<MaterialAsset> materialAsset;
 
     public:
-        Impl(const Guid& guid, GameObject& gameObject)
+        Impl(const Guid& guid, Resource<GameObject> gameObject)
             : guid(guid),
-              gameObject(gameObject),
+              gameObject(std::move(gameObject)),
               meshAsset(nullptr),
               materialAsset(nullptr)
         {
@@ -32,7 +32,17 @@ namespace pluto
             return guid;
         }
 
-        GameObject& GetGameObject() const
+        const std::string& GetName() const
+        {
+            return gameObject->GetName();
+        }
+
+        void SetName(const std::string& value)
+        {
+            gameObject->SetName(value);
+        }
+
+        Resource<GameObject> GetGameObject() const
         {
             return gameObject;
         }
@@ -40,11 +50,6 @@ namespace pluto
         Bounds GetBounds()
         {
             return Bounds();
-        }
-
-        Transform& GetTransform() const
-        {
-            return gameObject.GetTransform();
         }
 
         Resource<MeshAsset> GetMesh() const
@@ -68,18 +73,12 @@ namespace pluto
         }
     };
 
-    MeshRenderer::Factory::~Factory() = default;
-
-    MeshRenderer::Factory::Factory(ServiceCollection& diContainer)
-        : Component::Factory(diContainer)
+    MeshRenderer::Factory::Factory(ServiceCollection& serviceCollection)
+        : Component::Factory(serviceCollection)
     {
     }
 
-    MeshRenderer::Factory::Factory(Factory&& other) noexcept = default;
-
-    MeshRenderer::Factory& MeshRenderer::Factory::operator=(Factory&& rhs) noexcept = default;
-
-    std::unique_ptr<Component> MeshRenderer::Factory::Create(GameObject& gameObject) const
+    std::unique_ptr<Component> MeshRenderer::Factory::Create(const Resource<GameObject>& gameObject) const
     {
         return std::make_unique<MeshRenderer>(std::make_unique<Impl>(Guid::New(), gameObject));
     }
@@ -100,7 +99,17 @@ namespace pluto
         return impl->GetId();
     }
 
-    GameObject& MeshRenderer::GetGameObject() const
+    const std::string& MeshRenderer::GetName() const
+    {
+        return impl->GetName();
+    }
+
+    void MeshRenderer::SetName(const std::string& value)
+    {
+        impl->SetName(value);
+    }
+
+    Resource<GameObject> MeshRenderer::GetGameObject() const
     {
         return impl->GetGameObject();
     }
@@ -108,11 +117,6 @@ namespace pluto
     Bounds MeshRenderer::GetBounds()
     {
         return impl->GetBounds();
-    }
-
-    Transform& MeshRenderer::GetTransform() const
-    {
-        return impl->GetTransform();
     }
 
     Resource<MeshAsset> MeshRenderer::GetMesh() const

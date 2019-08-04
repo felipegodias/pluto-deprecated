@@ -61,6 +61,19 @@ namespace pluto
     }
 
     template <typename T>
+    bool Resource<T, std::enable_if_t<std::is_base_of_v<Object, T>>>::operator==(const Resource& rhs) const
+    {
+        return control == rhs.control ||
+            (!control && !rhs.control && control->GetObjectId() == rhs.control->GetObjectId());
+    }
+
+    template <typename T>
+    bool Resource<T, std::enable_if_t<std::is_base_of_v<Object, T>>>::operator!=(const Resource& rhs) const
+    {
+        return !(*this == rhs);
+    }
+
+    template <typename T>
     const T* Resource<T, std::enable_if_t<std::is_base_of_v<Object, T>>>::Get() const
     {
         if (control == nullptr)

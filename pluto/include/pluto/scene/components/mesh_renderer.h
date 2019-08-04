@@ -12,15 +12,8 @@ namespace pluto
         class PLUTO_API Factory final : public Component::Factory
         {
         public:
-            ~Factory() override;
-            explicit Factory(ServiceCollection& diContainer);
-
-            Factory(const Factory& other) = delete;
-            Factory(Factory&& other) noexcept;
-            Factory& operator=(const Factory& rhs) = delete;
-            Factory& operator=(Factory&& rhs) noexcept;
-
-            std::unique_ptr<Component> Create(GameObject& gameObject) const override;
+            explicit Factory(ServiceCollection& serviceCollection);
+            std::unique_ptr<Component> Create(const Resource<GameObject>& gameObject) const override;
         };
 
     private:
@@ -28,21 +21,21 @@ namespace pluto
         std::unique_ptr<Impl> impl;
 
     public:
+        ~MeshRenderer() override;
         explicit MeshRenderer(std::unique_ptr<Impl> impl);
+
         MeshRenderer(const MeshRenderer& other) = delete;
         MeshRenderer(MeshRenderer&& other) noexcept;
-        ~MeshRenderer();
-
         MeshRenderer& operator=(const MeshRenderer& rhs) = delete;
         MeshRenderer& operator=(MeshRenderer&& rhs) noexcept;
 
         const Guid& GetId() const override;
+        const std::string& GetName() const override;
+        void SetName(const std::string& value) override;
 
-        GameObject& GetGameObject() const override;
+        Resource<GameObject> GetGameObject() const override;
 
         Bounds GetBounds() override;
-
-        Transform& GetTransform() const override;
 
         Resource<MeshAsset> GetMesh() const override;
         void SetMesh(const Resource<MeshAsset>& value);

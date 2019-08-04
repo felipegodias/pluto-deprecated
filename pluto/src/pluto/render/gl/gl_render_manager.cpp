@@ -62,23 +62,23 @@ namespace pluto
             const Scene& activeScene = sceneManager->GetActiveScene();
             const Resource<GameObject> rootGameObject = activeScene.GetRootGameObject();
 
-            auto* camera = rootGameObject->GetComponentInChildren<Camera>();
+            auto camera = rootGameObject->GetComponentInChildren<Camera>();
             if (camera == nullptr)
             {
                 return;
             }
 
-            std::vector<std::reference_wrapper<Renderer>> renderers = rootGameObject->GetComponentsInChildren<Renderer
-            >();
+            std::vector<Resource<Renderer>> renderers = rootGameObject->GetComponentsInChildren<Renderer>();
             for (auto& it : renderers)
             {
-                Renderer& renderer = it;
+                Renderer& renderer = *it.Get();
                 if (!camera->IsVisible(renderer))
                 {
                     continue;
                 }
 
-                Draw(*camera, renderer.GetTransform(), *renderer.GetMesh().Get(), *renderer.GetMaterial().Get());
+                Draw(*camera.Get(), *renderer.GetGameObject()->GetTransform().Get(), *renderer.GetMesh().Get(),
+                     *renderer.GetMaterial().Get());
             }
         }
 

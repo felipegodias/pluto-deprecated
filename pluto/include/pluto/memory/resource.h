@@ -35,6 +35,8 @@ namespace pluto
 
         bool operator==(nullptr_t) const;
         bool operator!=(nullptr_t) const;
+        bool operator==(const Resource& rhs) const;
+        bool operator!=(const Resource& rhs) const;
 
         const T* Get() const;
         T* Get();

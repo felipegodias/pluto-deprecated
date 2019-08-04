@@ -1,6 +1,9 @@
+#include <utility>
 #include "pluto/scene/components/camera.h"
 #include "pluto/scene/game_object.h"
 #include "pluto/scene/components/transform.h"
+
+#include "pluto/memory/resource.h"
 
 #include "pluto/service/service_collection.h"
 #include "pluto/window/window_manager.h"
@@ -14,7 +17,7 @@ namespace pluto
     class Camera::Impl
     {
         Guid guid;
-        GameObject& gameObject;
+        Resource<GameObject> gameObject;
 
         Type type;
         float orthographicSize;
@@ -32,9 +35,9 @@ namespace pluto
         const WindowManager* windowManager;
 
     public:
-        Impl(const Guid& guid, GameObject& gameObject, const WindowManager& windowManager)
+        Impl(const Guid& guid, Resource<GameObject> gameObject, const WindowManager& windowManager)
             : guid(guid),
-              gameObject(gameObject),
+              gameObject(std::move(gameObject)),
               type(Type::Orthographic),
               orthographicSize(5),
               nearPlane(0.1f),
@@ -53,7 +56,17 @@ namespace pluto
             return guid;
         }
 
-        GameObject& GetGameObject() const
+        const std::string& GetName() const
+        {
+            return gameObject->GetName();
+        }
+
+        void SetName(const std::string& value)
+        {
+            gameObject->SetName(value);
+        }
+
+        Resource<GameObject> GetGameObject() const
         {
             return gameObject;
         }
@@ -111,9 +124,9 @@ namespace pluto
         {
             if (isViewMatrixDirty)
             {
-                Transform& transform = gameObject.GetTransform();
-                const Vector3F position = transform.GetPosition();
-                viewMatrix = Matrix4X4::LookAt(position, position + transform.GetForward(), transform.GetUp());
+                Resource<Transform> transform = gameObject->GetTransform();
+                const Vector3F position = transform->GetPosition();
+                viewMatrix = Matrix4X4::LookAt(position, position + transform->GetForward(), transform->GetUp());
             }
 
             return viewMatrix;
@@ -131,17 +144,17 @@ namespace pluto
 
         void OnUpdate()
         {
-            Transform& transform = gameObject.GetTransform();
-            if (lastPosition != transform.GetPosition())
+            Resource<Transform> transform = gameObject->GetTransform();
+            if (lastPosition != transform->GetPosition())
             {
                 isViewMatrixDirty = true;
-                lastPosition = transform.GetPosition();
+                lastPosition = transform->GetPosition();
             }
 
-            if (lastRotation != transform.GetRotation())
+            if (lastRotation != transform->GetRotation())
             {
                 isViewMatrixDirty = true;
-                lastRotation = transform.GetRotation();
+                lastRotation = transform->GetRotation();
             }
         }
 
@@ -155,18 +168,12 @@ namespace pluto
         }
     };
 
-    Camera::Factory::~Factory() = default;
-
-    Camera::Factory::Factory(ServiceCollection& diContainer)
-        : Component::Factory(diContainer)
+    Camera::Factory::Factory(ServiceCollection& serviceCollection)
+        : Component::Factory(serviceCollection)
     {
     }
 
-    Camera::Factory::Factory(Factory&& other) noexcept = default;
-
-    Camera::Factory& Camera::Factory::operator=(Factory&& rhs) noexcept = default;
-
-    std::unique_ptr<Component> Camera::Factory::Create(GameObject& gameObject) const
+    std::unique_ptr<Component> Camera::Factory::Create(const Resource<GameObject>& gameObject) const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         const auto& windowManager = serviceCollection.GetService<WindowManager>();
@@ -189,7 +196,17 @@ namespace pluto
         return impl->GetId();
     }
 
-    GameObject& Camera::GetGameObject() const
+    const std::string& Camera::GetName() const
+    {
+        return impl->GetName();
+    }
+
+    void Camera::SetName(const std::string& value)
+    {
+        impl->SetName(value);
+    }
+
+    Resource<GameObject> Camera::GetGameObject() const
     {
         return impl->GetGameObject();
     }

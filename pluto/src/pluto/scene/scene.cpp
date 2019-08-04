@@ -41,7 +41,7 @@ namespace pluto
             return root;
         }
 
-        Resource<GameObject> CreateGameObject(Transform& parent, const std::string& name)
+        Resource<GameObject> CreateGameObject(const Resource<Transform>& parent, const std::string& name)
         {
             Resource<GameObject> gameObjectResource = ResourceUtils::Cast<GameObject>(
                 memoryManager->Add(gameObjectFactory->Create()));
@@ -50,7 +50,7 @@ namespace pluto
             gameObjects.push_back(gameObject);
 
             gameObject->SetName(name);
-            gameObject->GetTransform().SetParent(parent);
+            gameObject->GetTransform()->SetParent(parent);
             return gameObjectResource;
         }
 
@@ -142,12 +142,12 @@ namespace pluto
         return impl->CreateGameObject(GetRootGameObject()->GetTransform(), name);
     }
 
-    Resource<GameObject> Scene::CreateGameObject(Transform& parent)
+    Resource<GameObject> Scene::CreateGameObject(const Resource<Transform>& parent)
     {
         return impl->CreateGameObject(parent, "New Game Object");
     }
 
-    Resource<GameObject> Scene::CreateGameObject(Transform& parent, const std::string& name)
+    Resource<GameObject> Scene::CreateGameObject(const Resource<Transform>& parent, const std::string& name)
     {
         return impl->CreateGameObject(parent, name);
     }

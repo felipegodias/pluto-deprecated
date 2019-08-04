@@ -1,6 +1,8 @@
 #include <pluto/scene/components/transform.h>
 #include <pluto/scene/game_object.h>
 
+#include "pluto/memory/resource.h"
+
 #include <pluto/guid.h>
 #include <pluto/exception.h>
 
@@ -14,10 +16,10 @@ namespace pluto
     class Transform::Impl
     {
         Guid guid;
-        GameObject& gameObject;
+        Resource<GameObject> gameObject;
 
-        Transform* parent;
-        std::vector<std::reference_wrapper<Transform>> children;
+        Resource<Transform> parent;
+        std::vector<Resource<Transform>> children;
 
         Vector3F localPosition;
         Quaternion localRotation;
@@ -30,9 +32,9 @@ namespace pluto
         Matrix4X4 worldMatrix;
 
     public:
-        Impl(Guid guid, GameObject& gameObject)
-            : guid(std::move(guid)),
-              gameObject(gameObject),
+        Impl(const Guid& guid, Resource<GameObject> gameObject)
+            : guid(guid),
+              gameObject(std::move(gameObject)),
               parent(nullptr),
               localPosition(Vector3F::ZERO),
               localRotation(Quaternion::IDENTITY),
@@ -49,7 +51,17 @@ namespace pluto
             return guid;
         }
 
-        GameObject& GetGameObject() const
+        const std::string& GetName() const
+        {
+            return gameObject->GetName();
+        }
+
+        void SetName(const std::string& value)
+        {
+            gameObject->SetName(value);
+        }
+
+        Resource<GameObject> GetGameObject() const
         {
             return gameObject;
         }
@@ -59,15 +71,15 @@ namespace pluto
             return parent == nullptr;
         }
 
-        Transform& GetParent() const
+        Resource<Transform> GetParent() const
         {
-            return *parent;
+            return parent;
         }
 
-        void SetParent(Transform& value)
+        void SetParent(const Resource<Transform>& value)
         {
-            Transform& me = gameObject.GetTransform();
-            if (value.impl->IsMyParent(me))
+            Resource<Transform> me = gameObject->GetTransform();
+            if (value.Get()->impl->IsMyParent(me))
             {
                 Exception::Throw(std::runtime_error("Can not set a transform parent if the same is it's child."));
             }
@@ -76,11 +88,11 @@ namespace pluto
             {
                 parent->impl->RemoveChild(me);
             }
-            value.impl->AddChild(me);
-            parent = &value;
+            value.Get()->impl->AddChild(me);
+            parent = value;
         }
 
-        const std::vector<std::reference_wrapper<Transform>>& GetChildren() const
+        const std::vector<Resource<Transform>>& GetChildren() const
         {
             return children;
         }
@@ -90,9 +102,9 @@ namespace pluto
             return localPosition;
         }
 
-        void SetLocalPosition(Vector3F value)
+        void SetLocalPosition(const Vector3F& value)
         {
-            localPosition = std::move(value);
+            localPosition = value;
             SetDirty();
         }
 
@@ -101,9 +113,9 @@ namespace pluto
             return localRotation;
         }
 
-        void SetLocalRotation(Quaternion value)
+        void SetLocalRotation(const Quaternion value)
         {
-            localRotation = std::move(value);
+            localRotation = value;
             SetDirty();
         }
 
@@ -112,9 +124,9 @@ namespace pluto
             return localScale;
         }
 
-        void SetLocalScale(Vector3F value)
+        void SetLocalScale(const Vector3F value)
         {
-            localScale = std::move(value);
+            localScale = value;
             SetDirty();
         }
 
@@ -148,7 +160,7 @@ namespace pluto
                 return localRotation;
             }
 
-            return GetParent().GetRotation() * localRotation;
+            return GetParent()->GetRotation() * localRotation;
         }
 
         void SetRotation(const Quaternion& value)
@@ -171,7 +183,7 @@ namespace pluto
                 return localScale;
             }
 
-            return Vector3F::Scale(GetParent().GetScale(), localScale);
+            return Vector3F::Scale(GetParent()->GetScale(), localScale);
         }
 
         void SetScale(const Vector3F& value)
@@ -236,35 +248,33 @@ namespace pluto
         {
             if (isWorldMatrixDirty)
             {
-                worldMatrix = IsRoot() ? GetLocalMatrix() : GetParent().GetWorldMatrix() * GetLocalMatrix();
+                worldMatrix = IsRoot() ? GetLocalMatrix() : GetParent()->GetWorldMatrix() * GetLocalMatrix();
                 isWorldMatrixDirty = false;
             }
             return worldMatrix;
         }
 
-    public:
-        bool IsMyParent(Transform& transform)
+        bool IsMyParent(const Resource<Transform>& transform)
         {
             if (IsRoot())
             {
                 return false;
             }
 
-            return *parent == transform || parent->impl->IsMyParent(transform);
+            return parent == transform || parent->impl->IsMyParent(transform);
         }
 
-        void AddChild(Transform& child)
+        void AddChild(const Resource<Transform>& child)
         {
             children.emplace_back(child);
         }
 
-        void RemoveChild(Transform& child)
+        void RemoveChild(const Resource<Transform>& child)
         {
             auto it = children.begin();
             while (it != children.end())
             {
-                Transform& current = *it;
-                if (current == child)
+                if (*it == child)
                 {
                     children.erase(it);
                     return;
@@ -282,26 +292,19 @@ namespace pluto
         void SetWorldMatrixAsDirty()
         {
             isWorldMatrixDirty = true;
-            for (auto it : children)
+            for (auto& it : children)
             {
-                Transform& child = it;
-                child.impl->SetWorldMatrixAsDirty();
+                it->impl->SetWorldMatrixAsDirty();
             }
         }
     };
 
-    Transform::Factory::~Factory() = default;
-
-    Transform::Factory::Factory(ServiceCollection& diContainer)
-        : Component::Factory(diContainer)
+    Transform::Factory::Factory(ServiceCollection& serviceCollection)
+        : Component::Factory(serviceCollection)
     {
     }
 
-    Transform::Factory::Factory(Factory&& other) noexcept = default;
-
-    Transform::Factory& Transform::Factory::operator=(Factory&& rhs) noexcept = default;
-
-    std::unique_ptr<Component> Transform::Factory::Create(GameObject& gameObject) const
+    std::unique_ptr<Component> Transform::Factory::Create(const Resource<GameObject>& gameObject) const
     {
         return std::make_unique<Transform>(std::make_unique<Impl>(Guid::New(), gameObject));
     }
@@ -322,7 +325,17 @@ namespace pluto
         return impl->GetId();
     }
 
-    GameObject& Transform::GetGameObject() const
+    const std::string& Transform::GetName() const
+    {
+        return impl->GetName();
+    }
+
+    void Transform::SetName(const std::string& value)
+    {
+        return impl->SetName(value);
+    }
+
+    Resource<GameObject> Transform::GetGameObject() const
     {
         return impl->GetGameObject();
     }
@@ -332,17 +345,17 @@ namespace pluto
         return impl->IsRoot();
     }
 
-    Transform& Transform::GetParent() const
+    Resource<Transform> Transform::GetParent() const
     {
         return impl->GetParent();
     }
 
-    void Transform::SetParent(Transform& value) const
+    void Transform::SetParent(const Resource<Transform>& value) const
     {
         return impl->SetParent(value);
     }
 
-    const std::vector<std::reference_wrapper<Transform>>& Transform::GetChildren() const
+    const std::vector<Resource<Transform>>& Transform::GetChildren() const
     {
         return impl->GetChildren();
     }
@@ -352,9 +365,9 @@ namespace pluto
         return impl->GetLocalPosition();
     }
 
-    void Transform::SetLocalPosition(Vector3F value)
+    void Transform::SetLocalPosition(const Vector3F& value)
     {
-        impl->SetLocalPosition(std::move(value));
+        impl->SetLocalPosition(value);
     }
 
     const Quaternion& Transform::GetLocalRotation() const
@@ -362,9 +375,9 @@ namespace pluto
         return impl->GetLocalRotation();
     }
 
-    void Transform::SetLocalRotation(Quaternion value)
+    void Transform::SetLocalRotation(const Quaternion& value)
     {
-        impl->SetLocalRotation(std::move(value));
+        impl->SetLocalRotation(value);
     }
 
     const Vector3F& Transform::GetLocalScale() const
@@ -372,9 +385,9 @@ namespace pluto
         return impl->GetLocalScale();
     }
 
-    void Transform::SetLocalScale(Vector3F value)
+    void Transform::SetLocalScale(const Vector3F& value)
     {
-        impl->SetLocalScale(std::move(value));
+        impl->SetLocalScale(value);
     }
 
     Vector3F Transform::GetPosition()

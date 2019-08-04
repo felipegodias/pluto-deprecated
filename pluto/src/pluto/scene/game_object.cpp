@@ -5,6 +5,9 @@
 #include <pluto/scene/components/mesh_renderer.h>
 #include <pluto/scene/components/camera.h>
 
+#include <pluto/memory/resource.h>
+#include <pluto/memory/memory_manager.h>
+
 #include <pluto/service/service_collection.h>
 #include <pluto/guid.h>
 #include <pluto/exception.h>
@@ -20,24 +23,28 @@ namespace pluto
         std::string name;
         Flags flags;
 
-        Transform* transform;
+        Resource<Transform> transform;
 
-        std::vector<std::unique_ptr<Component>> components;
-        std::unordered_map<std::type_index, const Component::Factory*> componentFactories;
+        std::vector<Resource<Component>> components;
 
         uint32_t lastFrame;
         bool isDestroyed;
         GameObject* instance;
 
+        MemoryManager* memoryManager;
+        std::unordered_map<std::type_index, Component::Factory*> componentFactories;
+
     public:
-        Impl(const Guid& guid, const Transform::Factory& transformFactory, const Camera::Factory& cameraFactory,
-             const MeshRenderer::Factory& meshRendererFactory)
+        Impl(const Guid& guid, MemoryManager& memoryManager, Transform::Factory& transformFactory,
+             Camera::Factory& cameraFactory,
+             MeshRenderer::Factory& meshRendererFactory)
             : guid(guid),
               flags(Flags::None),
               transform(nullptr),
               lastFrame(0),
               isDestroyed(false),
-              instance(nullptr)
+              instance(nullptr),
+              memoryManager(&memoryManager)
         {
             componentFactories.emplace(typeid(Transform), &transformFactory);
             componentFactories.emplace(typeid(Camera), &cameraFactory);
@@ -47,7 +54,7 @@ namespace pluto
         void Init(GameObject& instance)
         {
             this->instance = &instance;
-            transform = dynamic_cast<Transform*>(&AddComponent(typeid(Transform)));
+            transform = instance.AddComponent<Transform>();
         }
 
         const Guid& GetId() const
@@ -60,9 +67,9 @@ namespace pluto
             return name;
         }
 
-        void SetName(std::string value)
+        void SetName(const std::string& value)
         {
-            name = std::move(value);
+            name = value;
         }
 
         Flags GetFlags() const
@@ -75,58 +82,64 @@ namespace pluto
             return isDestroyed;
         }
 
-        Transform& GetTransform() const
+        Resource<Transform> GetTransform() const
         {
-            return *transform;
+            return transform;
         }
 
-        Component& AddComponent(const std::type_info& type)
+        Resource<Component> AddComponent(const std::type_info& type)
         {
             const auto& factory = componentFactories.at(type);
-            std::unique_ptr<Component> componentPtr = factory->Create(*instance);
-            Component& component = *componentPtr;
-            components.push_back(std::move(componentPtr));
+
+            // TODO: FIX ME - GameObject does not exists when trying to add transform.
+            const Resource<GameObject> gameObject = ResourceUtils::Cast<GameObject>(
+                memoryManager->Get(instance->GetId()));
+
+            Resource<Component> component = ResourceUtils::Cast<Component>(
+                memoryManager->Add(factory->Create(gameObject)));
+
+            components.push_back(component);
             return component;
         }
 
-        Component* GetComponent(const std::function<bool(const Component& component)>& predicate) const
+        Resource<Component> GetComponent(const std::function<bool(const Component& component)>& predicate) const
         {
             for (auto& component : components)
             {
-                if (predicate(*component))
+                if (predicate(*component.Get()))
                 {
-                    return component.get();
+                    return component;
                 }
             }
             return nullptr;
         }
 
-        std::vector<std::reference_wrapper<Component>> GetComponents(
+        std::vector<Resource<Component>> GetComponents(
             const std::function<bool(const Component& component)>& predicate) const
         {
-            std::vector<std::reference_wrapper<Component>> result;
+            std::vector<Resource<Component>> result;
             for (auto& component : components)
             {
-                if (predicate(*component))
+                if (predicate(*component.Get()))
                 {
-                    result.emplace_back(*component);
+                    result.emplace_back(component);
                 }
             }
             return result;
         }
 
-        Component* GetComponentInChildren(const std::function<bool(const Component& component)>& predicate) const
+        Resource<Component> GetComponentInChildren(
+            const std::function<bool(const Component& component)>& predicate) const
         {
-            Component* result = GetComponent(predicate);
+            Resource<Component> result = GetComponent(predicate);
             if (result != nullptr)
             {
                 return result;
             }
 
-            for (auto it : GetTransform().GetChildren())
+            for (auto& it : GetTransform()->GetChildren())
             {
-                Transform& child = it;
-                result = child.GetGameObject().GetComponentInChildren(predicate);
+                result = it->GetGameObject()->GetComponentInChildren(predicate);
                 if (result != nullptr)
                 {
                     return result;
@@ -135,14 +148,13 @@ namespace pluto
             return nullptr;
         }
 
-        std::vector<std::reference_wrapper<Component>> GetComponentsInChildren(
+        std::vector<Resource<Component>> GetComponentsInChildren(
             const std::function<bool(const Component& component)>& predicate) const
         {
-            std::vector<std::reference_wrapper<Component>> result = GetComponents(predicate);
-            for (auto it : GetTransform().GetChildren())
+            std::vector<Resource<Component>> result = GetComponents(predicate);
+            for (auto it : GetTransform()->GetChildren())
             {
-                Transform& child = it;
-                auto componentsFromChild = child.GetGameObject().GetComponentsInChildren(predicate);
+                auto componentsFromChild = it->GetGameObject()->GetComponentsInChildren(predicate);
                 result.insert(result.end(), componentsFromChild.begin(), componentsFromChild.end());
             }
             return result;
@@ -164,8 +176,7 @@ namespace pluto
 
             for (auto& it : transform->GetChildren())
             {
-                Transform& child = it;
-                child.GetGameObject().Destroy();
+                it->GetGameObject()->Destroy();
             }
         }
 
@@ -186,11 +197,10 @@ namespace pluto
             if (!isDestroyed)
             {
                 // Uses a copy of the children because the parent can be changed while in update.
-                std::vector<std::reference_wrapper<Transform>> children = transform->GetChildren();
+                std::vector<Resource<Transform>> children = transform->GetChildren();
                 for (auto& it : children)
                 {
-                    Transform& child = it;
-                    child.GetGameObject().OnUpdate(currentFrame);
+                    it->GetGameObject()->OnUpdate(currentFrame);
                 }
             }
         }
@@ -204,11 +214,12 @@ namespace pluto
     std::unique_ptr<GameObject> GameObject::Factory::Create() const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
+        auto& memoryManager = serviceCollection.GetService<MemoryManager>();
         auto& transformFactory = serviceCollection.GetService<Transform::Factory>();
         auto& cameraFactory = serviceCollection.GetService<Camera::Factory>();
         auto& meshRendererFactory = serviceCollection.GetService<MeshRenderer::Factory>();
         auto gameObject = std::make_unique<GameObject>(
-            std::make_unique<Impl>(Guid::New(), transformFactory, cameraFactory, meshRendererFactory));
+            std::make_unique<Impl>(Guid::New(), memoryManager, transformFactory, cameraFactory, meshRendererFactory));
         gameObject->impl->Init(*gameObject);
         return gameObject;
     }
@@ -223,16 +234,6 @@ namespace pluto
     GameObject::GameObject(GameObject&& other) noexcept = default;
 
     GameObject& GameObject::operator=(GameObject&& rhs) noexcept = default;
-
-    bool GameObject::operator==(const GameObject& rhs) const
-    {
-        return GetId() == rhs.GetId();
-    }
-
-    bool GameObject::operator!=(const GameObject& rhs) const
-    {
-        return !(*this == rhs);
-    }
 
     const Guid& GameObject::GetId() const
     {
@@ -259,34 +260,34 @@ namespace pluto
         return impl->IsDestroyed();
     }
 
-    Transform& GameObject::GetTransform() const
+    Resource<Transform> GameObject::GetTransform() const
     {
         return impl->GetTransform();
     }
 
-    Component& GameObject::AddComponent(const std::type_info& type)
+    Resource<Component> GameObject::AddComponent(const std::type_info& type)
     {
         return impl->AddComponent(type);
     }
 
-    Component* GameObject::GetComponent(const std::function<bool(const Component& component)>& predicate) const
+    Resource<Component> GameObject::GetComponent(const std::function<bool(const Component& component)>& predicate) const
     {
         return impl->GetComponent(predicate);
     }
 
-    std::vector<std::reference_wrapper<Component>> GameObject::GetComponents(
+    std::vector<Resource<Component>> GameObject::GetComponents(
         const std::function<bool(const Component& component)>& predicate) const
     {
         return impl->GetComponents(predicate);
     }
 
-    Component* GameObject::GetComponentInChildren(
+    Resource<Component> GameObject::GetComponentInChildren(
         const std::function<bool(const Component& component)>& predicate) const
     {
         return impl->GetComponentInChildren(predicate);
     }
 
-    std::vector<std::reference_wrapper<Component>> GameObject::GetComponentsInChildren(
+    std::vector<Resource<Component>> GameObject::GetComponentsInChildren(
         const std::function<bool(const Component& component)>& predicate) const
     {
         return impl->GetComponentsInChildren(predicate);
