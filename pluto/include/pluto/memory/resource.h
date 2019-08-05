@@ -36,8 +36,8 @@ namespace pluto
         bool operator==(const Resource& rhs) const;
         bool operator!=(const Resource& rhs) const;
 
-        const Guid& GetObjectId() const;
-        const Guid& GetObjectId();
+        Guid GetObjectId() const;
+        Guid GetObjectId();
 
         const T* Get() const;
         T* Get();

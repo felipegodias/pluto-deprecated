@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pluto/guid.h"
+
 namespace pluto
 {
     template <typename T>
@@ -74,14 +76,22 @@ namespace pluto
     }
 
     template <typename T>
-    const Guid& Resource<T, std::enable_if_t<std::is_base_of_v<Object, T>>>::GetObjectId() const
+    Guid Resource<T, std::enable_if_t<std::is_base_of_v<Object, T>>>::GetObjectId() const
     {
+        if (control == nullptr)
+        {
+            return Guid();
+        }
         return control->GetObjectId();
     }
 
     template <typename T>
-    const Guid& Resource<T, std::enable_if_t<std::is_base_of_v<Object, T>>>::GetObjectId()
+    Guid Resource<T, std::enable_if_t<std::is_base_of_v<Object, T>>>::GetObjectId()
     {
+        if (control == nullptr)
+        {
+            return Guid();
+        }
         return control->GetObjectId();
     }
 
