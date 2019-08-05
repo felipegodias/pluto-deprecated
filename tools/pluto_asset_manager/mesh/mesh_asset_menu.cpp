@@ -1,6 +1,5 @@
 #include "mesh_asset_menu.h"
 #include "mesh_asset_manager.h"
-#include "../asset_dumper.h"
 
 #include <pluto/guid.h>
 #include <pluto/asset/mesh_asset.h>
@@ -16,8 +15,10 @@ namespace pluto
 {
     MeshAssetMenu::~MeshAssetMenu() = default;
 
-    MeshAssetMenu::MeshAssetMenu(MeshAssetManager& meshAssetManager, const std::function<void()>& backCallback) :
-        meshAssetManager(&meshAssetManager), mainMenu("Mesh Asset"), manageMenu("Manage Mesh Asset")
+    MeshAssetMenu::MeshAssetMenu(MeshAssetManager& meshAssetManager, const std::function<void()>& backCallback)
+        : meshAssetManager(&meshAssetManager),
+          mainMenu("Mesh Asset"),
+          manageMenu("Manage Mesh Asset")
     {
         mainMenu.AddOption(0, "Cancel", backCallback);
         mainMenu.AddOption(1, "Create", std::bind(&MeshAssetMenu::OnCreateMeshOptionSelected, this));

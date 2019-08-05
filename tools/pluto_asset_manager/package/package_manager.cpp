@@ -3,6 +3,7 @@
 #include "../shader/shader_asset_manager.h"
 #include "../text/text_asset_manager.h"
 #include "../texture/texture_asset_manager.h"
+#include "../material/material_asset_manager.h"
 
 #include <pluto/asset/asset.h>
 #include <pluto/asset/package_manifest_asset.h>
@@ -20,14 +21,16 @@
 namespace pluto
 {
     PackageManager::PackageManager(FileManager& fileManager, PackageManifestAsset::Factory& packageManifestAssetFactory,
-                                   TextAssetManager& textAssetManager, MeshAssetManager& meshAssetManager,
-                                   ShaderAssetManager& shaderAssetManager, TextureAssetManager& textureAssetManager) :
-        fileManager(&fileManager),
-        packageManifestAssetFactory(&packageManifestAssetFactory),
-        textAssetManager(&textAssetManager),
-        meshAssetManager(&meshAssetManager),
-        shaderAssetManager(&shaderAssetManager),
-        textureAssetManager(&textureAssetManager)
+                                   TextAssetManager& textAssetManager, MaterialAssetManager& materialAssetManager,
+                                   MeshAssetManager& meshAssetManager, ShaderAssetManager& shaderAssetManager,
+                                   TextureAssetManager& textureAssetManager)
+        : fileManager(&fileManager),
+          packageManifestAssetFactory(&packageManifestAssetFactory),
+          textAssetManager(&textAssetManager),
+          materialAssetManager(&materialAssetManager),
+          meshAssetManager(&meshAssetManager),
+          shaderAssetManager(&shaderAssetManager),
+          textureAssetManager(&textureAssetManager)
     {
     }
 
@@ -71,6 +74,10 @@ namespace pluto
             else if (fileExtension == ".png")
             {
                 asset = textureAssetManager->Create(file, outputDir);
+            }
+            else if (fileExtension == ".mat")
+            {
+                asset = materialAssetManager->Create(file, outputDir);
             }
 
             if (asset != nullptr)

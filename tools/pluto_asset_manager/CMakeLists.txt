@@ -6,6 +6,9 @@ list(APPEND ASSET_MANAGER_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/base_menu.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menu_options.cpp
+    # ./material
+    ${CMAKE_CURRENT_SOURCE_DIR}/material/material_asset_manager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/material/material_asset_menu.cpp
     # ./mesh
     ${CMAKE_CURRENT_SOURCE_DIR}/mesh/mesh_asset_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/mesh/mesh_asset_menu.cpp
