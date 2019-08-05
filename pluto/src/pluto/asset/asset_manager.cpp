@@ -34,17 +34,17 @@ namespace pluto
     class AssetManager::Impl
     {
         std::unordered_map<std::string, PackageManifestAsset*> manifests;
-        std::unordered_map<std::type_index, const Asset::Factory*> factories;
+        std::unordered_map<std::type_index, Asset::Factory*> factories;
 
         MemoryManager* memoryManager;
-        const FileManager* fileManager;
-        const EventManager* eventManager;
+        FileManager* fileManager;
+        EventManager* eventManager;
 
     public:
-        Impl(MemoryManager& memoryManager, const FileManager& fileManager, const EventManager& eventManager,
-             const PackageManifestAsset::Factory& packageManifestFactory, const TextAsset::Factory& textFactory,
-             const MeshAsset::Factory& meshFactory, const ShaderAsset::Factory& shaderFactory,
-             const TextureAsset::Factory& textureFactory)
+        Impl(MemoryManager& memoryManager, FileManager& fileManager, EventManager& eventManager,
+             PackageManifestAsset::Factory& packageManifestFactory, TextAsset::Factory& textFactory,
+             MeshAsset::Factory& meshFactory, ShaderAsset::Factory& shaderFactory,
+             TextureAsset::Factory& textureFactory, MaterialAsset::Factory& materialFactory)
             : memoryManager(&memoryManager),
               fileManager(&fileManager),
               eventManager(&eventManager)
@@ -54,6 +54,7 @@ namespace pluto
             factories.emplace(typeid(MeshAsset), &meshFactory);
             factories.emplace(typeid(ShaderAsset), &shaderFactory);
             factories.emplace(typeid(TextureAsset), &textureFactory);
+            factories.emplace(typeid(MaterialAsset), &materialFactory);
         }
 
         void LoadPackage(const std::string& name)
@@ -178,17 +179,19 @@ namespace pluto
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& memoryManager = serviceCollection.GetService<MemoryManager>();
-        const auto& fileManager = serviceCollection.GetService<FileManager>();
-        const auto& eventManager = serviceCollection.GetService<EventManager>();
-        const auto& packageManifestFactory = serviceCollection.GetService<PackageManifestAsset::Factory>();
-        const auto& textFactory = serviceCollection.GetService<TextAsset::Factory>();
-        const auto& meshFactory = serviceCollection.GetService<MeshAsset::Factory>();
-        const auto& shaderFactory = serviceCollection.GetService<ShaderAsset::Factory>();
-        const auto& textureFactory = serviceCollection.GetService<TextureAsset::Factory>();
+        auto& fileManager = serviceCollection.GetService<FileManager>();
+        auto& eventManager = serviceCollection.GetService<EventManager>();
+        auto& packageManifestFactory = serviceCollection.GetService<PackageManifestAsset::Factory>();
+        auto& textFactory = serviceCollection.GetService<TextAsset::Factory>();
+        auto& meshFactory = serviceCollection.GetService<MeshAsset::Factory>();
+        auto& shaderFactory = serviceCollection.GetService<ShaderAsset::Factory>();
+        auto& textureFactory = serviceCollection.GetService<TextureAsset::Factory>();
+        auto& materialFactory = serviceCollection.GetService<MaterialAsset::Factory>();
+
         return std::make_unique<AssetManager>(std::make_unique<Impl>(memoryManager, fileManager, eventManager,
                                                                      packageManifestFactory,
                                                                      textFactory, meshFactory, shaderFactory,
-                                                                     textureFactory));
+                                                                     textureFactory, materialFactory));
     }
 
     AssetManager::~AssetManager() = default;

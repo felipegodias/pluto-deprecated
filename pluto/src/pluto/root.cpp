@@ -117,8 +117,7 @@ namespace pluto
             auto& windowManager = serviceCollection->GetService<WindowManager>();
             auto& simulationManager = serviceCollection->GetService<SimulationManager>();
             auto& logManager = serviceCollection->GetService<LogManager>();
-            Resource<MaterialAsset> transparentMaterial = nullptr;
-            Resource<MaterialAsset> unlitMaterial = nullptr;
+            Resource<MaterialAsset> material = nullptr;
             {
                 // TODO: Move to simulation manager.
                 auto& eventManager = serviceCollection->GetService<EventManager>();
@@ -136,36 +135,20 @@ namespace pluto
                 auto& camera = cameraGo->AddComponent<Camera>();
 
                 auto meshAsset = assetManager.Load<MeshAsset>(Path("meshes/quad.obj"));
-                auto unlitShaderAsset = assetManager.Load<ShaderAsset>(Path("shaders/unlit.glsl"));
-                auto transparentShaderAsset = assetManager.Load<ShaderAsset>(Path("shaders/transparent.glsl"));
 
-                auto& materialFactory = serviceCollection->GetService<MaterialAsset::Factory>();
-
-                auto materialAssetPtr = materialFactory.Create();
-                materialAssetPtr->SetName("unlit");
-                materialAssetPtr->SetShader(transparentShaderAsset);
-                unlitMaterial = assetManager.Register(std::move(materialAssetPtr));
-
-                materialAssetPtr = materialFactory.Create();
-                materialAssetPtr->SetName("transparent");
-                materialAssetPtr->SetShader(unlitShaderAsset);
-                transparentMaterial = assetManager.Register(std::move(materialAssetPtr));
+                material = assetManager.Load<MaterialAsset>(Path("materials/pluto-logo.mat"));
 
                 Resource<GameObject> tquadGo = sceneManager.GetActiveScene().CreateGameObject("Transparent");
                 tquadGo->GetTransform()->SetPosition({-5, 0, 0});
                 auto& tmeshRenderer = tquadGo->AddComponent<MeshRenderer>();
                 tmeshRenderer->SetMesh(meshAsset);
-                tmeshRenderer->SetMaterial(transparentMaterial);
+                tmeshRenderer->SetMaterial(material);
 
                 Resource<GameObject> uquadGo = sceneManager.GetActiveScene().CreateGameObject("Unlit");
                 uquadGo->GetTransform()->SetPosition({5, 0, 0});
                 auto& umeshRenderer = uquadGo->AddComponent<MeshRenderer>();
                 umeshRenderer->SetMesh(meshAsset);
-                umeshRenderer->SetMaterial(unlitMaterial);
-
-                auto textureAsset = assetManager.Load<TextureAsset>(Path("textures/pluto-logo.png"));
-                transparentMaterial->SetTexture("u_mat.mainTex", textureAsset);
-                unlitMaterial->SetTexture("u_mat.mainTex", textureAsset);
+                umeshRenderer->SetMaterial(material);
             }
 
             int i = 0;
