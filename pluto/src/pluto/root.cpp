@@ -13,50 +13,19 @@
 #include <pluto/scene/scene_installer.h>
 #include <pluto/render/render_installer.h>
 
-#include <pluto/memory/resource.h>
 #include <pluto/log/log_manager.h>
-#include <pluto/input/input_manager.h>
-#include <pluto/input/key_code.h>
 #include <pluto/event/event_manager.h>
-#include <pluto/event/on_startup_event.h>
 #include <pluto/window/window_manager.h>
 #include <pluto/simulation/simulation_manager.h>
-#include <pluto/scene/scene_manager.h>
-#include <pluto/render/render_manager.h>
 
 #include <pluto/asset/asset_manager.h>
-#include <pluto/asset/mesh_asset.h>
-#include <pluto/asset/shader_asset.h>
-#include <pluto/asset/material_asset.h>
-#include <pluto/asset/texture_asset.h>
-#include <pluto/asset/package_manifest_asset.h>
-
-#include <pluto/math/color.h>
-#include <pluto/math/vector2f.h>
-#include <pluto/math/vector2i.h>
-#include <pluto/math/vector3f.h>
-#include <pluto/math/vector3i.h>
-#include <pluto/math/matrix4x4.h>
-#include <pluto/math/vector4f.h>
 
 #include <pluto/file/file_manager.h>
 #include <pluto/file/file_reader.h>
 #include <pluto/file/file_writer.h>
 #include <pluto/file/path.h>
 
-#include <pluto/scene/scene.h>
-#include <pluto/scene/game_object.h>
-#include <pluto/scene/components/transform.h>
-#include <pluto/scene/components/camera.h>
-#include <pluto/scene/components/mesh_renderer.h>
-
-#include <pluto/guid.h>
-
-#include <fmt/format.h>
-#include <chrono>
-#include <iostream>
 #include <regex>
-#include <pluto/stop_watch.h>
 #include <pluto/exception.h>
 
 namespace pluto
@@ -95,6 +64,9 @@ namespace pluto
 
             auto& logManager = serviceCollection->GetService<LogManager>();
             logManager.LogInfo("Pluto Engine Initialized!");
+
+            auto& assetManager = serviceCollection->GetService<AssetManager>();
+            assetManager.LoadPackage("built-in");
         }
 
         ~Impl()
@@ -112,44 +84,13 @@ namespace pluto
             FileInstaller::Uninstall(*serviceCollection);
         }
 
-        int Run() const
+        int Run(const std::function<void(ServiceCollection& serviceCollection)>& onInit) const
         {
             auto& windowManager = serviceCollection->GetService<WindowManager>();
             auto& simulationManager = serviceCollection->GetService<SimulationManager>();
             auto& logManager = serviceCollection->GetService<LogManager>();
-            Resource<MaterialAsset> material = nullptr;
-            {
-                // TODO: Move to simulation manager.
-                auto& eventManager = serviceCollection->GetService<EventManager>();
-                eventManager.Dispatch(OnStartupEvent());
-                auto& assetManager = serviceCollection->GetService<AssetManager>();
 
-                assetManager.LoadPackage("built-in");
-
-                auto& sceneManager = serviceCollection->GetService<SceneManager>();
-                sceneManager.LoadEmptyScene();
-
-                Resource<GameObject> cameraGo = sceneManager.GetActiveScene().CreateGameObject("Camera");
-                cameraGo->GetTransform()->SetLocalPosition({0, 0, -1});
-
-                auto& camera = cameraGo->AddComponent<Camera>();
-
-                auto meshAsset = assetManager.Load<MeshAsset>(Path("meshes/quad.obj"));
-
-                material = assetManager.Load<MaterialAsset>(Path("materials/pluto-logo.mat"));
-
-                Resource<GameObject> tquadGo = sceneManager.GetActiveScene().CreateGameObject("Transparent");
-                tquadGo->GetTransform()->SetPosition({-5, 0, 0});
-                auto& tmeshRenderer = tquadGo->AddComponent<MeshRenderer>();
-                tmeshRenderer->SetMesh(meshAsset);
-                tmeshRenderer->SetMaterial(material);
-
-                Resource<GameObject> uquadGo = sceneManager.GetActiveScene().CreateGameObject("Unlit");
-                uquadGo->GetTransform()->SetPosition({5, 0, 0});
-                auto& umeshRenderer = uquadGo->AddComponent<MeshRenderer>();
-                umeshRenderer->SetMesh(meshAsset);
-                umeshRenderer->SetMaterial(material);
-            }
+            onInit(*serviceCollection);
 
             int i = 0;
             while (windowManager.IsOpen())
@@ -177,8 +118,8 @@ namespace pluto
 
     Root::~Root() = default;
 
-    int Root::Run() const
+    int Root::Run(const std::function<void(ServiceCollection& serviceCollection)>& onInit) const
     {
-        return impl->Run();
+        return impl->Run(onInit);
     }
 }

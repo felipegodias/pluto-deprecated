@@ -2,6 +2,7 @@
 
 #include "pluto/service/base_service.h"
 #include "pluto/service/base_factory.h"
+#include "pluto/memory/resource.h"
 
 #include <typeindex>
 #include <memory>

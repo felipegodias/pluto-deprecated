@@ -8,7 +8,7 @@
 namespace pluto
 {
     template <typename T, typename Enable = void>
-    class PLUTO_API Resource;
+    class Resource;
 
     class Guid;
 

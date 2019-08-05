@@ -54,6 +54,7 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/memory/memory_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/memory/memory_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/memory/object.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/memory/resource.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/memory/resource_control.cpp
     # ./render
     ${CMAKE_CURRENT_SOURCE_DIR}/render/mesh_buffer.cpp

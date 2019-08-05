@@ -3,12 +3,14 @@
 #include "api.h"
 #include <string>
 #include <memory>
+#include <functional>
 
 namespace pluto
 {
+    class ServiceCollection;
+
     class PLUTO_API Root
     {
-    private:
         class Impl;
         std::unique_ptr<Impl> impl;
 
@@ -18,6 +20,6 @@ namespace pluto
 
         ~Root();
 
-        int Run() const;
+        int Run(const std::function<void(ServiceCollection& serviceCollection)>& onInit) const;
     };
 }
