@@ -42,6 +42,7 @@ namespace pluto
             : guid(guid),
               shaderAsset(std::move(shaderAsset))
         {
+            UpdateProperties();
         }
 
         const Guid& GetId() const
@@ -141,117 +142,101 @@ namespace pluto
             UpdateProperties();
         }
 
-        bool GetBool(const std::string& propertyName) const
-        {
-            return GetProperty<float>(propertyName, floats)->second != 0;
-        }
-
-        void SetBool(const std::string& propertyName, const bool value)
-        {
-            GetProperty<float>(propertyName, floats)->second = value ? 1 : 0;
-        }
-
-        int GetInt(const std::string& propertyName) const
-        {
-            return GetProperty<float>(propertyName, floats)->second;
-        }
-
-        void SetInt(const std::string& propertyName, const int value)
-        {
-            GetProperty<int>(propertyName, floats)->second = value;
-        }
-
         float GetFloat(const std::string& propertyName) const
         {
-            return GetProperty<float>(propertyName, floats)->second;
+            const auto it = floats.find(propertyName);
+            if (it == floats.end())
+            {
+                Exception::Throw(std::runtime_error(
+                    fmt::format("The {0} property with name {1} not found in material {2}.", typeid(Matrix4X4).name(),
+                                propertyName, name)));
+            }
+            return it->second;
         }
 
         void SetFloat(const std::string& propertyName, const float value)
         {
-            GetProperty<float>(propertyName, floats)->second = value;
-        }
+            const auto it = floats.find(propertyName);
+            if (it != floats.end())
+            {
+                it->second = value;
+                return;
+            }
 
-        Vector2I GetVector2I(const std::string& propertyName) const
-        {
-            const auto& v = GetProperty<Vector2I>(propertyName, vectors)->second;
-            return {static_cast<int>(v.x), static_cast<int>(v.y)};
-        }
-
-        void SetVector2I(const std::string& propertyName, const Vector2I& value)
-        {
-            GetProperty<Vector2I>(propertyName, vectors)->second = value;
-        }
-
-        Vector2F GetVector2F(const std::string& propertyName) const
-        {
-            return Vector2F(GetProperty<Vector2F>(propertyName, vectors)->second);
-        }
-
-        void SetVector2F(const std::string& propertyName, const Vector2F& value)
-        {
-            GetProperty<Vector2F>(propertyName, vectors)->second = value;
-        }
-
-        Vector3I GetVector3I(const std::string& propertyName) const
-        {
-            const auto& v = GetProperty<Vector3I>(propertyName, vectors)->second;
-            return {static_cast<int>(v.x), static_cast<int>(v.y), static_cast<int>(v.z)};
-        }
-
-        void SetVector3I(const std::string& propertyName, const Vector3I& value)
-        {
-            GetProperty<Vector3I>(propertyName, vectors)->second = value;
-        }
-
-        Vector3F GetVector3F(const std::string& propertyName) const
-        {
-            return Vector3F(GetProperty<Vector3F>(propertyName, vectors)->second);
-        }
-
-        void SetVector3F(const std::string& propertyName, const Vector3F& value)
-        {
-            GetProperty<Vector3F>(propertyName, vectors)->second = value;
-        }
-
-        Vector4I GetVector4I(const std::string& propertyName) const
-        {
-            const auto& v = GetProperty<Vector4I>(propertyName, vectors)->second;
-            return {static_cast<int>(v.x), static_cast<int>(v.y), static_cast<int>(v.z), static_cast<int>(v.w)};
-        }
-
-        void SetVector4I(const std::string& propertyName, const Vector4I& value)
-        {
-            GetProperty<Vector4I>(propertyName, vectors)->second = value;
+            floats.emplace(propertyName, value);
         }
 
         const Vector4F& GetVector4F(const std::string& propertyName) const
         {
-            return GetProperty<Vector4F>(propertyName, vectors)->second;
+            const auto it = vectors.find(propertyName);
+            if (it == vectors.end())
+            {
+                Exception::Throw(std::runtime_error(
+                    fmt::format("The {0} property with name {1} not found in material {2}.", typeid(Vector4F).name(),
+                                propertyName, name)));
+            }
+            return it->second;
         }
 
         void SetVector4F(const std::string& propertyName, const Vector4F& value)
         {
-            GetProperty<Vector4F>(propertyName, vectors)->second = value;
+            auto it = vectors.find(propertyName);
+            if (it != vectors.end())
+            {
+                it->second = value;
+                return;
+            }
+
+            vectors.emplace(propertyName, value);
         }
 
         const Matrix4X4& GetMatrix4X4(const std::string& propertyName) const
         {
-            return GetProperty<Matrix4X4>(propertyName, matrices)->second;
+            const auto it = matrices.find(propertyName);
+            if (it == matrices.end())
+            {
+                Exception::Throw(std::runtime_error(
+                    fmt::format("The {0} property with name {1} not found in material {2}.", typeid(Matrix4X4).name(),
+                                propertyName, name)));
+            }
+            return it->second;
         }
 
         void SetMatrix4X4(const std::string& propertyName, const Matrix4X4& value)
         {
-            GetProperty<Matrix4X4>(propertyName, matrices)->second = value;
+            auto it = matrices.find(propertyName);
+            if (it != matrices.end())
+            {
+                it->second = value;
+                return;
+            }
+
+            matrices.emplace(propertyName, value);
         }
 
         Resource<TextureAsset> GetTexture(const std::string& propertyName) const
         {
-            return GetProperty<Resource<TextureAsset>>(propertyName, textures)->second;
+            const auto it = textures.find(propertyName);
+            if (it == textures.end())
+            {
+                Exception::Throw(std::runtime_error(
+                    fmt::format("The {0} property with name {1} not found in material {2}.",
+                                typeid(TextureAsset).name(),
+                                propertyName, name)));
+            }
+            return it->second;
         }
 
         void SetTexture(const std::string& propertyName, const Resource<TextureAsset>& textureAsset)
         {
-            GetProperty<Resource<TextureAsset>>(propertyName, textures)->second = textureAsset;
+            auto it = textures.find(propertyName);
+            if (it != textures.end())
+            {
+                it->second = textureAsset;
+                return;
+            }
+
+            textures.emplace(propertyName, textureAsset);
         }
 
         void Clone(const Impl& other)
@@ -263,6 +248,11 @@ namespace pluto
     private:
         void UpdateProperties()
         {
+            if (shaderAsset == nullptr)
+            {
+                return;
+            }
+
             for (auto& property : shaderAsset->GetUniforms())
             {
                 switch (property.type)
@@ -290,32 +280,6 @@ namespace pluto
                 }
             }
         }
-
-        template <typename T, typename Map>
-        typename Map::const_iterator GetProperty(const std::string& propertyName, const Map& map) const
-        {
-            auto it = map.find(propertyName);
-            if (it == map.end())
-            {
-                Exception::Throw(std::runtime_error(
-                    fmt::format("The {0} property with name {1} not found in material {2}.", typeid(T).name(),
-                                propertyName, name)));
-            }
-            return it;
-        }
-
-        template <typename T, typename Map>
-        typename Map::iterator GetProperty(const std::string& propertyName, Map& map)
-        {
-            auto it = map.find(propertyName);
-            if (it == map.end())
-            {
-                Exception::Throw(std::runtime_error(
-                    fmt::format("The {0} property with name {1} not found in material {2}.", typeid(T).name(),
-                                propertyName, name)));
-            }
-            return it;
-        }
     };
 
     MaterialAsset::Factory::Factory(ServiceCollection& serviceCollection)
@@ -323,17 +287,15 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<MaterialAsset> MaterialAsset::Factory::Create() const
+    std::unique_ptr<MaterialAsset> MaterialAsset::Factory::Create(const Resource<ShaderAsset>& shaderAsset) const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
-        auto& assetManager = serviceCollection.GetService<AssetManager>();
-        auto pinkShader = assetManager.Load<ShaderAsset>(Path("shaders/pink.glsl"));
-        return std::make_unique<MaterialAsset>(std::make_unique<Impl>(Guid::New(), pinkShader));
+        return std::make_unique<MaterialAsset>(std::make_unique<Impl>(Guid::New(), shaderAsset));
     }
 
     std::unique_ptr<MaterialAsset> MaterialAsset::Factory::Create(const MaterialAsset& original) const
     {
-        auto materialAsset = Create();
+        auto materialAsset = Create(original.GetShader());
         materialAsset->impl->Clone(*original.impl);
         return materialAsset;
     }
@@ -476,22 +438,22 @@ namespace pluto
 
     bool MaterialAsset::GetBool(const std::string& propertyName) const
     {
-        return impl->GetBool(propertyName);
+        return impl->GetFloat(propertyName) != 0;
     }
 
     void MaterialAsset::SetBool(const std::string& propertyName, const bool value)
     {
-        impl->SetBool(propertyName, value);
+        impl->SetFloat(propertyName, value);
     }
 
     int MaterialAsset::GetInt(const std::string& propertyName) const
     {
-        return impl->GetInt(propertyName);
+        return impl->GetFloat(propertyName);
     }
 
     void MaterialAsset::SetInt(const std::string& propertyName, const int value)
     {
-        impl->SetInt(propertyName, value);
+        impl->SetFloat(propertyName, value);
     }
 
     float MaterialAsset::GetFloat(const std::string& propertyName) const
@@ -506,52 +468,55 @@ namespace pluto
 
     Vector2I MaterialAsset::GetVector2I(const std::string& propertyName) const
     {
-        return impl->GetVector2I(propertyName);
+        const Vector4F vec = impl->GetVector4F(propertyName);
+        return {static_cast<int>(vec.x), static_cast<int>(vec.y)};
     }
 
     void MaterialAsset::SetVector2I(const std::string& propertyName, const Vector2I& value)
     {
-        impl->SetVector2I(propertyName, value);
+        impl->SetVector4F(propertyName, Vector4F(value));
     }
 
     Vector2F MaterialAsset::GetVector2F(const std::string& propertyName) const
     {
-        return impl->GetVector2F(propertyName);
+        return Vector2F(impl->GetVector4F(propertyName));
     }
 
     void MaterialAsset::SetVector2F(const std::string& propertyName, const Vector2F& value)
     {
-        impl->SetVector2F(propertyName, value);
+        impl->SetVector4F(propertyName, Vector4F(value));
     }
 
     Vector3I MaterialAsset::GetVector3I(const std::string& propertyName) const
     {
-        return impl->GetVector3I(propertyName);
+        const Vector4F vec = impl->GetVector4F(propertyName);
+        return {static_cast<int>(vec.x), static_cast<int>(vec.y), static_cast<int>(vec.z)};
     }
 
     void MaterialAsset::SetVector3I(const std::string& propertyName, const Vector3I& value)
     {
-        impl->SetVector3I(propertyName, value);
+        impl->SetVector4F(propertyName, Vector4F(value));
     }
 
     Vector3F MaterialAsset::GetVector3F(const std::string& propertyName) const
     {
-        return impl->GetVector3F(propertyName);
+        return Vector3F(impl->GetVector4F(propertyName));
     }
 
     void MaterialAsset::SetVector3F(const std::string& propertyName, const Vector3F& value)
     {
-        impl->SetVector3F(propertyName, value);
+        impl->SetVector4F(propertyName, Vector4F(value));
     }
 
     Vector4I MaterialAsset::GetVector4I(const std::string& propertyName) const
     {
-        return impl->GetVector4I(propertyName);
+        const Vector4F vec = impl->GetVector4F(propertyName);
+        return {static_cast<int>(vec.x), static_cast<int>(vec.y), static_cast<int>(vec.z), static_cast<int>(vec.w)};
     }
 
     void MaterialAsset::SetVector4I(const std::string& propertyName, const Vector4I& value)
     {
-        impl->SetVector4I(propertyName, value);
+        impl->SetVector4F(propertyName, Vector4F(value));
     }
 
     const Vector4F& MaterialAsset::GetVector4F(const std::string& propertyName) const

@@ -44,7 +44,7 @@ namespace pluto
         {
         public:
             explicit Factory(ServiceCollection& serviceCollection);
-            std::unique_ptr<MaterialAsset> Create() const;
+            std::unique_ptr<MaterialAsset> Create(const Resource<ShaderAsset>& shaderAsset) const;
             std::unique_ptr<MaterialAsset> Create(const MaterialAsset& original) const;
             std::unique_ptr<Asset> Create(FileReader& fileReader) const override;
         };
