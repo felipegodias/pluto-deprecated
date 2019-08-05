@@ -72,15 +72,8 @@ namespace pluto
             fileWriter.Write(&assetNameLength, sizeof(uint8_t));
             fileWriter.Write(name.data(), assetNameLength);
 
-            if (shaderAsset != nullptr)
-            {
-                fileWriter.Write(&shaderAsset.GetObjectId(), sizeof(Guid));
-            }
-            else
-            {
-                Guid guid;
-                fileWriter.Write(&guid, sizeof(Guid));
-            }
+            Guid shaderGuid = shaderAsset.GetObjectId();
+            fileWriter.Write(&shaderGuid, sizeof(Guid));
 
             uint8_t floatsCount = floats.size();
             fileWriter.Write(&floatsCount, sizeof(uint8_t));
@@ -92,7 +85,7 @@ namespace pluto
                 fileWriter.Write(&it.second, sizeof(float));
             }
 
-            uint8_t vectorsCount = floats.size();
+            uint8_t vectorsCount = vectors.size();
             fileWriter.Write(&vectorsCount, sizeof(uint8_t));
             for (const auto& it : vectors)
             {
@@ -102,7 +95,7 @@ namespace pluto
                 fileWriter.Write(&it.second, sizeof(Vector4F));
             }
 
-            uint8_t matricesCount = floats.size();
+            uint8_t matricesCount = matrices.size();
             fileWriter.Write(&matricesCount, sizeof(uint8_t));
             for (const auto& it : matrices)
             {
@@ -112,22 +105,15 @@ namespace pluto
                 fileWriter.Write(&it.second, sizeof(Matrix4X4));
             }
 
-            uint8_t texturesCount = floats.size();
+            uint8_t texturesCount = textures.size();
             fileWriter.Write(&texturesCount, sizeof(uint8_t));
             for (const auto& it : textures)
             {
                 uint8_t uniformNameLength = it.first.size();
                 fileWriter.Write(&uniformNameLength, sizeof(uint8_t));
                 fileWriter.Write(it.first.data(), assetNameLength);
-                if (it.second != nullptr)
-                {
-                    fileWriter.Write(&it.second.GetObjectId(), sizeof(Guid));
-                }
-                else
-                {
-                    Guid guid;
-                    fileWriter.Write(&guid, sizeof(Guid));
-                }
+                Guid textureGuid = it.second.GetObjectId();
+                fileWriter.Write(&textureGuid, sizeof(Guid));
             }
         }
 
@@ -337,6 +323,7 @@ namespace pluto
         Resource<ShaderAsset> shader = assetManager.Load<ShaderAsset>(shaderGuid);
 
         auto materialAsset = std::make_unique<MaterialAsset>(std::make_unique<Impl>(Guid::New(), shader));
+        materialAsset->SetName(assetName);
 
         uint8_t floatsCount;
         fileReader.Read(&floatsCount, sizeof(uint8_t));
@@ -348,7 +335,7 @@ namespace pluto
             fileReader.Read(uniformName.data(), assetNameLength);
             float value;
             fileReader.Read(&value, sizeof(float));
-            materialAsset->SetFloat(uniformName, value);
+            materialAsset->SetFloat("u_mat." + uniformName, value);
         }
 
         uint8_t vectorsCount;
@@ -361,7 +348,7 @@ namespace pluto
             fileReader.Read(uniformName.data(), assetNameLength);
             Vector4F value;
             fileReader.Read(&value, sizeof(Vector4F));
-            materialAsset->SetVector4F(uniformName, value);
+            materialAsset->SetVector4F("u_mat." + uniformName, value);
         }
 
         uint8_t matricesCount;
@@ -374,7 +361,7 @@ namespace pluto
             fileReader.Read(uniformName.data(), assetNameLength);
             Matrix4X4 value;
             fileReader.Read(&value, sizeof(Matrix4X4));
-            materialAsset->SetMatrix4X4(uniformName, value);
+            materialAsset->SetMatrix4X4("u_mat." + uniformName, value);
         }
 
         uint8_t texturesCount;
@@ -389,7 +376,7 @@ namespace pluto
             Guid textureGuid;
             fileReader.Read(&textureGuid, sizeof(Guid));
             Resource<TextureAsset> texture = assetManager.Load<TextureAsset>(textureGuid);
-            materialAsset->SetTexture(uniformName, texture);
+            materialAsset->SetTexture("u_mat." + uniformName, texture);
         }
 
         return materialAsset;
