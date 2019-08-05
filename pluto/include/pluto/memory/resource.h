@@ -15,17 +15,13 @@ namespace pluto
     template <typename T>
     class Resource<T, std::enable_if_t<std::is_base_of_v<Object, T>>>
     {
-        friend class MemoryManager;
         friend class ResourceUtils;
 
         std::shared_ptr<ResourceControl> control;
-
-        explicit Resource(std::unique_ptr<ResourceControl> control);
-
     public:
         Resource();
         Resource(nullptr_t);
-
+        explicit Resource(std::unique_ptr<ResourceControl> control);
         template <typename T2, std::enable_if_t<std::is_base_of_v<T, T2>, bool>  = false>
         Resource(const Resource<T2>& other);
         template <typename T2, std::enable_if_t<std::is_base_of_v<T, T2>, bool>  = false>
