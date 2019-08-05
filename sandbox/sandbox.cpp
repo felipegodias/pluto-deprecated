@@ -1,20 +1,4 @@
-#include <pluto/root.h>
-#include <pluto/service/service_collection.h>
-#include <pluto/asset/material_asset.h>
-
-#include <pluto/scene/scene_manager.h>
-#include <pluto/scene/components/camera.h>
-#include <pluto/asset/asset_manager.h>
-#include <pluto/asset/mesh_asset.h>
-#include <pluto/file/path.h>
-#include <pluto/scene/components/renderer.h>
-#include <pluto/scene/components/mesh_renderer.h>
-#include <pluto/scene/scene_manager.h>
-#include <pluto/scene/scene.h>
-#include <pluto/scene/game_object.h>
-#include <pluto/scene/components/transform.h>
-#include <pluto/math/vector3f.h>
-#include <pluto/memory/resource.h>
+#include <pluto/pluto.h>
 
 #include <iostream>
 
