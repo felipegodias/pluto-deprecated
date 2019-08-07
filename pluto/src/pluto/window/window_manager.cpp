@@ -94,8 +94,8 @@ namespace pluto
         }
     };
 
-    WindowManager::Factory::Factory(ServiceCollection& diContainer)
-        : BaseFactory(diContainer)
+    WindowManager::Factory::Factory(ServiceCollection& serviceCollection)
+        : BaseFactory(serviceCollection)
     {
     }
 

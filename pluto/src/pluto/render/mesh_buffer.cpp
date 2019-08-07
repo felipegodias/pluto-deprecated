@@ -2,7 +2,7 @@
 
 namespace pluto
 {
-    MeshBuffer::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
+    MeshBuffer::Factory::Factory(ServiceCollection& serviceCollection) : BaseFactory(serviceCollection)
     {
     }
 

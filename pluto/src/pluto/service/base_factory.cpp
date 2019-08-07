@@ -5,7 +5,7 @@ namespace pluto
     BaseFactory::~BaseFactory() = default;
 
     BaseFactory::BaseFactory(ServiceCollection& serviceCollection)
-        : diContainer(&serviceCollection)
+        : serviceCollection(&serviceCollection)
     {
     }
 
@@ -15,6 +15,6 @@ namespace pluto
 
     ServiceCollection& BaseFactory::GetServiceCollection() const
     {
-        return *diContainer;
+        return *serviceCollection;
     }
 }

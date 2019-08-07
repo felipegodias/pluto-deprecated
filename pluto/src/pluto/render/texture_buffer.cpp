@@ -2,7 +2,7 @@
 
 namespace pluto
 {
-    TextureBuffer::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
+    TextureBuffer::Factory::Factory(ServiceCollection& serviceCollection) : BaseFactory(serviceCollection)
     {
     }
 

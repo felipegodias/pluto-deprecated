@@ -10,7 +10,7 @@ namespace pluto
     class PLUTO_API FileInstaller
     {
     public:
-        static void Install(const std::string& dataDirectoryName, ServiceCollection& diContainer);
-        static void Uninstall(ServiceCollection& diContainer);
+        static void Install(const std::string& dataDirectoryName, ServiceCollection& serviceCollection);
+        static void Uninstall(ServiceCollection& serviceCollection);
     };
 }

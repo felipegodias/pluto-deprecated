@@ -85,8 +85,8 @@ namespace pluto
         }
     };
 
-    Scene::Factory::Factory(ServiceCollection& diContainer)
-        : BaseFactory(diContainer)
+    Scene::Factory::Factory(ServiceCollection& serviceCollection)
+        : BaseFactory(serviceCollection)
     {
     }
 

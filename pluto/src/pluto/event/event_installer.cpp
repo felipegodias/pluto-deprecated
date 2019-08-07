@@ -4,14 +4,14 @@
 
 namespace pluto
 {
-    void EventInstaller::Install(ServiceCollection& diContainer)
+    void EventInstaller::Install(ServiceCollection& serviceCollection)
     {
-        const EventManager::Factory factory(diContainer);
-        diContainer.AddService(factory.Create());
+        const EventManager::Factory factory(serviceCollection);
+        serviceCollection.AddService(factory.Create());
     }
 
-    void EventInstaller::Uninstall(ServiceCollection& diContainer)
+    void EventInstaller::Uninstall(ServiceCollection& serviceCollection)
     {
-        diContainer.RemoveService<EventManager>();
+        serviceCollection.RemoveService<EventManager>();
     }
 }

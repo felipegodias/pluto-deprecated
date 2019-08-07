@@ -283,8 +283,8 @@ namespace pluto
         }
     };
 
-    GlShaderProgram::Factory::Factory(ServiceCollection& diContainer)
-        : ShaderProgram::Factory(diContainer)
+    GlShaderProgram::Factory::Factory(ServiceCollection& serviceCollection)
+        : ShaderProgram::Factory(serviceCollection)
     {
     }
 

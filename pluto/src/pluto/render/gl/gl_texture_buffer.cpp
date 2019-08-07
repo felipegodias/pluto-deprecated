@@ -131,7 +131,7 @@ namespace pluto
         }
     };
 
-    GlTextureBuffer::Factory::Factory(ServiceCollection& diContainer) : TextureBuffer::Factory(diContainer)
+    GlTextureBuffer::Factory::Factory(ServiceCollection& serviceCollection) : TextureBuffer::Factory(serviceCollection)
     {
     }
 

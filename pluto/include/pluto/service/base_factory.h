@@ -8,7 +8,7 @@ namespace pluto
 
     class PLUTO_API BaseFactory
     {
-        ServiceCollection* diContainer;
+        ServiceCollection* serviceCollection;
 
     public:
         virtual ~BaseFactory() = 0;

@@ -10,7 +10,7 @@ namespace pluto
     class PLUTO_API AssetInstaller
     {
     public:
-        static void Install(ServiceCollection& diContainer);
-        static void Uninstall(ServiceCollection& diContainer);
+        static void Install(ServiceCollection& serviceCollection);
+        static void Uninstall(ServiceCollection& serviceCollection);
     };
 }

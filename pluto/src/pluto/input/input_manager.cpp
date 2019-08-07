@@ -156,7 +156,7 @@ namespace pluto
         }
     };
 
-    InputManager::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
+    InputManager::Factory::Factory(ServiceCollection& serviceCollection) : BaseFactory(serviceCollection)
     {
     }
 

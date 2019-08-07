@@ -9,7 +9,7 @@ namespace pluto
     class PLUTO_API EventInstaller
     {
     public:
-        static void Install(ServiceCollection& diContainer);
-        static void Uninstall(ServiceCollection& diContainer);
+        static void Install(ServiceCollection& serviceCollection);
+        static void Uninstall(ServiceCollection& serviceCollection);
     };
 }

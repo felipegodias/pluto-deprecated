@@ -47,7 +47,7 @@ namespace pluto
         }
     };
 
-    FileWriter::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
+    FileWriter::Factory::Factory(ServiceCollection& serviceCollection) : BaseFactory(serviceCollection)
     {
     }
 

@@ -11,23 +11,23 @@
 
 namespace pluto
 {
-    void SceneInstaller::Install(ServiceCollection& diContainer)
+    void SceneInstaller::Install(ServiceCollection& serviceCollection)
     {
-        diContainer.AddFactory<GameObject>(std::make_unique<GameObject::Factory>(diContainer));
-        diContainer.AddFactory<Transform>(std::make_unique<Transform::Factory>(diContainer));
-        diContainer.AddFactory<Camera>(std::make_unique<Camera::Factory>(diContainer));
-        diContainer.AddFactory<Scene>(std::make_unique<Scene::Factory>(diContainer));
-        diContainer.AddFactory<MeshRenderer>(std::make_unique<MeshRenderer::Factory>(diContainer));
-        diContainer.AddService(SceneManager::Factory(diContainer).Create());
+        serviceCollection.AddFactory<GameObject>(std::make_unique<GameObject::Factory>(serviceCollection));
+        serviceCollection.AddFactory<Transform>(std::make_unique<Transform::Factory>(serviceCollection));
+        serviceCollection.AddFactory<Camera>(std::make_unique<Camera::Factory>(serviceCollection));
+        serviceCollection.AddFactory<Scene>(std::make_unique<Scene::Factory>(serviceCollection));
+        serviceCollection.AddFactory<MeshRenderer>(std::make_unique<MeshRenderer::Factory>(serviceCollection));
+        serviceCollection.AddService(SceneManager::Factory(serviceCollection).Create());
     }
 
-    void SceneInstaller::Uninstall(ServiceCollection& diContainer)
+    void SceneInstaller::Uninstall(ServiceCollection& serviceCollection)
     {
-        diContainer.RemoveService<SceneManager>();
-        diContainer.RemoveFactory<MeshRenderer>();
-        diContainer.RemoveFactory<Scene>();
-        diContainer.RemoveFactory<Camera>();
-        diContainer.RemoveFactory<Transform>();
-        diContainer.RemoveFactory<GameObject>();
+        serviceCollection.RemoveService<SceneManager>();
+        serviceCollection.RemoveFactory<MeshRenderer>();
+        serviceCollection.RemoveFactory<Scene>();
+        serviceCollection.RemoveFactory<Camera>();
+        serviceCollection.RemoveFactory<Transform>();
+        serviceCollection.RemoveFactory<GameObject>();
     }
 }

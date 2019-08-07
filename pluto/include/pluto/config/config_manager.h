@@ -17,7 +17,7 @@ namespace pluto
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
-            explicit Factory(ServiceCollection& diContainer);
+            explicit Factory(ServiceCollection& serviceCollection);
             std::unique_ptr<ConfigManager> Create(FileReader* configFile) const;
         };
 

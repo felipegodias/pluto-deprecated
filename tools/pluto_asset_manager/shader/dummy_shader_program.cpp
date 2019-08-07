@@ -2,8 +2,8 @@
 
 namespace pluto
 {
-    DummyShaderProgram::Factory::Factory(ServiceCollection& diContainer)
-        : ShaderProgram::Factory(diContainer)
+    DummyShaderProgram::Factory::Factory(ServiceCollection& serviceCollection)
+        : ShaderProgram::Factory(serviceCollection)
     {
     }
 

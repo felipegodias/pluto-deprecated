@@ -4,14 +4,14 @@
 
 namespace pluto
 {
-    void WindowInstaller::Install(ServiceCollection& diContainer)
+    void WindowInstaller::Install(ServiceCollection& serviceCollection)
     {
-        const WindowManager::Factory factory(diContainer);
-        diContainer.AddService(factory.Create());
+        const WindowManager::Factory factory(serviceCollection);
+        serviceCollection.AddService(factory.Create());
     }
 
-    void WindowInstaller::Uninstall(ServiceCollection& diContainer)
+    void WindowInstaller::Uninstall(ServiceCollection& serviceCollection)
     {
-        diContainer.RemoveService<WindowManager>();
+        serviceCollection.RemoveService<WindowManager>();
     }
 }

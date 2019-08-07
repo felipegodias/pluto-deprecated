@@ -158,8 +158,8 @@ namespace pluto
         }
     };
 
-    AssetManager::Factory::Factory(ServiceCollection& diContainer)
-        : BaseFactory(diContainer)
+    AssetManager::Factory::Factory(ServiceCollection& serviceCollection)
+        : BaseFactory(serviceCollection)
     {
     }
 

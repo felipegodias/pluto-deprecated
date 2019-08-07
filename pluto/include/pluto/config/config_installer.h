@@ -10,7 +10,7 @@ namespace pluto
     class PLUTO_API ConfigInstaller
     {
     public:
-        static void Install(FileReader* configFile, ServiceCollection& diContainer);
-        static void Uninstall(ServiceCollection& diContainer);
+        static void Install(FileReader* configFile, ServiceCollection& serviceCollection);
+        static void Uninstall(ServiceCollection& serviceCollection);
     };
 }

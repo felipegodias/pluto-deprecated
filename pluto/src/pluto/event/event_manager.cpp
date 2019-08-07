@@ -100,7 +100,7 @@ namespace pluto
         }
     };
 
-    EventManager::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
+    EventManager::Factory::Factory(ServiceCollection& serviceCollection) : BaseFactory(serviceCollection)
     {
     }
 

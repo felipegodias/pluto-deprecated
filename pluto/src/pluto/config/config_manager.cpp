@@ -88,8 +88,8 @@ namespace pluto
         }
     };
 
-    ConfigManager::Factory::Factory(ServiceCollection& diContainer)
-        : BaseFactory(diContainer)
+    ConfigManager::Factory::Factory(ServiceCollection& serviceCollection)
+        : BaseFactory(serviceCollection)
     {
     }
 

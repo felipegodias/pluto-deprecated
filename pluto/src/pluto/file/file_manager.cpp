@@ -145,8 +145,8 @@ namespace pluto
         }
     };
 
-    FileManager::Factory::Factory(ServiceCollection& diContainer)
-        : BaseFactory(diContainer)
+    FileManager::Factory::Factory(ServiceCollection& serviceCollection)
+        : BaseFactory(serviceCollection)
     {
     }
 

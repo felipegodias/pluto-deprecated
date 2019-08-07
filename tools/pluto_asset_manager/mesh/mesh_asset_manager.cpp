@@ -114,9 +114,9 @@ namespace pluto
             triangles.push_back(t);
         }
 
-        ServiceCollection diContainer;
-        diContainer.AddService<MeshBuffer::Factory>(std::make_unique<GlMeshBuffer::Factory>(diContainer));
-        const MeshAsset::Factory factory(diContainer);
+        ServiceCollection serviceCollection;
+        serviceCollection.AddService<MeshBuffer::Factory>(std::make_unique<GlMeshBuffer::Factory>(serviceCollection));
+        const MeshAsset::Factory factory(serviceCollection);
 
         auto meshAsset = factory.Create();
 

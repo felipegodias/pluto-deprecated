@@ -100,8 +100,8 @@ namespace pluto
         }
     };
 
-    GlRenderManager::Factory::Factory(ServiceCollection& diContainer)
-        : BaseFactory(diContainer)
+    GlRenderManager::Factory::Factory(ServiceCollection& serviceCollection)
+        : BaseFactory(serviceCollection)
     {
     }
 

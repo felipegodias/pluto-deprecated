@@ -13,11 +13,11 @@ namespace pluto
 {
     void DumpAsset(const Path& path, const Asset& asset)
     {
-        ServiceCollection diContainer;
-        diContainer.AddService(std::make_unique<FileWriter::Factory>(diContainer));
-        diContainer.AddService(std::make_unique<FileReader::Factory>(diContainer));
+        ServiceCollection serviceCollection;
+        serviceCollection.AddService(std::make_unique<FileWriter::Factory>(serviceCollection));
+        serviceCollection.AddService(std::make_unique<FileReader::Factory>(serviceCollection));
 
-        const FileManager::Factory fileManagerFactory(diContainer);
+        const FileManager::Factory fileManagerFactory(serviceCollection);
         const std::unique_ptr<FileManager> fileManager = fileManagerFactory.Create(path);
 
         const std::string guidStr = asset.GetId().Str();

@@ -10,26 +10,26 @@
 
 namespace pluto
 {
-    void AssetInstaller::Install(ServiceCollection& diContainer)
+    void AssetInstaller::Install(ServiceCollection& serviceCollection)
     {
-        diContainer.AddFactory<PackageManifestAsset>(std::make_unique<PackageManifestAsset::Factory>(diContainer));
-        diContainer.AddFactory<MeshAsset>(std::make_unique<MeshAsset::Factory>(diContainer));
-        diContainer.AddFactory<TextAsset>(std::make_unique<TextAsset::Factory>(diContainer));
-        diContainer.AddFactory<ShaderAsset>(std::make_unique<ShaderAsset::Factory>(diContainer));
-        diContainer.AddFactory<MaterialAsset>(std::make_unique<MaterialAsset::Factory>(diContainer));
-        diContainer.AddFactory<TextureAsset>(std::make_unique<TextureAsset::Factory>(diContainer));
+        serviceCollection.AddFactory<PackageManifestAsset>(std::make_unique<PackageManifestAsset::Factory>(serviceCollection));
+        serviceCollection.AddFactory<MeshAsset>(std::make_unique<MeshAsset::Factory>(serviceCollection));
+        serviceCollection.AddFactory<TextAsset>(std::make_unique<TextAsset::Factory>(serviceCollection));
+        serviceCollection.AddFactory<ShaderAsset>(std::make_unique<ShaderAsset::Factory>(serviceCollection));
+        serviceCollection.AddFactory<MaterialAsset>(std::make_unique<MaterialAsset::Factory>(serviceCollection));
+        serviceCollection.AddFactory<TextureAsset>(std::make_unique<TextureAsset::Factory>(serviceCollection));
 
-        diContainer.AddService(AssetManager::Factory(diContainer).Create());
+        serviceCollection.AddService(AssetManager::Factory(serviceCollection).Create());
     }
 
-    void AssetInstaller::Uninstall(ServiceCollection& diContainer)
+    void AssetInstaller::Uninstall(ServiceCollection& serviceCollection)
     {
-        diContainer.RemoveService<AssetManager>();
-        diContainer.RemoveFactory<TextureAsset>();
-        diContainer.RemoveFactory<MaterialAsset>();
-        diContainer.RemoveFactory<ShaderAsset>();
-        diContainer.RemoveFactory<TextAsset>();
-        diContainer.RemoveFactory<MeshAsset>();
-        diContainer.RemoveFactory<PackageManifestAsset>();
+        serviceCollection.RemoveService<AssetManager>();
+        serviceCollection.RemoveFactory<TextureAsset>();
+        serviceCollection.RemoveFactory<MaterialAsset>();
+        serviceCollection.RemoveFactory<ShaderAsset>();
+        serviceCollection.RemoveFactory<TextAsset>();
+        serviceCollection.RemoveFactory<MeshAsset>();
+        serviceCollection.RemoveFactory<PackageManifestAsset>();
     }
 }

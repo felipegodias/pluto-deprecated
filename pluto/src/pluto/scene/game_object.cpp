@@ -196,8 +196,8 @@ namespace pluto
         }
     };
 
-    GameObject::Factory::Factory(ServiceCollection& diContainer)
-        : BaseFactory(diContainer)
+    GameObject::Factory::Factory(ServiceCollection& serviceCollection)
+        : BaseFactory(serviceCollection)
     {
     }
 

@@ -11,7 +11,7 @@ namespace pluto
     class PLUTO_API LogInstaller
     {
     public:
-        static void Install(std::unique_ptr<FileWriter> logFile, ServiceCollection& diContainer);
-        static void Uninstall(ServiceCollection& diContainer);
+        static void Install(std::unique_ptr<FileWriter> logFile, ServiceCollection& serviceCollection);
+        static void Uninstall(ServiceCollection& serviceCollection);
     };
 }

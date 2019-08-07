@@ -4,14 +4,14 @@
 
 namespace pluto
 {
-    void ConfigInstaller::Install(FileReader* configFile, ServiceCollection& diContainer)
+    void ConfigInstaller::Install(FileReader* configFile, ServiceCollection& serviceCollection)
     {
-        const ConfigManager::Factory factory(diContainer);
-        diContainer.AddService(factory.Create(configFile));
+        const ConfigManager::Factory factory(serviceCollection);
+        serviceCollection.AddService(factory.Create(configFile));
     }
 
-    void ConfigInstaller::Uninstall(ServiceCollection& diContainer)
+    void ConfigInstaller::Uninstall(ServiceCollection& serviceCollection)
     {
-        diContainer.RemoveService<ConfigManager>();
+        serviceCollection.RemoveService<ConfigManager>();
     }
 }

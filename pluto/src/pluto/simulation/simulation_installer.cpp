@@ -4,14 +4,14 @@
 
 namespace pluto
 {
-    void SimulationInstaller::Install(ServiceCollection& diContainer)
+    void SimulationInstaller::Install(ServiceCollection& serviceCollection)
     {
-        const SimulationManager::Factory factory(diContainer);
-        diContainer.AddService(factory.Create());
+        const SimulationManager::Factory factory(serviceCollection);
+        serviceCollection.AddService(factory.Create());
     }
 
-    void SimulationInstaller::Uninstall(ServiceCollection& diContainer)
+    void SimulationInstaller::Uninstall(ServiceCollection& serviceCollection)
     {
-        diContainer.RemoveService<SimulationManager>();
+        serviceCollection.RemoveService<SimulationManager>();
     }
 }

@@ -4,14 +4,14 @@
 
 namespace pluto
 {
-    void InputInstaller::Install(ServiceCollection& diContainer)
+    void InputInstaller::Install(ServiceCollection& serviceCollection)
     {
-        const InputManager::Factory factory(diContainer);
-        diContainer.AddService(factory.Create());
+        const InputManager::Factory factory(serviceCollection);
+        serviceCollection.AddService(factory.Create());
     }
 
-    void InputInstaller::Uninstall(ServiceCollection& diContainer)
+    void InputInstaller::Uninstall(ServiceCollection& serviceCollection)
     {
-        diContainer.RemoveService<InputManager>();
+        serviceCollection.RemoveService<InputManager>();
     }
 }

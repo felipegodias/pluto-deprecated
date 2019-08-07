@@ -13,7 +13,7 @@ namespace pluto
         class PLUTO_API Factory : public BaseFactory
         {
         public:
-            explicit Factory(ServiceCollection& diContainer);
+            explicit Factory(ServiceCollection& serviceCollection);
             virtual std::unique_ptr<TextureBuffer> Create() const = 0;
         };
 

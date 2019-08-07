@@ -71,7 +71,7 @@ namespace pluto
         }
     };
 
-    LogManager::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
+    LogManager::Factory::Factory(ServiceCollection& serviceCollection) : BaseFactory(serviceCollection)
     {
     }
 

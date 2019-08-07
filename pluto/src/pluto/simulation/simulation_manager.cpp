@@ -78,8 +78,8 @@ namespace pluto
         }
     };
 
-    SimulationManager::Factory::Factory(ServiceCollection& diContainer)
-        : BaseFactory(diContainer)
+    SimulationManager::Factory::Factory(ServiceCollection& serviceCollection)
+        : BaseFactory(serviceCollection)
     {
     }
 
