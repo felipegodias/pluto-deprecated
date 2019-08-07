@@ -235,7 +235,7 @@ namespace pluto
             blendDstAlphaFactor, depthTest, cullFace, attributes, uniforms, binaryFormat, binaryData));
 
         ServiceCollection& serviceCollection = GetServiceCollection();
-        auto& shaderProgramFactory = serviceCollection.GetService<ShaderProgram::Factory>();
+        auto& shaderProgramFactory = serviceCollection.GetFactory<ShaderProgram>();
         shaderAsset->impl->SetShaderProgram(shaderProgramFactory.Create(*shaderAsset));
         return shaderAsset;
     }
@@ -329,7 +329,7 @@ namespace pluto
         shaderAsset->SetName(assetName);
 
         ServiceCollection& serviceCollection = GetServiceCollection();
-        auto& shaderProgramFactory = serviceCollection.GetService<ShaderProgram::Factory>();
+        auto& shaderProgramFactory = serviceCollection.GetFactory<ShaderProgram>();
         shaderAsset->impl->SetShaderProgram(shaderProgramFactory.Create(*shaderAsset));
         return shaderAsset;
     }

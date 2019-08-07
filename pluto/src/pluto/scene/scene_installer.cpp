@@ -13,23 +13,21 @@ namespace pluto
 {
     void SceneInstaller::Install(ServiceCollection& diContainer)
     {
-        diContainer.AddService(std::make_unique<GameObject::Factory>(diContainer));
-        diContainer.AddService(std::make_unique<Transform::Factory>(diContainer));
-        diContainer.AddService(std::make_unique<Camera::Factory>(diContainer));
-        diContainer.AddService(std::make_unique<Scene::Factory>(diContainer));
-        diContainer.AddService(std::make_unique<MeshRenderer::Factory>(diContainer));
-
-        const SceneManager::Factory sceneManagerFactory(diContainer);
-        diContainer.AddService(sceneManagerFactory.Create());
+        diContainer.AddFactory<GameObject>(std::make_unique<GameObject::Factory>(diContainer));
+        diContainer.AddFactory<Transform>(std::make_unique<Transform::Factory>(diContainer));
+        diContainer.AddFactory<Camera>(std::make_unique<Camera::Factory>(diContainer));
+        diContainer.AddFactory<Scene>(std::make_unique<Scene::Factory>(diContainer));
+        diContainer.AddFactory<MeshRenderer>(std::make_unique<MeshRenderer::Factory>(diContainer));
+        diContainer.AddService(SceneManager::Factory(diContainer).Create());
     }
 
     void SceneInstaller::Uninstall(ServiceCollection& diContainer)
     {
         diContainer.RemoveService<SceneManager>();
-        diContainer.RemoveService<MeshRenderer::Factory>();
-        diContainer.RemoveService<Scene::Factory>();
-        diContainer.RemoveService<Camera::Factory>();
-        diContainer.RemoveService<Transform::Factory>();
-        diContainer.RemoveService<GameObject::Factory>();
+        diContainer.RemoveFactory<MeshRenderer>();
+        diContainer.RemoveFactory<Scene>();
+        diContainer.RemoveFactory<Camera>();
+        diContainer.RemoveFactory<Transform>();
+        diContainer.RemoveFactory<GameObject>();
     }
 }

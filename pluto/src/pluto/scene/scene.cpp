@@ -94,7 +94,7 @@ namespace pluto
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& memoryManager = serviceCollection.GetService<MemoryManager>();
-        auto& gameObjectFactory = serviceCollection.GetService<GameObject::Factory>();
+        GameObject::Factory& gameObjectFactory = serviceCollection.GetFactory<GameObject>();
 
         return std::make_unique<Scene>(std::make_unique<Impl>(Guid::New(), memoryManager, gameObjectFactory));
     }

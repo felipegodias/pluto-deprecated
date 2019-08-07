@@ -19,8 +19,9 @@ namespace pluto
 
     public:
         explicit Impl(const Path& rootPath, FileReader::Factory& fileReaderFactory,
-                      FileWriter::Factory& fileWriterFactory) : fileReaderFactory(fileReaderFactory),
-                                                                fileWriterFactory(fileWriterFactory)
+                      FileWriter::Factory& fileWriterFactory)
+            : fileReaderFactory(fileReaderFactory),
+              fileWriterFactory(fileWriterFactory)
         {
             std::filesystem::current_path(rootPath.Str());
             std::cout << "FileManager initialized!" << std::endl;
@@ -144,20 +145,22 @@ namespace pluto
         }
     };
 
-    FileManager::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
+    FileManager::Factory::Factory(ServiceCollection& diContainer)
+        : BaseFactory(diContainer)
     {
     }
 
     std::unique_ptr<FileManager> FileManager::Factory::Create(const Path& rootPath) const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
-        auto& fileReaderFactory = serviceCollection.GetService<FileReader::Factory>();
-        auto& fileWriterFactory = serviceCollection.GetService<FileWriter::Factory>();
+        FileReader::Factory& fileReaderFactory = serviceCollection.GetFactory<FileReader>();
+        FileWriter::Factory& fileWriterFactory = serviceCollection.GetFactory<FileWriter>();
         return std::make_unique<FileManager>(
             std::make_unique<Impl>(rootPath, fileReaderFactory, fileWriterFactory));
     }
 
-    FileManager::FileManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
+    FileManager::FileManager(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
     }
 

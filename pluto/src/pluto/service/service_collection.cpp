@@ -1,5 +1,6 @@
 #include <pluto/service/service_collection.h>
 #include <pluto/service/base_service.h>
+#include <pluto/service/base_factory.h>
 
 #include <pluto/log/log_manager.h>
 
@@ -15,9 +16,10 @@ namespace pluto
     class ServiceCollection::Impl
     {
         std::unordered_map<std::type_index, std::unique_ptr<BaseService>> services;
+        std::unordered_map<std::type_index, std::unique_ptr<BaseFactory>> factories;
 
     public:
-        BaseService& AddService(const std::type_index& type, std::unique_ptr<BaseService> instance)
+        BaseService& AddService(const std::type_info& type, std::unique_ptr<BaseService> instance)
         {
             const auto it = services.find(type);
             if (it != services.end())
@@ -33,18 +35,51 @@ namespace pluto
             return *ptr;
         }
 
-        void RemoveService(const std::type_index& type)
+        void RemoveService(const std::type_info& type)
         {
             services.erase(type);
         }
 
-        BaseService& GetService(const std::type_index& type) const
+        BaseService& GetService(const std::type_info& type) const
         {
             const auto it = services.find(type);
             if (it == services.end())
             {
                 Exception::Throw(
                     std::runtime_error(fmt::format("Could not resolve service with type {0}.", type.name())));
+            }
+
+            return *it->second;
+        }
+
+        BaseFactory& AddFactory(const std::type_info& type, std::unique_ptr<BaseFactory> instance)
+        {
+            const auto it = factories.find(type);
+            if (it != factories.end())
+            {
+                Exception::Throw(
+                    std::runtime_error(fmt::format(
+                        "Factory for type {0} already exists in the service collection.",
+                        type.name())));
+            }
+
+            BaseFactory* ptr = instance.get();
+            factories.emplace(type, std::move(instance));
+            return *ptr;
+        }
+
+        void RemoveFactory(const std::type_info& type)
+        {
+            factories.erase(type);
+        }
+
+        BaseFactory& GetFactory(const std::type_info& type) const
+        {
+            const auto it = factories.find(type);
+            if (it == factories.end())
+            {
+                Exception::Throw(
+                    std::runtime_error(fmt::format("Could not resolve factory for type {0}.", type.name())));
             }
 
             return *it->second;
@@ -62,18 +97,33 @@ namespace pluto
 
     ServiceCollection& ServiceCollection::operator=(ServiceCollection&& rhs) noexcept = default;
 
-    BaseService& ServiceCollection::AddService(const std::type_index& type, std::unique_ptr<BaseService> instance)
+    BaseService& ServiceCollection::AddService(const std::type_info& type, std::unique_ptr<BaseService> instance)
     {
         return impl->AddService(type, std::move(instance));
     }
 
-    void ServiceCollection::RemoveService(const std::type_index& type)
+    void ServiceCollection::RemoveService(const std::type_info& type)
     {
         impl->RemoveService(type);
     }
 
-    BaseService& ServiceCollection::GetService(const std::type_index& type) const
+    BaseService& ServiceCollection::GetService(const std::type_info& type) const
     {
         return impl->GetService(type);
+    }
+
+    BaseFactory& ServiceCollection::AddFactory(const std::type_info& type, std::unique_ptr<BaseFactory> instance)
+    {
+        return impl->AddFactory(type, std::move(instance));
+    }
+
+    void ServiceCollection::RemoveFactory(const std::type_info& type)
+    {
+        impl->RemoveFactory(type);
+    }
+
+    BaseFactory& ServiceCollection::GetFactory(const std::type_info& type) const
+    {
+        return impl->GetFactory(type);
     }
 }

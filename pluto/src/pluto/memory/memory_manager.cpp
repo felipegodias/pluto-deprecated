@@ -95,7 +95,7 @@ namespace pluto
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& logManager = serviceCollection.GetService<LogManager>();
-        auto& resourceControlFactory = serviceCollection.GetService<ResourceControl::Factory>();
+        ResourceControl::Factory& resourceControlFactory = serviceCollection.GetFactory<ResourceControl>();
 
         return std::make_unique<MemoryManager>(std::make_unique<Impl>(logManager, resourceControlFactory));
     }

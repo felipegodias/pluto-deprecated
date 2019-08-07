@@ -212,9 +212,11 @@ namespace pluto
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& memoryManager = serviceCollection.GetService<MemoryManager>();
-        auto& transformFactory = serviceCollection.GetService<Transform::Factory>();
-        auto& cameraFactory = serviceCollection.GetService<Camera::Factory>();
-        auto& meshRendererFactory = serviceCollection.GetService<MeshRenderer::Factory>();
+
+        Transform::Factory& transformFactory = serviceCollection.GetFactory<Transform>();
+        Camera::Factory& cameraFactory = serviceCollection.GetFactory<Camera>();
+        MeshRenderer::Factory& meshRendererFactory = serviceCollection.GetFactory<MeshRenderer>();
+
         auto gameObject = std::make_unique<GameObject>(
             std::make_unique<Impl>(Guid::New(), memoryManager, transformFactory, cameraFactory, meshRendererFactory));
         return gameObject;

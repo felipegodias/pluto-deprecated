@@ -30,10 +30,12 @@ namespace pluto
 
     public:
         Impl(const Scene::Factory& sceneFactory, const GameObject::Factory& gameObjectFactory,
-             EventManager& eventManager, LogManager& logManager) : sceneFactory(sceneFactory),
-                                                                   gameObjectFactory(gameObjectFactory),
-                                                                   eventManager(eventManager), logManager(logManager),
-                                                                   currentFrame(0)
+             EventManager& eventManager, LogManager& logManager)
+            : sceneFactory(sceneFactory),
+              gameObjectFactory(gameObjectFactory),
+              eventManager(eventManager),
+              logManager(logManager),
+              currentFrame(0)
         {
             static Impl* instance = this;
             onUpdateEventId = eventManager.Subscribe<OnUpdateEvent>([&](const OnUpdateEvent& evt)
@@ -84,26 +86,29 @@ namespace pluto
         }
     };
 
-    SceneManager::Factory::Factory(ServiceCollection& diContainer) : BaseFactory(diContainer)
+    SceneManager::Factory::Factory(ServiceCollection& diContainer)
+        : BaseFactory(diContainer)
     {
     }
 
     std::unique_ptr<SceneManager> SceneManager::Factory::Create() const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
-        auto& sceneFactory = serviceCollection.GetService<Scene::Factory>();
-        auto& gameObjectFactory = serviceCollection.GetService<GameObject::Factory>();
+        Scene::Factory& sceneFactory = serviceCollection.GetFactory<Scene>();
+        GameObject::Factory& gameObjectFactory = serviceCollection.GetFactory<GameObject>();
         auto& eventManager = serviceCollection.GetService<EventManager>();
         auto& logManager = serviceCollection.GetService<LogManager>();
         return std::make_unique<SceneManager>(
             std::make_unique<Impl>(sceneFactory, gameObjectFactory, eventManager, logManager));
     }
 
-    SceneManager::SceneManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
+    SceneManager::SceneManager(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
     }
 
-    SceneManager::SceneManager(SceneManager&& other) noexcept : impl(std::move(other.impl))
+    SceneManager::SceneManager(SceneManager&& other) noexcept
+        : impl(std::move(other.impl))
     {
     }
 

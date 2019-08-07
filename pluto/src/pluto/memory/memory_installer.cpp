@@ -8,13 +8,13 @@ namespace pluto
 {
     void MemoryInstaller::Install(ServiceCollection& serviceCollection)
     {
-        serviceCollection.AddService(std::make_unique<ResourceControl::Factory>(serviceCollection));
+        serviceCollection.AddFactory<ResourceControl>(std::make_unique<ResourceControl::Factory>(serviceCollection));
         serviceCollection.AddService(MemoryManager::Factory(serviceCollection).Create());
     }
 
     void MemoryInstaller::Uninstall(ServiceCollection& serviceCollection)
     {
         serviceCollection.RemoveService<MemoryManager>();
-        serviceCollection.RemoveService<ResourceControl::Factory>();
+        serviceCollection.RemoveFactory<ResourceControl>();
     }
 }

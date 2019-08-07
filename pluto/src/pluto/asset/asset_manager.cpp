@@ -181,12 +181,12 @@ namespace pluto
         auto& memoryManager = serviceCollection.GetService<MemoryManager>();
         auto& fileManager = serviceCollection.GetService<FileManager>();
         auto& eventManager = serviceCollection.GetService<EventManager>();
-        auto& packageManifestFactory = serviceCollection.GetService<PackageManifestAsset::Factory>();
-        auto& textFactory = serviceCollection.GetService<TextAsset::Factory>();
-        auto& meshFactory = serviceCollection.GetService<MeshAsset::Factory>();
-        auto& shaderFactory = serviceCollection.GetService<ShaderAsset::Factory>();
-        auto& textureFactory = serviceCollection.GetService<TextureAsset::Factory>();
-        auto& materialFactory = serviceCollection.GetService<MaterialAsset::Factory>();
+        auto& packageManifestFactory = serviceCollection.GetFactory<PackageManifestAsset>();
+        auto& textFactory = serviceCollection.GetFactory<TextAsset>();
+        auto& meshFactory = serviceCollection.GetFactory<MeshAsset>();
+        auto& shaderFactory = serviceCollection.GetFactory<ShaderAsset>();
+        auto& textureFactory = serviceCollection.GetFactory<TextureAsset>();
+        auto& materialFactory = serviceCollection.GetFactory<MaterialAsset>();
 
         return std::make_unique<AssetManager>(std::make_unique<Impl>(memoryManager, fileManager, eventManager,
                                                                      packageManifestFactory,

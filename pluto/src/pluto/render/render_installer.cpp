@@ -12,12 +12,11 @@ namespace pluto
 {
     void InstallOpenGl(ServiceCollection& diContainer)
     {
-        diContainer.AddService<MeshBuffer::Factory>(std::make_unique<GlMeshBuffer::Factory>(diContainer));
-        diContainer.AddService<ShaderProgram::Factory>(std::make_unique<GlShaderProgram::Factory>(diContainer));
-        diContainer.AddService<TextureBuffer::Factory>(std::make_unique<GlTextureBuffer::Factory>(diContainer));
+        diContainer.AddFactory<MeshBuffer>(std::make_unique<GlMeshBuffer::Factory>(diContainer));
+        diContainer.AddFactory<ShaderProgram>(std::make_unique<GlShaderProgram::Factory>(diContainer));
+        diContainer.AddFactory<TextureBuffer>(std::make_unique<GlTextureBuffer::Factory>(diContainer));
 
-        const GlRenderManager::Factory factory(diContainer);
-        diContainer.AddService<RenderManager>(factory.Create());
+        diContainer.AddService<RenderManager>(GlRenderManager::Factory(diContainer).Create());
     }
 
     void RenderInstaller::Install(ServiceCollection& diContainer)
@@ -28,8 +27,8 @@ namespace pluto
     void RenderInstaller::Uninstall(ServiceCollection& diContainer)
     {
         diContainer.RemoveService<RenderManager>();
-        diContainer.RemoveService<TextureBuffer::Factory>();
-        diContainer.RemoveService<ShaderProgram::Factory>();
-        diContainer.RemoveService<MeshBuffer::Factory>();
+        diContainer.RemoveFactory<TextureBuffer>();
+        diContainer.RemoveFactory<ShaderProgram>();
+        diContainer.RemoveFactory<MeshBuffer>();
     }
 }

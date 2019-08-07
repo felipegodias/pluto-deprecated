@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../api.h"
-#include "base_service.h"
+#include "pluto/api.h"
 #include <memory>
-#include <type_traits>
-#include <typeindex>
 
 namespace pluto
 {
+    class BaseService;
+    class BaseFactory;
+
     class PLUTO_API ServiceCollection
     {
         class Impl;
@@ -24,18 +24,25 @@ namespace pluto
 
         template <typename T, std::enable_if_t<std::is_base_of_v<BaseService, T>, bool>  = false>
         T& AddService(std::unique_ptr<T> instance);
-
-        BaseService& AddService(const std::type_index& type, std::unique_ptr<BaseService> instance);
-
         template <typename T, std::enable_if_t<std::is_base_of_v<BaseService, T>, bool>  = false>
         void RemoveService();
-
-        void RemoveService(const std::type_index& type);
-
         template <typename T, std::enable_if_t<std::is_base_of_v<BaseService, T>, bool>  = false>
         T& GetService() const;
 
-        BaseService& GetService(const std::type_index& type) const;
+        template <typename T, std::enable_if_t<std::is_base_of_v<BaseFactory, typename T::Factory>, bool>  = false>
+        typename T::Factory& AddFactory(std::unique_ptr<typename T::Factory> instance);
+        template <typename T, std::enable_if_t<std::is_base_of_v<BaseFactory, typename T::Factory>, bool>  = false>
+        void RemoveFactory();
+        template <typename T, std::enable_if_t<std::is_base_of_v<BaseFactory, typename T::Factory>, bool>  = false>
+        typename T::Factory& GetFactory() const;
+
+        BaseService& AddService(const std::type_info& type, std::unique_ptr<BaseService> instance);
+        void RemoveService(const std::type_info& type);
+        BaseService& GetService(const std::type_info& type) const;
+
+        BaseFactory& AddFactory(const std::type_info& type, std::unique_ptr<BaseFactory> instance);
+        void RemoveFactory(const std::type_info& type);
+        BaseFactory& GetFactory(const std::type_info& type) const;
     };
 }
 
