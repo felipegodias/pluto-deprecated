@@ -1,11 +1,15 @@
 #include <pluto/pluto.h>
 
+#include "components/rotator.h"
+
 #include <iostream>
 
 using namespace pluto;
 
 void OnInit(ServiceCollection& serviceCollection)
 {
+    serviceCollection.AddFactory<Rotator>(std::make_unique<Rotator::Factory>(serviceCollection));
+
     auto& assetManager = serviceCollection.GetService<AssetManager>();
 
     auto& sceneManager = serviceCollection.GetService<SceneManager>();
@@ -23,6 +27,7 @@ void OnInit(ServiceCollection& serviceCollection)
     Resource<GameObject> quadGo = sceneManager.GetActiveScene().CreateGameObject("Transparent");
     quadGo->GetTransform()->SetPosition({0, 0, 0});
     Resource<MeshRenderer> meshRenderer = quadGo->AddComponent<MeshRenderer>();
+    Resource<Rotator> rotator = quadGo->AddComponent<Rotator>();
 
     meshRenderer->SetMesh(meshAsset);
     meshRenderer->SetMaterial(material);
