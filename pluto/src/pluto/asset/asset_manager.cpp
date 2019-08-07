@@ -9,11 +9,6 @@
 #include <pluto/guid.h>
 #include <pluto/asset/asset.h>
 #include <pluto/asset/package_manifest_asset.h>
-#include <pluto/asset/text_asset.h>
-#include <pluto/asset/mesh_asset.h>
-#include <pluto/asset/shader_asset.h>
-#include <pluto/asset/material_asset.h>
-#include <pluto/asset/texture_asset.h>
 #include <pluto/exception.h>
 
 #include <pluto/event/event_manager.h>
@@ -34,27 +29,20 @@ namespace pluto
     class AssetManager::Impl
     {
         std::unordered_map<std::string, PackageManifestAsset*> manifests;
-        std::unordered_map<std::type_index, Asset::Factory*> factories;
 
         MemoryManager* memoryManager;
         FileManager* fileManager;
         EventManager* eventManager;
+        ServiceCollection* serviceCollection;
 
     public:
         Impl(MemoryManager& memoryManager, FileManager& fileManager, EventManager& eventManager,
-             PackageManifestAsset::Factory& packageManifestFactory, TextAsset::Factory& textFactory,
-             MeshAsset::Factory& meshFactory, ShaderAsset::Factory& shaderFactory,
-             TextureAsset::Factory& textureFactory, MaterialAsset::Factory& materialFactory)
+             ServiceCollection& serviceCollection)
             : memoryManager(&memoryManager),
               fileManager(&fileManager),
-              eventManager(&eventManager)
+              eventManager(&eventManager),
+              serviceCollection(&serviceCollection)
         {
-            factories.emplace(typeid(PackageManifestAsset), &packageManifestFactory);
-            factories.emplace(typeid(TextAsset), &textFactory);
-            factories.emplace(typeid(MeshAsset), &meshFactory);
-            factories.emplace(typeid(ShaderAsset), &shaderFactory);
-            factories.emplace(typeid(TextureAsset), &textureFactory);
-            factories.emplace(typeid(MaterialAsset), &materialFactory);
         }
 
         void LoadPackage(const std::string& name)
@@ -65,10 +53,10 @@ namespace pluto
             }
 
             const std::string physicalFilePath = fmt::format("packages/{0}/{0}", name);
-            LoadFromFile(typeid(PackageManifestAsset), Path(physicalFilePath));
+            Resource<Asset> package = LoadFromFile(typeid(PackageManifestAsset), Path(physicalFilePath));
         }
 
-        Resource<Asset> Load(const std::type_index& type, const Path& path)
+        Resource<Asset> Load(const std::type_info& type, const Path& path)
         {
             const PackageManifestAsset* package = nullptr;
             for (const auto& manifest : manifests)
@@ -97,7 +85,7 @@ namespace pluto
             return LoadFromFile(type, physicalFilePath);
         }
 
-        Resource<Asset> Load(const std::type_index& type, const Guid& guid)
+        Resource<Asset> Load(const std::type_info& type, const Guid& guid)
         {
             const Resource<Object> resource = memoryManager->Get(guid);
             if (resource != nullptr)
@@ -146,7 +134,7 @@ namespace pluto
                 if (manifests.find(result->GetName()) != manifests.end())
                 {
                     Exception::Throw(
-                        std::runtime_error(fmt::format("Package with name {0} already registered.", asset->GetId())));
+                        std::runtime_error(fmt::format("Package with name {0} already registered.", result->GetId())));
                 }
 
                 manifests.emplace(result->GetName(), packageManifestAsset);
@@ -156,7 +144,7 @@ namespace pluto
         }
 
     private:
-        Resource<Asset> LoadFromFile(const std::type_index& type, const Path& path)
+        Resource<Asset> LoadFromFile(const std::type_info& type, const Path& path)
         {
             if (!fileManager->Exists(path))
             {
@@ -165,8 +153,8 @@ namespace pluto
             }
 
             const std::unique_ptr<FileReader> file = fileManager->OpenRead(path);
-            const auto factory = factories.at(type);
-            return ResourceUtils::Cast<Asset>(Register(factory->Create(*file)));
+            const auto& factory = dynamic_cast<Asset::Factory&>(serviceCollection->GetFactory(type));
+            return ResourceUtils::Cast<Asset>(Register(factory.Create(*file)));
         }
     };
 
@@ -181,17 +169,9 @@ namespace pluto
         auto& memoryManager = serviceCollection.GetService<MemoryManager>();
         auto& fileManager = serviceCollection.GetService<FileManager>();
         auto& eventManager = serviceCollection.GetService<EventManager>();
-        auto& packageManifestFactory = serviceCollection.GetFactory<PackageManifestAsset>();
-        auto& textFactory = serviceCollection.GetFactory<TextAsset>();
-        auto& meshFactory = serviceCollection.GetFactory<MeshAsset>();
-        auto& shaderFactory = serviceCollection.GetFactory<ShaderAsset>();
-        auto& textureFactory = serviceCollection.GetFactory<TextureAsset>();
-        auto& materialFactory = serviceCollection.GetFactory<MaterialAsset>();
 
-        return std::make_unique<AssetManager>(std::make_unique<Impl>(memoryManager, fileManager, eventManager,
-                                                                     packageManifestFactory,
-                                                                     textFactory, meshFactory, shaderFactory,
-                                                                     textureFactory, materialFactory));
+        return std::make_unique<AssetManager>(
+            std::make_unique<Impl>(memoryManager, fileManager, eventManager, serviceCollection));
     }
 
     AssetManager::~AssetManager() = default;
