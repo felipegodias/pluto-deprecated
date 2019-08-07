@@ -210,12 +210,12 @@ namespace pluto
         impl->LoadPackage(name);
     }
 
-    Resource<Asset> AssetManager::Load(const std::type_index& type, const Path& path)
+    Resource<Asset> AssetManager::Load(const std::type_info& type, const Path& path)
     {
         return impl->Load(type, path);
     }
 
-    Resource<Asset> AssetManager::Load(const std::type_index& type, const Guid& guid)
+    Resource<Asset> AssetManager::Load(const std::type_info& type, const Guid& guid)
     {
         return impl->Load(type, guid);
     }

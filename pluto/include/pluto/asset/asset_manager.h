@@ -2,12 +2,9 @@
 
 #include "pluto/service/base_service.h"
 #include "pluto/service/base_factory.h"
-#include "pluto/memory/resource.h"
 
-#include <typeindex>
 #include <memory>
 #include <string>
-#include <vector>
 
 namespace pluto
 {
@@ -17,9 +14,6 @@ namespace pluto
     class Asset;
     class Guid;
     class Path;
-
-    template <typename T>
-    using IsAsset = std::enable_if_t<std::is_base_of_v<Asset, T>, int>;
 
     class PLUTO_API AssetManager final : public BaseService
     {
@@ -45,41 +39,19 @@ namespace pluto
         AssetManager& operator=(const AssetManager& rhs) = delete;
         AssetManager& operator=(AssetManager&& rhs) noexcept;
 
-        void LoadPackage(const std::string& name);
-
-        template <typename T, IsAsset<T>  = 0>
+        template <typename T, std::enable_if_t<std::is_base_of_v<Asset, T>, bool>  = false>
         Resource<T> Load(const Path& path);
-
-        Resource<Asset> Load(const std::type_index& type, const Path& path);
-
-        template <typename T, IsAsset<T>  = 0>
+        template <typename T, std::enable_if_t<std::is_base_of_v<Asset, T>, bool>  = false>
         Resource<T> Load(const Guid& guid);
-
-        Resource<Asset> Load(const std::type_index& type, const Guid& guid);
-
-        void Unload(const Asset& asset);
-
-        template <typename T, IsAsset<T>  = 0>
+        template <typename T, std::enable_if_t<std::is_base_of_v<Asset, T>, bool>  = false>
         Resource<T> Register(std::unique_ptr<T> asset);
 
+        void LoadPackage(const std::string& name);
+        Resource<Asset> Load(const std::type_info& type, const Path& path);
+        Resource<Asset> Load(const std::type_info& type, const Guid& guid);
+        void Unload(const Asset& asset);
         Resource<Asset> RegisterAsset(std::unique_ptr<Asset> asset);
     };
-
-    template <typename T, IsAsset<T>>
-    Resource<T> AssetManager::Load(const Path& path)
-    {
-        return ResourceUtils::Cast<T>(Load(typeid(T), path));
-    }
-
-    template <typename T, IsAsset<T>>
-    Resource<T> AssetManager::Load(const Guid& guid)
-    {
-        return ResourceUtils::Cast<T>(Load(typeid(T), guid));
-    }
-
-    template <typename T, IsAsset<T>>
-    Resource<T> AssetManager::Register(std::unique_ptr<T> asset)
-    {
-        return ResourceUtils::Cast<T>(RegisterAsset(std::move(asset)));
-    }
 }
+
+#include "asset_manager.inl"
