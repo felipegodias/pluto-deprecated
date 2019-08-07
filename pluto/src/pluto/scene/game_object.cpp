@@ -1,9 +1,6 @@
 #include <pluto/scene/game_object.h>
 #include <pluto/scene/components/component.h>
 #include <pluto/scene/components/transform.h>
-#include <pluto/scene/components/renderer.h>
-#include <pluto/scene/components/mesh_renderer.h>
-#include <pluto/scene/components/camera.h>
 
 #include <pluto/memory/resource.h>
 #include <pluto/memory/memory_manager.h>
@@ -31,22 +28,18 @@ namespace pluto
         bool isDestroyed;
 
         MemoryManager* memoryManager;
-        std::unordered_map<std::type_index, Component::Factory*> componentFactories;
+        ServiceCollection* serviceCollection;
 
     public:
-        Impl(const Guid& guid, MemoryManager& memoryManager, Transform::Factory& transformFactory,
-             Camera::Factory& cameraFactory,
-             MeshRenderer::Factory& meshRendererFactory)
+        Impl(const Guid& guid, MemoryManager& memoryManager, ServiceCollection& serviceCollection)
             : guid(guid),
               flags(Flags::None),
               transform(nullptr),
               lastFrame(0),
               isDestroyed(false),
-              memoryManager(&memoryManager)
+              memoryManager(&memoryManager),
+              serviceCollection(&serviceCollection)
         {
-            componentFactories.emplace(typeid(Transform), &transformFactory);
-            componentFactories.emplace(typeid(Camera), &cameraFactory);
-            componentFactories.emplace(typeid(MeshRenderer), &meshRendererFactory);
         }
 
         const Guid& GetId() const
@@ -81,14 +74,14 @@ namespace pluto
 
         Resource<Component> AddComponent(const std::type_info& type)
         {
-            const auto& factory = componentFactories.at(type);
+            const Component::Factory& factory = dynamic_cast<Component::Factory&>(serviceCollection->GetFactory(type));
 
             // TODO: FIX ME - GameObject does not exists when trying to add transform.
             const Resource<GameObject> gameObject = ResourceUtils::Cast<GameObject>(
                 memoryManager->Get(guid));
 
             Resource<Component> component = ResourceUtils::Cast<Component>(
-                memoryManager->Add(factory->Create(gameObject)));
+                memoryManager->Add(factory.Create(gameObject)));
 
             if (type == typeid(Transform))
             {
@@ -212,13 +205,8 @@ namespace pluto
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& memoryManager = serviceCollection.GetService<MemoryManager>();
-
-        Transform::Factory& transformFactory = serviceCollection.GetFactory<Transform>();
-        Camera::Factory& cameraFactory = serviceCollection.GetFactory<Camera>();
-        MeshRenderer::Factory& meshRendererFactory = serviceCollection.GetFactory<MeshRenderer>();
-
         auto gameObject = std::make_unique<GameObject>(
-            std::make_unique<Impl>(Guid::New(), memoryManager, transformFactory, cameraFactory, meshRendererFactory));
+            std::make_unique<Impl>(Guid::New(), memoryManager, serviceCollection));
         return gameObject;
     }
 
