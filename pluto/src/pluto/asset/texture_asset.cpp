@@ -8,14 +8,18 @@
 #include "pluto/file/file_reader.h"
 
 #include "pluto/math/color.h"
+#include "pluto/math/rect.h"
 #include "pluto/math/vector2i.h"
 
 #include "pluto/guid.h"
 #include "pluto/exception.h"
 
+#include "pluto/memory/resource.h"
+
 #include <memory>
 #include <utility>
 #include <vector>
+#include <functional>
 
 namespace pluto
 {
@@ -239,6 +243,57 @@ namespace pluto
         TextureBuffer& GetTextureBuffer()
         {
             return *textureBuffer;
+        }
+
+        std::vector<Rect> PackTextures(std::vector<Resource<TextureAsset>> textures, uint8_t padding)
+        {
+            const auto comparator = [](const Resource<TextureAsset>& lhs, const Resource<TextureAsset>& rhs)-> bool
+            {
+                return lhs->GetWidth() * lhs->GetHeight() > rhs->GetWidth() * rhs->GetHeight();
+            };
+            std::sort(textures.begin(), textures.end(), comparator);
+
+            std::vector<Rect> rects;
+            std::vector<bool> usedPixels(width * height, false);
+            std::vector<Color> pixels(width * height, Color::CLEAR);
+
+            for (auto& texture : textures)
+            {
+                const size_t rectWidth = texture->GetWidth();
+                const size_t rectHeight = texture->GetHeight();
+
+                bool place = false;
+                for (size_t row = 0; row < height && !place; ++row)
+                {
+                    for (size_t col = 0; col < width && !place; ++col)
+                    {
+                        const size_t minIndex = row * width + col;
+                        const size_t maxRow = row + rectHeight;
+                        const size_t maxCol = col + rectWidth;
+                        const size_t maxIndex = maxRow * width + maxCol;
+                        if (maxRow > height || maxCol > width || usedPixels[minIndex] || usedPixels[maxIndex])
+                        {
+                            continue;
+                        }
+
+                        for (size_t rectRow = 0; rectRow < rectHeight; ++rectRow)
+                        {
+                            for (size_t rectCol = 0; rectCol < rectWidth; ++rectCol)
+                            {
+                                const size_t index = (row + rectRow) * width + col + rectCol;
+                                usedPixels[index] = true;
+                                pixels[index] = texture->GetPixel(rectCol, rectRow);
+                            }
+                        }
+
+                        rects.emplace_back(col, row, maxCol, maxRow);
+                        place = true;
+                    }
+                }
+            }
+
+            SetPixels(pixels);
+            return rects;
         }
 
         void Clone(const Impl& other)
@@ -480,6 +535,11 @@ namespace pluto
     TextureBuffer& TextureAsset::GetTextureBuffer()
     {
         return impl->GetTextureBuffer();
+    }
+
+    std::vector<Rect> TextureAsset::PackTextures(const std::vector<Resource<TextureAsset>>& textures, uint8_t padding)
+    {
+        return impl->PackTextures(textures, padding);
     }
 
     void TextureAsset::Apply()

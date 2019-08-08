@@ -8,7 +8,10 @@
 
 namespace pluto
 {
-    class Vector2I;
+    template <typename T, typename Enable = void>
+    class Resource;
+
+    class Rect;
     class Color;
     class TextureBuffer;
     class FileReader;
@@ -115,6 +118,8 @@ namespace pluto
         void SetFilter(Filter value);
 
         TextureBuffer& GetTextureBuffer();
+
+        std::vector<Rect> PackTextures(const std::vector<Resource<TextureAsset>>& textures, uint8_t padding);
 
         void Apply();
         void Clone(const TextureAsset& other);
