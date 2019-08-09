@@ -1,32 +1,69 @@
 #include "pluto/math/rect.h"
+#include "pluto/math/vector2f.h"
 
 namespace pluto
 {
     Rect::Rect()
-        : min(Vector2F::ZERO),
-          max(Vector2F::ZERO)
+        : x(0),
+          y(0),
+          width(0),
+          height(0)
+    {
+    }
+
+    Rect::Rect(const float x, const float y, const float width, const float height)
+        : x(x),
+          y(y),
+          width(width),
+          height(height)
     {
     }
 
     Rect::Rect(const Vector2F& center, const Vector2F& size)
-        : min(center.x - size.x / 2, center.y - size.y / 2),
-          max(center.x + size.x / 2, center.y + size.y / 2)
+        : x(center.x - size.x / 2),
+          y(center.y + size.y / 2),
+          width(size.x),
+          height(size.y)
     {
     }
 
-    Rect::Rect(const float xMin, const float yMin, const float xMax, const float yMax)
-        : min(xMin, yMin),
-          max(xMax, yMax)
+    float Rect::GetX() const
     {
+        return x;
     }
 
-    const Vector2F& Rect::GetMin() const
+    float Rect::GetY() const
     {
-        return min;
+        return y;
     }
 
-    const Vector2F& Rect::GetMax() const
+    float Rect::GetWidth() const
     {
-        return max;
+        return width;
+    }
+
+    float Rect::GetHeight() const
+    {
+        return height;
+    }
+
+    Vector2F Rect::GetMin() const
+    {
+        return {x, y};
+    }
+
+    Vector2F Rect::GetMax() const
+    {
+        return {x + width, y - height};
+    }
+
+    Vector2F Rect::GetCenter()
+    {
+        return {x + width / 2, y - height / 2};
+    }
+
+    Vector2F Rect::GetSize()
+    {
+        return {width, height};
     }
 }
