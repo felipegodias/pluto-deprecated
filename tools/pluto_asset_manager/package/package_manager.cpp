@@ -4,6 +4,7 @@
 #include "../text/text_asset_manager.h"
 #include "../texture/texture_asset_manager.h"
 #include "../material/material_asset_manager.h"
+#include "../font/font_asset_compiler.h"
 
 #include <pluto/asset/asset.h>
 #include <pluto/asset/package_manifest_asset.h>
@@ -23,14 +24,15 @@ namespace pluto
     PackageManager::PackageManager(FileManager& fileManager, PackageManifestAsset::Factory& packageManifestAssetFactory,
                                    TextAssetManager& textAssetManager, MaterialAssetManager& materialAssetManager,
                                    MeshAssetManager& meshAssetManager, ShaderAssetManager& shaderAssetManager,
-                                   TextureAssetManager& textureAssetManager)
+                                   TextureAssetManager& textureAssetManager, FontAssetCompiler& fontAssetCompiler)
         : fileManager(&fileManager),
           packageManifestAssetFactory(&packageManifestAssetFactory),
           textAssetManager(&textAssetManager),
           materialAssetManager(&materialAssetManager),
           meshAssetManager(&meshAssetManager),
           shaderAssetManager(&shaderAssetManager),
-          textureAssetManager(&textureAssetManager)
+          textureAssetManager(&textureAssetManager),
+          fontAssetCompiler(&fontAssetCompiler)
     {
     }
 
@@ -78,6 +80,10 @@ namespace pluto
             else if (fileExtension == ".mat")
             {
                 asset = materialAssetManager->Create(file, outputDir);
+            }
+            else if (fileExtension == ".ttf")
+            {
+                fontAssetCompiler->Compile(file);
             }
 
             if (asset != nullptr)

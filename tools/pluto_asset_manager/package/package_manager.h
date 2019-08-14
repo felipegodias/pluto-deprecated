@@ -11,6 +11,7 @@ namespace pluto
     class MeshAssetManager;
     class ShaderAssetManager;
     class TextureAssetManager;
+    class FontAssetCompiler;
 
     class PackageManager
     {
@@ -21,12 +22,13 @@ namespace pluto
         MeshAssetManager* meshAssetManager;
         ShaderAssetManager* shaderAssetManager;
         TextureAssetManager* textureAssetManager;
+        FontAssetCompiler* fontAssetCompiler;
 
     public:
         PackageManager(FileManager& fileManager, PackageManifestAsset::Factory& packageManifestAssetFactory,
                        TextAssetManager& textAssetManager, MaterialAssetManager& materialAssetManager,
                        MeshAssetManager& meshAssetManager, ShaderAssetManager& shaderAssetManager,
-                       TextureAssetManager& textureAssetManager);
+                       TextureAssetManager& textureAssetManager, FontAssetCompiler& fontAssetCompiler);
 
         void Create(const Path& path);
     };

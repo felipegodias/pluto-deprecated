@@ -12,6 +12,7 @@
 #include "texture/texture_asset_menu.h"
 #include "package/package_manager.h"
 #include "package/package_menu.h"
+#include "font/font_asset_compiler.h"
 
 #include "base_menu.h"
 #include "menu_options.h"
@@ -56,6 +57,7 @@ namespace pluto
         std::unique_ptr<ShaderAssetManager> shaderAssetManager;
         std::unique_ptr<TextureAssetManager> textureAssetManager;
         std::unique_ptr<PackageManager> packageManager;
+        std::unique_ptr<FontAssetCompiler> fontAssetCompiler;
 
         std::unique_ptr<TextAssetMenu> textAssetMenu;
         std::unique_ptr<MaterialAssetMenu> materialAssetMenu;
@@ -124,10 +126,12 @@ namespace pluto
 
             textureAssetManager = std::make_unique<TextureAssetManager>(fileManager, textureAssetFactory);
 
+            fontAssetCompiler = std::make_unique<FontAssetCompiler>(fileManager);
+
             packageManager = std::make_unique<PackageManager>(fileManager, packageManifestAssetFactory,
                                                               *textAssetManager, *materialAssetManager,
                                                               *meshAssetManager, *shaderAssetManager,
-                                                              *textureAssetManager);
+                                                              *textureAssetManager, *fontAssetCompiler);
 
             packageMenu = std::make_unique<PackageMenu>(*packageManager, std::bind(&MainMenu::SetMainAsCurrent, this));
 
