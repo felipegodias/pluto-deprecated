@@ -8,8 +8,9 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/stop_watch.cpp
     # ./asset
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/asset.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/asset/asset_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/asset_installer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/asset/asset_manager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/asset/font_asset.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/material_asset.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/mesh_asset.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/asset/package_manifest_asset.cpp
@@ -44,6 +45,7 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/math/matrix3x3.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/matrix4x4.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/quaternion.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/math/rect.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/vector2f.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/vector2i.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/math/vector3f.cpp

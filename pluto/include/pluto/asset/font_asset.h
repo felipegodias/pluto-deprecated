@@ -13,10 +13,6 @@ namespace pluto
     class PLUTO_API FontAsset final : public Asset
     {
     public:
-        class PLUTO_API Glyph
-        {
-        };
-
         class PLUTO_API Factory final : public Asset::Factory
         {
         public:
@@ -31,7 +27,7 @@ namespace pluto
     public:
         ~FontAsset() override;
 
-        explicit FontAsset(const std::unique_ptr<Impl>& impl);
+        explicit FontAsset(std::unique_ptr<Impl> impl);
 
         FontAsset(const FontAsset& other) = delete;
         FontAsset(FontAsset&& other) noexcept;
@@ -42,10 +38,5 @@ namespace pluto
         const std::string& GetName() const override;
         void SetName(const std::string& value) override;
         void Dump(FileWriter& fileWriter) const override;
-
-        const Glyph& GetGlyph(char character) const;
-        bool HasCharacter(char character) const;
-
-        Resource<TextureAsset> GetTexture() const;
     };
 }
