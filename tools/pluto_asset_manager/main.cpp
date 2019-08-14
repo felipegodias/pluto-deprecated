@@ -72,40 +72,43 @@ namespace pluto
             : mainMenu(MenuOptions("Main Menu"))
         {
             serviceCollection = std::make_unique<ServiceCollection>();
-            serviceCollection->AddService(std::make_unique<FileReader::Factory>(*serviceCollection));
-            serviceCollection->AddService(std::make_unique<FileWriter::Factory>(*serviceCollection));
+
+            serviceCollection->AddFactory<FileReader>(std::make_unique<FileReader::Factory>(*serviceCollection));
+            serviceCollection->AddFactory<FileWriter>(std::make_unique<FileWriter::Factory>(*serviceCollection));
+
             const FileManager::Factory fileManagerFactory(*serviceCollection);
             FileManager& fileManager = serviceCollection->AddService(fileManagerFactory.Create(Path("C:/")));
 
             std::unique_ptr<FileWriter> logFile = fileManager.OpenWrite(Path("pluto.log"));
             LogInstaller::Install(std::move(logFile), *serviceCollection);
 
-            TextAsset::Factory& textAssetFactory = serviceCollection->AddService(
+            TextAsset::Factory& textAssetFactory = serviceCollection->AddFactory<TextAsset>(
                 std::make_unique<TextAsset::Factory>(*serviceCollection));
 
-            auto& materialAssetFactory = serviceCollection->AddService(
+            auto& materialAssetFactory = serviceCollection->AddFactory<MaterialAsset>(
                 std::make_unique<MaterialAsset::Factory>(*serviceCollection));
 
-            serviceCollection->AddService<MeshBuffer::Factory>(
+            serviceCollection->AddFactory<MeshBuffer>(
                 std::make_unique<GlMeshBuffer::Factory>(*serviceCollection));
-            MeshAsset::Factory& meshAssetFactory = serviceCollection->AddService(
+            MeshAsset::Factory& meshAssetFactory = serviceCollection->AddFactory<MeshAsset>(
                 std::make_unique<MeshAsset::Factory>(*serviceCollection));
 
-            serviceCollection->AddService<ShaderProgram::Factory
-            >(std::make_unique<DummyShaderProgram::Factory>(*serviceCollection));
-            ShaderAsset::Factory& shaderAssetFactory = serviceCollection->AddService(
+            serviceCollection->AddFactory<ShaderProgram>(
+                std::make_unique<DummyShaderProgram::Factory>(*serviceCollection));
+
+            ShaderAsset::Factory& shaderAssetFactory = serviceCollection->AddFactory<ShaderAsset>(
                 std::make_unique<ShaderAsset::Factory>(*serviceCollection));
 
-            serviceCollection->AddService<TextureBuffer::Factory
-            >(std::make_unique<DummyTextureBuffer::Factory>(*serviceCollection));
+            serviceCollection->AddFactory<TextureBuffer>(
+                std::make_unique<DummyTextureBuffer::Factory>(*serviceCollection));
 
-            TextureAsset::Factory& textureAssetFactory = serviceCollection->AddService(
+            TextureAsset::Factory& textureAssetFactory = serviceCollection->AddFactory<TextureAsset>(
                 std::make_unique<TextureAsset::Factory>(*serviceCollection));
 
-            PackageManifestAsset::Factory& packageManifestAssetFactory = serviceCollection->AddService(
-                std::make_unique<PackageManifestAsset::Factory>(*serviceCollection));
+            PackageManifestAsset::Factory& packageManifestAssetFactory = serviceCollection->AddFactory<
+                PackageManifestAsset>(std::make_unique<PackageManifestAsset::Factory>(*serviceCollection));
 
-            auto& resourceControlFactory = serviceCollection->AddService(
+            auto& resourceControlFactory = serviceCollection->AddFactory<ResourceControl>(
                 std::make_unique<ResourceControl::Factory>(*serviceCollection));
 
             const MemoryManager::Factory memoryManagerFactory(*serviceCollection);

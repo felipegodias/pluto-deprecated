@@ -114,11 +114,7 @@ namespace pluto
             triangles.push_back(t);
         }
 
-        ServiceCollection serviceCollection;
-        serviceCollection.AddService<MeshBuffer::Factory>(std::make_unique<GlMeshBuffer::Factory>(serviceCollection));
-        const MeshAsset::Factory factory(serviceCollection);
-
-        auto meshAsset = factory.Create();
+        auto meshAsset = meshAssetFactory->Create();
 
         // Evil, I know. But it's better than expose the guid to changes directly.
         const_cast<Guid&>(meshAsset->GetId()) = guid;

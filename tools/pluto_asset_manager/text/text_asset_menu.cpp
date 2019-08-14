@@ -1,6 +1,5 @@
 #include "text_asset_menu.h"
 #include "text_asset_manager.h"
-#include "../asset_dumper.h"
 
 #include <pluto/guid.h>
 #include <pluto/file/path.h>

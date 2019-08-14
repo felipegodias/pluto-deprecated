@@ -2,10 +2,11 @@ project(pluto_asset_manager CXX)
 
 list(APPEND ASSET_MANAGER_SOURCE_FILES
     # .
-    ${CMAKE_CURRENT_SOURCE_DIR}/asset_dumper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/base_menu.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menu_options.cpp
+    # ./font
+    ${CMAKE_CURRENT_SOURCE_DIR}/font/font_asset_compiler.cpp
     # ./material
     ${CMAKE_CURRENT_SOURCE_DIR}/material/material_asset_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/material/material_asset_menu.cpp
