@@ -2,6 +2,8 @@
 
 #include "pluto/api.h"
 #include <memory>
+#include <vector>
+#include <functional>
 
 namespace pluto
 {
@@ -24,6 +26,9 @@ namespace pluto
 
         template <typename T, std::enable_if_t<std::is_base_of_v<BaseService, T>, bool>  = false>
         T& AddService(std::unique_ptr<T> instance);
+        template <typename T, typename ... Args, std::enable_if_t<
+                      std::is_base_of_v<BaseService, T> && std::is_constructible_v<T, Args...>, bool>  = false>
+        T& EmplaceService(Args&& ... args);
         template <typename T, std::enable_if_t<std::is_base_of_v<BaseService, T>, bool>  = false>
         void RemoveService();
         template <typename T, std::enable_if_t<std::is_base_of_v<BaseService, T>, bool>  = false>
@@ -31,6 +36,9 @@ namespace pluto
 
         template <typename T, std::enable_if_t<std::is_base_of_v<BaseFactory, typename T::Factory>, bool>  = false>
         typename T::Factory& AddFactory(std::unique_ptr<typename T::Factory> instance);
+        template <typename T, typename F, typename ... Args, std::enable_if_t<
+                      std::is_base_of_v<typename T::Factory, F> && std::is_constructible_v<F, Args...>, bool>  = false>
+        F& EmplaceFactory(Args&& ... args);
         template <typename T, std::enable_if_t<std::is_base_of_v<BaseFactory, typename T::Factory>, bool>  = false>
         void RemoveFactory();
         template <typename T, std::enable_if_t<std::is_base_of_v<BaseFactory, typename T::Factory>, bool>  = false>
