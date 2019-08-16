@@ -20,9 +20,9 @@ void OnInit(ServiceCollection& serviceCollection)
     cameraGo->GetTransform()->SetLocalPosition({0, 0, -1});
     Resource<Camera> camera = cameraGo->AddComponent<Camera>();
 
-    const Resource<MeshAsset> meshAsset = assetManager.Load<MeshAsset>(Path("meshes/quad.obj"));
+    const Resource<MeshAsset> meshAsset = assetManager.Load<MeshAsset>("meshes/quad.obj");
 
-    const Resource<MaterialAsset> material = assetManager.Load<MaterialAsset>(Path("materials/pluto-logo.mat"));
+    const Resource<MaterialAsset> material = assetManager.Load<MaterialAsset>("materials/pluto-logo.mat");
 
     Resource<GameObject> quadGo = sceneManager.GetActiveScene().CreateGameObject("Transparent");
     quadGo->GetTransform()->SetPosition({0, 0, 0});

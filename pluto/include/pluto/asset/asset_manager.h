@@ -40,14 +40,14 @@ namespace pluto
         AssetManager& operator=(AssetManager&& rhs) noexcept;
 
         template <typename T, std::enable_if_t<std::is_base_of_v<Asset, T>, bool>  = false>
-        Resource<T> Load(const Path& path);
+        Resource<T> Load(const std::string& path);
         template <typename T, std::enable_if_t<std::is_base_of_v<Asset, T>, bool>  = false>
         Resource<T> Load(const Guid& guid);
         template <typename T, std::enable_if_t<std::is_base_of_v<Asset, T>, bool>  = false>
         Resource<T> Register(std::unique_ptr<T> asset);
 
         void LoadPackage(const std::string& name);
-        Resource<Asset> Load(const std::type_info& type, const Path& path);
+        Resource<Asset> Load(const std::type_info& type, const std::string& path);
         Resource<Asset> Load(const std::type_info& type, const Guid& guid);
         void Unload(const Asset& asset);
         Resource<Asset> RegisterAsset(std::unique_ptr<Asset> asset);

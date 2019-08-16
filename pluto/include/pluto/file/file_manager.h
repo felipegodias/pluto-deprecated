@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <vector>
+#include <string>
 
 namespace pluto
 {
@@ -20,7 +21,7 @@ namespace pluto
         {
         public:
             explicit Factory(ServiceCollection& serviceCollection);
-            std::unique_ptr<FileManager> Create(const Path& rootPath) const;
+            std::unique_ptr<FileManager> Create(const std::string& rootPath) const;
         };
 
         enum SearchOptions
@@ -38,38 +39,40 @@ namespace pluto
 
         ~FileManager();
 
-        Path GetRootPath() const;
+        std::string GetRootPath() const;
 
-        void SetRootPath(const Path& value);
+        void SetRootPath(const std::string& value);
 
-        bool Exists(const Path& path) const;
+        bool Exists(const std::string& path) const;
 
-        bool IsFile(const Path& path) const;
+        bool IsFile(const std::string& path) const;
 
-        bool IsDirectory(const Path& path) const;
+        bool IsDirectory(const std::string& path) const;
 
-        std::vector<Path> GetDirectories(const Path& path) const;
+        std::vector<std::string> GetDirectories(const std::string& path) const;
 
-        std::vector<Path> GetDirectories(const Path& path, SearchOptions searchOptions) const;
+        std::vector<std::string> GetDirectories(const std::string& path, SearchOptions searchOptions) const;
 
-        std::vector<Path> GetDirectories(const Path& path, const Regex& regex) const;
+        std::vector<std::string> GetDirectories(const std::string& path, const Regex& regex) const;
 
-        std::vector<Path> GetDirectories(const Path& path, const Regex& regex, SearchOptions searchOptions) const;
+        std::vector<std::string> GetDirectories(const std::string& path, const Regex& regex,
+                                                SearchOptions searchOptions) const;
 
-        std::vector<Path> GetFiles(const Path& path) const;
+        std::vector<std::string> GetFiles(const std::string& path) const;
 
-        std::vector<Path> GetFiles(const Path& path, SearchOptions searchOptions) const;
+        std::vector<std::string> GetFiles(const std::string& path, SearchOptions searchOptions) const;
 
-        std::vector<Path> GetFiles(const Path& path, const Regex& regex) const;
+        std::vector<std::string> GetFiles(const std::string& path, const Regex& regex) const;
 
-        std::vector<Path> GetFiles(const Path& path, const Regex& regex, SearchOptions searchOptions) const;
+        std::vector<std::string> GetFiles(const std::string& path, const Regex& regex,
+                                          SearchOptions searchOptions) const;
 
-        void CreateDirectory(const Path& path) const;
+        void CreateDirectory(const std::string& path) const;
 
-        std::unique_ptr<FileReader> OpenRead(const Path& path) const;
+        std::unique_ptr<FileReader> OpenRead(const std::string& path) const;
 
-        std::unique_ptr<FileWriter> OpenWrite(const Path& path) const;
+        std::unique_ptr<FileWriter> OpenWrite(const std::string& path) const;
 
-        void Delete(const Path& path) const;
+        void Delete(const std::string& path) const;
     };
 }

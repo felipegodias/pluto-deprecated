@@ -43,13 +43,13 @@ namespace pluto
             FileInstaller::Install(dataDirectoryName, *serviceCollection);
             auto& fileManager = serviceCollection->GetService<FileManager>();
 
-            std::unique_ptr<FileWriter> logFile = fileManager.OpenWrite(Path(logFileName));
+            std::unique_ptr<FileWriter> logFile = fileManager.OpenWrite(logFileName);
             LogInstaller::Install(std::move(logFile), *serviceCollection);
 
             std::unique_ptr<FileReader> configFile;
-            if (fileManager.Exists(Path(configFileName)))
+            if (fileManager.Exists(configFileName))
             {
-                configFile = fileManager.OpenRead(Path(configFileName));
+                configFile = fileManager.OpenRead(configFileName);
             }
             ConfigInstaller::Install(configFile.get(), *serviceCollection);
 

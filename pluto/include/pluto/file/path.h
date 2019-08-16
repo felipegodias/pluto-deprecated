@@ -3,40 +3,32 @@
 #include "pluto/service/base_factory.h"
 
 #include <string>
-#include <memory>
+#include <vector>
 
 namespace pluto
 {
     class PLUTO_API Path
     {
-        class Impl;
-        std::unique_ptr<Impl> impl;
-
     public:
-        explicit Path(const std::string& path);
+        ~Path() = delete;
+        Path() = delete;
 
-        Path(const Path& other);
-        Path(Path&& other) noexcept;
+        Path(const std::string& other) = delete;
+        Path(Path&& other) noexcept = delete;
+        Path& operator=(const std::string& rhs) = delete;
+        Path& operator=(Path&& rhs) noexcept = delete;
 
-        ~Path();
+        static std::string Normalize(const std::string& path);
+        static std::string ChangeExtension(const std::string& path, const std::string& extension);
+        static bool HasExtension(const std::string& path);
+        static std::string RemoveExtension(const std::string& path);
+        static std::string GetExtension(const std::string& path);
 
-        Path& operator=(const Path& rhs);
-        Path& operator=(Path&& rhs) noexcept;
+        static std::string Combine(const std::vector<std::string>& values);
 
-        friend PLUTO_API std::ostream& operator<<(std::ostream& os, const Path& path);
-
-        std::string GetName() const;
-        std::string GetNameWithoutExtension() const;
-
-        bool HasExtension() const;
-        std::string GetExtension() const;
-        Path GetDirectory() const;
-
-        Path GetRelativePath(const Path& directoryPath);
-
-        std::string Str() const;
-
-        void ChangeExtension(const std::string& extension);
-        void RemoveExtension();
+        static std::string GetRelativePath(const std::string& path, const std::string& base);
+        static std::string GetDirectoryName(const std::string& path);
+        static std::string GetFileName(const std::string& path);
+        static std::string GetFileNameWithoutExtension(const std::string& path);
     };
 }

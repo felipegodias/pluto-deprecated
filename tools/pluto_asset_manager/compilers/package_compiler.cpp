@@ -57,7 +57,7 @@ namespace pluto::compiler
 
         packageManifest->SetName(path.GetName());
 
-        for (const Path& plutoFile : plutoFiles)
+        for (const std::string& plutoFile : plutoFiles)
         {
             Path file = plutoFile;
 

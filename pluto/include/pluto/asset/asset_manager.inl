@@ -5,7 +5,7 @@
 namespace pluto
 {
     template <typename T, std::enable_if_t<std::is_base_of_v<Asset, T>, bool>>
-    Resource<T> AssetManager::Load(const Path& path)
+    Resource<T> AssetManager::Load(const std::string& path)
     {
         return ResourceUtils::Cast<T>(Load(typeid(T), path));
     }

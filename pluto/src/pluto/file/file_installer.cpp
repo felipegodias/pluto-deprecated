@@ -11,7 +11,7 @@ namespace pluto
     {
         serviceCollection.AddFactory<FileReader>(std::make_unique<FileReader::Factory>(serviceCollection));
         serviceCollection.AddFactory<FileWriter>(std::make_unique<FileWriter::Factory>(serviceCollection));
-        serviceCollection.AddService(FileManager::Factory(serviceCollection).Create(Path(dataDirectoryName)));
+        serviceCollection.AddService(FileManager::Factory(serviceCollection).Create(dataDirectoryName));
     }
 
     void FileInstaller::Uninstall(ServiceCollection& serviceCollection)

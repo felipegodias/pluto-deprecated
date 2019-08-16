@@ -53,15 +53,15 @@ namespace pluto
             }
 
             const std::string physicalFilePath = fmt::format("packages/{0}/{0}", name);
-            Resource<Asset> package = LoadFromFile(typeid(PackageManifestAsset), Path(physicalFilePath));
+            Resource<Asset> package = LoadFromFile(typeid(PackageManifestAsset), physicalFilePath);
         }
 
-        Resource<Asset> Load(const std::type_info& type, const Path& path)
+        Resource<Asset> Load(const std::type_info& type, const std::string& path)
         {
             const PackageManifestAsset* package = nullptr;
             for (const auto& manifest : manifests)
             {
-                if (manifest.second->Contains(path.Str()))
+                if (manifest.second->Contains(path))
                 {
                     package = manifest.second;
                     break;
@@ -73,7 +73,7 @@ namespace pluto
                 return nullptr;
             }
 
-            const Guid guid = package->GetAssetGuid(path.Str());
+            const Guid guid = package->GetAssetGuid(path);
 
             const Resource<Object> resource = memoryManager->Get(guid);
             if (resource != nullptr)
@@ -81,7 +81,7 @@ namespace pluto
                 return ResourceUtils::Cast<Asset>(resource);
             }
 
-            const Path physicalFilePath(fmt::format("packages/{0}/{1}", package->GetName(), guid));
+            const std::string physicalFilePath(fmt::format("packages/{0}/{1}", package->GetName(), guid));
             return LoadFromFile(type, physicalFilePath);
         }
 
@@ -109,7 +109,7 @@ namespace pluto
             }
 
             const std::string physicalFilePath = fmt::format("packages/{0}/{1}", package->GetName(), guid);
-            return LoadFromFile(type, Path(physicalFilePath));
+            return LoadFromFile(type, physicalFilePath);
         }
 
         void Unload(const Asset& asset)
@@ -144,7 +144,7 @@ namespace pluto
         }
 
     private:
-        Resource<Asset> LoadFromFile(const std::type_info& type, const Path& path)
+        Resource<Asset> LoadFromFile(const std::type_info& type, const std::string& path)
         {
             if (!fileManager->Exists(path))
             {
@@ -190,7 +190,7 @@ namespace pluto
         impl->LoadPackage(name);
     }
 
-    Resource<Asset> AssetManager::Load(const std::type_info& type, const Path& path)
+    Resource<Asset> AssetManager::Load(const std::type_info& type, const std::string& path)
     {
         return impl->Load(type, path);
     }
