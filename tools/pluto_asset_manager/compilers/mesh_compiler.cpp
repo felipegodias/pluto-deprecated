@@ -1,4 +1,4 @@
-#include "mesh_asset_manager.h"
+#include "mesh_compiler.h"
 
 #include <pluto/guid.h>
 #include <pluto/service/service_collection.h>
@@ -22,20 +22,23 @@
 #include <unordered_map>
 #include <iostream>
 
-namespace pluto
+namespace pluto::compiler
 {
-    MeshAssetManager::~MeshAssetManager() = default;
-
-    MeshAssetManager::
-    MeshAssetManager(FileManager& fileManager, MeshAsset::Factory& meshAssetFactory)
+    MeshCompiler::MeshCompiler(FileManager& fileManager, MeshAsset::Factory& meshAssetFactory)
         : fileManager(&fileManager),
-          meshAssetFactory(
-              &meshAssetFactory)
+          meshAssetFactory(&meshAssetFactory)
     {
     }
 
-    std::unique_ptr<MeshAsset> MeshAssetManager::Create(const Path& inputPath, const Path& outputDir)
+    std::vector<std::string> MeshCompiler::GetExtensions() const
     {
+        return {".obj"};
+    }
+
+    std::vector<BaseCompiler::CompiledAsset> MeshCompiler::Compile(const std::string& input,
+                                                                   const std::string& outputDir) const
+    {
+        Path inputPath = Path(input);
         Path plutoFilePath = inputPath;
         plutoFilePath.ChangeExtension(plutoFilePath.GetExtension() + ".pluto");
         if (!fileManager->Exists(plutoFilePath))
@@ -124,17 +127,11 @@ namespace pluto
         meshAsset->SetUVs(std::move(uvs));
         meshAsset->SetTriangles(std::move(triangles));
 
-        const auto fileWriter = fileManager->OpenWrite(Path(outputDir.Str() + "/" + meshAsset->GetId().Str()));
+        const auto fileWriter = fileManager->OpenWrite(Path(outputDir + "/" + meshAsset->GetId().Str()));
         meshAsset->Dump(*fileWriter);
-        std::cout << "Asset \"" << meshAsset->GetName() << "\" saved with id " << meshAsset->GetId() << "."
-            << std::endl;
-        return meshAsset;
-    }
 
-    std::unique_ptr<MeshAsset> MeshAssetManager::Load(const Path& path)
-    {
-        const auto fileReader = fileManager->OpenRead(path);
-        std::unique_ptr<Asset> asset = meshAssetFactory->Create(*fileReader);
-        return std::unique_ptr<MeshAsset>(dynamic_cast<MeshAsset*>(asset.release()));
+        std::vector<CompiledAsset> assets;
+        assets.push_back({meshAsset->GetId(), input});
+        return assets;
     }
 }

@@ -1,4 +1,4 @@
-#include "text_asset_manager.h"
+#include "text_compiler.h"
 
 #include <pluto/asset/text_asset.h>
 #include <pluto/file/file_reader.h>
@@ -12,20 +12,23 @@
 #include <filesystem>
 #include <iostream>
 
-namespace pluto
+namespace pluto::compiler
 {
-    TextAssetManager::~TextAssetManager() = default;
-
-    TextAssetManager::
-    TextAssetManager(FileManager& fileManager, TextAsset::Factory& textAssetFactory)
+    TextCompiler::TextCompiler(FileManager& fileManager, TextAsset::Factory& textAssetFactory)
         : fileManager(&fileManager),
-          textAssetFactory(
-              &textAssetFactory)
+          textAssetFactory(&textAssetFactory)
     {
     }
 
-    std::unique_ptr<TextAsset> TextAssetManager::Create(const Path& inputPath, const Path& outputDir)
+    std::vector<std::string> TextCompiler::GetExtensions() const
     {
+        return {".txt"};
+    }
+
+    std::vector<BaseCompiler::CompiledAsset> TextCompiler::Compile(const std::string& input,
+                                                                   const std::string& outputDir) const
+    {
+        auto inputPath = Path(input);
         Path plutoFilePath = inputPath;
         plutoFilePath.ChangeExtension(plutoFilePath.GetExtension() + ".pluto");
         if (!fileManager->Exists(plutoFilePath))
@@ -48,18 +51,12 @@ namespace pluto
         // Evil, I know. But it's better than expose the guid to changes directly.
         const_cast<Guid&>(textAsset->GetId()) = guid;
 
-        const auto fileWriter = fileManager->OpenWrite(Path(outputDir.Str() + "/" + textAsset->GetId().Str()));
+        const auto fileWriter = fileManager->OpenWrite(Path(outputDir + "/" + textAsset->GetId().Str()));
         textAsset->Dump(*fileWriter);
-        std::cout << "Asset \"" << textAsset->GetName() << "\" saved with id " << textAsset->GetId() << "."
-            << std::endl;
 
-        return textAsset;
-    }
+        std::vector<CompiledAsset> assets;
+        assets.push_back({textAsset->GetId(), input});
 
-    std::unique_ptr<TextAsset> TextAssetManager::Load(const Path& path)
-    {
-        const auto fileReader = fileManager->OpenRead(path);
-        auto asset = textAssetFactory->Create(*fileReader);
-        return std::unique_ptr<TextAsset>(dynamic_cast<TextAsset*>(asset.release()));
+        return assets;
     }
 }

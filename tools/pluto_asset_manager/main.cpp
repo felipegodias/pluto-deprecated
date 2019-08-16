@@ -1,23 +1,14 @@
-#include "text/text_asset_manager.h"
-#include "text/text_asset_menu.h"
-#include "material/material_asset_manager.h"
-#include "material/material_asset_menu.h"
-#include "mesh/mesh_asset_manager.h"
-#include "mesh/mesh_asset_menu.h"
-#include "shader/dummy_shader_program.h"
-#include "shader/shader_asset_manager.h"
-#include "shader/shader_asset_menu.h"
-#include "texture/dummy_texture_buffer.h"
-#include "texture/texture_asset_manager.h"
-#include "texture/texture_asset_menu.h"
-#include "package/package_manager.h"
-#include "package/package_menu.h"
-#include "font/font_asset_compiler.h"
+#include "compilers/font_compiler.h"
+#include "compilers/material_compiler.h"
+#include "compilers/mesh_compiler.h"
+#include "compilers/package_compiler.h"
+#include "compilers/shader_compiler.h"
+#include "compilers/text_compiler.h"
+#include "compilers/texture_compiler.h"
 
-#include "base_menu.h"
-#include "menu_options.h"
+#include "dummy/dummy_shader_program.h"
+#include "dummy/dummy_texture_buffer.h"
 
-#include <pluto/asset/asset.h>
 #include <pluto/asset/text_asset.h>
 #include <pluto/asset/mesh_asset.h>
 #include <pluto/asset/texture_asset.h>
@@ -45,184 +36,6 @@
 #include <iostream>
 #include <memory>
 
-namespace pluto
-{
-    class MainMenu final : public BaseMenu
-    {
-        std::unique_ptr<ServiceCollection> serviceCollection;
-
-        std::unique_ptr<TextAssetManager> textAssetManager;
-        std::unique_ptr<MaterialAssetManager> materialAssetManager;
-        std::unique_ptr<MeshAssetManager> meshAssetManager;
-        std::unique_ptr<ShaderAssetManager> shaderAssetManager;
-        std::unique_ptr<TextureAssetManager> textureAssetManager;
-        std::unique_ptr<PackageManager> packageManager;
-        std::unique_ptr<FontAssetCompiler> fontAssetCompiler;
-
-        std::unique_ptr<TextAssetMenu> textAssetMenu;
-        std::unique_ptr<MaterialAssetMenu> materialAssetMenu;
-        std::unique_ptr<MeshAssetMenu> meshAssetMenu;
-        std::unique_ptr<ShaderAssetMenu> shaderAssetMenu;
-        std::unique_ptr<TextureAssetMenu> textureAssetMenu;
-        std::unique_ptr<PackageMenu> packageMenu;
-
-        BaseMenu* currentMenu;
-        MenuOptions mainMenu;
-
-    public:
-        MainMenu()
-            : mainMenu(MenuOptions("Main Menu"))
-        {
-            serviceCollection = std::make_unique<ServiceCollection>();
-
-            serviceCollection->AddFactory<FileReader>(std::make_unique<FileReader::Factory>(*serviceCollection));
-            serviceCollection->AddFactory<FileWriter>(std::make_unique<FileWriter::Factory>(*serviceCollection));
-
-            const FileManager::Factory fileManagerFactory(*serviceCollection);
-            FileManager& fileManager = serviceCollection->AddService(fileManagerFactory.Create(Path("C:/")));
-
-            std::unique_ptr<FileWriter> logFile = fileManager.OpenWrite(Path("pluto.log"));
-            LogInstaller::Install(std::move(logFile), *serviceCollection);
-
-            TextAsset::Factory& textAssetFactory = serviceCollection->AddFactory<TextAsset>(
-                std::make_unique<TextAsset::Factory>(*serviceCollection));
-
-            auto& materialAssetFactory = serviceCollection->AddFactory<MaterialAsset>(
-                std::make_unique<MaterialAsset::Factory>(*serviceCollection));
-
-            serviceCollection->AddFactory<MeshBuffer>(
-                std::make_unique<GlMeshBuffer::Factory>(*serviceCollection));
-            MeshAsset::Factory& meshAssetFactory = serviceCollection->AddFactory<MeshAsset>(
-                std::make_unique<MeshAsset::Factory>(*serviceCollection));
-
-            serviceCollection->AddFactory<ShaderProgram>(
-                std::make_unique<DummyShaderProgram::Factory>(*serviceCollection));
-
-            ShaderAsset::Factory& shaderAssetFactory = serviceCollection->AddFactory<ShaderAsset>(
-                std::make_unique<ShaderAsset::Factory>(*serviceCollection));
-
-            serviceCollection->AddFactory<TextureBuffer>(
-                std::make_unique<DummyTextureBuffer::Factory>(*serviceCollection));
-
-            TextureAsset::Factory& textureAssetFactory = serviceCollection->AddFactory<TextureAsset>(
-                std::make_unique<TextureAsset::Factory>(*serviceCollection));
-
-            PackageManifestAsset::Factory& packageManifestAssetFactory = serviceCollection->AddFactory<
-                PackageManifestAsset>(std::make_unique<PackageManifestAsset::Factory>(*serviceCollection));
-
-            auto& resourceControlFactory = serviceCollection->AddFactory<ResourceControl>(
-                std::make_unique<ResourceControl::Factory>(*serviceCollection));
-
-            const MemoryManager::Factory memoryManagerFactory(*serviceCollection);
-            serviceCollection->AddService(memoryManagerFactory.Create());
-
-            textAssetManager = std::make_unique<TextAssetManager>(fileManager, textAssetFactory);
-
-            materialAssetManager = std::make_unique<MaterialAssetManager>(
-                fileManager, materialAssetFactory, resourceControlFactory);
-
-            meshAssetManager = std::make_unique<MeshAssetManager>(fileManager, meshAssetFactory);
-            shaderAssetManager = std::make_unique<ShaderAssetManager>(fileManager, shaderAssetFactory);
-
-            textureAssetManager = std::make_unique<TextureAssetManager>(fileManager, textureAssetFactory);
-
-            fontAssetCompiler = std::make_unique<FontAssetCompiler>(fileManager);
-
-            packageManager = std::make_unique<PackageManager>(fileManager, packageManifestAssetFactory,
-                                                              *textAssetManager, *materialAssetManager,
-                                                              *meshAssetManager, *shaderAssetManager,
-                                                              *textureAssetManager, *fontAssetCompiler);
-
-            packageMenu = std::make_unique<PackageMenu>(*packageManager, std::bind(&MainMenu::SetMainAsCurrent, this));
-
-            materialAssetMenu = std::make_unique<MaterialAssetMenu>(*materialAssetManager,
-                                                                    std::bind(&MainMenu::SetMainAsCurrent, this));
-
-            textAssetMenu = std::make_unique<TextAssetMenu>(*textAssetManager,
-                                                            std::bind(&MainMenu::SetMainAsCurrent, this));
-            meshAssetMenu = std::make_unique<MeshAssetMenu>(*meshAssetManager,
-                                                            std::bind(&MainMenu::SetMainAsCurrent, this));
-
-            shaderAssetMenu = std::make_unique<ShaderAssetMenu>(*shaderAssetManager,
-                                                                std::bind(&MainMenu::SetMainAsCurrent, this));
-
-            textureAssetMenu = std::make_unique<TextureAssetMenu>(*textureAssetManager,
-                                                                  std::bind(&MainMenu::SetMainAsCurrent, this));
-
-            mainMenu.AddOption(0, "Exit", []()
-            {
-                glfwTerminate();
-                exit(0);
-            });
-
-            mainMenu.AddOption(static_cast<int>(Asset::Type::PackageManifest), "Package",
-                               std::bind(&MainMenu::SetPackageAsCurrentContext, this));
-
-            mainMenu.AddOption(static_cast<int>(Asset::Type::Text), "Texts",
-                               std::bind(&MainMenu::SetTextAsCurrentContext, this));
-
-            mainMenu.AddOption(static_cast<int>(Asset::Type::Mesh), "Meshes",
-                               std::bind(&MainMenu::SetMeshAsCurrentContext, this));
-
-            mainMenu.AddOption(static_cast<int>(Asset::Type::Shader), "Shaders",
-                               std::bind(&MainMenu::SetShaderAsCurrentContext, this));
-
-            mainMenu.AddOption(static_cast<int>(Asset::Type::Texture), "Textures",
-                               std::bind(&MainMenu::SetTextureAsCurrentContext, this));
-
-            mainMenu.AddOption(static_cast<int>(Asset::Type::Material), "Materials",
-                               std::bind(&MainMenu::SetMaterialAsCurrentContext, this));
-
-            currentMenu = this;
-        }
-
-        void SetMainAsCurrent()
-        {
-            currentMenu = this;
-        }
-
-        void SetPackageAsCurrentContext()
-        {
-            currentMenu = packageMenu.get();
-        }
-
-        void SetTextAsCurrentContext()
-        {
-            currentMenu = textAssetMenu.get();
-        }
-
-        void SetMaterialAsCurrentContext()
-        {
-            currentMenu = materialAssetMenu.get();
-        }
-
-        void SetMeshAsCurrentContext()
-        {
-            currentMenu = meshAssetMenu.get();
-        }
-
-        void SetShaderAsCurrentContext()
-        {
-            currentMenu = shaderAssetMenu.get();
-        }
-
-        void SetTextureAsCurrentContext()
-        {
-            currentMenu = textureAssetMenu.get();
-        }
-
-        const MenuOptions& GetCurrentMenuOptions() const override
-        {
-            if (currentMenu == this)
-            {
-                return mainMenu;
-            }
-
-            return currentMenu->GetCurrentMenuOptions();
-        }
-    };
-}
-
 void InitGl()
 {
     if (!glfwInit())
@@ -245,26 +58,96 @@ void InitGl()
     }
 }
 
+namespace pluto::compiler
+{
+    void Compile(const std::string& input)
+    {
+        std::unique_ptr<ServiceCollection> serviceCollection = std::make_unique<ServiceCollection>();
+
+        auto& fontAssetFactory = serviceCollection->EmplaceFactory<FontAsset, FontAsset::Factory>(*serviceCollection);
+
+        auto& materialAssetFactory = serviceCollection->EmplaceFactory<MaterialAsset, MaterialAsset::Factory>(
+            *serviceCollection);
+
+        auto& meshAssetFactory = serviceCollection->EmplaceFactory<MeshAsset, MeshAsset::Factory>(*serviceCollection);
+
+        auto& packageManifestAssetFactory = serviceCollection->EmplaceFactory<
+            PackageManifestAsset, PackageManifestAsset::Factory>(*serviceCollection);
+
+        auto& shaderAssetFactory = serviceCollection->EmplaceFactory<ShaderAsset, ShaderAsset::Factory>(
+            *serviceCollection);
+
+        auto& textAssetFactory = serviceCollection->EmplaceFactory<TextAsset, TextAsset::Factory>(*serviceCollection);
+
+        auto& textureAssetFactory = serviceCollection->EmplaceFactory<TextureAsset, TextureAsset::Factory>(
+            *serviceCollection);
+
+        auto& resourceControlFactory = serviceCollection->EmplaceFactory<ResourceControl, ResourceControl::Factory>(
+            *serviceCollection);
+
+        serviceCollection->EmplaceFactory<MeshBuffer, GlMeshBuffer::Factory>(*serviceCollection);
+
+        serviceCollection->EmplaceFactory<ShaderProgram, DummyShaderProgram::Factory>(*serviceCollection);
+
+        serviceCollection->EmplaceFactory<TextureBuffer, DummyTextureBuffer::Factory>(*serviceCollection);
+
+        serviceCollection->EmplaceFactory<FileReader, FileReader::Factory>(*serviceCollection);
+
+        serviceCollection->EmplaceFactory<FileWriter, FileWriter::Factory>(*serviceCollection);
+
+        const FileManager::Factory fileManagerFactory(*serviceCollection);
+        FileManager& fileManager = serviceCollection->AddService(fileManagerFactory.Create(Path("C:/")));
+
+        std::unique_ptr<FileWriter> logFile = fileManager.OpenWrite(Path("pluto.log"));
+        LogInstaller::Install(std::move(logFile), *serviceCollection);
+
+        serviceCollection->AddService(MemoryManager::Factory(*serviceCollection).Create());
+
+        serviceCollection->EmplaceService<FontCompiler>(fileManager, fontAssetFactory);
+
+        serviceCollection->EmplaceService<MaterialCompiler>(fileManager, materialAssetFactory, resourceControlFactory);
+
+        serviceCollection->EmplaceService<MeshCompiler>(fileManager, meshAssetFactory);
+
+        serviceCollection->EmplaceService<ShaderCompiler>(fileManager, shaderAssetFactory);
+
+        serviceCollection->EmplaceService<TextCompiler>(fileManager, textAssetFactory);
+
+        serviceCollection->EmplaceService<TextureCompiler>(fileManager, textureAssetFactory);
+
+        std::vector<std::reference_wrapper<BaseService>> services = serviceCollection->FindServices(
+            [](const BaseService& service)
+            {
+                return dynamic_cast<const BaseCompiler*>(&service) != nullptr;
+            });
+
+        std::vector<std::reference_wrapper<BaseCompiler>> compilers;
+        for (auto& it : services)
+        {
+            BaseService& service = it;
+            compilers.emplace_back(dynamic_cast<BaseCompiler&>(service));
+        }
+
+        const auto& packageCompiler = serviceCollection->EmplaceService<PackageCompiler>(fileManager, packageManifestAssetFactory, compilers);
+
+        Path inputPath(input);
+        Path outputDir(input + "/" + inputPath.GetName());
+        packageCompiler.Compile(inputPath.Str(), outputDir.Str());
+
+        serviceCollection->RemoveService<MemoryManager>();
+    }
+}
+
 int main(int argc, char* argv[])
 {
     InitGl();
-    const pluto::MainMenu mainMenu;
 
     try
     {
-        while (true)
-        {
-            const pluto::MenuOptions& menuOptions = mainMenu.GetCurrentMenuOptions();
-            std::cout << menuOptions << std::endl;
-            std::cout << "Option: ";
-            int option = 0;
-            std::cin >> option;
-            if (!menuOptions.UseOption(option))
-            {
-                std::cout << "Invalid Option!" << std::endl;
-            }
-            std::cout << std::endl;
-        }
+        std::cout << "Input: ";
+        std::string str;
+        std::cin >> str;
+        pluto::compiler::Compile(str);
     }
     catch (const std::exception& e)
     {

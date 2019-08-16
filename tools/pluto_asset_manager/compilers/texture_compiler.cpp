@@ -1,4 +1,4 @@
-#include "texture_asset_manager.h"
+#include "texture_compiler.h"
 
 #include <pluto/file/file_manager.h>
 #include <pluto/file/path.h>
@@ -12,16 +12,8 @@
 
 #include <fmt/format.h>
 
-#include <iostream>
-
-namespace pluto
+namespace pluto::compiler
 {
-    TextureAssetManager::
-    TextureAssetManager(FileManager& fileManager, TextureAsset::Factory& textureAssetFactory) :
-        fileManager(&fileManager), textureAssetFactory(&textureAssetFactory)
-    {
-    }
-
     TextureAsset::Format GetTrueColorTextureFormat(const uint8_t channelCount)
     {
         switch (channelCount)
@@ -37,8 +29,21 @@ namespace pluto
         throw std::runtime_error("");
     }
 
-    std::unique_ptr<TextureAsset> TextureAssetManager::Create(const Path& inputPath, const Path& outputDir)
+    TextureCompiler::TextureCompiler(FileManager& fileManager, TextureAsset::Factory& textureAssetFactory)
+        : fileManager(&fileManager),
+          textureAssetFactory(&textureAssetFactory)
     {
+    }
+
+    std::vector<std::string> TextureCompiler::GetExtensions() const
+    {
+        return {".png"};
+    }
+
+    std::vector<BaseCompiler::CompiledAsset> TextureCompiler::Compile(const std::string& input,
+                                                                      const std::string& outputDir) const
+    {
+        auto inputPath = Path(input);
         Path plutoFilePath = inputPath;
         plutoFilePath.ChangeExtension(plutoFilePath.GetExtension() + ".pluto");
         if (!fileManager->Exists(plutoFilePath))
@@ -53,17 +58,19 @@ namespace pluto
         uint8_t* bytes = stbi_load(inputPath.Str().c_str(), &width, &height, &channels, 0);
 
         std::vector<uint8_t> data(bytes, bytes + static_cast<size_t>(width) * height * channels);
-        auto textureAsset = textureAssetFactory->Create(width, height, GetTrueColorTextureFormat(channels), std::move(data));
+        auto textureAsset = textureAssetFactory->Create(width, height, GetTrueColorTextureFormat(channels),
+                                                        std::move(data));
         textureAsset->SetName(inputPath.GetNameWithoutExtension());
 
         // Evil, I know. But it's better than expose the guid to changes directly.
         const_cast<Guid&>(textureAsset->GetId()) = guid;
 
-        const auto fileWriter = fileManager->OpenWrite(Path(outputDir.Str() + "/" + textureAsset->GetId().Str()));
+        const std::unique_ptr<FileWriter> fileWriter = fileManager->OpenWrite(
+            Path(outputDir + "/" + textureAsset->GetId().Str()));
         textureAsset->Dump(*fileWriter);
-        std::cout << "Asset \"" << textureAsset->GetName() << "\" saved with id " << textureAsset->GetId() << "."
-            << std::endl;
 
-        return textureAsset;
+        std::vector<CompiledAsset> assets;
+        assets.push_back({ textureAsset->GetId(), input });
+        return assets;
     }
 }

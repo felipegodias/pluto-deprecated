@@ -2,31 +2,19 @@ project(pluto_asset_manager CXX)
 
 list(APPEND ASSET_MANAGER_SOURCE_FILES
     # .
-    ${CMAKE_CURRENT_SOURCE_DIR}/base_menu.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/base_compiler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menu_options.cpp
-    # ./font
-    ${CMAKE_CURRENT_SOURCE_DIR}/font/font_asset_compiler.cpp
-    # ./material
-    ${CMAKE_CURRENT_SOURCE_DIR}/material/material_asset_manager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/material/material_asset_menu.cpp
-    # ./mesh
-    ${CMAKE_CURRENT_SOURCE_DIR}/mesh/mesh_asset_manager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/mesh/mesh_asset_menu.cpp
-    # ./package
-    ${CMAKE_CURRENT_SOURCE_DIR}/package/package_manager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/package/package_menu.cpp
-    # ./shader
-    ${CMAKE_CURRENT_SOURCE_DIR}/shader/dummy_shader_program.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shader/shader_asset_manager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shader/shader_asset_menu.cpp
-    # ./text
-    ${CMAKE_CURRENT_SOURCE_DIR}/text/text_asset_manager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/text/text_asset_menu.cpp
-    # ./texture
-    ${CMAKE_CURRENT_SOURCE_DIR}/texture/dummy_texture_buffer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/texture/texture_asset_manager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/texture/texture_asset_menu.cpp
+    # ./compilers
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/font_compiler.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/material_compiler.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/mesh_compiler.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/package_compiler.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/shader_compiler.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/text_compiler.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/texture_compiler.cpp
+    # ./dummy
+    ${CMAKE_CURRENT_SOURCE_DIR}/dummy/dummy_shader_program.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/dummy/dummy_texture_buffer.cpp
 )
 
 add_executable(pluto_asset_manager ${ASSET_MANAGER_SOURCE_FILES})

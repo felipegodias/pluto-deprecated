@@ -1,4 +1,4 @@
-#include "material_asset_manager.h"
+#include "material_compiler.h"
 
 #include "pluto/guid.h"
 #include "pluto/asset/material_asset.h"
@@ -18,25 +18,28 @@
 #include <unordered_map>
 #include <iostream>
 
-namespace pluto
+namespace pluto::compiler
 {
-    MaterialAssetManager::~MaterialAssetManager() = default;
-
-    MaterialAssetManager::MaterialAssetManager(FileManager& fileManager, MaterialAsset::Factory& materialAssetFactory,
-                                               ResourceControl::Factory& resourceControlFactory)
+    MaterialCompiler::MaterialCompiler(FileManager& fileManager, MaterialAsset::Factory& materialAssetFactory,
+                                       ResourceControl::Factory& resourceControlFactory)
         : fileManager(&fileManager),
           materialAssetFactory(&materialAssetFactory),
           resourceControlFactory(&resourceControlFactory)
     {
     }
 
-    MaterialAssetManager::MaterialAssetManager(MaterialAssetManager&& other) noexcept = default;
-
-    MaterialAssetManager& MaterialAssetManager::operator=(MaterialAssetManager&& rhs) noexcept = default;
-
-    std::unique_ptr<MaterialAsset> MaterialAssetManager::Create(const Path& inputPath, const Path& outputDir)
+    std::vector<std::string> MaterialCompiler::GetExtensions() const
     {
-        Path plutoFilePath = inputPath;
+        return {".mat"};
+    }
+
+    std::vector<BaseCompiler::CompiledAsset> MaterialCompiler::Compile(const std::string& input,
+                                                                       const std::string& outputDir) const
+    {
+        std::vector<CompiledAsset> assets;
+
+        auto inputPath = Path(input);
+        auto plutoFilePath = Path(input);
         plutoFilePath.ChangeExtension(plutoFilePath.GetExtension() + ".pluto");
         if (!fileManager->Exists(plutoFilePath))
         {
@@ -107,11 +110,10 @@ namespace pluto
             materialAsset->SetTexture(it->first.as<std::string>(), texture);
         }
 
-        const auto fileWriter = fileManager->OpenWrite(Path(outputDir.Str() + "/" + materialAsset->GetId().Str()));
+        const auto fileWriter = fileManager->OpenWrite(Path(outputDir + "/" + materialAsset->GetId().Str()));
         materialAsset->Dump(*fileWriter);
-        std::cout << "Asset \"" << materialAsset->GetName() << "\" saved with id " << materialAsset->GetId() << "."
-            << std::endl;
 
-        return materialAsset;
+        assets.push_back({materialAsset->GetId(), input});
+        return assets;
     }
 }

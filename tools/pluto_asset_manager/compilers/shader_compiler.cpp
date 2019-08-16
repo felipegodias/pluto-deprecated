@@ -1,4 +1,4 @@
-#include "shader_asset_manager.h"
+#include "shader_compiler.h"
 
 #include <pluto/guid.h>
 #include <pluto/service/service_collection.h>
@@ -18,7 +18,7 @@
 #include <sstream>
 #include <iostream>
 
-namespace pluto
+namespace pluto::compiler
 {
     std::unordered_map<std::string, ShaderAsset::BlendEquation> blendEquations = {
         {"OFF", ShaderAsset::BlendEquation::Off},
@@ -355,18 +355,21 @@ namespace pluto
         return ShaderAsset::CullFace::Default;
     }
 
-    ShaderAssetManager::~ShaderAssetManager() = default;
-
-    ShaderAssetManager::
-    ShaderAssetManager(FileManager& fileManager, ShaderAsset::Factory& shaderAssetFactory)
+    ShaderCompiler::ShaderCompiler(FileManager& fileManager, ShaderAsset::Factory& shaderAssetFactory)
         : fileManager(&fileManager),
-          shaderAssetFactory(
-              &shaderAssetFactory)
+          shaderAssetFactory(&shaderAssetFactory)
     {
     }
 
-    std::unique_ptr<ShaderAsset> ShaderAssetManager::Create(const Path& inputPath, const Path& outputDir)
+    std::vector<std::string> ShaderCompiler::GetExtensions() const
     {
+        return {".glsl"};
+    }
+
+    std::vector<BaseCompiler::CompiledAsset> ShaderCompiler::Compile(const std::string& input,
+                                                                     const std::string& outputDir) const
+    {
+        auto inputPath = Path(input);
         Path plutoFilePath = inputPath;
         plutoFilePath.ChangeExtension(plutoFilePath.GetExtension() + ".pluto");
         if (!fileManager->Exists(plutoFilePath))
@@ -414,18 +417,11 @@ namespace pluto
 
         shaderAsset->SetName(inputPath.GetNameWithoutExtension());
 
-        const auto fileWriter = fileManager->OpenWrite(Path(outputDir.Str() + "/" + shaderAsset->GetId().Str()));
+        const auto fileWriter = fileManager->OpenWrite(Path(outputDir + "/" + shaderAsset->GetId().Str()));
         shaderAsset->Dump(*fileWriter);
-        std::cout << "Asset \"" << shaderAsset->GetName() << "\" saved with id " << shaderAsset->GetId() << "."
-            << std::endl;
 
-        return shaderAsset;
-    }
-
-    std::unique_ptr<ShaderAsset> ShaderAssetManager::Load(const Path& path)
-    {
-        const auto fileReader = fileManager->OpenRead(path);
-        auto asset = shaderAssetFactory->Create(*fileReader);
-        return std::unique_ptr<ShaderAsset>(dynamic_cast<ShaderAsset*>(asset.release()));
+        std::vector<CompiledAsset> assets;
+        assets.push_back({shaderAsset->GetId(), input});
+        return assets;
     }
 }
