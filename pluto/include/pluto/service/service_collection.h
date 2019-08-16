@@ -48,6 +48,9 @@ namespace pluto
         void RemoveService(const std::type_info& type);
         BaseService& GetService(const std::type_info& type) const;
 
+        std::vector<std::reference_wrapper<BaseService>> FindServices(
+            const std::function<bool(const BaseService& baseService)>& predicate) const;
+
         BaseFactory& AddFactory(const std::type_info& type, std::unique_ptr<BaseFactory> instance);
         void RemoveFactory(const std::type_info& type);
         BaseFactory& GetFactory(const std::type_info& type) const;

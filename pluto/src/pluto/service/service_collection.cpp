@@ -52,6 +52,21 @@ namespace pluto
             return *it->second;
         }
 
+        std::vector<std::reference_wrapper<BaseService>> FindServices(
+            const std::function<bool(const BaseService& baseService)>& predicate) const
+        {
+            std::vector<std::reference_wrapper<BaseService>> foundServices;
+            for (auto& it : services)
+            {
+                BaseService& service = *it.second;
+                if (predicate(service))
+                {
+                    foundServices.emplace_back(service);
+                }
+            }
+            return foundServices;
+        }
+
         BaseFactory& AddFactory(const std::type_info& type, std::unique_ptr<BaseFactory> instance)
         {
             const auto it = factories.find(type);
@@ -110,6 +125,12 @@ namespace pluto
     BaseService& ServiceCollection::GetService(const std::type_info& type) const
     {
         return impl->GetService(type);
+    }
+
+    std::vector<std::reference_wrapper<BaseService>> ServiceCollection::FindServices(
+        const std::function<bool(const BaseService& baseService)>& predicate) const
+    {
+        return impl->FindServices(predicate);
     }
 
     BaseFactory& ServiceCollection::AddFactory(const std::type_info& type, std::unique_ptr<BaseFactory> instance)
