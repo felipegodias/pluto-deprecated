@@ -37,7 +37,7 @@ namespace pluto
                   std::is_base_of_v<typename T::Factory, F> && std::is_constructible_v<F, Args...>, bool>>
     F& ServiceCollection::EmplaceFactory(Args&& ... args)
     {
-        return AddFactory<T>(std::make_unique<F>(std::forward<Args>(args)...));
+        return dynamic_cast<F&>(AddFactory<T>(std::make_unique<F>(std::forward<Args>(args)...)));
     }
 
     template <typename T, std::enable_if_t<std::is_base_of_v<BaseFactory, typename T::Factory>, bool>>
