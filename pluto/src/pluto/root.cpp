@@ -1,7 +1,6 @@
 #include <pluto/root.h>
 #include <pluto/service/service_collection.h>
 
-#include <pluto/file/file_installer.h>
 #include <pluto/log/log_installer.h>
 #include <pluto/config/config_installer.h>
 #include <pluto/event/event_installer.h>
@@ -40,18 +39,18 @@ namespace pluto
         {
             serviceCollection = std::make_unique<ServiceCollection>();
 
-            FileInstaller::Install(dataDirectoryName, *serviceCollection);
-            auto& fileManager = serviceCollection->GetService<FileManager>();
+            FileWriter logFile = FileManager::OpenWrite(logFileName);
+            LogInstaller::Install(std::make_unique<FileWriter>(std::move(logFile)), *serviceCollection);
 
-            std::unique_ptr<FileWriter> logFile = fileManager.OpenWrite(logFileName);
-            LogInstaller::Install(std::move(logFile), *serviceCollection);
-
-            std::unique_ptr<FileReader> configFile;
-            if (fileManager.Exists(configFileName))
+            if (FileManager::Exists(configFileName))
             {
-                configFile = fileManager.OpenRead(configFileName);
+                FileReader configFile = FileManager::OpenRead(configFileName);
+                ConfigInstaller::Install(&configFile, *serviceCollection);
             }
-            ConfigInstaller::Install(configFile.get(), *serviceCollection);
+            else
+            {
+                ConfigInstaller::Install(nullptr, *serviceCollection);
+            }
 
             EventInstaller::Install(*serviceCollection);
             WindowInstaller::Install(*serviceCollection);
@@ -81,7 +80,6 @@ namespace pluto
             EventInstaller::Uninstall(*serviceCollection);
             ConfigInstaller::Uninstall(*serviceCollection);
             LogInstaller::Uninstall(*serviceCollection);
-            FileInstaller::Uninstall(*serviceCollection);
         }
 
         int Run(const std::function<void(ServiceCollection& serviceCollection)>& onInit) const

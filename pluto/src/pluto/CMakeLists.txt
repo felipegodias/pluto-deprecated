@@ -27,7 +27,6 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/config/config_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/config/config_manager.cpp
     # ./file
-    ${CMAKE_CURRENT_SOURCE_DIR}/file/file_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/file/file_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/file/file_reader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/file/file_writer.cpp

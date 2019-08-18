@@ -31,15 +31,13 @@ namespace pluto
         std::unordered_map<std::string, PackageManifestAsset*> manifests;
 
         MemoryManager* memoryManager;
-        FileManager* fileManager;
         EventManager* eventManager;
         ServiceCollection* serviceCollection;
 
     public:
-        Impl(MemoryManager& memoryManager, FileManager& fileManager, EventManager& eventManager,
+        Impl(MemoryManager& memoryManager, EventManager& eventManager,
              ServiceCollection& serviceCollection)
             : memoryManager(&memoryManager),
-              fileManager(&fileManager),
               eventManager(&eventManager),
               serviceCollection(&serviceCollection)
         {
@@ -146,15 +144,15 @@ namespace pluto
     private:
         Resource<Asset> LoadFromFile(const std::type_info& type, const std::string& path)
         {
-            if (!fileManager->Exists(path))
+            if (!FileManager::Exists(path))
             {
                 Exception::Throw(
                     std::runtime_error(fmt::format("Asset at path {0} does not exists.", path)));
             }
 
-            const std::unique_ptr<FileReader> file = fileManager->OpenRead(path);
+            FileReader file = FileManager::OpenRead(path);
             const auto& factory = dynamic_cast<Asset::Factory&>(serviceCollection->GetFactory(type));
-            return ResourceUtils::Cast<Asset>(Register(factory.Create(*file)));
+            return ResourceUtils::Cast<Asset>(Register(factory.Create(file)));
         }
     };
 
@@ -167,11 +165,9 @@ namespace pluto
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& memoryManager = serviceCollection.GetService<MemoryManager>();
-        auto& fileManager = serviceCollection.GetService<FileManager>();
         auto& eventManager = serviceCollection.GetService<EventManager>();
 
-        return std::make_unique<AssetManager>(
-            std::make_unique<Impl>(memoryManager, fileManager, eventManager, serviceCollection));
+        return std::make_unique<AssetManager>(std::make_unique<Impl>(memoryManager, eventManager, serviceCollection));
     }
 
     AssetManager::~AssetManager() = default;

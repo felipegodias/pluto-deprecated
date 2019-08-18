@@ -1,40 +1,28 @@
 #pragma once
 
-#include "pluto/service/base_factory.h"
+#include "pluto/api.h"
 
-#include <memory>
 #include <fstream>
 
 namespace pluto
 {
     class PLUTO_API FileReader
     {
-    public:
-        class PLUTO_API Factory final : public BaseFactory
-        {
-        public:
-            explicit Factory(ServiceCollection& serviceCollection);
-            std::unique_ptr<FileReader> Create(std::ifstream ifs) const;
-        };
-
-    private:
-        class Impl;
-        std::unique_ptr<Impl> impl;
+        std::ifstream ifs;
 
     public:
-        explicit FileReader(std::unique_ptr<Impl> impl);
+        ~FileReader();
+        explicit FileReader(std::ifstream ifs);
 
         FileReader(const FileReader& other) = delete;
         FileReader(FileReader&& other) noexcept;
-        ~FileReader();
-
         FileReader& operator=(const FileReader& rhs) = delete;
         FileReader& operator=(FileReader&& rhs) noexcept;
 
-        std::ifstream& GetStream() const;
-        uint64_t GetSize() const;
-        uint64_t GetPosition() const;
-        void SetPosition(uint64_t value);
-        void Read(void* ptr, uint64_t size) const;
+        std::ifstream& GetStream();
+        size_t GetSize();
+        size_t GetPosition();
+        void SetPosition(size_t position);
+        void Read(void* ptr, size_t size);
     };
 }

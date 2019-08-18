@@ -2,64 +2,17 @@
 
 namespace pluto
 {
-    class FileReader::Impl
-    {
-    private:
-        std::ifstream ifs;
-
-    public:
-        explicit Impl(std::ifstream ifs) : ifs(std::move(ifs))
-        {
-        }
-
-        std::ifstream& GetStream()
-        {
-            return ifs;
-        }
-
-        uint64_t GetSize()
-        {
-            const uint64_t pos = ifs.tellg();
-            ifs.seekg(0, std::ios::end);
-            const size_t size = ifs.tellg();
-            ifs.seekg(pos, std::ios::beg);
-            return size;
-        }
-
-        uint64_t GetPosition()
-        {
-            return ifs.tellg();
-        }
-
-        void SetPosition(const uint64_t value)
-        {
-            ifs.seekg(value, std::ios::beg);
-        }
-
-        void Read(void* ptr, const uint64_t size)
-        {
-            ifs.read(reinterpret_cast<char*>(ptr), size);
-        }
-    };
-
-    FileReader::Factory::Factory(ServiceCollection& serviceCollection) : BaseFactory(serviceCollection)
-    {
-    }
-
-    std::unique_ptr<FileReader> FileReader::Factory::Create(std::ifstream ifs) const
-    {
-        return std::make_unique<FileReader>(std::make_unique<Impl>(std::move(ifs)));
-    }
-
-    FileReader::FileReader(std::unique_ptr<Impl> impl) : impl(std::move(impl))
-    {
-    }
-
-    FileReader::FileReader(FileReader&& other) noexcept : FileReader(std::move(other.impl))
-    {
-    }
-
     FileReader::~FileReader() = default;
+
+    FileReader::FileReader(std::ifstream ifs)
+        : ifs(std::move(ifs))
+    {
+    }
+
+    FileReader::FileReader(FileReader&& other) noexcept
+        : ifs(std::move(other.ifs))
+    {
+    }
 
     FileReader& FileReader::operator=(FileReader&& rhs) noexcept
     {
@@ -68,32 +21,36 @@ namespace pluto
             return *this;
         }
 
-        impl = std::move(rhs.impl);
+        ifs = std::move(rhs.ifs);
         return *this;
     }
 
-    std::ifstream& FileReader::GetStream() const
+    std::ifstream& FileReader::GetStream()
     {
-        return impl->GetStream();
+        return ifs;
     }
 
-    uint64_t FileReader::GetSize() const
+    size_t FileReader::GetSize()
     {
-        return impl->GetSize();
+        const size_t pos = ifs.tellg();
+        ifs.seekg(0, std::ios::end);
+        const size_t size = ifs.tellg();
+        ifs.seekg(pos, std::ios::beg);
+        return size;
     }
 
-    uint64_t FileReader::GetPosition() const
+    size_t FileReader::GetPosition()
     {
-        return impl->GetPosition();
+        return ifs.tellg();
     }
 
-    void FileReader::SetPosition(const uint64_t value)
+    void FileReader::SetPosition(const size_t position)
     {
-        impl->SetPosition(value);
+        ifs.seekg(position, std::ios::beg);
     }
 
-    void FileReader::Read(void* ptr, const uint64_t size) const
+    void FileReader::Read(void* ptr, const size_t size)
     {
-        impl->Read(ptr, size);
+        ifs.read(reinterpret_cast<char*>(ptr), size);
     }
 }

@@ -1,70 +1,18 @@
-#include <pluto/file/file_writer.h>
+#include "pluto/file/file_writer.h"
 
 namespace pluto
 {
-    class FileWriter::Impl
-    {
-    private:
-        std::ofstream ofs;
-
-    public:
-        explicit Impl(std::ofstream ofs) : ofs(std::move(ofs))
-        {
-        }
-
-        std::ofstream& GetStream()
-        {
-            return ofs;
-        }
-
-        uint64_t GetSize()
-        {
-            const uint64_t pos = ofs.tellp();
-            ofs.seekp(0, std::ios::end);
-            const size_t size = ofs.tellp();
-            ofs.seekp(pos, std::ios::beg);
-            return size;
-        }
-
-        uint64_t GetPosition()
-        {
-            return ofs.tellp();
-        }
-
-        void SetPosition(const uint64_t value)
-        {
-            ofs.seekp(value, std::ios::beg);
-        }
-
-        void Write(const void* ptr, const uint64_t size)
-        {
-            ofs.write(reinterpret_cast<const char*>(ptr), size);
-        }
-
-        void Flush()
-        {
-            ofs.flush();
-        }
-    };
-
-    FileWriter::Factory::Factory(ServiceCollection& serviceCollection) : BaseFactory(serviceCollection)
-    {
-    }
-
-    std::unique_ptr<FileWriter> FileWriter::Factory::Create(std::ofstream ofs) const
-    {
-        return std::make_unique<FileWriter>(std::make_unique<Impl>(std::move(ofs)));
-    }
-
-    FileWriter::FileWriter(std::unique_ptr<Impl> impl) : impl(std::move(impl))
-    {
-    }
-
-    FileWriter::FileWriter(FileWriter&& other) noexcept : FileWriter(std::move(other.impl))
-    {
-    }
-
     FileWriter::~FileWriter() = default;
+
+    FileWriter::FileWriter(std::ofstream ofs)
+        : ofs(std::move(ofs))
+    {
+    }
+
+    FileWriter::FileWriter(FileWriter&& other) noexcept
+        : ofs(std::move(other.ofs))
+    {
+    }
 
     FileWriter& FileWriter::operator=(FileWriter&& rhs) noexcept
     {
@@ -73,37 +21,41 @@ namespace pluto
             return *this;
         }
 
-        impl = std::move(rhs.impl);
+        ofs = std::move(rhs.ofs);
         return *this;
     }
 
-    std::ofstream& FileWriter::GetStream() const
+    std::ofstream& FileWriter::GetStream()
     {
-        return impl->GetStream();
+        return ofs;
     }
 
-    uint64_t FileWriter::GetSize() const
+    size_t FileWriter::GetSize()
     {
-        return impl->GetSize();
+        const size_t pos = ofs.tellp();
+        ofs.seekp(0, std::ios::end);
+        const size_t size = ofs.tellp();
+        ofs.seekp(pos, std::ios::beg);
+        return size;
     }
 
-    uint64_t FileWriter::GetPosition() const
+    size_t FileWriter::GetPosition()
     {
-        return impl->GetPosition();
+        return ofs.tellp();
     }
 
-    void FileWriter::SetPosition(const uint64_t value)
+    void FileWriter::SetPosition(const size_t position)
     {
-        impl->SetPosition(value);
+        ofs.seekp(position, std::ios::beg);
     }
 
-    void FileWriter::Write(const void* ptr, const uint64_t size)
+    void FileWriter::Write(const void* ptr, const size_t size)
     {
-        impl->Write(ptr, size);
+        ofs.write(reinterpret_cast<const char*>(ptr), size);
     }
 
     void FileWriter::Flush()
     {
-        impl->Flush();
+        ofs.flush();
     }
 }

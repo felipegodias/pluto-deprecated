@@ -14,9 +14,8 @@ namespace pluto
 {
     class LogManager::Impl
     {
-    private:
-        std::unique_ptr<spdlog::logger> logger;
         std::unique_ptr<FileWriter> logFile;
+        std::unique_ptr<spdlog::logger> logger;
         std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> consoleSink;
         std::shared_ptr<spdlog::sinks::ostream_sink_mt> fileSink;
 
@@ -71,7 +70,8 @@ namespace pluto
         }
     };
 
-    LogManager::Factory::Factory(ServiceCollection& serviceCollection) : BaseFactory(serviceCollection)
+    LogManager::Factory::Factory(ServiceCollection& serviceCollection)
+        : BaseFactory(serviceCollection)
     {
     }
 
@@ -80,7 +80,8 @@ namespace pluto
         return std::make_unique<LogManager>(std::make_unique<Impl>(std::move(logFile)));
     }
 
-    LogManager::LogManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
+    LogManager::LogManager(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
     }
 
