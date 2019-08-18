@@ -14,7 +14,6 @@
 #include <fmt/format.h>
 
 #include <filesystem>
-#include <fstream>
 #include <sstream>
 #include <iostream>
 
@@ -355,9 +354,8 @@ namespace pluto::compiler
         return ShaderAsset::CullFace::Default;
     }
 
-    ShaderCompiler::ShaderCompiler(FileManager& fileManager, ShaderAsset::Factory& shaderAssetFactory)
-        : fileManager(&fileManager),
-          shaderAssetFactory(&shaderAssetFactory)
+    ShaderCompiler::ShaderCompiler(ShaderAsset::Factory& shaderAssetFactory)
+        : shaderAssetFactory(&shaderAssetFactory)
     {
     }
 
@@ -369,19 +367,17 @@ namespace pluto::compiler
     std::vector<BaseCompiler::CompiledAsset> ShaderCompiler::Compile(const std::string& input,
                                                                      const std::string& outputDir) const
     {
-        auto inputPath = Path(input);
-        Path plutoFilePath = inputPath;
-        plutoFilePath.ChangeExtension(plutoFilePath.GetExtension() + ".pluto");
-        if (!fileManager->Exists(plutoFilePath))
+        const std::string plutoFilePath = Path::ChangeExtension(input, Path::GetExtension(input) + ".pluto");
+        if (!FileManager::Exists(plutoFilePath))
         {
-            throw std::runtime_error("Pluto file not found at " + plutoFilePath.Str());
+            throw std::runtime_error("Pluto file not found at " + plutoFilePath);
         }
 
-        YAML::Node plutoFile = YAML::LoadFile(plutoFilePath.Str());
-        Guid guid(plutoFile["guid"].as<std::string>());
+        YAML::Node plutoFile = YAML::LoadFile(plutoFilePath);
+        const Guid guid(plutoFile["guid"].as<std::string>());
 
-        auto fr = fileManager->OpenRead(inputPath);
-        const ShaderFileData shaderData = ParseShader(fr->GetStream());
+        FileReader fr = FileManager::OpenRead(input);
+        const ShaderFileData shaderData = ParseShader(fr.GetStream());
 
         const GLuint programId = CreateShader(shaderData.vertexSrc, shaderData.fragSrc);
         GLint binLength = -1;
@@ -412,13 +408,12 @@ namespace pluto::compiler
                                                       blendAlphaSrcFactor, blendAlphaDstFactor, depthTest, cullFace,
                                                       attributes, uniforms, binFormat, programBinary);
 
-        // Evil, I know. But it's better than expose the guid to changes directly.
         const_cast<Guid&>(shaderAsset->GetId()) = guid;
 
-        shaderAsset->SetName(inputPath.GetNameWithoutExtension());
+        shaderAsset->SetName(Path::GetFileNameWithoutExtension(input));
 
-        const auto fileWriter = fileManager->OpenWrite(Path(outputDir + "/" + shaderAsset->GetId().Str()));
-        shaderAsset->Dump(*fileWriter);
+        FileWriter fileWriter = FileManager::OpenWrite(Path::Combine({outputDir, shaderAsset->GetId().Str()}));
+        shaderAsset->Dump(fileWriter);
 
         std::vector<CompiledAsset> assets;
         assets.push_back({shaderAsset->GetId(), input});

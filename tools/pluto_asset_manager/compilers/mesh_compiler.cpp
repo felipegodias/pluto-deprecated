@@ -8,8 +8,6 @@
 #include <pluto/file/file_manager.h>
 #include <pluto/file/path.h>
 
-#include <pluto/render/gl/gl_mesh_buffer.h>
-
 #include <pluto/math/vector2f.h>
 #include <pluto/math/vector3f.h>
 #include <pluto/math/vector3i.h>
@@ -24,9 +22,8 @@
 
 namespace pluto::compiler
 {
-    MeshCompiler::MeshCompiler(FileManager& fileManager, MeshAsset::Factory& meshAssetFactory)
-        : fileManager(&fileManager),
-          meshAssetFactory(&meshAssetFactory)
+    MeshCompiler::MeshCompiler(MeshAsset::Factory& meshAssetFactory)
+        : meshAssetFactory(&meshAssetFactory)
     {
     }
 
@@ -38,18 +35,16 @@ namespace pluto::compiler
     std::vector<BaseCompiler::CompiledAsset> MeshCompiler::Compile(const std::string& input,
                                                                    const std::string& outputDir) const
     {
-        Path inputPath = Path(input);
-        Path plutoFilePath = inputPath;
-        plutoFilePath.ChangeExtension(plutoFilePath.GetExtension() + ".pluto");
-        if (!fileManager->Exists(plutoFilePath))
+        const std::string plutoFilePath = Path::ChangeExtension(input, Path::GetExtension(input) + ".pluto");
+        if (!FileManager::Exists(plutoFilePath))
         {
-            throw std::runtime_error("Pluto file not found at " + plutoFilePath.Str());
+            throw std::runtime_error("Pluto file not found at " + plutoFilePath);
         }
 
-        YAML::Node plutoFile = YAML::LoadFile(plutoFilePath.Str());
-        Guid guid(plutoFile["guid"].as<std::string>());
+        YAML::Node plutoFile = YAML::LoadFile(plutoFilePath);
+        const Guid guid(plutoFile["guid"].as<std::string>());
 
-        auto fr = fileManager->OpenRead(inputPath);
+        FileReader fr = FileManager::OpenRead(input);
 
         std::vector<Vector3F> filePositions;
         std::vector<Vector2F> fileUVs;
@@ -61,7 +56,7 @@ namespace pluto::compiler
 
         std::vector<Face> fileFaces;
         std::string op;
-        std::ifstream& ifs = fr->GetStream();
+        std::ifstream& ifs = fr.GetStream();
         while (!ifs.eof())
         {
             ifs >> op;
@@ -122,13 +117,13 @@ namespace pluto::compiler
         // Evil, I know. But it's better than expose the guid to changes directly.
         const_cast<Guid&>(meshAsset->GetId()) = guid;
 
-        meshAsset->SetName(inputPath.GetNameWithoutExtension());
+        meshAsset->SetName(Path::GetFileNameWithoutExtension(input));
         meshAsset->SetPositions(std::move(positions));
         meshAsset->SetUVs(std::move(uvs));
         meshAsset->SetTriangles(std::move(triangles));
 
-        const auto fileWriter = fileManager->OpenWrite(Path(outputDir + "/" + meshAsset->GetId().Str()));
-        meshAsset->Dump(*fileWriter);
+        FileWriter fileWriter = FileManager::OpenWrite(Path::Combine({outputDir, meshAsset->GetId().Str()}));
+        meshAsset->Dump(fileWriter);
 
         std::vector<CompiledAsset> assets;
         assets.push_back({meshAsset->GetId(), input});

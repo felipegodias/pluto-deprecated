@@ -4,7 +4,6 @@
 #include "pluto/asset/material_asset.h"
 #include "pluto/asset/shader_asset.h"
 #include "pluto/asset/texture_asset.h"
-#include "pluto/file/file_reader.h"
 #include "pluto/file/file_writer.h"
 #include "pluto/file/file_manager.h"
 #include "pluto/file/path.h"
@@ -16,14 +15,12 @@
 
 #include <yaml-cpp/yaml.h>
 #include <unordered_map>
-#include <iostream>
 
 namespace pluto::compiler
 {
-    MaterialCompiler::MaterialCompiler(FileManager& fileManager, MaterialAsset::Factory& materialAssetFactory,
+    MaterialCompiler::MaterialCompiler(MaterialAsset::Factory& materialAssetFactory,
                                        ResourceControl::Factory& resourceControlFactory)
-        : fileManager(&fileManager),
-          materialAssetFactory(&materialAssetFactory),
+        : materialAssetFactory(&materialAssetFactory),
           resourceControlFactory(&resourceControlFactory)
     {
     }
@@ -38,18 +35,16 @@ namespace pluto::compiler
     {
         std::vector<CompiledAsset> assets;
 
-        auto inputPath = Path(input);
-        auto plutoFilePath = Path(input);
-        plutoFilePath.ChangeExtension(plutoFilePath.GetExtension() + ".pluto");
-        if (!fileManager->Exists(plutoFilePath))
+        const std::string plutoFilePath = Path::ChangeExtension(input, Path::GetExtension(input) + ".pluto");
+        if (!FileManager::Exists(plutoFilePath))
         {
-            throw std::runtime_error("Pluto file not found at " + plutoFilePath.Str());
+            throw std::runtime_error("Pluto file not found at " + plutoFilePath);
         }
 
-        YAML::Node plutoFile = YAML::LoadFile(plutoFilePath.Str());
-        Guid guid(plutoFile["guid"].as<std::string>());
+        YAML::Node plutoFile = YAML::LoadFile(plutoFilePath);
+        const Guid guid(plutoFile["guid"].as<std::string>());
 
-        YAML::Node materialFile = YAML::LoadFile(inputPath.Str());
+        YAML::Node materialFile = YAML::LoadFile(input);
         YAML::Node materialNode = materialFile["material"];
         const auto shaderGuidStr = materialNode["shader"].as<std::string>();
         Guid shaderGuid(shaderGuidStr);
@@ -57,7 +52,7 @@ namespace pluto::compiler
         auto materialAsset = materialAssetFactory->Create(shader);
 
         const_cast<Guid&>(materialAsset->GetId()) = guid;
-        materialAsset->SetName(inputPath.GetNameWithoutExtension());
+        materialAsset->SetName(Path::GetFileNameWithoutExtension(input));
 
         YAML::Node floatsNode = materialNode["floats"];
         for (YAML::const_iterator it = floatsNode.begin(); it != floatsNode.end(); ++it)
@@ -110,8 +105,8 @@ namespace pluto::compiler
             materialAsset->SetTexture(it->first.as<std::string>(), texture);
         }
 
-        const auto fileWriter = fileManager->OpenWrite(Path(outputDir + "/" + materialAsset->GetId().Str()));
-        materialAsset->Dump(*fileWriter);
+        FileWriter fileWriter = FileManager::OpenWrite(Path::Combine({outputDir, materialAsset->GetId().Str()}));
+        materialAsset->Dump(fileWriter);
 
         assets.push_back({materialAsset->GetId(), input});
         return assets;

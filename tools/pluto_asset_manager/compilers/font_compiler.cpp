@@ -15,9 +15,8 @@
 
 namespace pluto::compiler
 {
-    FontCompiler::FontCompiler(FileManager& fileManager, FontAsset::Factory& fontAssetFactory)
-        : fileManager(&fileManager),
-          fontAssetFactory(&fontAssetFactory)
+    FontCompiler::FontCompiler(FontAsset::Factory& fontAssetFactory)
+        : fontAssetFactory(&fontAssetFactory)
     {
     }
 

@@ -91,29 +91,21 @@ namespace pluto::compiler
 
         serviceCollection->EmplaceFactory<TextureBuffer, DummyTextureBuffer::Factory>(*serviceCollection);
 
-        serviceCollection->EmplaceFactory<FileReader, FileReader::Factory>(*serviceCollection);
-
-        serviceCollection->EmplaceFactory<FileWriter, FileWriter::Factory>(*serviceCollection);
-
-        const FileManager::Factory fileManagerFactory(*serviceCollection);
-        FileManager& fileManager = serviceCollection->AddService(fileManagerFactory.Create(Path("C:/")));
-
-        std::unique_ptr<FileWriter> logFile = fileManager.OpenWrite(Path("pluto.log"));
-        LogInstaller::Install(std::move(logFile), *serviceCollection);
+        LogInstaller::Install(nullptr, *serviceCollection);
 
         serviceCollection->AddService(MemoryManager::Factory(*serviceCollection).Create());
 
-        serviceCollection->EmplaceService<FontCompiler>(fileManager, fontAssetFactory);
+        serviceCollection->EmplaceService<FontCompiler>(fontAssetFactory);
 
-        serviceCollection->EmplaceService<MaterialCompiler>(fileManager, materialAssetFactory, resourceControlFactory);
+        serviceCollection->EmplaceService<MaterialCompiler>(materialAssetFactory, resourceControlFactory);
 
-        serviceCollection->EmplaceService<MeshCompiler>(fileManager, meshAssetFactory);
+        serviceCollection->EmplaceService<MeshCompiler>(meshAssetFactory);
 
-        serviceCollection->EmplaceService<ShaderCompiler>(fileManager, shaderAssetFactory);
+        serviceCollection->EmplaceService<ShaderCompiler>(shaderAssetFactory);
 
-        serviceCollection->EmplaceService<TextCompiler>(fileManager, textAssetFactory);
+        serviceCollection->EmplaceService<TextCompiler>(textAssetFactory);
 
-        serviceCollection->EmplaceService<TextureCompiler>(fileManager, textureAssetFactory);
+        serviceCollection->EmplaceService<TextureCompiler>(textureAssetFactory);
 
         std::vector<std::reference_wrapper<BaseService>> services = serviceCollection->FindServices(
             [](const BaseService& service)
@@ -128,11 +120,11 @@ namespace pluto::compiler
             compilers.emplace_back(dynamic_cast<BaseCompiler&>(service));
         }
 
-        const auto& packageCompiler = serviceCollection->EmplaceService<PackageCompiler>(fileManager, packageManifestAssetFactory, compilers);
+        const auto& packageCompiler = serviceCollection->EmplaceService<PackageCompiler>(
+            packageManifestAssetFactory, compilers);
 
-        Path inputPath(input);
-        Path outputDir(input + "/" + inputPath.GetName());
-        packageCompiler.Compile(inputPath.Str(), outputDir.Str());
+        std::string outputDir = Path::Combine({input, Path::GetFileName(input)});
+        packageCompiler.Compile(input, outputDir);
 
         serviceCollection->RemoveService<MemoryManager>();
     }

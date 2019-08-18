@@ -10,13 +10,11 @@
 #include <yaml-cpp/yaml.h>
 
 #include <filesystem>
-#include <iostream>
 
 namespace pluto::compiler
 {
-    TextCompiler::TextCompiler(FileManager& fileManager, TextAsset::Factory& textAssetFactory)
-        : fileManager(&fileManager),
-          textAssetFactory(&textAssetFactory)
+    TextCompiler::TextCompiler(TextAsset::Factory& textAssetFactory)
+        : textAssetFactory(&textAssetFactory)
     {
     }
 
@@ -28,31 +26,28 @@ namespace pluto::compiler
     std::vector<BaseCompiler::CompiledAsset> TextCompiler::Compile(const std::string& input,
                                                                    const std::string& outputDir) const
     {
-        auto inputPath = Path(input);
-        Path plutoFilePath = inputPath;
-        plutoFilePath.ChangeExtension(plutoFilePath.GetExtension() + ".pluto");
-        if (!fileManager->Exists(plutoFilePath))
+        const std::string plutoFilePath = Path::ChangeExtension(input, Path::GetExtension(input) + ".pluto");
+        if (!FileManager::Exists(plutoFilePath))
         {
-            throw std::runtime_error("Pluto file not found at " + plutoFilePath.Str());
+            throw std::runtime_error("Pluto file not found at " + plutoFilePath);
         }
 
-        YAML::Node plutoFile = YAML::LoadFile(plutoFilePath.Str());
-        Guid guid(plutoFile["guid"].as<std::string>());
+        YAML::Node plutoFile = YAML::LoadFile(plutoFilePath);
+        const Guid guid(plutoFile["guid"].as<std::string>());
 
-        const auto fr = fileManager->OpenRead(inputPath);
+        FileReader fr = FileManager::OpenRead(input);
         const std::string fileContent{
-            std::istreambuf_iterator<char>(fr->GetStream()), std::istreambuf_iterator<char>()
+            std::istreambuf_iterator<char>(fr.GetStream()), std::istreambuf_iterator<char>()
         };
 
         auto textAsset = textAssetFactory->Create();
-        textAsset->SetName(inputPath.GetNameWithoutExtension());
+        textAsset->SetName(Path::GetFileNameWithoutExtension(input));
         textAsset->SetText(fileContent);
 
-        // Evil, I know. But it's better than expose the guid to changes directly.
         const_cast<Guid&>(textAsset->GetId()) = guid;
 
-        const auto fileWriter = fileManager->OpenWrite(Path(outputDir + "/" + textAsset->GetId().Str()));
-        textAsset->Dump(*fileWriter);
+        FileWriter fileWriter = FileManager::OpenWrite(Path::Combine({outputDir, textAsset->GetId().Str()}));
+        textAsset->Dump(fileWriter);
 
         std::vector<CompiledAsset> assets;
         assets.push_back({textAsset->GetId(), input});

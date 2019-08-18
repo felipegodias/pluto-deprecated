@@ -12,11 +12,10 @@ namespace pluto::compiler
 {
     class TextureCompiler final : public BaseCompiler
     {
-        FileManager* fileManager;
         TextureAsset::Factory* textureAssetFactory;
 
     public:
-        TextureCompiler(FileManager& fileManager, TextureAsset::Factory& textureAssetFactory);
+        explicit TextureCompiler(TextureAsset::Factory& textureAssetFactory);
 
         std::vector<std::string> GetExtensions() const override;
         std::vector<CompiledAsset> Compile(const std::string& input, const std::string& outputDir) const override;
