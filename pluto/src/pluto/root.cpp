@@ -39,6 +39,7 @@ namespace pluto
         {
             serviceCollection = std::make_unique<ServiceCollection>();
 
+            FileManager::SetRootPath(dataDirectoryName);
             FileWriter logFile = FileManager::OpenWrite(logFileName);
             LogInstaller::Install(std::make_unique<FileWriter>(std::move(logFile)), *serviceCollection);
 
