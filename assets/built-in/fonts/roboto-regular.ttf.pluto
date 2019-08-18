@@ -1,2 +1,8 @@
 version: 1
 guid: b30b58d793d24a3597bd738f258e8dff
+subAssets:
+    texture:
+        guid: 36a87bd2c6b54b02a8fa65610427aacc
+    material:
+        guid: 9a529fcbdc7e4735a3a263305f849395
+        shader: a57e4d53399948209087bf2e110912f7
