@@ -95,7 +95,8 @@ namespace pluto::compiler
 
         serviceCollection->AddService(MemoryManager::Factory(*serviceCollection).Create());
 
-        serviceCollection->EmplaceService<FontCompiler>(fontAssetFactory);
+        serviceCollection->EmplaceService<FontCompiler>(fontAssetFactory, materialAssetFactory, textureAssetFactory,
+                                                        resourceControlFactory);
 
         serviceCollection->EmplaceService<MaterialCompiler>(materialAssetFactory, resourceControlFactory);
 

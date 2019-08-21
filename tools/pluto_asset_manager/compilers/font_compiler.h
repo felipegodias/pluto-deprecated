@@ -21,7 +21,8 @@ namespace pluto::compiler
         ResourceControl::Factory* resourceControlFactory;
 
     public:
-        FontCompiler(FontAsset::Factory& fontAssetFactory);
+        FontCompiler(FontAsset::Factory& fontAssetFactory, MaterialAsset::Factory& materialAssetFactory,
+                     TextureAsset::Factory& textureAssetFactory, ResourceControl::Factory& resourceControlFactory);
 
         std::vector<std::string> GetExtensions() const override;
         std::vector<CompiledAsset> Compile(const std::string& input, const std::string& outputDir) const override;

@@ -1,6 +1,7 @@
 #include "font_compiler.h"
 
 #include <pluto/file/file_reader.h>
+#include <pluto/file/file_writer.h>
 #include <pluto/file/file_manager.h>
 #include <pluto/file/path.h>
 
@@ -20,8 +21,13 @@
 
 namespace pluto::compiler
 {
-    FontCompiler::FontCompiler(FontAsset::Factory& fontAssetFactory)
-        : fontAssetFactory(&fontAssetFactory)
+    FontCompiler::FontCompiler(FontAsset::Factory& fontAssetFactory, MaterialAsset::Factory& materialAssetFactory,
+                               TextureAsset::Factory& textureAssetFactory,
+                               ResourceControl::Factory& resourceControlFactory)
+        : fontAssetFactory(&fontAssetFactory),
+          materialAssetFactory(&materialAssetFactory),
+          textureAssetFactory(&textureAssetFactory),
+          resourceControlFactory(&resourceControlFactory)
     {
     }
 
@@ -91,14 +97,21 @@ namespace pluto::compiler
         materialAsset->SetName(Path::GetFileNameWithoutExtension(input) + "-material");
         materialAsset->SetTexture("mainTex", textureAssetResource);
 
-        Resource<ShaderAsset> materialAssetResource(resourceControlFactory->Create(shaderAsset->GetId()));
+        Resource<MaterialAsset> materialAssetResource(resourceControlFactory->Create(materialAsset->GetId()));
 
-        std::unique_ptr<FontAsset> fontAsset = fontAssetFactory->Create(fontSize, glyphs,
-                                                                        bitmapWidth, bitmapHeight,
-                                                                        bitmap);
-        
+        std::unique_ptr<FontAsset> fontAsset = fontAssetFactory->Create(fontSize, glyphs, materialAssetResource);
+
         fontAsset->SetName(Path::GetFileNameWithoutExtension(input));
         const_cast<Guid&>(fontAsset->GetId()) = guid;
+
+        FileWriter fileWriter = FileManager::OpenWrite(Path::Combine({outputDir, fontAsset->GetId().Str()}));
+        fontAsset->Dump(fileWriter);
+
+        fileWriter = FileManager::OpenWrite(Path::Combine({outputDir, materialAsset->GetId().Str()}));
+        materialAsset->Dump(fileWriter);
+
+        fileWriter = FileManager::OpenWrite(Path::Combine({outputDir, textureAsset->GetId().Str()}));
+        textureAsset->Dump(fileWriter);
 
         std::vector<CompiledAsset> assets;
         assets.push_back({fontAsset->GetId(), input});
