@@ -58,6 +58,6 @@ namespace pluto
         void Dump(FileWriter& fileWriter) const override;
 
         const std::string& GetText() const;
-        void SetText(std::string value);
+        void SetText(const std::string& value);
     };
 }

@@ -9,14 +9,13 @@ namespace pluto
 {
     class TextAsset::Impl
     {
-    private:
         Guid guid;
         std::string name;
         std::string text;
 
     public:
-        explicit Impl(Guid guid)
-            : guid(std::move(guid))
+        explicit Impl(const Guid& guid)
+            : guid(guid)
         {
         }
 
@@ -30,9 +29,9 @@ namespace pluto
             return name;
         }
 
-        void SetName(std::string value)
+        void SetName(const std::string& value)
         {
-            name = std::move(value);
+            name = value;
         }
 
         void Dump(FileWriter& fileWriter) const
@@ -57,9 +56,9 @@ namespace pluto
             return text;
         }
 
-        void SetText(std::string value)
+        void SetText(const std::string& value)
         {
-            text = std::move(value);
+            text = value;
         }
     };
 
@@ -142,8 +141,8 @@ namespace pluto
         return impl->GetText();
     }
 
-    void TextAsset::SetText(std::string value)
+    void TextAsset::SetText(const std::string& value)
     {
-        impl->SetText(std::move(value));
+        impl->SetText(value);
     }
 }
