@@ -3,6 +3,7 @@
 #include "pluto/api.h"
 
 #include <fstream>
+#include <vector>
 
 namespace pluto
 {
@@ -24,5 +25,6 @@ namespace pluto
         size_t GetPosition();
         void SetPosition(size_t position);
         void Read(void* ptr, size_t size);
+        std::vector<uint8_t> ReadAllBytes();
     };
 }

@@ -53,4 +53,16 @@ namespace pluto
     {
         ifs.read(reinterpret_cast<char*>(ptr), size);
     }
+
+    std::vector<uint8_t> FileReader::ReadAllBytes()
+    {
+        const size_t pos = ifs.tellg();
+        ifs.seekg(0, std::ios::end);
+        const size_t size = ifs.tellg();
+        ifs.seekg(0, std::ios::beg);
+        std::vector<uint8_t> bytes(size);
+        ifs.read(reinterpret_cast<char*>(bytes.data()), size);
+        ifs.seekg(pos, std::ios::beg);
+        return bytes;
+    }
 }
