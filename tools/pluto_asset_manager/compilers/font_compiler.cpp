@@ -87,13 +87,15 @@ namespace pluto::compiler
         std::unique_ptr<TextureAsset> textureAsset = textureAssetFactory->Create(
             bitmapWidth, bitmapHeight, TextureAsset::Format::Alpha8, bitmap);
         const_cast<Guid&>(textureAsset->GetId()) = textureGuid;
+
         textureAsset->SetName(Path::GetFileNameWithoutExtension(input) + "-texture");
         Resource<TextureAsset> textureAssetResource(resourceControlFactory->Create(textureAsset->GetId()));
 
         Resource<ShaderAsset> shaderAsset(resourceControlFactory->Create(shaderGuid));
 
         std::unique_ptr<MaterialAsset> materialAsset = materialAssetFactory->Create(shaderAsset);
-        const_cast<Guid&>(textureAsset->GetId()) = materialGuid;
+        const_cast<Guid&>(materialAsset->GetId()) = materialGuid;
+
         materialAsset->SetName(Path::GetFileNameWithoutExtension(input) + "-material");
         materialAsset->SetTexture("mainTex", textureAssetResource);
 
