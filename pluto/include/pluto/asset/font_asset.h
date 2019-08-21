@@ -10,7 +10,7 @@ namespace pluto
     template <typename T, typename Enable = void>
     class Resource;
 
-    class TextureAsset;
+    class MaterialAsset;
 
     class PLUTO_API FontAsset final : public Asset
     {
@@ -32,8 +32,8 @@ namespace pluto
         {
         public:
             explicit Factory(ServiceCollection& serviceCollection);
-            std::unique_ptr<FontAsset> Create(float fontSize, const std::vector<Glyph>& glyphs, uint16_t bitmapWidth,
-                                              uint16_t bitmapHeight, const std::vector<uint8_t>& bitmap) const;
+            std::unique_ptr<FontAsset> Create(float fontSize, const std::vector<Glyph>& glyphs,
+                                              Resource<MaterialAsset>& material) const;
 
             std::unique_ptr<Asset> Create(FileReader& fileReader) const override;
         };
@@ -62,6 +62,6 @@ namespace pluto
         bool HasCharacter(char character) const;
         const Glyph& GetGlyph(char character) const;
 
-        Resource<TextureAsset> GetBitmap() const;
+        Resource<MaterialAsset> GetMaterial() const;
     };
 }
