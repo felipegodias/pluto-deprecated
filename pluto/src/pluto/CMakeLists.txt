@@ -79,6 +79,7 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/component.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/mesh_renderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/renderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/text_renderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/transform.cpp
     # ./service
     ${CMAKE_CURRENT_SOURCE_DIR}/service/base_factory.cpp
