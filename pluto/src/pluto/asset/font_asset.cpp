@@ -5,6 +5,8 @@
 #include "pluto/asset/material_asset.h"
 #include "pluto/memory/resource.h"
 
+#include "pluto/file/file_writer.h"
+
 #include <fmt/format.h>
 #include <unordered_map>
 #include <utility>
@@ -15,8 +17,8 @@ namespace pluto
     {
         Guid guid;
         std::string name;
-        float size;
 
+        float size;
         std::unordered_map<char, Glyph> glyphs;
         Resource<MaterialAsset> material;
 
@@ -47,6 +49,39 @@ namespace pluto
 
         void Dump(FileWriter& fileWriter) const
         {
+            fileWriter.Write(&Guid::PLUTO_IDENTIFIER, sizeof(Guid));
+
+            uint8_t serializerVersion = 1;
+            fileWriter.Write(&serializerVersion, sizeof(uint8_t));
+
+            auto assetType = static_cast<uint8_t>(Type::Font);
+            fileWriter.Write(&assetType, sizeof(uint8_t));
+
+            fileWriter.Write(&guid, sizeof(Guid));
+
+            uint8_t assetNameLength = name.size();
+            fileWriter.Write(&assetNameLength, sizeof(uint8_t));
+            fileWriter.Write(name.data(), assetNameLength);
+
+            fileWriter.Write(&size, sizeof(float));
+
+            uint8_t glyphsCount = glyphs.size();
+            fileWriter.Write(&glyphsCount, sizeof(uint8_t));
+            for (auto& it : glyphs)
+            {
+                const Glyph& glyph = it.second;
+                fileWriter.Write(&glyph.character, sizeof(char));
+                fileWriter.Write(&glyph.xMin, sizeof(float));
+                fileWriter.Write(&glyph.yMin, sizeof(float));
+                fileWriter.Write(&glyph.xMax, sizeof(float));
+                fileWriter.Write(&glyph.yMax, sizeof(float));
+                fileWriter.Write(&glyph.xBearing, sizeof(float));
+                fileWriter.Write(&glyph.yBearing, sizeof(float));
+                fileWriter.Write(&glyph.advance, sizeof(float));
+            }
+
+            Guid materialGuid = material.GetObjectId();
+            fileWriter.Write(&materialGuid, sizeof(Guid));
         }
 
         float Size() const

@@ -32,7 +32,8 @@ namespace pluto
             Mesh = 3,
             Shader = 4,
             Texture = 5,
-            Material = 6
+            Material = 6,
+            Font = 7
         };
 
         virtual ~Asset() = 0;
