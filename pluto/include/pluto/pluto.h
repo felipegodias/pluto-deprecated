@@ -2,6 +2,7 @@
 
 #include "pluto/asset/asset.h"
 #include "pluto/asset/asset_manager.h"
+#include "pluto/asset/font_asset.h"
 #include "pluto/asset/material_asset.h"
 #include "pluto/asset/mesh_asset.h"
 #include "pluto/asset/package_manifest_asset.h"

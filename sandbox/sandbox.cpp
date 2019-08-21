@@ -22,7 +22,9 @@ void OnInit(ServiceCollection& serviceCollection)
 
     const Resource<MeshAsset> meshAsset = assetManager.Load<MeshAsset>("meshes/quad.obj");
 
-    const Resource<MaterialAsset> material = assetManager.Load<MaterialAsset>("materials/pluto-logo.mat");
+    const Resource<FontAsset> fontAsset = assetManager.Load<FontAsset>("fonts/roboto-regular.ttf");
+
+    //const Resource<MaterialAsset> material = assetManager.Load<MaterialAsset>("materials/pluto-logo.mat");
 
     Resource<GameObject> quadGo = sceneManager.GetActiveScene().CreateGameObject("Transparent");
     quadGo->GetTransform()->SetPosition({0, 0, 0});
@@ -30,21 +32,13 @@ void OnInit(ServiceCollection& serviceCollection)
     Resource<Rotator> rotator = quadGo->AddComponent<Rotator>();
 
     meshRenderer->SetMesh(meshAsset);
-    meshRenderer->SetMaterial(material);
+    meshRenderer->SetMaterial(fontAsset->GetMaterial());
+    //meshRenderer->SetMaterial(material);
 }
 
 int main(int argc, char* argv[])
 {
     const Root pluto("config.yml", "sandbox.log", "C:/Users/felipe.dias/Repos/sandbox");
-    int exitCode;
-    try
-    {
-        exitCode = pluto.Run(&OnInit);
-    }
-    catch (std::exception& e)
-    {
-        std::cout << e.what() << std::endl;
-        exitCode = 1;
-    }
+    const int exitCode = pluto.Run(&OnInit);
     return exitCode;
 }

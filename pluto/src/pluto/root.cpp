@@ -89,15 +89,21 @@ namespace pluto
             auto& simulationManager = serviceCollection->GetService<SimulationManager>();
             auto& logManager = serviceCollection->GetService<LogManager>();
 
-            onInit(*serviceCollection);
+            try
+            {
+                onInit(*serviceCollection);
+            }
+            catch (const Exception& e)
+            {
+                logManager.LogException(e);
+                return 1;
+            }
 
-            int i = 0;
             while (windowManager.IsOpen())
             {
                 try
                 {
                     simulationManager.Run();
-                    ++i;
                 }
                 catch (const Exception& e)
                 {
