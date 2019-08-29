@@ -1,6 +1,8 @@
 #include "pluto/render/gl/gl_render_manager.h"
 #include "pluto/render/gl/gl_mesh_buffer.h"
 #include "pluto/render/gl/gl_shader_program.h"
+#include "pluto/render/gl/gl_call.h"
+
 #include "pluto/render/events/on_render_event.h"
 
 #include "pluto/log/log_manager.h"
@@ -19,12 +21,14 @@
 #include "pluto/scene/components/renderer.h"
 #include "pluto/scene/components/camera.h"
 
+#include "pluto/math/vector3f.h"
 #include "pluto/math/matrix4x4.h"
 
 #include "pluto/service/service_collection.h"
 #include "pluto/guid.h"
 
 #include <GL/glew.h>
+
 
 namespace pluto
 {
@@ -57,7 +61,7 @@ namespace pluto
 
         void OnRender(const OnRenderEvent& evt)
         {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
             const Scene& activeScene = sceneManager->GetActiveScene();
             const Resource<GameObject> rootGameObject = activeScene.GetRootGameObject();
@@ -69,6 +73,17 @@ namespace pluto
             }
 
             std::vector<Resource<Renderer>> renderers = rootGameObject->GetComponentsInChildren<Renderer>();
+
+            // TODO: Optimize this... Use a heap or other approach.
+            auto compare = [&](Resource<Renderer>& lhs, Resource<Renderer>& rhs) -> bool
+            {
+                float d1 = Vector3F::Distance(lhs->GetGameObject()->GetTransform()->GetPosition(), camera->GetGameObject()->GetTransform()->GetPosition());
+                float d2 = Vector3F::Distance(rhs->GetGameObject()->GetTransform()->GetPosition(), camera->GetGameObject()->GetTransform()->GetPosition());
+                return d1 > d2;
+            };
+
+            std::sort(renderers.begin(), renderers.end(), compare);
+
             for (auto& it : renderers)
             {
                 Renderer& renderer = *it.Get();
