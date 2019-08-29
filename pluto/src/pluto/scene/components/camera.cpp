@@ -126,7 +126,7 @@ namespace pluto
             {
                 Resource<Transform> transform = gameObject->GetTransform();
                 const Vector3F position = transform->GetPosition();
-                viewMatrix = Matrix4X4::LookAt(position, position + transform->GetForward(), transform->GetUp());
+                viewMatrix = Matrix4X4::LookAt(position, position - transform->GetForward(), transform->GetUp());
             }
 
             return viewMatrix;
