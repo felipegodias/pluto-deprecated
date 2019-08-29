@@ -48,6 +48,7 @@
 #include "pluto/scene/components/component.h"
 #include "pluto/scene/components/mesh_renderer.h"
 #include "pluto/scene/components/renderer.h"
+#include "pluto/scene/components/text_renderer.h"
 #include "pluto/scene/components/transform.h"
 
 #include "pluto/service/base_factory.h"

@@ -52,5 +52,7 @@ namespace pluto
 
         Resource<FontAsset> GetFont() const;
         void SetFont(const Resource<FontAsset>& value);
+
+        void OnUpdate() override;
     };
 }

@@ -1,11 +1,19 @@
 #include "pluto/scene/components/text_renderer.h"
 
+#include "pluto/memory/memory_manager.h"
+#include "pluto/memory/resource.h"
+
+#include "pluto/service/service_collection.h"
+
 #include "pluto/scene/game_object.h"
 #include "pluto/asset/font_asset.h"
 #include "pluto/asset/material_asset.h"
 #include "pluto/asset/mesh_asset.h"
 
 #include "pluto/math/bounds.h"
+#include "pluto/math/vector3f.h"
+#include "pluto/math/vector2f.h"
+#include "pluto/math/vector3i.h"
 
 #include <string>
 
@@ -21,11 +29,21 @@ namespace pluto
         std::string text;
         Resource<FontAsset> font;
 
+        bool isDirty;
+
+        MemoryManager* memoryManager;
+
     public:
-        Impl(const Guid& guid, Resource<GameObject> gameObject, Resource<MeshAsset> mesh)
+        ~Impl()
+        {
+            memoryManager->Remove(*mesh.Get());
+        }
+
+        Impl(const Guid& guid, Resource<GameObject> gameObject, Resource<MeshAsset> mesh, MemoryManager& memoryManager)
             : guid(guid),
               gameObject(std::move(gameObject)),
-              mesh(std::move(mesh))
+              mesh(std::move(mesh)),
+              memoryManager(&memoryManager)
         {
         }
 
@@ -72,6 +90,7 @@ namespace pluto
         void SetText(const std::string& value)
         {
             text = value;
+            isDirty = true;
         }
 
         Resource<FontAsset> GetFont() const
@@ -82,6 +101,65 @@ namespace pluto
         void SetFont(const Resource<FontAsset>& value)
         {
             font = value;
+            isDirty = true;
+        }
+
+        void OnUpdate()
+        {
+            if (!isDirty)
+            {
+                return;
+            }
+
+            UpdateMesh();
+            isDirty = false;
+        }
+
+    private:
+        void UpdateMesh()
+        {
+            std::vector<Vector3F> positions;
+            std::vector<Vector2F> uvs;
+            std::vector<Vector3I> triangles;
+
+            FontAsset& fontAsset = *font.Get();
+            float x = 0; 
+            uint32_t t = 0;
+            for (const char& c : text)
+            {
+                const FontAsset::Glyph& glyph = fontAsset.GetGlyph(c);
+
+                const float w = glyph.xMax - glyph.xMin;
+                const float h = glyph.yMax - glyph.yMin;
+
+                float xPos = x + glyph.xBearing;
+                float yPos = -(h - abs(glyph.yBearing));
+
+                Vector3F posA = { xPos, yPos, 0 };
+                Vector3F posB = { xPos + w, yPos, 0 };
+                Vector3F posC = { xPos, yPos + h, 0 };
+                Vector3F posD = { xPos + w, yPos + h, 0 };
+
+                positions.push_back(posA / 100);
+                positions.push_back(posB / 100);
+                positions.push_back(posC / 100);
+                positions.push_back(posD / 100);
+
+                uvs.emplace_back(glyph.xMin / 512, (512 - glyph.yMax) / 512);
+                uvs.emplace_back(glyph.xMax / 512, (512 - glyph.yMax) / 512);
+                uvs.emplace_back(glyph.xMin / 512, (512 - glyph.yMin) / 512);
+                uvs.emplace_back(glyph.xMax / 512, (512 - glyph.yMin) / 512);
+
+                triangles.emplace_back(t, t + 3, t + 1);
+                triangles.emplace_back(t + 3, t, t + 2);
+
+                t += 4;
+                x += glyph.advance;
+            }
+
+            mesh->SetPositions(positions);
+            mesh->SetUVs(uvs);
+            mesh->SetTriangles(triangles);
         }
     };
 
@@ -92,6 +170,15 @@ namespace pluto
 
     std::unique_ptr<Component> TextRenderer::Factory::Create(const Resource<GameObject>& gameObject) const
     {
+        ServiceCollection& serviceCollection = GetServiceCollection();
+        MeshAsset::Factory& meshAssetFactory = serviceCollection.GetFactory<MeshAsset>();
+        std::unique_ptr<MeshAsset> meshAsset = meshAssetFactory.Create();
+
+        auto& memoryManager = serviceCollection.GetService<MemoryManager>();
+        Resource<MeshAsset> meshAssetResource = ResourceUtils::Cast<MeshAsset>(memoryManager.Add(std::move(meshAsset)));
+
+        return std::make_unique<TextRenderer>(
+            std::make_unique<Impl>(Guid::New(), gameObject, meshAssetResource, memoryManager));
     }
 
     TextRenderer::~TextRenderer() = default;
@@ -158,5 +245,10 @@ namespace pluto
     void TextRenderer::SetFont(const Resource<FontAsset>& value)
     {
         impl->SetFont(value);
+    }
+
+    void TextRenderer::OnUpdate()
+    {
+        impl->OnUpdate();
     }
 }
