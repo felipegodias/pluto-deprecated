@@ -30,12 +30,10 @@ namespace pluto
     class GlTextureBuffer::Impl
     {
         GLuint textureBufferObjectId;
-        bool isBound;
-        uint8_t lastBindLocation;
 
     public:
-        explicit Impl(const GLuint textureBufferObjectId) : textureBufferObjectId(textureBufferObjectId),
-                                                            isBound(false), lastBindLocation(0)
+        explicit Impl(const GLuint textureBufferObjectId)
+            : textureBufferObjectId(textureBufferObjectId)
 
         {
         }
@@ -106,32 +104,19 @@ namespace pluto
 
         void Bind(const uint8_t location)
         {
-            if (isBound)
-            {
-                return;
-            }
-
             GL_CALL(glActiveTexture(GL_TEXTURE0 + location));
             GL_CALL(glBindTexture(GL_TEXTURE_2D, textureBufferObjectId));
-
-            isBound = true;
-            lastBindLocation = location;
         }
 
         void Unbind()
         {
-            if (!isBound)
-            {
-                return;
-            }
-
-            GL_CALL(glActiveTexture(GL_TEXTURE0 + lastBindLocation));
-            GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
-            isBound = false;
+            //GL_CALL(glActiveTexture(GL_TEXTURE0 + lastBindLocation));
+            //GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
         }
     };
 
-    GlTextureBuffer::Factory::Factory(ServiceCollection& serviceCollection) : TextureBuffer::Factory(serviceCollection)
+    GlTextureBuffer::Factory::Factory(ServiceCollection& serviceCollection)
+        : TextureBuffer::Factory(serviceCollection)
     {
     }
 
@@ -142,7 +127,8 @@ namespace pluto
         return std::make_unique<GlTextureBuffer>(std::make_unique<Impl>(textureBufferObject));
     }
 
-    GlTextureBuffer::GlTextureBuffer(std::unique_ptr<Impl> impl) : impl(std::move(impl))
+    GlTextureBuffer::GlTextureBuffer(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
     }
 

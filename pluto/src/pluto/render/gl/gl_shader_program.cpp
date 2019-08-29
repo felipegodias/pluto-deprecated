@@ -16,8 +16,6 @@
 #include "pluto/math/vector4f.h"
 #include "pluto/math/matrix4x4.h"
 
-#include "pluto/exception.h"
-
 #include <GL/glew.h>
 
 #include <array>
@@ -71,8 +69,6 @@ namespace pluto
         const ShaderAsset* shaderAsset;
 
         uint8_t mvpUniformLocation;
-
-        bool isBound;
         const MaterialAsset* lastMaterialAsset;
 
     public:
@@ -80,7 +76,6 @@ namespace pluto
             : programId(programId),
               shaderAsset(&shaderAsset),
               mvpUniformLocation(255),
-              isBound(false),
               lastMaterialAsset(nullptr)
         {
             for (const auto& property : shaderAsset.GetUniforms())
@@ -103,29 +98,19 @@ namespace pluto
 
         void Bind(const Matrix4X4& mvp, const MaterialAsset& materialAsset)
         {
-            if (!isBound)
-            {
-                GL_CALL(glUseProgram(programId));
-                UpdateBlendFunction();
-                UpdateDepthTest();
-                UpdateFaceCull();
-                isBound = true;
-            }
+            GL_CALL(glUseProgram(programId));
+            UpdateBlendFunction();
+            UpdateDepthTest();
+            UpdateFaceCull();
 
-            if (lastMaterialAsset == nullptr || *lastMaterialAsset != materialAsset)
-            {
-                lastMaterialAsset = &materialAsset;
-                UpdateMaterial();
-            }
+            lastMaterialAsset = &materialAsset;
+            UpdateMaterial();
 
             UpdateModelViewProjection(mvp);
         }
 
         void Unbind()
         {
-            GL_CALL(glUseProgram(0));
-            lastMaterialAsset = nullptr;
-            isBound = false;
         }
 
     private:

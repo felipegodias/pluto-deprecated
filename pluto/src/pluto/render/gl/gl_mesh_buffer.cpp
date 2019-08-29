@@ -19,15 +19,14 @@ namespace pluto
         const uint32_t vertexArrayObject;
         const uint32_t indexBufferObject;
         const std::vector<uint32_t> vertexBufferObjects;
-        bool isBound;
 
     public:
         Impl(const int verticesCount, const uint32_t vertexArrayObject, const uint32_t indexBufferObject,
-             std::vector<uint32_t> vertexBufferObjects) : verticesCount(verticesCount),
-                                                          vertexArrayObject(vertexArrayObject),
-                                                          indexBufferObject(indexBufferObject),
-                                                          vertexBufferObjects(std::move(vertexBufferObjects)),
-                                                          isBound(false)
+             std::vector<uint32_t> vertexBufferObjects)
+            : verticesCount(verticesCount),
+              vertexArrayObject(vertexArrayObject),
+              indexBufferObject(indexBufferObject),
+              vertexBufferObjects(std::move(vertexBufferObjects))
         {
         }
 
@@ -40,23 +39,13 @@ namespace pluto
 
         void Bind()
         {
-            if (isBound)
-            {
-                return;
-            }
-            isBound = true;
             GL_CALL(glBindVertexArray(vertexArrayObject));
             GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject));
         }
 
         void Unbind()
         {
-            if (!isBound)
-            {
-                return;
-            }
-            isBound = false;
-            GL_CALL(glBindVertexArray(0));
+            //GL_CALL(glBindVertexArray(0));
         }
 
         void Draw()
@@ -66,7 +55,8 @@ namespace pluto
         }
     };
 
-    GlMeshBuffer::Factory::Factory(ServiceCollection& serviceCollection) : MeshBuffer::Factory(serviceCollection)
+    GlMeshBuffer::Factory::Factory(ServiceCollection& serviceCollection)
+        : MeshBuffer::Factory(serviceCollection)
     {
     }
 
@@ -115,11 +105,13 @@ namespace pluto
         return std::make_unique<GlMeshBuffer>(std::move(impl));
     }
 
-    GlMeshBuffer::GlMeshBuffer(std::unique_ptr<Impl> impl) : impl(std::move(impl))
+    GlMeshBuffer::GlMeshBuffer(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
     }
 
-    GlMeshBuffer::GlMeshBuffer(GlMeshBuffer&& other) noexcept : impl(std::move(other.impl))
+    GlMeshBuffer::GlMeshBuffer(GlMeshBuffer&& other) noexcept
+        : impl(std::move(other.impl))
     {
     }
 
