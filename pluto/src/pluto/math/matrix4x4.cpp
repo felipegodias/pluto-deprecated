@@ -229,7 +229,7 @@ namespace pluto
 
     Matrix4X4 Matrix4X4::Perspective(const float fov, const float aspect, const float near, const float far)
     {
-        return FromGlm(glm::perspective(fov, aspect, near, far));
+        return FromGlm(glm::perspective(glm::radians(fov), aspect, near, far));
     }
 
     Matrix4X4 Matrix4X4::Translate(const Vector3F& vector)
