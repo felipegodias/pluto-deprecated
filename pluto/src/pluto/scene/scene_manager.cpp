@@ -48,6 +48,8 @@ namespace pluto
 
         ~Impl()
         {
+            activeScene->Destroy();
+            activeScene->OnCleanup();
             eventManager.Unsubscribe<OnUpdateEvent>(onUpdateEventId);
             logManager.LogInfo("SceneManager terminated!");
         }

@@ -42,6 +42,14 @@ namespace pluto
         {
         }
 
+        ~Impl()
+        {
+            for (auto& component : components)
+            {
+                memoryManager->Remove(*component.Get());
+            }
+        }
+
         const Guid& GetId() const
         {
             return guid;
