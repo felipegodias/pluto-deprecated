@@ -26,6 +26,7 @@
 
 #include <regex>
 #include <pluto/exception.h>
+#include "pluto/scene/scene_manager.h"
 
 namespace pluto
 {
@@ -89,28 +90,21 @@ namespace pluto
             auto& simulationManager = serviceCollection->GetService<SimulationManager>();
             auto& logManager = serviceCollection->GetService<LogManager>();
 
+            int exitCode = EXIT_SUCCESS;
             try
             {
                 onInit(*serviceCollection);
+                while (windowManager.IsOpen())
+                {
+                    simulationManager.Run();
+                }
             }
             catch (const Exception& e)
             {
                 logManager.LogException(e);
-                return 1;
+                exitCode = EXIT_FAILURE;
             }
-
-            while (windowManager.IsOpen())
-            {
-                try
-                {
-                    simulationManager.Run();
-                }
-                catch (const Exception& e)
-                {
-                    logManager.LogException(e);
-                }
-            }
-            return 0;
+            return exitCode;
         }
     };
 
