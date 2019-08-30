@@ -29,6 +29,8 @@ namespace pluto
         std::string text;
         Resource<FontAsset> font;
 
+        Anchor anchor;
+
         bool isDirty;
 
         MemoryManager* memoryManager;
@@ -43,6 +45,7 @@ namespace pluto
             : guid(guid),
               gameObject(std::move(gameObject)),
               mesh(std::move(mesh)),
+              anchor(Anchor::Default),
               memoryManager(&memoryManager)
         {
         }
@@ -104,6 +107,17 @@ namespace pluto
             isDirty = true;
         }
 
+        Anchor GetAnchor() const
+        {
+            return anchor;
+        }
+
+        void SetAnchor(const Anchor value)
+        {
+            anchor = value;
+            isDirty = true;
+        }
+
         void OnUpdate()
         {
             if (!isDirty)
@@ -125,6 +139,10 @@ namespace pluto
             FontAsset& fontAsset = *font.Get();
             float x = 0;
             float y = 0;
+            float maxX = 0;
+
+            uint32_t lineCount = 1;
+
             uint32_t t = 0;
             for (const char& c : text)
             {
@@ -132,6 +150,7 @@ namespace pluto
                 {
                     x = 0;
                     y -= fontAsset.Size();
+                    ++lineCount;
                     continue;
                 }
 
@@ -142,7 +161,8 @@ namespace pluto
                 }
 
                 char character = c;
-                if (!fontAsset.HasCharacter(character)) {
+                if (!fontAsset.HasCharacter(character))
+                {
                     character = '?';
                 }
 
@@ -159,10 +179,10 @@ namespace pluto
                 Vector3F posC = {xPos, yPos + h, 0};
                 Vector3F posD = {xPos + w, yPos + h, 0};
 
-                positions.push_back(posA / 100);
-                positions.push_back(posB / 100);
-                positions.push_back(posC / 100);
-                positions.push_back(posD / 100);
+                positions.push_back(posA);
+                positions.push_back(posB);
+                positions.push_back(posC);
+                positions.push_back(posD);
 
                 uvs.emplace_back(glyph.xMin / 512, (512 - glyph.yMax) / 512);
                 uvs.emplace_back(glyph.xMax / 512, (512 - glyph.yMax) / 512);
@@ -173,12 +193,52 @@ namespace pluto
                 triangles.emplace_back(t + 3, t, t + 2);
 
                 t += 4;
+
                 x += glyph.advance;
+                maxX = std::max(x, maxX);
+            }
+
+            Vector3F offset = GetAnchorOffset(maxX, lineCount);
+
+            for (auto& position : positions)
+            {
+                position = (position + offset) / 100;
             }
 
             mesh->SetPositions(positions);
             mesh->SetUVs(uvs);
             mesh->SetTriangles(triangles);
+        }
+
+        Vector3F GetAnchorOffset(const float maxX, const uint32_t lineCount)
+        {
+            const float size = font->Size();
+            const float height = size * (static_cast<float>(lineCount) - 1.0f);
+
+            // Magic PI??????
+            const float pi = 3.14159265358979f;
+            switch (anchor)
+            {
+            case Anchor::UpperLeft:
+                return {0, -size, 0};
+            case Anchor::UpperCenter:
+                return {-maxX / 2, -size, 0};
+            case Anchor::UpperRight:
+                return {-maxX, -size, 0};
+            case Anchor::MiddleLeft:
+                return {0, -size / pi + height / 2, 0};
+            case Anchor::MiddleCenter:
+                return {-maxX / 2, -size / pi + height / 2, 0};
+            case Anchor::MiddleRight:
+                return {-maxX, -size / pi + height / 2, 0};
+            case Anchor::LowerLeft:
+                return {0, height, 0};
+            case Anchor::LowerCenter:
+                return {-maxX / 2, height, 0};
+            case Anchor::LowerRight:
+                return {-maxX, height, 0};
+            }
+            return Vector3F::ZERO;
         }
     };
 
@@ -264,6 +324,16 @@ namespace pluto
     void TextRenderer::SetFont(const Resource<FontAsset>& value)
     {
         impl->SetFont(value);
+    }
+
+    TextRenderer::Anchor TextRenderer::GetAnchor() const
+    {
+        return impl->GetAnchor();
+    }
+
+    void TextRenderer::SetAnchor(const Anchor value)
+    {
+        impl->SetAnchor(value);
     }
 
     void TextRenderer::OnUpdate()

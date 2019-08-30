@@ -15,6 +15,20 @@ namespace pluto
     class PLUTO_API TextRenderer final : public Renderer
     {
     public:
+        enum class Anchor
+        {
+            UpperLeft = 0,
+            UpperCenter = 1,
+            UpperRight = 2,
+            MiddleLeft = 3,
+            MiddleCenter = 4,
+            MiddleRight = 5,
+            LowerLeft = 6,
+            LowerCenter = 7,
+            LowerRight = 8,
+            Default = MiddleLeft
+        };
+
         class PLUTO_API Factory final : public Component::Factory
         {
         public:
@@ -52,6 +66,9 @@ namespace pluto
 
         Resource<FontAsset> GetFont() const;
         void SetFont(const Resource<FontAsset>& value);
+
+        Anchor GetAnchor() const;
+        void SetAnchor(Anchor value);
 
         void OnUpdate() override;
     };
