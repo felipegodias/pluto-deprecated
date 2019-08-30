@@ -103,7 +103,7 @@ namespace pluto
             const auto it = glyphs.find(character);
             if (it == glyphs.end())
             {
-                Exception::Throw(std::runtime_error(fmt::format("Glyph {0} not found in {1} font asset.")));
+                Exception::Throw(std::runtime_error(fmt::format("Glyph for '{0}' not found in {1} font asset.", character, name)));
             }
             return it->second;
         }
