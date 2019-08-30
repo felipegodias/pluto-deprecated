@@ -128,7 +128,18 @@ namespace pluto
             uint32_t t = 0;
             for (const char& c : text)
             {
-                const FontAsset::Glyph& glyph = fontAsset.GetGlyph(c);
+                if (c == '\n')
+                {
+                    x = 0;
+                    y -= fontAsset.Size();
+                    continue;
+                }
+
+                if (c == '\t')
+                {
+                    x += fontAsset.GetGlyph(' ').advance * 4;
+                    continue;
+                }
 
                 char character = c;
                 if (!fontAsset.HasCharacter(character)) {
