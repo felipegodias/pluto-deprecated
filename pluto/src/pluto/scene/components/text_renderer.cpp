@@ -123,22 +123,30 @@ namespace pluto
             std::vector<Vector3I> triangles;
 
             FontAsset& fontAsset = *font.Get();
-            float x = 0; 
+            float x = 0;
+            float y = 0;
             uint32_t t = 0;
             for (const char& c : text)
             {
                 const FontAsset::Glyph& glyph = fontAsset.GetGlyph(c);
 
+                char character = c;
+                if (!fontAsset.HasCharacter(character)) {
+                    character = '?';
+                }
+
+                const FontAsset::Glyph& glyph = fontAsset.GetGlyph(character);
+
                 const float w = glyph.xMax - glyph.xMin;
                 const float h = glyph.yMax - glyph.yMin;
 
                 float xPos = x + glyph.xBearing;
-                float yPos = -(h - abs(glyph.yBearing));
+                float yPos = -(h - abs(glyph.yBearing)) + y;
 
-                Vector3F posA = { xPos, yPos, 0 };
-                Vector3F posB = { xPos + w, yPos, 0 };
-                Vector3F posC = { xPos, yPos + h, 0 };
-                Vector3F posD = { xPos + w, yPos + h, 0 };
+                Vector3F posA = {xPos, yPos, 0};
+                Vector3F posB = {xPos + w, yPos, 0};
+                Vector3F posC = {xPos, yPos + h, 0};
+                Vector3F posD = {xPos + w, yPos + h, 0};
 
                 positions.push_back(posA / 100);
                 positions.push_back(posB / 100);
