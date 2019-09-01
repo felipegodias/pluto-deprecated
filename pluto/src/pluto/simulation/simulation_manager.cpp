@@ -59,11 +59,12 @@ namespace pluto
             if (deltaTime >= maxPeriod)
             {
                 lastTime = time;
-                eventManager.Dispatch(OnPreUpdateEvent());
-                eventManager.Dispatch(OnUpdateEvent());
-                eventManager.Dispatch(OnPostUpdateEvent());
-                eventManager.Dispatch(OnRenderEvent());
-                eventManager.Dispatch(OnPostRenderEvent());
+                eventManager.Dispatch<OnPreUpdateEvent>();
+                eventManager.Dispatch<OnPreUpdateEvent>();
+                eventManager.Dispatch<OnUpdateEvent>();
+                eventManager.Dispatch<OnPostUpdateEvent>();
+                eventManager.Dispatch<OnRenderEvent>();
+                eventManager.Dispatch<OnPostRenderEvent>();
                 ++fps;
                 ++frameCount;
             }

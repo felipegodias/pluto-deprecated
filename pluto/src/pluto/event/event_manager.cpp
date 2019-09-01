@@ -22,49 +22,44 @@ namespace pluto
 {
     class EventManager::Impl
     {
-        struct EventListenerData final
+        struct EventListenerEntry final
         {
             Guid guid;
             EventListener<BaseEvent> callback;
         };
 
-        LogManager& logManager;
-        std::unordered_map<std::type_index, std::vector<EventListenerData>> listeners;
+        LogManager* logManager;
+        std::unordered_map<std::type_index, std::vector<EventListenerEntry>> listeners;
 
     public:
-        explicit Impl(LogManager& logManager) : logManager(logManager)
+        explicit Impl(LogManager& logManager)
+            : logManager(&logManager)
         {
             logManager.LogInfo("EventManager Initialized!");
         }
 
         ~Impl()
         {
-            logManager.LogInfo("EventManager Terminated!");
+            logManager->LogInfo("EventManager Terminated!");
         }
 
-        template <typename T, IsEvent<T>  = 0>
-        Guid Subscribe(const EventListener<T>& listener)
+        Guid Subscribe(const std::type_info& eventType, const EventListener<BaseEvent>& listener)
         {
-            const std::type_index type = typeid(T);
-            const auto it = listeners.find(type);
+            const auto it = listeners.find(eventType);
             if (it == listeners.end())
             {
-                listeners[type] = std::vector<EventListenerData>();
+                listeners[eventType] = std::vector<EventListenerEntry>();
             }
-            const auto callback = [listener](const BaseEvent& x)
-            {
-                listener(static_cast<const T&>(x));
-            };
-            auto& vec = listeners[type];
-            Guid guid = Guid::New();
-            vec.push_back({guid, callback});
+
+            auto& vec = listeners[eventType];
+            const Guid guid = Guid::New();
+            vec.push_back({guid, listener});
             return guid;
         }
 
-        template <typename T, IsEvent<T>  = 0>
-        void Unsubscribe(const Guid& guid)
+        void Unsubscribe(const std::type_info& eventType, const Guid& guid)
         {
-            const auto it = listeners.find(typeid(T));
+            const auto it = listeners.find(eventType);
             if (it == listeners.end())
             {
                 return;
@@ -79,16 +74,16 @@ namespace pluto
                     break;
                 }
             }
+
             if (it->second.empty())
             {
                 listeners.erase(it);
             }
         }
 
-        template <typename T, IsEvent<T>  = 0>
-        void Dispatch(const T& event) const
+        void Dispatch(const BaseEvent& event) const
         {
-            const auto it = listeners.find(typeid(T));
+            const auto it = listeners.find(typeid(event));
             if (it == listeners.end())
             {
                 return;
@@ -100,7 +95,8 @@ namespace pluto
         }
     };
 
-    EventManager::Factory::Factory(ServiceCollection& serviceCollection) : BaseFactory(serviceCollection)
+    EventManager::Factory::Factory(ServiceCollection& serviceCollection)
+        : BaseFactory(serviceCollection)
     {
     }
 
@@ -111,55 +107,29 @@ namespace pluto
         return std::make_unique<EventManager>(std::make_unique<Impl>(logManager));
     }
 
-    EventManager::EventManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
-    {
-    }
-
     EventManager::~EventManager() = default;
 
-    template <typename T, IsEvent<T>>
-    Guid EventManager::Subscribe(const EventListener<T>& listener)
+    EventManager::EventManager(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
-        return impl->Subscribe(listener);
     }
 
-    template <typename T, IsEvent<T>>
-    void EventManager::Unsubscribe(const Guid& guid)
+    EventManager::EventManager(EventManager&& other) noexcept = default;
+
+    EventManager& EventManager::operator=(EventManager&& other) noexcept = default;
+
+    Guid EventManager::Subscribe(const std::type_info& eventType, const EventListener<BaseEvent>& listener)
     {
-        impl->Unsubscribe<T>(guid);
+        return impl->Subscribe(eventType, listener);
     }
 
-    template <typename T, IsEvent<T>>
-    void EventManager::Dispatch(const T& event) const
+    void EventManager::Unsubscribe(const std::type_info& eventType, const Guid& guid)
+    {
+        impl->Unsubscribe(eventType, guid);
+    }
+
+    void EventManager::Dispatch(const BaseEvent& event) const
     {
         impl->Dispatch(event);
     }
-
-    template Guid EventManager::Subscribe(const EventListener<OnStartupEvent>& listener);
-    template void EventManager::Unsubscribe<OnStartupEvent>(const Guid& guid);
-    template void EventManager::Dispatch(const OnStartupEvent& event) const;
-
-    template Guid EventManager::Subscribe(const EventListener<OnPreUpdateEvent>& listener);
-    template void EventManager::Unsubscribe<OnPreUpdateEvent>(const Guid& guid);
-    template void EventManager::Dispatch(const OnPreUpdateEvent& event) const;
-
-    template Guid EventManager::Subscribe(const EventListener<OnUpdateEvent>& listener);
-    template void EventManager::Unsubscribe<OnUpdateEvent>(const Guid& guid);
-    template void EventManager::Dispatch(const OnUpdateEvent& event) const;
-
-    template Guid EventManager::Subscribe(const EventListener<OnPostUpdateEvent>& listener);
-    template void EventManager::Unsubscribe<OnPostUpdateEvent>(const Guid& guid);
-    template void EventManager::Dispatch(const OnPostUpdateEvent& event) const;
-
-    template Guid EventManager::Subscribe(const EventListener<OnAssetUnloadEvent>& listener);
-    template void EventManager::Unsubscribe<OnAssetUnloadEvent>(const Guid& guid);
-    template void EventManager::Dispatch(const OnAssetUnloadEvent& event) const;
-
-    template Guid EventManager::Subscribe(const EventListener<OnRenderEvent>& listener);
-    template void EventManager::Unsubscribe<OnRenderEvent>(const Guid& guid);
-    template void EventManager::Dispatch(const OnRenderEvent& event) const;
-
-    template Guid EventManager::Subscribe(const EventListener<OnPostRenderEvent>& listener);
-    template void EventManager::Unsubscribe<OnPostRenderEvent>(const Guid& guid);
-    template void EventManager::Dispatch(const OnPostRenderEvent& event) const;
 }

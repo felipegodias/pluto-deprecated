@@ -12,10 +12,7 @@ namespace pluto
 {
     class Guid;
 
-    template <typename T>
-    using IsEvent = std::enable_if_t<std::is_base_of_v<BaseEvent, T>, int>;
-
-    template <typename T, IsEvent<T>  = 0>
+    template <typename T, std::enable_if_t<std::is_base_of_v<BaseEvent, T>, bool>  = false>
     using EventListener = std::function<void(const T&)>;
 
     class PLUTO_API EventManager final : public BaseService
@@ -33,16 +30,32 @@ namespace pluto
         std::unique_ptr<Impl> impl;
 
     public:
-        explicit EventManager(std::unique_ptr<Impl> impl);
         ~EventManager();
+        explicit EventManager(std::unique_ptr<Impl> impl);
 
-        template <typename T, IsEvent<T>  = 0>
+        EventManager(const EventManager& other) = delete;
+        EventManager(EventManager&& other) noexcept;
+        EventManager& operator=(const EventManager& other) = delete;
+        EventManager& operator=(EventManager&& other) noexcept;
+
+        template <typename T, std::enable_if_t<std::is_base_of_v<BaseEvent, T>, bool>  = false>
         Guid Subscribe(const EventListener<T>& listener);
 
-        template <typename T, IsEvent<T>  = 0>
+        template <typename T, std::enable_if_t<std::is_base_of_v<BaseEvent, T>, bool>  = false>
         void Unsubscribe(const Guid& guid);
 
-        template <typename T, IsEvent<T>  = 0>
-        void Dispatch(const T& event) const;
+        template <typename T,
+                  typename ... Args,
+                  std::enable_if_t<std::is_base_of_v<BaseEvent, T>
+                                   && std::is_constructible_v<T, Args...>, bool>  = false>
+        void Dispatch(Args&&... args) const;
+
+        Guid Subscribe(const std::type_info& eventType, const EventListener<BaseEvent>& listener);
+
+        void Unsubscribe(const std::type_info& eventType, const Guid& guid);
+
+        void Dispatch(const BaseEvent& event) const;
     };
 }
+
+#include "event_manager.inl"
