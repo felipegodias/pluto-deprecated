@@ -13,6 +13,8 @@ namespace pluto
 
     class Physics2DBody;
 
+    class Vector2F;
+
     class PLUTO_API Physics2DManager final : public BaseService
     {
     public:
@@ -36,6 +38,10 @@ namespace pluto
         Physics2DManager& operator=(const Physics2DManager& other) = delete;
         Physics2DManager& operator=(Physics2DManager&& other) noexcept;
 
-        Physics2DBody& AddToWorld(const Resource<GameObject>& gameObject);
+        Physics2DBody& CreateCircleBody(const Resource<GameObject>& gameObject, float radius);
+        void DestroyBody(const Resource<GameObject>& gameObject);
+
+        bool HasBody(const Resource<GameObject>& gameObject);
+        Physics2DBody& GetBody(const Resource<GameObject>& gameObject);
     };
 }
