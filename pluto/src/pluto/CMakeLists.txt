@@ -59,6 +59,12 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/memory/object.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/memory/resource.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/memory/resource_control.cpp
+    # ./physics_2d
+    ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/physics_2d_manager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/physics_2d_body.cpp
+    # ./physics_2d/shapes
+    ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/shapes/physics_2d_circle_shape.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/shapes/physics_2d_shape.cpp
     # ./render
     ${CMAKE_CURRENT_SOURCE_DIR}/render/mesh_buffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/render/render_manager.cpp
@@ -79,6 +85,7 @@ list(APPEND PLUTO_SOURCE_FILES
     # ./scene/components
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/camera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/component.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/mesh_renderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/renderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/text_renderer.cpp

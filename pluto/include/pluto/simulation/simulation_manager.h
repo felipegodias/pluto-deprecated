@@ -6,8 +6,6 @@
 
 namespace pluto
 {
-    enum class KeyCode;
-
     class PLUTO_API SimulationManager final : public BaseService
     {
     public:

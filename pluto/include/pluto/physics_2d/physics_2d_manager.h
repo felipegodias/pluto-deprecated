@@ -38,10 +38,12 @@ namespace pluto
         Physics2DManager& operator=(const Physics2DManager& other) = delete;
         Physics2DManager& operator=(Physics2DManager&& other) noexcept;
 
-        Physics2DBody& CreateCircleBody(const Resource<GameObject>& gameObject, float radius);
+        bool HasBody(const Resource<GameObject>& gameObject) const;
+        Physics2DBody& GetBody(const Resource<GameObject>& gameObject) const;
+        Physics2DBody& CreateBody(const Resource<GameObject>& gameObject);
+        Physics2DBody& GetOrCreateBody(const Resource<GameObject>& gameObject);
         void DestroyBody(const Resource<GameObject>& gameObject);
 
-        bool HasBody(const Resource<GameObject>& gameObject);
-        Physics2DBody& GetBody(const Resource<GameObject>& gameObject);
+        void* GetWorld() const;
     };
 }
