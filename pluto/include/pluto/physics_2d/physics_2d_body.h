@@ -39,8 +39,8 @@ namespace pluto
 
         Physics2DBody(const Physics2DBody& other) = delete;
         Physics2DBody(Physics2DBody&& other) noexcept;
-        Physics2DBody& operator=(const Physics2DBody& other) = delete;
-        Physics2DBody& operator=(Physics2DBody&& other) noexcept;
+        Physics2DBody& operator=(const Physics2DBody& rhs) = delete;
+        Physics2DBody& operator=(Physics2DBody&& rhs) noexcept;
 
         Type GetType(Type type) const;
         void SetType(Type value);

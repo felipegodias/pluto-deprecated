@@ -35,8 +35,8 @@ namespace pluto
 
         Physics2DManager(const Physics2DManager& other) = delete;
         Physics2DManager(Physics2DManager&& other) noexcept;
-        Physics2DManager& operator=(const Physics2DManager& other) = delete;
-        Physics2DManager& operator=(Physics2DManager&& other) noexcept;
+        Physics2DManager& operator=(const Physics2DManager& rhs) = delete;
+        Physics2DManager& operator=(Physics2DManager&& rhs) noexcept;
 
         bool HasBody(const Resource<GameObject>& gameObject) const;
         Physics2DBody& GetBody(const Resource<GameObject>& gameObject) const;

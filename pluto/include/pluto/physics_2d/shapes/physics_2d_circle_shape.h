@@ -33,6 +33,9 @@ namespace pluto
         Physics2DCircleShape& operator=(const Physics2DCircleShape& other) = delete;
         Physics2DCircleShape& operator=(Physics2DCircleShape&& other) noexcept;
 
+        Vector2F GetOffset() const;
+        void SetOffset(const Vector2F& value);
+
         float GetRadius() const;
         void SetRadius(float value);
     };

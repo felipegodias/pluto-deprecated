@@ -4,6 +4,7 @@
 #include "pluto/physics_2d/shapes/physics_2d_circle_shape.h"
 
 #include "pluto/service/service_collection.h"
+#include "pluto/math/math.h"
 #include "pluto/math/vector2f.h"
 
 #include <Box2D/Box2D.h>
@@ -91,12 +92,12 @@ namespace pluto
 
         float GetAngle() const
         {
-            return body->GetAngle();
+            return Math::Degrees(body->GetAngle());
         }
 
         void SetAngle(const float value)
         {
-            body->SetTransform(body->GetPosition(), value);
+            body->SetTransform(body->GetPosition(), Math::Radians(value));
         }
 
         Vector2F GetVelocity() const
@@ -130,11 +131,21 @@ namespace pluto
 
         void DestroyShape(const Physics2DShape& shape)
         {
-            const auto comparator = [shape](const std::unique_ptr<Physics2DShape>& ptr) -> bool
+            auto it = shapes.begin();
+            while (it != shapes.end())
             {
-                return &shape == ptr.get();
-            };
-            shapes.erase(std::remove_if(shapes.begin(), shapes.end(), comparator), shapes.end());
+                if ((*it).get() == &shape)
+                {
+                    shapes.erase(it);
+                    break;
+                }
+                ++it;
+            }
+        }
+
+        void* GetNativeBody() const
+        {
+            return body;
         }
     };
 
@@ -170,7 +181,7 @@ namespace pluto
 
     Physics2DBody::Physics2DBody(Physics2DBody&& other) noexcept = default;
 
-    Physics2DBody& Physics2DBody::operator=(Physics2DBody&& other) noexcept = default;
+    Physics2DBody& Physics2DBody::operator=(Physics2DBody&& rhs) noexcept = default;
 
     Physics2DBody::Type Physics2DBody::GetType(Type type) const
     {
@@ -230,5 +241,10 @@ namespace pluto
     void Physics2DBody::DestroyShape(const Physics2DShape& shape)
     {
         impl->DestroyShape(shape);
+    }
+
+    void* Physics2DBody::GetNativeBody() const
+    {
+        return impl->GetNativeBody();
     }
 }
