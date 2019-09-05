@@ -1,39 +1,33 @@
 #pragma once
 
-#include "pluto/api.h"
-#include "pluto/type_traits.h"
+#include "pluto/exception.h"
 
-#include <string>
+#ifdef NDEBUG
+#define __PLUTO_ASSERT_THAT__(expr, msg)
+#else
+#define __PLUTO_ASSERT_THAT__(expr, msg) if (!(expr)) { abort(); Exception::Throw(std::runtime_error((msg))); }
+#endif
 
-namespace pluto
-{
-    class PLUTO_API Assert final
-    {
-    public:
-        Assert() = delete;
+#define ASSERT_THAT_IS_TRUE(condition)\
+__PLUTO_ASSERT_THAT__((condition), "Assert Failed! Condition was expected to be true but is false.")
 
-        template <typename TFirst, typename TSecond,
-                  std::enable_if_t<std::is_arithmetic_v<TFirst> && std::is_arithmetic_v<TSecond>, bool>  = false>
-        static void constexpr AreApproximatelyEqual(TFirst&& lhs, TSecond&& rhs, const std::string& message);
-        template <typename TFirst, typename TSecond,
-                  std::enable_if_t<std::is_arithmetic_v<TFirst> && std::is_arithmetic_v<TSecond>, bool>  = false>
-        static void constexpr AreApproximatelyNotEqual(TFirst&& lhs, TSecond&& rhs, const std::string& message);
+#define ASSERT_THAT_IS_FALSE(condition)\
+__PLUTO_ASSERT_THAT__(!(condition), "Assert Failed! Condition was expected to be false but is true.")
 
-        template <typename TFirst, typename TSecond,
-                  std::enable_if_t<HasEqualTo<TFirst, TSecond>::VALUE, bool>  = false>
-        static void constexpr AreEqual(TFirst&& lhs, TSecond&& rhs, const std::string& message);
-        template <typename TFirst, typename TSecond,
-                  std::enable_if_t<HasEqualTo<TFirst, TSecond>::VALUE, bool>  = false>
-        static void constexpr AreNotEqual(TFirst&& lhs, TSecond&& rhs, const std::string& message);
+#define ASSERT_THAT_IS_NULL(value)\
+__PLUTO_ASSERT_THAT__((value) == nullptr, "Assert Failed! Value was expected to be null but it is not.")
 
-        template <typename T, std::enable_if_t<HasEqualTo<T, nullptr_t>::VALUE, bool>  = false>
-        static void constexpr IsNull(T&& value, const std::string& message);
-        template <typename T, std::enable_if_t<HasEqualTo<T, nullptr_t>::VALUE, bool>  = false>
-        static void constexpr IsNotNull(T&& value, const std::string& message);
+#define ASSERT_THAT_IS_NOT_NULL(value)\
+__PLUTO_ASSERT_THAT__((value) != nullptr, "Assert Failed! Value was expected to be not null but it is null.")
 
-        static void constexpr IsTrue(bool condition, const std::string& message);
-        static void constexpr IsFalse(bool condition, const std::string& message);
-    };
-}
+#define ASSERT_THAT_ARE_EQUAL(lhs, rhs)\
+__PLUTO_ASSERT_THAT__((lhs) == (rhs), "Assert Failed! Values were expected to be equal but are diferent.")
 
-#include "assert.inl"
+#define ASSERT_THAT_NOT_EQUAL(lhs, rhs) \
+__PLUTO_ASSERT_THAT__((lhs) != (rhs), "Assert Failed! Values were expected to be diferent but are equal.")
+
+#define ASSERT_THAT_ARE_APPROXIMATELY_EQUAL(lhs, rhs, e) \
+__PLUTO_ASSERT_THAT__(abs((lhs) - (rhs)) <= (e), "Assert Failed! Values were expected to be aproximately equal but are diferent.")
+
+#define ASSERT_THAT_ARE_APPROXIMATELY_NOT_EQUAL(lhs, rhs, e) \
+__PLUTO_ASSERT_THAT__(abs((lhs) - (rhs)) > (e), "Assert Failed! Values were expected to be diferent but are aproximately equal.")
