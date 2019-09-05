@@ -12,12 +12,15 @@ namespace pluto
         StackTrace stackTrace;
 
     public:
-        explicit Impl(const std::exception& innerException) : innerException(innerException), stackTrace(5)
+        explicit Impl(const std::exception& innerException)
+            : innerException(innerException),
+              stackTrace(5)
         {
         }
 
-        Impl(const std::exception& innerException, StackTrace stackTrace) : innerException(innerException),
-                                                                            stackTrace(std::move(stackTrace))
+        Impl(const std::exception& innerException, StackTrace stackTrace)
+            : innerException(innerException),
+              stackTrace(std::move(stackTrace))
         {
         }
 
@@ -32,11 +35,13 @@ namespace pluto
         }
     };
 
-    Exception::Exception(std::unique_ptr<Impl> impl) : impl(std::move(impl))
+    Exception::Exception(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
     }
 
-    Exception::Exception(Exception&& other) noexcept : impl(std::move(other.impl))
+    Exception::Exception(Exception&& other) noexcept
+        : impl(std::move(other.impl))
     {
     }
 

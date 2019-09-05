@@ -22,13 +22,14 @@ namespace pluto
         std::unique_ptr<Impl> impl;
 
     public:
+        ~GlRenderManager() override;
         explicit GlRenderManager(std::unique_ptr<Impl> impl);
+
         GlRenderManager(const GlRenderManager& other) = delete;
         GlRenderManager(GlRenderManager&& other) noexcept;
-
-        ~GlRenderManager() override;
-
         GlRenderManager& operator=(const GlRenderManager& rhs) = delete;
         GlRenderManager& operator=(GlRenderManager&& rhs) noexcept;
+
+        void MainLoop() override;
     };
 }

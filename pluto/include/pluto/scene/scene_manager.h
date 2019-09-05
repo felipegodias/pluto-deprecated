@@ -25,17 +25,18 @@ namespace pluto
         std::unique_ptr<Impl> impl;
 
     public:
+        ~SceneManager();
         explicit SceneManager(std::unique_ptr<Impl> impl);
 
         SceneManager(const SceneManager& other) = delete;
         SceneManager(SceneManager&& other) noexcept;
-        ~SceneManager();
-
         SceneManager& operator=(const SceneManager& rhs) = delete;
         SceneManager& operator=(SceneManager&& rhs) noexcept;
 
         Scene& GetActiveScene() const;
 
         void LoadEmptyScene();
+
+        void MainLoop();
     };
 }

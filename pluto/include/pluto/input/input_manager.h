@@ -36,5 +36,7 @@ namespace pluto
 
         Vector2F GetMousePosition() const;
         Vector2F GetMouseScrollDelta() const;
+
+        void MainLoop();
     };
 }

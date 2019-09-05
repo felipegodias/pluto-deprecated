@@ -4,10 +4,6 @@
 #include <pluto/window/window_manager.h>
 #include <pluto/service/service_collection.h>
 
-#include <pluto/event/event_manager.h>
-#include <pluto/simulation/on_pre_update_event.h>
-
-#include <pluto/guid.h>
 #include <pluto/math/vector2f.h>
 
 #include <unordered_set>
@@ -18,7 +14,6 @@ namespace pluto
     class InputManager::Impl
     {
         LogManager& logManager;
-        EventManager& eventManager;
 
         std::unordered_set<KeyCode> keys;
         std::unordered_set<KeyCode> keysDown;
@@ -29,22 +24,15 @@ namespace pluto
         double mouseScrollDeltaX;
         double mouseScrollDeltaY;
 
-        Guid onPreUpdateEventGuid;
-
     public:
-        Impl(LogManager& logManager, EventManager& eventManager, GLFWwindow* window) : logManager(logManager),
-                                                                                       eventManager(eventManager),
-                                                                                       mousePositionX(0),
-                                                                                       mousePositionY(0),
-                                                                                       mouseScrollDeltaX(0),
-                                                                                       mouseScrollDeltaY(0)
+        Impl(LogManager& logManager, GLFWwindow* window)
+            : logManager(logManager),
+              mousePositionX(0),
+              mousePositionY(0),
+              mouseScrollDeltaX(0),
+              mouseScrollDeltaY(0)
         {
             static Impl* instance = this;
-
-            onPreUpdateEventGuid = eventManager.Subscribe<OnPreUpdateEvent>([&](const OnPreUpdateEvent& event)
-            {
-                OnPreUpdate(event);
-            });
 
             glfwSetKeyCallback(window, [](GLFWwindow* window, const int key, const int scanCode, const int action,
                                           const int mods)
@@ -76,7 +64,6 @@ namespace pluto
 
         ~Impl()
         {
-            eventManager.Unsubscribe<OnPreUpdateEvent>(onPreUpdateEventGuid);
             logManager.LogInfo("InputManager terminated!");
         }
 
@@ -115,8 +102,7 @@ namespace pluto
             return Vector2F(static_cast<float>(mouseScrollDeltaX), static_cast<float>(mouseScrollDeltaY));
         }
 
-    private:
-        void OnPreUpdate(const OnPreUpdateEvent& event)
+        void MainLoop()
         {
             mouseScrollDeltaX = 0;
             mouseScrollDeltaY = 0;
@@ -124,6 +110,8 @@ namespace pluto
             keysUp.clear();
             glfwPollEvents();
         }
+
+    private:
 
         void HandleKeyCode(const KeyCode keyCode, const int action)
         {
@@ -156,7 +144,8 @@ namespace pluto
         }
     };
 
-    InputManager::Factory::Factory(ServiceCollection& serviceCollection) : BaseFactory(serviceCollection)
+    InputManager::Factory::Factory(ServiceCollection& serviceCollection)
+        : BaseFactory(serviceCollection)
     {
     }
 
@@ -164,13 +153,13 @@ namespace pluto
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& logManager = serviceCollection.GetService<LogManager>();
-        auto& eventManager = serviceCollection.GetService<EventManager>();
         auto& windowManager = serviceCollection.GetService<WindowManager>();
         auto window = static_cast<GLFWwindow*>(windowManager.GetNativeWindow());
-        return std::make_unique<InputManager>(std::make_unique<Impl>(logManager, eventManager, window));
+        return std::make_unique<InputManager>(std::make_unique<Impl>(logManager, window));
     }
 
-    InputManager::InputManager(std::unique_ptr<Impl> impl) : impl(std::move(impl))
+    InputManager::InputManager(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
     }
 
@@ -209,5 +198,10 @@ namespace pluto
     Vector2F InputManager::GetMouseScrollDelta() const
     {
         return impl->GetMouseScrollDelta();
+    }
+
+    void InputManager::MainLoop()
+    {
+        impl->MainLoop();
     }
 }

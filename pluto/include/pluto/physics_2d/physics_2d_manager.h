@@ -45,5 +45,7 @@ namespace pluto
         void DestroyBody(const Resource<GameObject>& gameObject);
 
         void* GetWorld() const;
+
+        void MainLoop(float deltaTime);
     };
 }

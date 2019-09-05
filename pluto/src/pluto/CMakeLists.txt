@@ -59,8 +59,9 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/memory/resource.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/memory/resource_control.cpp
     # ./physics_2d
-    ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/physics_2d_manager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/physics_2d_body.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/physics_2d_installer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/physics_2d_manager.cpp
     # ./physics_2d/shapes
     ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/shapes/physics_2d_circle_shape.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/shapes/physics_2d_shape.cpp

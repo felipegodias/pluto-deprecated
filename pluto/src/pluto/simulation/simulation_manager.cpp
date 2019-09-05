@@ -1,13 +1,10 @@
 #include <pluto/simulation/simulation_manager.h>
 
-#include <pluto/simulation/on_pre_update_event.h>
-#include <pluto/simulation/on_update_event.h>
-#include <pluto/simulation/on_post_update_event.h>
-#include <pluto/render/events/on_render_event.h>
-#include <pluto/render/events/on_post_render_event.h>
-
 #include <pluto/log/log_manager.h>
-#include <pluto/event/event_manager.h>
+#include <pluto/input/input_manager.h>
+#include <pluto/scene/scene_manager.h>
+#include <pluto/physics_2d/physics_2d_manager.h>
+#include <pluto/render/render_manager.h>
 #include <pluto/service/service_collection.h>
 #include <GLFW/glfw3.h>
 
@@ -20,8 +17,12 @@ namespace pluto
         const double maxFps = 60.0;
         const double maxPeriod = 1.0 / maxFps;
 
-        LogManager& logManager;
-        EventManager& eventManager;
+        LogManager* logManager;
+        InputManager* inputManager;
+        SceneManager* sceneManager;
+        Physics2DManager* physics2DManager;
+        RenderManager* renderManager;
+
         double lastTime;
         double deltaTime;
 
@@ -30,9 +31,14 @@ namespace pluto
         uint32_t frameCount;
 
     public:
-        Impl(LogManager& logManager, EventManager& eventManager)
-            : logManager(logManager),
-              eventManager(eventManager),
+        Impl(LogManager& logManager, InputManager& inputManager, SceneManager& sceneManager,
+             Physics2DManager& physics2DManager,
+             RenderManager& renderManager)
+            : logManager(&logManager),
+              inputManager(&inputManager),
+              sceneManager(&sceneManager),
+              physics2DManager(&physics2DManager),
+              renderManager(&renderManager),
               lastTime(0),
               deltaTime(0),
               lastSecond(0),
@@ -44,12 +50,12 @@ namespace pluto
 
         ~Impl()
         {
-            logManager.LogInfo("SimulationManager terminated!");
+            logManager->LogInfo("SimulationManager terminated!");
         }
 
         float GetDeltaTime() const
         {
-            return deltaTime;
+            return static_cast<float>(deltaTime);
         }
 
         void Run()
@@ -59,12 +65,12 @@ namespace pluto
             if (deltaTime >= maxPeriod)
             {
                 lastTime = time;
-                eventManager.Dispatch<OnPreUpdateEvent>();
-                eventManager.Dispatch<OnPreUpdateEvent>();
-                eventManager.Dispatch<OnUpdateEvent>();
-                eventManager.Dispatch<OnPostUpdateEvent>();
-                eventManager.Dispatch<OnRenderEvent>();
-                eventManager.Dispatch<OnPostRenderEvent>();
+
+                inputManager->MainLoop();
+                sceneManager->MainLoop();
+                physics2DManager->MainLoop(static_cast<float>(deltaTime));
+                renderManager->MainLoop();
+
                 ++fps;
                 ++frameCount;
             }
@@ -72,7 +78,6 @@ namespace pluto
             const double fpsDelta = time - lastSecond;
             if (fpsDelta > 1.0)
             {
-                std::cout << fps << std::endl;
                 lastSecond = time + 1.0 - fpsDelta;
                 fps = 0;
             }
@@ -88,8 +93,13 @@ namespace pluto
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& logManager = serviceCollection.GetService<LogManager>();
-        auto& eventManager = serviceCollection.GetService<EventManager>();
-        return std::make_unique<SimulationManager>(std::make_unique<Impl>(logManager, eventManager));
+        auto& inputManager = serviceCollection.GetService<InputManager>();
+        auto& sceneManager = serviceCollection.GetService<SceneManager>();
+        auto& physics2DManager = serviceCollection.GetService<Physics2DManager>();
+        auto& renderManager = serviceCollection.GetService<RenderManager>();
+
+        return std::make_unique<SimulationManager>(
+            std::make_unique<Impl>(logManager, inputManager, sceneManager, physics2DManager, renderManager));
     }
 
     SimulationManager::SimulationManager(std::unique_ptr<Impl> impl)

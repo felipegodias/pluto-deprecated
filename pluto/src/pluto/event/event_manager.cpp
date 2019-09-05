@@ -4,14 +4,7 @@
 
 #include <pluto/guid.h>
 
-#include <pluto/event/on_startup_event.h>
-#include <pluto/simulation/on_pre_update_event.h>
-#include <pluto/simulation/on_update_event.h>
-#include <pluto/simulation/on_post_update_event.h>
 #include <pluto/asset/events/on_asset_unload_event.h>
-
-#include <pluto/render/events/on_render_event.h>
-#include <pluto/render/events/on_post_render_event.h>
 
 #include <memory>
 #include <typeindex>

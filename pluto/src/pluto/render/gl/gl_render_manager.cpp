@@ -3,10 +3,9 @@
 #include "pluto/render/gl/gl_shader_program.h"
 #include "pluto/render/gl/gl_call.h"
 
-#include "pluto/render/events/on_render_event.h"
-
 #include "pluto/log/log_manager.h"
 #include "pluto/event/event_manager.h"
+#include "pluto/window/window_manager.h"
 
 #include "pluto/memory/resource.h"
 
@@ -25,29 +24,23 @@
 #include "pluto/math/matrix4x4.h"
 
 #include "pluto/service/service_collection.h"
-#include "pluto/guid.h"
 
 #include <GL/glew.h>
-
 
 namespace pluto
 {
     class GlRenderManager::Impl
     {
         LogManager* logManager;
-        EventManager* eventManager;
         SceneManager* sceneManager;
+        WindowManager* windowManager;
 
-        Guid onRenderListenerId;
     public:
-        Impl(LogManager& logManager, EventManager& eventManager, SceneManager& sceneManager)
+        Impl(LogManager& logManager, SceneManager& sceneManager, WindowManager& windowManager)
             : logManager(&logManager),
-              eventManager(&eventManager),
-              sceneManager(&sceneManager)
+              sceneManager(&sceneManager),
+              windowManager(&windowManager)
         {
-            onRenderListenerId = eventManager.Subscribe<OnRenderEvent>(
-                std::bind(&Impl::OnRender, this, std::placeholders::_1));
-
             glewInit();
             glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
             logManager.LogInfo("OpenGL RenderManager initialized!");
@@ -55,11 +48,10 @@ namespace pluto
 
         ~Impl()
         {
-            eventManager->Unsubscribe<OnRenderEvent>(onRenderListenerId);
             logManager->LogInfo("OpenGL RenderManager terminated!");
         }
 
-        void OnRender(const OnRenderEvent& evt)
+        void MainLoop()
         {
             GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
@@ -77,8 +69,10 @@ namespace pluto
             // TODO: Optimize this... Use a heap or other approach.
             auto compare = [&](Resource<Renderer>& lhs, Resource<Renderer>& rhs) -> bool
             {
-                float d1 = Vector3F::Distance(lhs->GetGameObject()->GetTransform()->GetPosition(), camera->GetGameObject()->GetTransform()->GetPosition());
-                float d2 = Vector3F::Distance(rhs->GetGameObject()->GetTransform()->GetPosition(), camera->GetGameObject()->GetTransform()->GetPosition());
+                float d1 = Vector3F::Distance(lhs->GetGameObject()->GetTransform()->GetPosition(),
+                                              camera->GetGameObject()->GetTransform()->GetPosition());
+                float d2 = Vector3F::Distance(rhs->GetGameObject()->GetTransform()->GetPosition(),
+                                              camera->GetGameObject()->GetTransform()->GetPosition());
                 return d1 > d2;
             };
 
@@ -95,9 +89,11 @@ namespace pluto
                 Draw(*camera.Get(), *renderer.GetGameObject()->GetTransform().Get(), *renderer.GetMesh().Get(),
                      *renderer.GetMaterial().Get());
             }
+
+            windowManager->SwapBuffers();
         }
 
-        void Draw(Camera& camera, Transform& transform, MeshAsset& meshAsset, MaterialAsset& materialAsset)
+        static void Draw(Camera& camera, Transform& transform, MeshAsset& meshAsset, MaterialAsset& materialAsset)
         {
             const Matrix4X4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * transform.GetWorldMatrix();
 
@@ -124,9 +120,9 @@ namespace pluto
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& logManager = serviceCollection.GetService<LogManager>();
-        auto& eventManager = serviceCollection.GetService<EventManager>();
         auto& sceneManager = serviceCollection.GetService<SceneManager>();
-        return std::make_unique<GlRenderManager>(std::make_unique<Impl>(logManager, eventManager, sceneManager));
+        auto& windowManager = serviceCollection.GetService<WindowManager>();
+        return std::make_unique<GlRenderManager>(std::make_unique<Impl>(logManager, sceneManager, windowManager));
     }
 
     GlRenderManager::GlRenderManager(std::unique_ptr<Impl> impl)
@@ -150,5 +146,10 @@ namespace pluto
 
         impl = std::move(rhs.impl);
         return *this;
+    }
+
+    void GlRenderManager::MainLoop()
+    {
+        impl->MainLoop();
     }
 }

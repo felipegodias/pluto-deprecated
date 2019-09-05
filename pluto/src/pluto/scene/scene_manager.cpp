@@ -1,13 +1,11 @@
 #include <pluto/scene/scene_manager.h>
 
 #include <pluto/event/event_manager.h>
-#include <pluto/simulation/on_update_event.h>
 #include <pluto/log/log_manager.h>
 
 #include <pluto/scene/scene.h>
 #include <pluto/scene/game_object.h>
 
-#include <pluto/guid.h>
 #include <pluto/service/service_collection.h>
 #include <pluto/scene/game_object.h>
 
@@ -15,10 +13,7 @@ namespace pluto
 {
     class SceneManager::Impl
     {
-    private:
         std::unique_ptr<Scene> activeScene;
-
-        Guid onUpdateEventId;
 
         const Scene::Factory& sceneFactory;
         const GameObject::Factory& gameObjectFactory;
@@ -37,12 +32,6 @@ namespace pluto
               logManager(logManager),
               currentFrame(0)
         {
-            static Impl* instance = this;
-            onUpdateEventId = eventManager.Subscribe<OnUpdateEvent>([&](const OnUpdateEvent& evt)
-            {
-                instance->OnUpdate(evt);
-            });
-
             logManager.LogInfo("SceneManager initialized!");
         }
 
@@ -50,7 +39,6 @@ namespace pluto
         {
             activeScene->Destroy();
             activeScene->OnCleanup();
-            eventManager.Unsubscribe<OnUpdateEvent>(onUpdateEventId);
             logManager.LogInfo("SceneManager terminated!");
         }
 
@@ -69,8 +57,7 @@ namespace pluto
             activeScene = sceneFactory.Create();
         }
 
-    private:
-        void OnUpdate(const OnUpdateEvent& evt)
+        void MainLoop()
         {
             ++currentFrame;
             if (activeScene != nullptr)
@@ -79,6 +66,7 @@ namespace pluto
             }
         }
 
+    private:
         void OnCleanup()
         {
             if (activeScene != nullptr)
@@ -135,5 +123,10 @@ namespace pluto
     void SceneManager::LoadEmptyScene()
     {
         return impl->LoadEmptyScene();
+    }
+
+    void SceneManager::MainLoop()
+    {
+        impl->MainLoop();
     }
 }

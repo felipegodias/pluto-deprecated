@@ -95,6 +95,11 @@ namespace pluto
         {
             return world.get();
         }
+
+        void MainLoop(const float deltaTime)
+        {
+            world->Step(deltaTime, 6, 2);
+        }
     };
 
     Physics2DManager::Factory::Factory(ServiceCollection& serviceCollection)
@@ -149,5 +154,10 @@ namespace pluto
     void* Physics2DManager::GetWorld() const
     {
         return impl->GetWorld();
+    }
+
+    void Physics2DManager::MainLoop(const float deltaTime)
+    {
+        impl->MainLoop(deltaTime);
     }
 }

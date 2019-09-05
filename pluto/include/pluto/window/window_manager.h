@@ -40,5 +40,7 @@ namespace pluto
         float GetWindowAspectRatio() const;
 
         void* GetNativeWindow() const;
+
+        void SwapBuffers();
     };
 }

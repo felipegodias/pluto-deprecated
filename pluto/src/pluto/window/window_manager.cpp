@@ -2,10 +2,8 @@
 #include <pluto/config/config_manager.h>
 #include <pluto/log/log_manager.h>
 #include <pluto/event/event_manager.h>
-#include <pluto/render/events/on_post_render_event.h>
 #include <pluto/math/vector2i.h>
 
-#include <pluto/guid.h>
 #include <pluto/service/service_collection.h>
 #include <GLFW/glfw3.h>
 #include <stdexcept>
@@ -19,15 +17,17 @@ namespace pluto
         GLFWwindow* window;
 
         LogManager& logManager;
-        EventManager& eventManager;
-
-        Guid onPostRenderListenerId;
 
     public:
-        Impl(const std::string& screenTitle, Vector2I windowSize, LogManager& logManager, EventManager& eventManager)
-            : windowSize(std::move(windowSize)),
-              logManager(logManager),
-              eventManager(eventManager)
+        ~Impl()
+        {
+            glfwTerminate();
+            logManager.LogInfo("WindowManager Terminated!");
+        }
+
+        Impl(const std::string& screenTitle, const Vector2I& windowSize, LogManager& logManager)
+            : windowSize(windowSize),
+              logManager(logManager)
         {
             if (!glfwInit())
             {
@@ -42,18 +42,8 @@ namespace pluto
             }
             glfwMakeContextCurrent(window);
             glfwSwapInterval(0);
-            onPostRenderListenerId = eventManager.Subscribe<OnPostRenderEvent>(
-                std::bind(&Impl::OnPostRender, this, std::placeholders::_1));
 
             logManager.LogInfo("WindowManager Initialized!");
-        }
-
-        ~Impl()
-        {
-            glfwTerminate();
-
-            eventManager.Unsubscribe<OnPostRenderEvent>(onPostRenderListenerId);
-            logManager.LogInfo("WindowManager Terminated!");
         }
 
         bool IsOpen() const
@@ -87,8 +77,7 @@ namespace pluto
             return window;
         }
 
-    private:
-        void OnPostRender(const OnPostRenderEvent& evt)
+        void SwapBuffers()
         {
             glfwSwapBuffers(window);
         }
@@ -108,9 +97,8 @@ namespace pluto
         const std::string appName = configManager.GetString("appName", "Unknown");
 
         auto& logManager = serviceCollection.GetService<LogManager>();
-        auto& eventManager = serviceCollection.GetService<EventManager>();
         return std::make_unique<WindowManager>(
-            std::make_unique<Impl>(appName, Vector2I(screenWidth, screenHeight), logManager, eventManager));
+            std::make_unique<Impl>(appName, Vector2I(screenWidth, screenHeight), logManager));
     }
 
     WindowManager::~WindowManager() = default;
@@ -152,5 +140,10 @@ namespace pluto
     void* WindowManager::GetNativeWindow() const
     {
         return impl->GetNativeWindow();
+    }
+
+    void WindowManager::SwapBuffers()
+    {
+        impl->SwapBuffers();
     }
 }

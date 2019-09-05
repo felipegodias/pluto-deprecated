@@ -11,6 +11,7 @@
 #include <pluto/asset/asset_installer.h>
 #include <pluto/scene/scene_installer.h>
 #include <pluto/render/render_installer.h>
+#include <pluto/physics_2d/physics_2d_installer.h>
 
 #include <pluto/log/log_manager.h>
 #include <pluto/event/event_manager.h>
@@ -57,11 +58,12 @@ namespace pluto
             EventInstaller::Install(*serviceCollection);
             WindowInstaller::Install(*serviceCollection);
             InputInstaller::Install(*serviceCollection);
-            SimulationInstaller::Install(*serviceCollection);
             MemoryInstaller::Install(*serviceCollection);
             AssetInstaller::Install(*serviceCollection);
             SceneInstaller::Install(*serviceCollection);
+            Physics2DInstaller::Install(*serviceCollection);
             RenderInstaller::Install(*serviceCollection);
+            SimulationInstaller::Install(*serviceCollection);
 
             auto& logManager = serviceCollection->GetService<LogManager>();
             logManager.LogInfo("Pluto Engine Initialized!");
@@ -72,11 +74,12 @@ namespace pluto
 
         ~Impl()
         {
+            SimulationInstaller::Uninstall(*serviceCollection);
             RenderInstaller::Uninstall(*serviceCollection);
+            Physics2DInstaller::Uninstall(*serviceCollection);
             SceneInstaller::Uninstall(*serviceCollection);
             AssetInstaller::Uninstall(*serviceCollection);
             MemoryInstaller::Uninstall(*serviceCollection);
-            SimulationInstaller::Uninstall(*serviceCollection);
             InputInstaller::Uninstall(*serviceCollection);
             WindowInstaller::Uninstall(*serviceCollection);
             EventInstaller::Uninstall(*serviceCollection);
