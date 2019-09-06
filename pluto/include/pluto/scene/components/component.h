@@ -23,15 +23,26 @@ namespace pluto
             virtual std::unique_ptr<Component> Create(const Resource<GameObject>& gameObject) const = 0;
         };
 
+    protected:
+        class Impl;
+
+    private:
+        Impl* impl;
+
+    public:
         virtual ~Component() = 0;
-        Component();
+        explicit Component(Impl& impl);
 
         Component(const Component& other) = delete;
         Component(Component&& other) noexcept;
         Component& operator=(const Component& rhs) = delete;
         Component& operator=(Component&& rhs) noexcept;
 
-        virtual Resource<GameObject> GetGameObject() const = 0;
+        const Guid& GetId() const override;
+        const std::string& GetName() const override;
+        void SetName(const std::string& value) override;
+
+        Resource<GameObject> GetGameObject() const;
 
         virtual void OnUpdate();
         virtual void OnDestroy();

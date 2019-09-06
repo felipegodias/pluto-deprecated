@@ -36,12 +36,6 @@ namespace pluto
         Transform& operator=(const Transform& rhs) = delete;
         Transform& operator=(Transform&& rhs) noexcept;
 
-        const Guid& GetId() const override;
-        const std::string& GetName() const override;
-        void SetName(const std::string& value) override;
-
-        Resource<GameObject> GetGameObject() const override;
-
         bool IsRoot();
         Resource<Transform> GetParent() const;
         void SetParent(const Resource<Transform>& value) const;

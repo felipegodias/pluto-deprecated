@@ -83,9 +83,9 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/scene_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/scene_manager.cpp
     # ./scene/components
+    ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/behaviour.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/camera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/component.cpp
-
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/mesh_renderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/renderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/scene/components/text_renderer.cpp

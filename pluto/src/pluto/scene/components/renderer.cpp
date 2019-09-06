@@ -4,7 +4,10 @@ namespace pluto
 {
     Renderer::~Renderer() = default;
 
-    Renderer::Renderer() = default;
+    Renderer::Renderer(Impl& impl)
+        : Component(impl)
+    {
+    }
 
     Renderer::Renderer(Renderer&& other) noexcept = default;
 

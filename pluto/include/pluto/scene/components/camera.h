@@ -37,12 +37,6 @@ namespace pluto
         Camera& operator=(const Camera& rhs) = delete;
         Camera& operator=(Camera&& rhs) noexcept;
 
-        const Guid& GetId() const override;
-        const std::string& GetName() const override;
-        void SetName(const std::string& value) override;
-
-        Resource<GameObject> GetGameObject() const override;
-
         Type GetType() const;
         void SetType(Type value);
 

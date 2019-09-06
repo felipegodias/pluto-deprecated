@@ -29,12 +29,6 @@ namespace pluto
         MeshRenderer& operator=(const MeshRenderer& rhs) = delete;
         MeshRenderer& operator=(MeshRenderer&& rhs) noexcept;
 
-        const Guid& GetId() const override;
-        const std::string& GetName() const override;
-        void SetName(const std::string& value) override;
-
-        Resource<GameObject> GetGameObject() const override;
-
         Bounds GetBounds() override;
 
         Resource<MeshAsset> GetMesh() const override;

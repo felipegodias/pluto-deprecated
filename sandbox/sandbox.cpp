@@ -36,6 +36,7 @@ void OnInit(ServiceCollection& serviceCollection)
     textRenderer->SetFont(fontAsset);
     textRenderer->SetText("Pluto");
     textRenderer->SetAnchor(TextRenderer::Anchor::MiddleCenter);
+    textGo->AddComponent<Rotator>();
 }
 
 int main(int argc, char* argv[])

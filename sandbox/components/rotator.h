@@ -2,7 +2,7 @@
 
 #include <pluto/pluto.h>
 
-class Rotator : public pluto::Component
+class Rotator : public pluto::Behaviour
 {
 public:
     class Factory final : public Component::Factory
@@ -13,17 +13,10 @@ public:
     };
 
 private:
-    pluto::Guid guid;
     float rotationSpeed;
-    pluto::Resource<pluto::GameObject> gameObject;
 
 public:
-    Rotator(pluto::Resource<pluto::GameObject> gameObject);
-
-    const pluto::Guid& GetId() const override;
-    const std::string& GetName() const override;
-    void SetName(const std::string& value) override;
-    pluto::Resource<pluto::GameObject> GetGameObject() const override;
+    explicit Rotator(const pluto::Resource<pluto::GameObject>& gameObject);
 
     void OnUpdate() override;
 };

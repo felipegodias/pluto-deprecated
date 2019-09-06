@@ -1,4 +1,5 @@
 #include "pluto/scene/components/mesh_renderer.h"
+#include "pluto/scene/components/component.impl.hpp"
 #include "pluto/scene/game_object.h"
 
 #include "pluto/asset/mesh_asset.h"
@@ -10,41 +11,17 @@
 
 namespace pluto
 {
-    class MeshRenderer::Impl
+    class MeshRenderer::Impl : public Component::Impl
     {
-        Guid guid;
-        Resource<GameObject> gameObject;
-
         Resource<MeshAsset> meshAsset;
         Resource<MaterialAsset> materialAsset;
 
     public:
-        Impl(const Guid& guid, Resource<GameObject> gameObject)
-            : guid(guid),
-              gameObject(std::move(gameObject)),
+        Impl(const Guid& guid, const Resource<GameObject>& gameObject)
+            : Component::Impl(guid, gameObject),
               meshAsset(nullptr),
               materialAsset(nullptr)
         {
-        }
-
-        const Guid& GetId() const
-        {
-            return guid;
-        }
-
-        const std::string& GetName() const
-        {
-            return gameObject->GetName();
-        }
-
-        void SetName(const std::string& value)
-        {
-            gameObject->SetName(value);
-        }
-
-        Resource<GameObject> GetGameObject() const
-        {
-            return gameObject;
         }
 
         Bounds GetBounds()
@@ -86,33 +63,14 @@ namespace pluto
     MeshRenderer::~MeshRenderer() = default;
 
     MeshRenderer::MeshRenderer(std::unique_ptr<Impl> impl)
-        : impl(std::move(impl))
+        : Renderer(*impl),
+          impl(std::move(impl))
     {
     }
 
     MeshRenderer::MeshRenderer(MeshRenderer&& other) noexcept = default;
 
     MeshRenderer& MeshRenderer::operator=(MeshRenderer&& rhs) noexcept = default;
-
-    const Guid& MeshRenderer::GetId() const
-    {
-        return impl->GetId();
-    }
-
-    const std::string& MeshRenderer::GetName() const
-    {
-        return impl->GetName();
-    }
-
-    void MeshRenderer::SetName(const std::string& value)
-    {
-        impl->SetName(value);
-    }
-
-    Resource<GameObject> MeshRenderer::GetGameObject() const
-    {
-        return impl->GetGameObject();
-    }
 
     Bounds MeshRenderer::GetBounds()
     {

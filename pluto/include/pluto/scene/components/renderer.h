@@ -13,7 +13,7 @@ namespace pluto
     {
     public:
         virtual ~Renderer() = 0;
-        Renderer();
+        explicit Renderer(Impl& impl);
 
         Renderer(const Renderer& other) = delete;
         Renderer(Renderer&& other) noexcept;

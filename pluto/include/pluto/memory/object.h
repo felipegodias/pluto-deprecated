@@ -6,7 +6,6 @@
 namespace pluto
 {
     class Guid;
-    class ResourceControl;
 
     class PLUTO_API Object
     {

@@ -27,6 +27,7 @@
 
 #include "pluto/math/bounds.h"
 #include "pluto/math/color.h"
+#include "pluto/math/math.h"
 #include "pluto/math/matrix2x2.h"
 #include "pluto/math/matrix3x3.h"
 #include "pluto/math/matrix4x4.h"
@@ -44,6 +45,7 @@
 #include "pluto/scene/game_object.h"
 #include "pluto/scene/scene.h"
 #include "pluto/scene/scene_manager.h"
+#include "pluto/scene/components/behaviour.h"
 #include "pluto/scene/components/camera.h"
 #include "pluto/scene/components/component.h"
 #include "pluto/scene/components/mesh_renderer.h"

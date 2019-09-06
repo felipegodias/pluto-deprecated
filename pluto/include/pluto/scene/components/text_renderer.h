@@ -49,12 +49,6 @@ namespace pluto
         TextRenderer& operator=(const TextRenderer& rhs) = delete;
         TextRenderer& operator=(TextRenderer&& rhs) noexcept;
 
-        const Guid& GetId() const override;
-        const std::string& GetName() const override;
-        void SetName(const std::string& value) override;
-
-        Resource<GameObject> GetGameObject() const override;
-
         Bounds GetBounds() override;
 
         Resource<MeshAsset> GetMesh() const override;

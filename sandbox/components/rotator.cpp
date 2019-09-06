@@ -1,5 +1,4 @@
 #include "rotator.h"
-#include <utility>
 
 using namespace pluto;
 
@@ -13,36 +12,15 @@ std::unique_ptr<Component> Rotator::Factory::Create(const Resource<GameObject>& 
     return std::make_unique<Rotator>(gameObject);
 }
 
-Rotator::Rotator(Resource<GameObject> gameObject)
-    : guid(Guid::New()),
-      rotationSpeed(1),
-      gameObject(std::move(gameObject))
+Rotator::Rotator(const Resource<GameObject>& gameObject)
+    : Behaviour(gameObject),
+      rotationSpeed(1)
 {
-}
-
-const Guid& Rotator::GetId() const
-{
-    return guid;
-}
-
-const std::string& Rotator::GetName() const
-{
-    return gameObject->GetName();
-}
-
-void Rotator::SetName(const std::string& value)
-{
-    gameObject->SetName(value);
-}
-
-Resource<GameObject> Rotator::GetGameObject() const
-{
-    return gameObject;
 }
 
 void Rotator::OnUpdate()
 {
-    Vector3F euler = gameObject->GetTransform()->GetRotation().GetEulerAngles();
+    Vector3F euler = GetGameObject()->GetTransform()->GetRotation().GetEulerAngles();
     euler.z += rotationSpeed;
-    gameObject->GetTransform()->SetRotation(Quaternion::Euler(euler));
+    GetGameObject()->GetTransform()->SetRotation(Quaternion::Euler(euler));
 }

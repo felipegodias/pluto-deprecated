@@ -8,8 +8,6 @@
 #include <pluto/service/service_collection.h>
 #include <GLFW/glfw3.h>
 
-#include <iostream>
-
 namespace pluto
 {
     class SimulationManager::Impl

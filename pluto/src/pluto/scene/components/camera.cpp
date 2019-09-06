@@ -1,5 +1,7 @@
 #include <utility>
 #include "pluto/scene/components/camera.h"
+#include "pluto/scene/components/component.impl.hpp"
+
 #include "pluto/scene/game_object.h"
 #include "pluto/scene/components/transform.h"
 
@@ -14,11 +16,8 @@
 
 namespace pluto
 {
-    class Camera::Impl
+    class Camera::Impl : public Component::Impl
     {
-        Guid guid;
-        Resource<GameObject> gameObject;
-
         Type type;
         float orthographicSize;
         float nearPlane;
@@ -35,40 +34,18 @@ namespace pluto
         const WindowManager* windowManager;
 
     public:
-        Impl(const Guid& guid, Resource<GameObject> gameObject, const WindowManager& windowManager)
-            : guid(guid),
-              gameObject(std::move(gameObject)),
+        Impl(const Guid& guid, const Resource<GameObject>& gameObject, const WindowManager& windowManager)
+            : Component::Impl(guid, gameObject),
               type(Type::Orthographic),
               orthographicSize(5),
               nearPlane(0.1f),
               farPlane(100),
               viewMatrix(Matrix4X4::IDENTITY),
               isViewMatrixDirty(true),
-              projectionMatrix(
-                  Matrix4X4::IDENTITY),
+              projectionMatrix(Matrix4X4::IDENTITY),
               isProjectionMatrixDirty(true),
               windowManager(&windowManager)
         {
-        }
-
-        const Guid& GetId() const
-        {
-            return guid;
-        }
-
-        const std::string& GetName() const
-        {
-            return gameObject->GetName();
-        }
-
-        void SetName(const std::string& value)
-        {
-            gameObject->SetName(value);
-        }
-
-        Resource<GameObject> GetGameObject() const
-        {
-            return gameObject;
         }
 
         Type GetType() const
@@ -124,7 +101,7 @@ namespace pluto
         {
             if (isViewMatrixDirty)
             {
-                Resource<Transform> transform = gameObject->GetTransform();
+                Resource<Transform> transform = GetGameObject()->GetTransform();
                 const Vector3F position = transform->GetPosition();
                 viewMatrix = Matrix4X4::LookAt(position, position - transform->GetForward(), transform->GetUp());
             }
@@ -144,7 +121,7 @@ namespace pluto
 
         void OnUpdate()
         {
-            Resource<Transform> transform = gameObject->GetTransform();
+            Resource<Transform> transform = GetGameObject()->GetTransform();
             if (lastPosition != transform->GetPosition())
             {
                 isViewMatrixDirty = true;
@@ -183,33 +160,14 @@ namespace pluto
     Camera::~Camera() = default;
 
     Camera::Camera(std::unique_ptr<Impl> impl)
-        : impl(std::move(impl))
+        : Component(*impl),
+          impl(std::move(impl))
     {
     }
 
     Camera::Camera(Camera&& other) noexcept = default;
 
     Camera& Camera::operator=(Camera&& rhs) noexcept = default;
-
-    const Guid& Camera::GetId() const
-    {
-        return impl->GetId();
-    }
-
-    const std::string& Camera::GetName() const
-    {
-        return impl->GetName();
-    }
-
-    void Camera::SetName(const std::string& value)
-    {
-        impl->SetName(value);
-    }
-
-    Resource<GameObject> Camera::GetGameObject() const
-    {
-        return impl->GetGameObject();
-    }
 
     Camera::Type Camera::GetType() const
     {

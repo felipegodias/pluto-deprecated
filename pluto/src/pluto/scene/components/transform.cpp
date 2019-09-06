@@ -1,23 +1,22 @@
-#include <pluto/scene/components/transform.h>
-#include <pluto/scene/game_object.h>
+#include "pluto/scene/components/transform.h"
+#include "pluto/scene/components/component.impl.hpp"
+
+#include "pluto/scene/game_object.h"
 
 #include "pluto/memory/resource.h"
 
-#include <pluto/guid.h>
-#include <pluto/exception.h>
+#include "pluto/guid.h"
+#include "pluto/exception.h"
 
-#include <pluto/math/vector3f.h>
-#include <pluto/math/vector4f.h>
-#include <pluto/math/quaternion.h>
-#include <pluto/math/matrix4x4.h>
+#include "pluto/math/vector3f.h"
+#include "pluto/math/vector4f.h"
+#include "pluto/math/quaternion.h"
+#include "pluto/math/matrix4x4.h"
 
 namespace pluto
 {
-    class Transform::Impl
+    class Transform::Impl : public Component::Impl
     {
-        Guid guid;
-        Resource<GameObject> gameObject;
-
         Resource<Transform> parent;
         std::vector<Resource<Transform>> children;
 
@@ -32,9 +31,8 @@ namespace pluto
         Matrix4X4 worldMatrix;
 
     public:
-        Impl(const Guid& guid, Resource<GameObject> gameObject)
-            : guid(guid),
-              gameObject(std::move(gameObject)),
+        Impl(const Guid& guid, const Resource<GameObject>& gameObject)
+            : Component::Impl(guid, gameObject),
               parent(nullptr),
               localPosition(Vector3F::ZERO),
               localRotation(Quaternion::IDENTITY),
@@ -44,26 +42,6 @@ namespace pluto
               isWorldMatrixDirty(true),
               worldMatrix(Matrix4X4::IDENTITY)
         {
-        }
-
-        const Guid& GetId() const
-        {
-            return guid;
-        }
-
-        const std::string& GetName() const
-        {
-            return gameObject->GetName();
-        }
-
-        void SetName(const std::string& value)
-        {
-            gameObject->SetName(value);
-        }
-
-        Resource<GameObject> GetGameObject() const
-        {
-            return gameObject;
         }
 
         bool IsRoot() const
@@ -78,7 +56,7 @@ namespace pluto
 
         void SetParent(const Resource<Transform>& value)
         {
-            Resource<Transform> me = gameObject->GetTransform();
+            Resource<Transform> me = GetGameObject()->GetTransform();
             if (value->impl->IsMyParent(me))
             {
                 Exception::Throw(std::runtime_error("Can not set a transform parent if the same is it's child."));
@@ -312,33 +290,14 @@ namespace pluto
     Transform::~Transform() = default;
 
     Transform::Transform(std::unique_ptr<Impl> impl)
-        : impl(std::move(impl))
+        : Component(*impl),
+          impl(std::move(impl))
     {
     }
 
     Transform::Transform(Transform&& other) noexcept = default;
 
     Transform& Transform::operator=(Transform&& rhs) noexcept = default;
-
-    const Guid& Transform::GetId() const
-    {
-        return impl->GetId();
-    }
-
-    const std::string& Transform::GetName() const
-    {
-        return impl->GetName();
-    }
-
-    void Transform::SetName(const std::string& value)
-    {
-        return impl->SetName(value);
-    }
-
-    Resource<GameObject> Transform::GetGameObject() const
-    {
-        return impl->GetGameObject();
-    }
 
     bool Transform::IsRoot()
     {

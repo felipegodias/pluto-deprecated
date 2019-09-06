@@ -1,4 +1,5 @@
 #include "pluto/scene/components/text_renderer.h"
+#include "pluto/scene/components/component.impl.hpp"
 
 #include "pluto/memory/memory_manager.h"
 #include "pluto/memory/resource.h"
@@ -19,11 +20,8 @@
 
 namespace pluto
 {
-    class TextRenderer::Impl
+    class TextRenderer::Impl : public Component::Impl
     {
-        Guid guid;
-        Resource<GameObject> gameObject;
-
         Resource<MeshAsset> mesh;
 
         std::string text;
@@ -41,33 +39,14 @@ namespace pluto
             memoryManager->Remove(*mesh.Get());
         }
 
-        Impl(const Guid& guid, Resource<GameObject> gameObject, Resource<MeshAsset> mesh, MemoryManager& memoryManager)
-            : guid(guid),
-              gameObject(std::move(gameObject)),
+        Impl(const Guid& guid, const Resource<GameObject>& gameObject, Resource<MeshAsset> mesh,
+             MemoryManager& memoryManager)
+            : Component::Impl(guid, gameObject),
               mesh(std::move(mesh)),
               anchor(Anchor::Default),
+              isDirty(false),
               memoryManager(&memoryManager)
         {
-        }
-
-        const Guid& GetId() const
-        {
-            return guid;
-        }
-
-        const std::string& GetName() const
-        {
-            return gameObject->GetName();
-        }
-
-        void SetName(const std::string& value)
-        {
-            gameObject->SetName(value);
-        }
-
-        Resource<GameObject> GetGameObject() const
-        {
-            return gameObject;
         }
 
         Bounds GetBounds()
@@ -171,8 +150,8 @@ namespace pluto
                 const float w = glyph.xMax - glyph.xMin;
                 const float h = glyph.yMax - glyph.yMin;
 
-                float xPos = x + glyph.xBearing;
-                float yPos = -(h - abs(glyph.yBearing)) + y;
+                const float xPos = x + glyph.xBearing;
+                const float yPos = -(h - abs(glyph.yBearing)) + y;
 
                 Vector3F posA = {xPos, yPos, 0};
                 Vector3F posB = {xPos + w, yPos, 0};
@@ -263,33 +242,14 @@ namespace pluto
     TextRenderer::~TextRenderer() = default;
 
     TextRenderer::TextRenderer(std::unique_ptr<Impl> impl)
-        : impl(std::move(impl))
+        : Renderer(*impl),
+          impl(std::move(impl))
     {
     }
 
     TextRenderer::TextRenderer(TextRenderer&& other) noexcept = default;
 
     TextRenderer& TextRenderer::operator=(TextRenderer&& rhs) noexcept = default;
-
-    const Guid& TextRenderer::GetId() const
-    {
-        return impl->GetId();
-    }
-
-    const std::string& TextRenderer::GetName() const
-    {
-        return impl->GetName();
-    }
-
-    void TextRenderer::SetName(const std::string& value)
-    {
-        impl->SetName(value);
-    }
-
-    Resource<GameObject> TextRenderer::GetGameObject() const
-    {
-        return impl->GetGameObject();
-    }
 
     Bounds TextRenderer::GetBounds()
     {
