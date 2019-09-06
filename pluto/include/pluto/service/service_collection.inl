@@ -33,6 +33,13 @@ namespace pluto
         return static_cast<typename T::Factory&>(AddFactory(typeid(T), std::move(instance)));
     }
 
+    template <typename T, typename ... Args, std::enable_if_t<
+                  std::is_constructible_v<typename T::Factory, Args...>, bool>>
+    typename T::Factory& ServiceCollection::EmplaceFactory(Args&& ... args)
+    {
+        return EmplaceFactory<T, typename T::Factory>(args...);
+    }
+
     template <typename T, typename F, typename ... Args, std::enable_if_t<
                   std::is_base_of_v<typename T::Factory, F> && std::is_constructible_v<F, Args...>, bool>>
     F& ServiceCollection::EmplaceFactory(Args&& ... args)

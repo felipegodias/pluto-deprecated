@@ -8,7 +8,7 @@ using namespace pluto;
 
 void OnInit(ServiceCollection& serviceCollection)
 {
-    serviceCollection.AddFactory<Rotator>(std::make_unique<Rotator::Factory>(serviceCollection));
+    serviceCollection.EmplaceFactory<Rotator>(serviceCollection);
 
     auto& assetManager = serviceCollection.GetService<AssetManager>();
 
