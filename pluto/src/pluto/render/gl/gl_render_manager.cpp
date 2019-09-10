@@ -20,8 +20,13 @@
 #include "pluto/scene/components/renderer.h"
 #include "pluto/scene/components/camera.h"
 
+#include "pluto/math/math.h"
+#include "pluto/math/vector2f.h"
 #include "pluto/math/vector3f.h"
+#include "pluto/math/vector3i.h"
 #include "pluto/math/matrix4x4.h"
+
+#include "pluto/physics_2d/components/circle_collider_2d.h"
 
 #include "pluto/service/service_collection.h"
 
@@ -90,7 +95,48 @@ namespace pluto
                      *renderer.GetMaterial().Get());
             }
 
+            GL_CALL(glUseProgram(0));
+            GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
+
+            glColor3f(0, 1, 0);
+            std::vector<Resource<Collider2D>> colliders = rootGameObject->GetComponentsInChildren<Collider2D>();
+            for (auto& it : colliders)
+            {
+                DrawCollider(*camera.Get(), *it.Get());
+            }
+
+            glColor3f(1, 1, 1);
+            glBegin(GL_LINES);
+            glVertex2f(-1, 0);
+            glVertex2f(1, 0);
+            glVertex2f(0, -1);
+            glVertex2f(0, 1);
+            glEnd();
+
             windowManager->SwapBuffers();
+        }
+
+        void DrawCollider(Camera& camera, Collider2D& collider)
+        {
+            Transform* t = collider.GetGameObject()->GetTransform().Get();
+            const Matrix4X4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * t->GetWorldMatrix();
+
+            auto* circle = dynamic_cast<CircleCollider2D*>(&collider);
+
+            glBegin(GL_LINE_LOOP);
+            for (float a = 0; a < Math::Radians(360); a += Math::Radians(15))
+            {
+                Vector2F p = mvp.MultiplyPoint({ sinf(a) * circle->GetRadius(), cosf(a) * circle->GetRadius() });
+                glVertex2f(p.x, p.y);
+            }
+            glEnd();
+
+            glBegin(GL_LINES);
+            Vector2F center = mvp.MultiplyPoint(Vector2F::ZERO);
+            Vector2F right = mvp.MultiplyPoint(Vector2F::RIGHT * circle->GetRadius());
+            glVertex2f(center.x, center.y);
+            glVertex2f(right.x, right.y);
+            glEnd();
         }
 
         static void Draw(Camera& camera, Transform& transform, MeshAsset& meshAsset, MaterialAsset& materialAsset)
