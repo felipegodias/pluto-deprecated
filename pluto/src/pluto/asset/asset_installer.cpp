@@ -20,7 +20,7 @@ namespace pluto
         serviceCollection.AddFactory<ShaderAsset>(std::make_unique<ShaderAsset::Factory>(serviceCollection));
         serviceCollection.AddFactory<MaterialAsset>(std::make_unique<MaterialAsset::Factory>(serviceCollection));
         serviceCollection.AddFactory<TextureAsset>(std::make_unique<TextureAsset::Factory>(serviceCollection));
-        serviceCollection.EmplaceFactory<FontAsset, FontAsset::Factory>(serviceCollection);
+        serviceCollection.EmplaceFactory<FontAsset, FontAsset::Factory>();
 
         serviceCollection.AddService(AssetManager::Factory(serviceCollection).Create());
     }
