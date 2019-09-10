@@ -60,8 +60,8 @@ namespace pluto
             InputInstaller::Install(*serviceCollection);
             MemoryInstaller::Install(*serviceCollection);
             AssetInstaller::Install(*serviceCollection);
-            SceneInstaller::Install(*serviceCollection);
             Physics2DInstaller::Install(*serviceCollection);
+            SceneInstaller::Install(*serviceCollection);
             RenderInstaller::Install(*serviceCollection);
             SimulationInstaller::Install(*serviceCollection);
 
@@ -76,8 +76,8 @@ namespace pluto
         {
             SimulationInstaller::Uninstall(*serviceCollection);
             RenderInstaller::Uninstall(*serviceCollection);
-            Physics2DInstaller::Uninstall(*serviceCollection);
             SceneInstaller::Uninstall(*serviceCollection);
+            Physics2DInstaller::Uninstall(*serviceCollection);
             AssetInstaller::Uninstall(*serviceCollection);
             MemoryInstaller::Uninstall(*serviceCollection);
             InputInstaller::Uninstall(*serviceCollection);
