@@ -183,12 +183,12 @@ namespace pluto
 
     Vector2F Matrix4X4::MultiplyPoint(const Vector2F& point) const
     {
-        return Vector2F(*this * Vector4F(point));
+        return Vector2F(*this * Vector4F(point.x, point.y, 0, 1.0f));
     }
 
     Vector3F Matrix4X4::MultiplyPoint(const Vector3F& point) const
     {
-        return Vector3F(*this * Vector4F(point));
+        return Vector3F(*this * Vector4F(point.x, point.y, point.z, 1.0f));
     }
 
     std::string Matrix4X4::Str() const
