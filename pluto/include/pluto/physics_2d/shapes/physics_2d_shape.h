@@ -22,5 +22,8 @@ namespace pluto
         Physics2DShape(Physics2DShape&& other) noexcept;
         Physics2DShape& operator=(const Physics2DShape& other) = delete;
         Physics2DShape& operator=(Physics2DShape&& other) noexcept;
+
+        virtual Vector2F GetOffset() const = 0;
+        virtual void SetOffset(const Vector2F& value) = 0;
     };
 }

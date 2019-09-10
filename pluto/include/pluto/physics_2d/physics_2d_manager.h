@@ -39,10 +39,9 @@ namespace pluto
         Physics2DManager& operator=(Physics2DManager&& rhs) noexcept;
 
         bool HasBody(const Resource<GameObject>& gameObject) const;
-        Physics2DBody& GetBody(const Resource<GameObject>& gameObject) const;
-        Physics2DBody& CreateBody(const Resource<GameObject>& gameObject);
-        Physics2DBody& GetOrCreateBody(const Resource<GameObject>& gameObject);
-        void DestroyBody(const Resource<GameObject>& gameObject);
+        std::shared_ptr<Physics2DBody> GetBody(const Resource<GameObject>& gameObject) const;
+        std::shared_ptr<Physics2DBody> CreateBody(const Resource<GameObject>& gameObject);
+        std::shared_ptr<Physics2DBody> GetOrCreateBody(const Resource<GameObject>& gameObject);
 
         void* GetWorld() const;
 

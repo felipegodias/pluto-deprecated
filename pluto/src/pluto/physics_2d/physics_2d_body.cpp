@@ -9,21 +9,17 @@
 
 #include <Box2D/Box2D.h>
 
-#include <vector>
-
 namespace pluto
 {
     class Physics2DBody::Impl
     {
         b2Body* body;
-        std::vector<std::unique_ptr<Physics2DShape>> shapes;
         Physics2DCircleShape::Factory* circleShapeFactory;
         Physics2DBody* instance;
 
     public:
         ~Impl()
         {
-            shapes.clear();
             b2World* world = body->GetWorld();
             world->DestroyBody(body);
             body = nullptr;
@@ -121,26 +117,9 @@ namespace pluto
             body->SetAngularVelocity(value);
         }
 
-        Physics2DCircleShape& CreateCircleShape(const Vector2F& offset, const float radius)
+        std::unique_ptr<Physics2DCircleShape> CreateCircleShape(const Vector2F& offset, const float radius)
         {
-            std::unique_ptr<Physics2DCircleShape> shape = circleShapeFactory->Create(*instance, offset, radius);
-            Physics2DCircleShape* ptr = shape.get();
-            shapes.push_back(std::move(shape));
-            return *ptr;
-        }
-
-        void DestroyShape(const Physics2DShape& shape)
-        {
-            auto it = shapes.begin();
-            while (it != shapes.end())
-            {
-                if ((*it).get() == &shape)
-                {
-                    shapes.erase(it);
-                    break;
-                }
-                ++it;
-            }
+            return circleShapeFactory->Create(*instance, offset, radius);
         }
 
         void* GetNativeBody() const
@@ -233,14 +212,9 @@ namespace pluto
         impl->SetAngularVelocity(value);
     }
 
-    Physics2DCircleShape& Physics2DBody::CreateCircleShape(const Vector2F& offset, const float radius)
+    std::unique_ptr<Physics2DCircleShape> Physics2DBody::CreateCircleShape(const Vector2F& offset, const float radius)
     {
         return impl->CreateCircleShape(offset, radius);
-    }
-
-    void Physics2DBody::DestroyShape(const Physics2DShape& shape)
-    {
-        impl->DestroyShape(shape);
     }
 
     void* Physics2DBody::GetNativeBody() const

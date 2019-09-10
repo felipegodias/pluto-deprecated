@@ -26,7 +26,7 @@ namespace pluto
         static inline const b2Vec2 GRAVITY = {0, -9.81f};
 
         std::unique_ptr<b2World> world;
-        std::unordered_map<Guid, std::unique_ptr<Physics2DBody>> bodies;
+        std::unordered_map<Guid, std::shared_ptr<Physics2DBody>> bodies;
 
         LogManager* logManager;
         Physics2DBody::Factory* bodyFactory;
@@ -59,13 +59,13 @@ namespace pluto
             return bodies.find(gameObject.GetObjectId()) != bodies.end();
         }
 
-        Physics2DBody& GetBody(const Resource<GameObject>& gameObject) const
+        std::shared_ptr<Physics2DBody> GetBody(const Resource<GameObject>& gameObject) const
         {
             ASSERT_THAT_IS_TRUE(HasBody(gameObject));
-            return *bodies.find(gameObject.GetObjectId())->second;
+            return bodies.find(gameObject.GetObjectId())->second;
         }
 
-        Physics2DBody& CreateBody(const Resource<GameObject>& gameObject)
+        std::shared_ptr<Physics2DBody> CreateBody(const Resource<GameObject>& gameObject)
         {
             ASSERT_THAT_IS_FALSE(HasBody(gameObject));
             Resource<Transform> transform = gameObject->GetTransform();
@@ -73,22 +73,14 @@ namespace pluto
             const Vector3F position = transform->GetPosition();
             const Vector3F eulerAngles = transform->GetRotation().GetEulerAngles();
 
-            std::unique_ptr<Physics2DBody> body = bodyFactory->Create({position.x, position.z}, eulerAngles.z);
-
-            Physics2DBody* bodyPtr = body.get();
-            bodies.emplace(gameObject.GetObjectId(), std::move(body));
-            return *bodyPtr;
+            std::shared_ptr<Physics2DBody> body = bodyFactory->Create({position.x, position.y}, eulerAngles.z);
+            bodies.emplace(gameObject.GetObjectId(), body);
+            return body;
         }
 
-        Physics2DBody& GetOrCreateBody(const Resource<GameObject>& gameObject)
+        std::shared_ptr<Physics2DBody> GetOrCreateBody(const Resource<GameObject>& gameObject)
         {
             return HasBody(gameObject) ? GetBody(gameObject) : CreateBody(gameObject);
-        }
-
-        void DestroyBody(const Resource<GameObject>& gameObject)
-        {
-            ASSERT_THAT_IS_TRUE(HasBody(gameObject));
-            bodies.erase(gameObject.GetObjectId());
         }
 
         void* GetWorld() const
@@ -98,6 +90,18 @@ namespace pluto
 
         void MainLoop(const float deltaTime)
         {
+            for (auto it = bodies.begin(); it != bodies.end();)
+            {
+                if (it->second.use_count() == 1)
+                {
+                    bodies.erase(it);
+                }
+                else
+                {
+                    ++it;
+                }
+            }
+
             world->Step(deltaTime, 6, 2);
         }
     };
@@ -131,24 +135,19 @@ namespace pluto
         return impl->HasBody(gameObject);
     }
 
-    Physics2DBody& Physics2DManager::GetBody(const Resource<GameObject>& gameObject) const
+    std::shared_ptr<Physics2DBody> Physics2DManager::GetBody(const Resource<GameObject>& gameObject) const
     {
         return impl->GetBody(gameObject);
     }
 
-    Physics2DBody& Physics2DManager::CreateBody(const Resource<GameObject>& gameObject)
+    std::shared_ptr<Physics2DBody> Physics2DManager::CreateBody(const Resource<GameObject>& gameObject)
     {
         return impl->CreateBody(gameObject);
     }
 
-    Physics2DBody& Physics2DManager::GetOrCreateBody(const Resource<GameObject>& gameObject)
+    std::shared_ptr<Physics2DBody> Physics2DManager::GetOrCreateBody(const Resource<GameObject>& gameObject)
     {
         return impl->GetOrCreateBody(gameObject);
-    }
-
-    void Physics2DManager::DestroyBody(const Resource<GameObject>& gameObject)
-    {
-        impl->DestroyBody(gameObject);
     }
 
     void* Physics2DManager::GetWorld() const

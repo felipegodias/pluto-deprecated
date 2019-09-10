@@ -1,5 +1,5 @@
 #include "pluto/physics_2d/shapes/physics_2d_circle_shape.h"
-#include "pluto/physics_2d/shapes/physics_2d_shape.hpp"
+#include "pluto/physics_2d/shapes/physics_2d_shape.impl.hpp"
 #include "pluto/physics_2d/physics_2d_body.h"
 
 #include "pluto/debug/assert.h"
@@ -82,7 +82,6 @@ namespace pluto
         : Physics2DShape(*impl),
           impl(std::move(impl))
     {
-        Exception::Throw(std::runtime_error(""));
     }
 
     Physics2DCircleShape::Physics2DCircleShape(Physics2DCircleShape&& other) noexcept = default;

@@ -57,9 +57,7 @@ namespace pluto
         float GetAngularVelocity() const;
         void SetAngularVelocity(float value);
 
-        Physics2DCircleShape& CreateCircleShape(const Vector2F& offset, float radius);
-
-        void DestroyShape(const Physics2DShape& shape);
+        std::unique_ptr<Physics2DCircleShape> CreateCircleShape(const Vector2F& offset, float radius);
 
         void* GetNativeBody() const;
     };
