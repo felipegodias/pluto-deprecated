@@ -38,11 +38,12 @@ namespace pluto
         typename T::Factory& AddFactory(std::unique_ptr<typename T::Factory> instance);
 
         template <typename T, typename ... Args, std::enable_if_t<
-                      std::is_constructible_v<typename T::Factory, Args...>, bool>  = false>
+                      std::is_constructible_v<typename T::Factory, ServiceCollection&, Args...>, bool>  = false>
         typename T::Factory& EmplaceFactory(Args&& ... args);
 
         template <typename T, typename F, typename ... Args, std::enable_if_t<
-                      std::is_base_of_v<typename T::Factory, F> && std::is_constructible_v<F, Args...>, bool>  = false>
+                      std::is_base_of_v<typename T::Factory, F> && std::is_constructible_v<
+                          F, ServiceCollection&, Args...>, bool>  = false>
         F& EmplaceFactory(Args&& ... args);
 
         template <typename T, std::enable_if_t<std::is_base_of_v<BaseFactory, typename T::Factory>, bool>  = false>
