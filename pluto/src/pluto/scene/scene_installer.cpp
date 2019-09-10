@@ -19,7 +19,7 @@ namespace pluto
         serviceCollection.AddFactory<Camera>(std::make_unique<Camera::Factory>(serviceCollection));
         serviceCollection.AddFactory<Scene>(std::make_unique<Scene::Factory>(serviceCollection));
         serviceCollection.AddFactory<MeshRenderer>(std::make_unique<MeshRenderer::Factory>(serviceCollection));
-        serviceCollection.EmplaceFactory<TextRenderer, TextRenderer::Factory>(serviceCollection);
+        serviceCollection.EmplaceFactory<TextRenderer>();
         serviceCollection.AddService(SceneManager::Factory(serviceCollection).Create());
     }
 
