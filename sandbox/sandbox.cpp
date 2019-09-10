@@ -8,7 +8,7 @@ using namespace pluto;
 
 void OnInit(ServiceCollection& serviceCollection)
 {
-    serviceCollection.EmplaceFactory<Rotator>(serviceCollection);
+    serviceCollection.EmplaceFactory<Rotator>();
 
     auto& assetManager = serviceCollection.GetService<AssetManager>();
 
@@ -24,11 +24,15 @@ void OnInit(ServiceCollection& serviceCollection)
     const Resource<FontAsset> fontAsset = assetManager.Load<FontAsset>("fonts/roboto-regular.ttf");
 
     Resource<GameObject> logoGo = sceneManager.GetActiveScene().CreateGameObject("Logo");
+    logoGo->GetTransform()->SetLocalPosition({ 0, 5, 0 });
+
     Resource<MeshRenderer> meshRenderer = logoGo->AddComponent<MeshRenderer>();
     const Resource<MeshAsset> meshAsset = assetManager.Load<MeshAsset>("meshes/quad.obj");
     meshRenderer->SetMesh(meshAsset);
     const Resource<MaterialAsset> material = assetManager.Load<MaterialAsset>("materials/pluto-logo.mat");
     meshRenderer->SetMaterial(material);
+    logoGo->AddComponent<Rigidbody2D>();
+    logoGo->AddComponent<CircleCollider2D>();
 
     Resource<GameObject> textGo = sceneManager.GetActiveScene().CreateGameObject("TextRenderer");
     textGo->GetTransform()->SetPosition({0, -1, 0});
@@ -36,6 +40,8 @@ void OnInit(ServiceCollection& serviceCollection)
     textRenderer->SetFont(fontAsset);
     textRenderer->SetText("Pluto");
     textRenderer->SetAnchor(TextRenderer::Anchor::MiddleCenter);
+    Resource<CircleCollider2D> circleCollider = textGo->AddComponent<CircleCollider2D>();
+    circleCollider->SetRadius(0.5f);
     textGo->AddComponent<Rotator>();
 }
 
