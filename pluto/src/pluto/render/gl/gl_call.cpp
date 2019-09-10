@@ -13,6 +13,7 @@ namespace pluto
         const GLenum err = glGetError();
         if (err != GL_NO_ERROR)
         {
+            abort();
             Exception::Throw(std::runtime_error(fmt::format("OpenGL Error {0}: {1}", err, stmt)));
         }
     }
