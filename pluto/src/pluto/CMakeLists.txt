@@ -63,10 +63,12 @@ list(APPEND PLUTO_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/physics_2d_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/physics_2d_manager.cpp
     # ./physics_2d/components
+    ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/components/box_collider_2d.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/components/circle_collider_2d.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/components/collider_2d.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/components/rigidbody_2d.cpp
     # ./physics_2d/shapes
+    ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/shapes/physics_2d_box_shape.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/shapes/physics_2d_circle_shape.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/physics_2d/shapes/physics_2d_shape.cpp
     # ./render

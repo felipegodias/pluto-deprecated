@@ -43,6 +43,7 @@
 #include "pluto/memory/resource.h"
 
 #include "pluto/physics_2d/components/circle_collider_2d.h"
+#include "pluto/physics_2d/components/box_collider_2d.h"
 #include "pluto/physics_2d/components/collider_2d.h"
 #include "pluto/physics_2d/components/rigidbody_2d.h"
 

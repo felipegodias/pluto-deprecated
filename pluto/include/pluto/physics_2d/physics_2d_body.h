@@ -9,6 +9,7 @@ namespace pluto
     class Vector2F;
     class Physics2DShape;
     class Physics2DCircleShape;
+    class Physics2DBoxShape;
 
     class PLUTO_API Physics2DBody final
     {
@@ -58,6 +59,7 @@ namespace pluto
         void SetAngularVelocity(float value);
 
         std::unique_ptr<Physics2DCircleShape> CreateCircleShape(const Vector2F& offset, float radius);
+        std::unique_ptr<Physics2DBoxShape> CreateBoxShape(const Vector2F& offset, const Vector2F& size);
 
         void* GetNativeBody() const;
     };

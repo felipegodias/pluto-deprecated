@@ -21,12 +21,14 @@
 #include "pluto/scene/components/camera.h"
 
 #include "pluto/math/math.h"
+#include "pluto/math/color.h"
 #include "pluto/math/vector2f.h"
 #include "pluto/math/vector3f.h"
 #include "pluto/math/vector3i.h"
 #include "pluto/math/matrix4x4.h"
 
 #include "pluto/physics_2d/components/circle_collider_2d.h"
+#include "pluto/physics_2d/components/box_collider_2d.h"
 
 #include "pluto/service/service_collection.h"
 
@@ -105,7 +107,7 @@ namespace pluto
                 DrawCollider(*camera.Get(), *it.Get());
             }
 
-            glColor3f(1, 1, 1);
+            glColor3f(0.2f, 0.2f, 0.2f);
             glBegin(GL_LINES);
             glVertex2f(-1, 0);
             glVertex2f(1, 0);
@@ -122,20 +124,52 @@ namespace pluto
             const Matrix4X4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * t->GetWorldMatrix();
 
             auto* circle = dynamic_cast<CircleCollider2D*>(&collider);
+            if (circle != nullptr)
+            {
+                DrawCircleGizmo(mvp, circle->GetOffset(), circle->GetRadius(), Color::GREEN);
+            }
+            else
+            {
+                auto* box = dynamic_cast<BoxCollider2D*>(&collider);
+                if (box != nullptr)
+                {
+                    DrawQuadGizmo(mvp, box->GetOffset(), box->GetSize(), Color::GREEN);
+                }
+            }
+        }
+
+        void DrawCircleGizmo(const Matrix4X4& mvp, const Vector2F& offset, const float radius, const Color& color)
+        {
+            glColor3f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f);
 
             glBegin(GL_LINE_LOOP);
             for (float a = 0; a < Math::Radians(360); a += Math::Radians(15))
             {
-                Vector2F p = mvp.MultiplyPoint({ sinf(a) * circle->GetRadius(), cosf(a) * circle->GetRadius() });
+                Vector2F p = mvp.MultiplyPoint(Vector2F(sinf(a) * radius, cosf(a) * radius) + offset);
                 glVertex2f(p.x, p.y);
             }
             glEnd();
 
             glBegin(GL_LINES);
-            Vector2F center = mvp.MultiplyPoint(Vector2F::ZERO);
-            Vector2F right = mvp.MultiplyPoint(Vector2F::RIGHT * circle->GetRadius());
+            const Vector2F center = mvp.MultiplyPoint(offset);
+            const Vector2F right = mvp.MultiplyPoint(offset + Vector2F::RIGHT * radius);
             glVertex2f(center.x, center.y);
             glVertex2f(right.x, right.y);
+            glEnd();
+        }
+
+        void DrawQuadGizmo(const Matrix4X4& mvp, const Vector2F& offset, const Vector2F& size, const Color& color)
+        {
+            glColor3f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f);
+            glBegin(GL_LINE_LOOP);
+            const Vector2F a = mvp.MultiplyPoint(offset - size / 2);
+            const Vector2F b = mvp.MultiplyPoint({offset.x + size.x / 2, offset.y - size.y / 2});
+            const Vector2F c = mvp.MultiplyPoint({offset.x - size.x / 2, offset.y + size.y / 2});
+            const Vector2F d = mvp.MultiplyPoint(offset + size / 2);
+            glVertex2f(a.x, a.y);
+            glVertex2f(b.x, b.y);
+            glVertex2f(d.x, d.y);
+            glVertex2f(c.x, c.y);
             glEnd();
         }
 

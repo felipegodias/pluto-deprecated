@@ -32,17 +32,18 @@ void OnInit(ServiceCollection& serviceCollection)
     const Resource<MaterialAsset> material = assetManager.Load<MaterialAsset>("materials/pluto-logo.mat");
     meshRenderer->SetMaterial(material);
     logoGo->AddComponent<Rigidbody2D>();
-    logoGo->AddComponent<CircleCollider2D>();
+    Resource<CircleCollider2D> circleCollider = logoGo->AddComponent<CircleCollider2D>();
+    circleCollider->SetRadius(0.5f);
 
     Resource<GameObject> textGo = sceneManager.GetActiveScene().CreateGameObject("TextRenderer");
-    textGo->GetTransform()->SetPosition({0, -1, 0});
+    textGo->GetTransform()->SetPosition({0, 0, 0});
     Resource<TextRenderer> textRenderer = textGo->AddComponent<TextRenderer>();
     textRenderer->SetFont(fontAsset);
     textRenderer->SetText("Pluto");
     textRenderer->SetAnchor(TextRenderer::Anchor::MiddleCenter);
-    Resource<CircleCollider2D> circleCollider = textGo->AddComponent<CircleCollider2D>();
-    circleCollider->SetRadius(0.5f);
-    textGo->AddComponent<Rotator>();
+    Resource<BoxCollider2D> boxCollider = textGo->AddComponent<BoxCollider2D>();
+    boxCollider->SetSize({ 2, 0.5f });
+    //textGo->AddComponent<Rotator>();
 }
 
 int main(int argc, char* argv[])

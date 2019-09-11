@@ -1,7 +1,7 @@
 #include "pluto/physics_2d/physics_2d_body.h"
 #include "pluto/physics_2d/physics_2d_manager.h"
-#include "pluto/physics_2d/shapes/physics_2d_shape.h"
 #include "pluto/physics_2d/shapes/physics_2d_circle_shape.h"
+#include "pluto/physics_2d/shapes/physics_2d_box_shape.h"
 
 #include "pluto/service/service_collection.h"
 #include "pluto/math/math.h"
@@ -15,6 +15,7 @@ namespace pluto
     {
         b2Body* body;
         Physics2DCircleShape::Factory* circleShapeFactory;
+        Physics2DBoxShape::Factory* boxShapeFactory;
         Physics2DBody* instance;
 
     public:
@@ -25,9 +26,11 @@ namespace pluto
             body = nullptr;
         }
 
-        Impl(b2Body& body, Physics2DCircleShape::Factory& circleShapeFactory)
+        Impl(b2Body& body, Physics2DCircleShape::Factory& circleShapeFactory,
+             Physics2DBoxShape::Factory& boxShapeFactory)
             : body(&body),
               circleShapeFactory(&circleShapeFactory),
+              boxShapeFactory(&boxShapeFactory),
               instance(nullptr)
         {
         }
@@ -122,6 +125,11 @@ namespace pluto
             return circleShapeFactory->Create(*instance, offset, radius);
         }
 
+        std::unique_ptr<Physics2DBoxShape> CreateBoxShape(const Vector2F& offset, const Vector2F& size)
+        {
+            return boxShapeFactory->Create(*instance, offset, size);
+        }
+
         void* GetNativeBody() const
         {
             return body;
@@ -138,6 +146,7 @@ namespace pluto
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& physics2DManager = serviceCollection.GetService<Physics2DManager>();
         auto& circleShapeFactory = serviceCollection.GetFactory<Physics2DCircleShape>();
+        auto& boxShapeFactory = serviceCollection.GetFactory<Physics2DBoxShape>();
 
         b2BodyDef bodyDef;
         bodyDef.position = {position.x, position.y};
@@ -146,7 +155,8 @@ namespace pluto
         auto* world = reinterpret_cast<b2World*>(physics2DManager.GetWorld());
         b2Body* body = world->CreateBody(&bodyDef);
 
-        auto physics2DBody = std::make_unique<Physics2DBody>(std::make_unique<Impl>(*body, circleShapeFactory));
+        auto physics2DBody = std::make_unique<Physics2DBody>(
+            std::make_unique<Impl>(*body, circleShapeFactory, boxShapeFactory));
         physics2DBody->impl->SetInstance(*physics2DBody);
         return physics2DBody;
     }
@@ -215,6 +225,11 @@ namespace pluto
     std::unique_ptr<Physics2DCircleShape> Physics2DBody::CreateCircleShape(const Vector2F& offset, const float radius)
     {
         return impl->CreateCircleShape(offset, radius);
+    }
+
+    std::unique_ptr<Physics2DBoxShape> Physics2DBody::CreateBoxShape(const Vector2F& offset, const Vector2F& size)
+    {
+        return impl->CreateBoxShape(offset, size);
     }
 
     void* Physics2DBody::GetNativeBody() const
