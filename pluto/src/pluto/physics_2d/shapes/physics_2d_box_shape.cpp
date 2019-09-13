@@ -45,7 +45,7 @@ namespace pluto
             auto* shape = GetShape();
             const b2Vec2& min = shape->GetVertex(0);
             const b2Vec2& max = shape->GetVertex(2);
-            return { max.x - min.x, max.y - min.y};
+            return {max.x - min.x, max.y - min.y};
         }
 
         void SetSize(const Vector2F& value)
@@ -74,7 +74,14 @@ namespace pluto
         b2PolygonShape shape;
         shape.SetAsBox(size.x / 2, size.y / 2);
         shape.m_centroid.Set(offset.x, offset.y);
-        b2Fixture* fixture = nativeBody->CreateFixture(&shape, 1);
+
+        b2FixtureDef fixtureDef;
+        fixtureDef.density = 1;
+        fixtureDef.friction = 0.9f;
+        fixtureDef.restitution = 0.1f;
+        fixtureDef.shape = &shape;
+
+        b2Fixture* fixture = nativeBody->CreateFixture(&fixtureDef);
         return std::make_unique<Physics2DBoxShape>(std::make_unique<Impl>(*fixture));
     }
 

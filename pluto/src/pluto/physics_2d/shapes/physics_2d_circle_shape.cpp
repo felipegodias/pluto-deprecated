@@ -72,7 +72,13 @@ namespace pluto
         b2CircleShape shape;
         shape.m_p.Set(offset.x, offset.y);
         shape.m_radius = radius;
-        b2Fixture* fixture = nativeBody->CreateFixture(&shape, 1);
+        
+        b2FixtureDef fixtureDef;
+        fixtureDef.density = 1;
+        fixtureDef.friction = 0.9f;
+        fixtureDef.restitution = 1;
+        fixtureDef.shape = &shape;
+        b2Fixture* fixture = nativeBody->CreateFixture(&fixtureDef);
         return std::make_unique<Physics2DCircleShape>(std::make_unique<Impl>(*fixture));
     }
 

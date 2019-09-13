@@ -60,9 +60,9 @@ namespace pluto
             InputInstaller::Install(*serviceCollection);
             MemoryInstaller::Install(*serviceCollection);
             AssetInstaller::Install(*serviceCollection);
-            Physics2DInstaller::Install(*serviceCollection);
             SceneInstaller::Install(*serviceCollection);
             RenderInstaller::Install(*serviceCollection);
+            Physics2DInstaller::Install(*serviceCollection);
             SimulationInstaller::Install(*serviceCollection);
 
             auto& logManager = serviceCollection->GetService<LogManager>();
@@ -75,9 +75,9 @@ namespace pluto
         ~Impl()
         {
             SimulationInstaller::Uninstall(*serviceCollection);
-            RenderInstaller::Uninstall(*serviceCollection);
             SceneInstaller::Uninstall(*serviceCollection);
             Physics2DInstaller::Uninstall(*serviceCollection);
+            RenderInstaller::Uninstall(*serviceCollection);
             AssetInstaller::Uninstall(*serviceCollection);
             MemoryInstaller::Uninstall(*serviceCollection);
             InputInstaller::Uninstall(*serviceCollection);

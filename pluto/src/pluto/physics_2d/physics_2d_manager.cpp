@@ -5,10 +5,13 @@
 
 #include "pluto/service/service_collection.h"
 #include "pluto/log/log_manager.h"
+#include "pluto/render/render_manager.h"
 
 #include "pluto/memory/resource.h"
 #include "pluto/scene/game_object.h"
 #include "pluto/scene/components/transform.h"
+
+#include "pluto/math/color.h"
 #include "pluto/math/vector2f.h"
 #include "pluto/math/vector3f.h"
 #include "pluto/math/quaternion.h"
@@ -21,11 +24,64 @@
 
 namespace pluto
 {
+    class PhysicsDebugDrawer final : public b2Draw
+    {
+        RenderManager* renderManager;
+
+    public:
+        explicit PhysicsDebugDrawer(RenderManager& renderManager)
+            : renderManager(&renderManager)
+        {
+        }
+
+        void DrawPolygon(const b2Vec2* vertices, const int32 vertexCount, const b2Color& color) override
+        {
+            std::vector<Vector2F> points;
+            for (int i = 0; i < vertexCount; ++i)
+            {
+                points.push_back({vertices[i].x, vertices[i].y});
+            }
+            renderManager->DrawPolygonGizmo(points, ToPlutoColor(color));
+        }
+
+        void DrawSolidPolygon(const b2Vec2* vertices, const int32 vertexCount, const b2Color& color) override
+        {
+            DrawPolygon(vertices, vertexCount, color);
+        }
+
+        void DrawCircle(const b2Vec2& center, const float32 radius, const b2Color& color) override
+        {
+            renderManager->DrawCircleGizmo({center.x, center.y}, radius, ToPlutoColor(color));
+        }
+
+        void DrawSolidCircle(const b2Vec2& center, float32 radius, const b2Vec2& axis, const b2Color& color) override
+        {
+            DrawCircle(center, radius, color);
+        }
+
+        void DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color) override
+        {
+        }
+
+        void DrawTransform(const b2Transform& xf) override
+        {
+        }
+
+        static Color ToPlutoColor(const b2Color& color)
+        {
+            return {
+                static_cast<uint8_t>(color.r * 255), static_cast<uint8_t>(color.g * 255),
+                static_cast<uint8_t>(color.b * 255), static_cast<uint8_t>(color.a * 255)
+            };
+        }
+    };
+
     class Physics2DManager::Impl
     {
         static inline const b2Vec2 GRAVITY = {0, -9.81f};
 
         std::unique_ptr<b2World> world;
+        std::unique_ptr<PhysicsDebugDrawer> debugDrawer;
         std::unordered_map<Guid, std::shared_ptr<Physics2DBody>> bodies;
 
         LogManager* logManager;
@@ -37,12 +93,16 @@ namespace pluto
             logManager->LogInfo("Physics2DManager terminated!");
         }
 
-        Impl(LogManager& logManager, Physics2DBody::Factory& bodyFactory)
-            : logManager(&logManager),
+        Impl(LogManager& logManager, Physics2DBody::Factory& bodyFactory,
+             std::unique_ptr<PhysicsDebugDrawer> debugDrawer)
+            : debugDrawer(std::move(debugDrawer)),
+              logManager(&logManager),
               bodyFactory(&bodyFactory)
 
         {
             world = std::make_unique<b2World>(GRAVITY);
+            this->debugDrawer->SetFlags(b2Draw::e_shapeBit);
+            world->SetDebugDraw(this->debugDrawer.get());
             logManager.LogInfo("Physics2DManager initialized!");
         }
 
@@ -103,6 +163,7 @@ namespace pluto
             }
 
             world->Step(deltaTime, 6, 2);
+            world->DrawDebugData();
         }
     };
 
@@ -116,7 +177,11 @@ namespace pluto
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& logManager = serviceCollection.GetService<LogManager>();
         Physics2DBody::Factory& bodyFactory = serviceCollection.GetFactory<Physics2DBody>();
-        return std::make_unique<Physics2DManager>(std::make_unique<Impl>(logManager, bodyFactory));
+
+        auto& renderManager = serviceCollection.GetService<RenderManager>();
+
+        return std::make_unique<Physics2DManager>(
+            std::make_unique<Impl>(logManager, bodyFactory, std::make_unique<PhysicsDebugDrawer>(renderManager)));
     }
 
     Physics2DManager::~Physics2DManager() = default;
