@@ -2,6 +2,7 @@
 #include "pluto/render/gl/gl_mesh_buffer.h"
 #include "pluto/render/gl/gl_shader_program.h"
 #include "pluto/render/gl/gl_call.h"
+#include "pluto/render/events/on_render_event.h"
 
 #include "pluto/log/log_manager.h"
 #include "pluto/event/event_manager.h"
@@ -24,13 +25,10 @@
 #include "pluto/math/color.h"
 #include "pluto/math/vector2f.h"
 #include "pluto/math/vector3f.h"
-#include "pluto/math/vector3i.h"
 #include "pluto/math/matrix4x4.h"
 
-#include "pluto/physics_2d/components/circle_collider_2d.h"
-#include "pluto/physics_2d/components/box_collider_2d.h"
-
 #include "pluto/service/service_collection.h"
+#include "pluto/guid.h"
 
 #include <GL/glew.h>
 #include <Box2D/Box2D.h>
@@ -122,25 +120,33 @@ namespace pluto
 
     class GlRenderManager::Impl
     {
+        Guid onRenderEventListenerId;
+        std::vector<std::unique_ptr<Gizmo>> gizmosToDraw;
+
         LogManager* logManager;
+        EventManager* eventManager;
         SceneManager* sceneManager;
         WindowManager* windowManager;
-
-        std::vector<std::unique_ptr<Gizmo>> gizmosToDraw;
 
     public:
         ~Impl()
         {
+            eventManager->Unsubscribe<OnRenderEvent>(onRenderEventListenerId);
             logManager->LogInfo("OpenGL RenderManager terminated!");
         }
 
-        Impl(LogManager& logManager, SceneManager& sceneManager, WindowManager& windowManager)
+        Impl(LogManager& logManager, EventManager& eventManager, SceneManager& sceneManager,
+             WindowManager& windowManager)
             : logManager(&logManager),
+              eventManager(&eventManager),
               sceneManager(&sceneManager),
               windowManager(&windowManager)
         {
             glewInit();
             glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
+
+            onRenderEventListenerId = eventManager.Subscribe<OnRenderEvent>(
+                std::bind(&Impl::OnRender, this, std::placeholders::_1));
             logManager.LogInfo("OpenGL RenderManager initialized!");
         }
 
@@ -163,7 +169,7 @@ namespace pluto
         {
         }
 
-        void MainLoop()
+        void OnRender(const OnRenderEvent& evt)
         {
             GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
@@ -264,9 +270,11 @@ namespace pluto
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& logManager = serviceCollection.GetService<LogManager>();
+        auto& eventManager = serviceCollection.GetService<EventManager>();
         auto& sceneManager = serviceCollection.GetService<SceneManager>();
         auto& windowManager = serviceCollection.GetService<WindowManager>();
-        return std::make_unique<GlRenderManager>(std::make_unique<Impl>(logManager, sceneManager, windowManager));
+        return std::make_unique<GlRenderManager>(
+            std::make_unique<Impl>(logManager, eventManager, sceneManager, windowManager));
     }
 
     GlRenderManager::GlRenderManager(std::unique_ptr<Impl> impl)
@@ -305,10 +313,5 @@ namespace pluto
     void GlRenderManager::DrawLineGizmo(const Vector2F& from, const Vector2F& to, const Color& color)
     {
         impl->DrawLineGizmo(from, to, color);
-    }
-
-    void GlRenderManager::MainLoop()
-    {
-        impl->MainLoop();
     }
 }

@@ -1,10 +1,15 @@
 #include "pluto/physics_2d/physics_2d_manager.h"
 #include "pluto/physics_2d/physics_2d_body.h"
+#include "pluto/physics_2d/events/on_fixed_update_event.h"
 
 #include "pluto/debug/assert.h"
 
 #include "pluto/service/service_collection.h"
 #include "pluto/log/log_manager.h"
+#include "pluto/event/event_manager.h"
+
+#include "pluto/render/events/on_pre_render_event.h"
+
 #include "pluto/render/render_manager.h"
 
 #include "pluto/memory/resource.h"
@@ -84,25 +89,39 @@ namespace pluto
         std::unique_ptr<PhysicsDebugDrawer> debugDrawer;
         std::unordered_map<Guid, std::shared_ptr<Physics2DBody>> bodies;
 
+        Guid onFixedUpdateEventListenerId;
+        Guid onPreRenderEventListenerId;
+
         LogManager* logManager;
+        EventManager* eventManager;
         Physics2DBody::Factory* bodyFactory;
 
     public:
         ~Impl()
         {
+            eventManager->Unsubscribe<OnFixedUpdateEvent>(onFixedUpdateEventListenerId);
+            eventManager->Unsubscribe<OnPreRenderEvent>(onPreRenderEventListenerId);
             logManager->LogInfo("Physics2DManager terminated!");
         }
 
-        Impl(LogManager& logManager, Physics2DBody::Factory& bodyFactory,
+        Impl(LogManager& logManager, EventManager& eventManager, Physics2DBody::Factory& bodyFactory,
              std::unique_ptr<PhysicsDebugDrawer> debugDrawer)
             : debugDrawer(std::move(debugDrawer)),
               logManager(&logManager),
+              eventManager(&eventManager),
               bodyFactory(&bodyFactory)
 
         {
             world = std::make_unique<b2World>(GRAVITY);
             this->debugDrawer->SetFlags(b2Draw::e_shapeBit);
             world->SetDebugDraw(this->debugDrawer.get());
+
+            onFixedUpdateEventListenerId = eventManager.Subscribe<OnFixedUpdateEvent>(
+                std::bind(&Impl::OnFixedUpdate, this, std::placeholders::_1));
+
+            onPreRenderEventListenerId = eventManager.Subscribe<OnPreRenderEvent>(
+                std::bind(&Impl::OnPreRender, this, std::placeholders::_1));
+
             logManager.LogInfo("Physics2DManager initialized!");
         }
 
@@ -148,7 +167,7 @@ namespace pluto
             return world.get();
         }
 
-        void MainLoop(const float deltaTime)
+        void OnFixedUpdate(const OnFixedUpdateEvent& evt)
         {
             for (auto it = bodies.begin(); it != bodies.end();)
             {
@@ -162,7 +181,11 @@ namespace pluto
                 }
             }
 
-            world->Step(deltaTime, 6, 2);
+            world->Step(0.02f, 6, 2);
+        }
+
+        void OnPreRender(const OnPreRenderEvent& evt)
+        {
             world->DrawDebugData();
         }
     };
@@ -176,12 +199,14 @@ namespace pluto
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& logManager = serviceCollection.GetService<LogManager>();
+        auto& eventManager = serviceCollection.GetService<EventManager>();
         Physics2DBody::Factory& bodyFactory = serviceCollection.GetFactory<Physics2DBody>();
 
         auto& renderManager = serviceCollection.GetService<RenderManager>();
 
         return std::make_unique<Physics2DManager>(
-            std::make_unique<Impl>(logManager, bodyFactory, std::make_unique<PhysicsDebugDrawer>(renderManager)));
+            std::make_unique<Impl>(logManager, eventManager, bodyFactory,
+                                   std::make_unique<PhysicsDebugDrawer>(renderManager)));
     }
 
     Physics2DManager::~Physics2DManager() = default;
@@ -218,10 +243,5 @@ namespace pluto
     void* Physics2DManager::GetWorld() const
     {
         return impl->GetWorld();
-    }
-
-    void Physics2DManager::MainLoop(const float deltaTime)
-    {
-        impl->MainLoop(deltaTime);
     }
 }

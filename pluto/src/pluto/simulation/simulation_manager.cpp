@@ -1,10 +1,18 @@
 #include <pluto/simulation/simulation_manager.h>
 
 #include <pluto/log/log_manager.h>
+#include <pluto/event/event_manager.h>
+
+#include "pluto/physics_2d/events/on_early_fixed_update_event.h"
+#include "pluto/physics_2d/events/on_late_fixed_update_event.h"
+#include "pluto/physics_2d/events/on_fixed_update_event.h"
+
+#include "pluto/render/events/on_post_render_event.h"
+#include "pluto/render/events/on_pre_render_event.h"
+#include "pluto/render/events/on_render_event.h"
+
 #include <pluto/input/input_manager.h>
 #include <pluto/scene/scene_manager.h>
-#include <pluto/physics_2d/physics_2d_manager.h>
-#include <pluto/render/render_manager.h>
 #include <pluto/service/service_collection.h>
 #include <GLFW/glfw3.h>
 
@@ -12,72 +20,87 @@ namespace pluto
 {
     class SimulationManager::Impl
     {
-        const double maxFps = 60.0;
-        const double maxPeriod = 1.0 / maxFps;
+        const float maxFps = 60.0;
+        const float maxPeriod = 1.0 / maxFps;
+
+        const float maxFixedPeriod = 0.02f;
 
         LogManager* logManager;
+        EventManager* eventManager;
+
         InputManager* inputManager;
         SceneManager* sceneManager;
-        Physics2DManager* physics2DManager;
-        RenderManager* renderManager;
 
-        double lastTime;
-        double deltaTime;
+        float lastTime;
+        float deltaTime;
 
-        double lastSecond;
-        uint16_t fps;
-        uint32_t frameCount;
+        float lastFixedTime;
 
     public:
-        Impl(LogManager& logManager, InputManager& inputManager, SceneManager& sceneManager,
-             Physics2DManager& physics2DManager,
-             RenderManager& renderManager)
-            : logManager(&logManager),
-              inputManager(&inputManager),
-              sceneManager(&sceneManager),
-              physics2DManager(&physics2DManager),
-              renderManager(&renderManager),
-              lastTime(0),
-              deltaTime(0),
-              lastSecond(0),
-              fps(0),
-              frameCount(0)
-        {
-            logManager.LogInfo("SimulationManager initialized!");
-        }
-
         ~Impl()
         {
             logManager->LogInfo("SimulationManager terminated!");
         }
 
+        Impl(LogManager& logManager, EventManager& eventManager, InputManager& inputManager, SceneManager& sceneManager)
+            : logManager(&logManager),
+              eventManager(&eventManager),
+              inputManager(&inputManager),
+              sceneManager(&sceneManager),
+              lastTime(0),
+              deltaTime(0),
+              lastFixedTime(0)
+        {
+            logManager.LogInfo("SimulationManager initialized!");
+        }
+
         float GetDeltaTime() const
         {
-            return static_cast<float>(deltaTime);
+            return deltaTime;
         }
 
         void Run()
         {
-            const double time = glfwGetTime();
-            deltaTime = time - lastTime;
-            if (deltaTime >= maxPeriod)
+            const auto time = static_cast<float>(glfwGetTime());
+            if (lastTime == 0)
             {
                 lastTime = time;
+            }
+            if (lastFixedTime == 0)
+            {
+                lastFixedTime = time;
+            }
+
+            deltaTime = time - lastTime;
+            const bool shouldUpdate = deltaTime >= maxPeriod;
+
+            if (shouldUpdate)
+            {
+                lastTime = time - (deltaTime - maxPeriod);
 
                 inputManager->MainLoop();
                 sceneManager->MainLoop();
-                physics2DManager->MainLoop(static_cast<float>(deltaTime));
-                renderManager->MainLoop();
-
-                ++fps;
-                ++frameCount;
             }
 
-            const double fpsDelta = time - lastSecond;
-            if (fpsDelta > 1.0)
+            const float fixedDeltaTime = time - lastFixedTime;
+            const bool shouldFixedUpdate = fixedDeltaTime >= maxFixedPeriod;
+            if (shouldFixedUpdate)
             {
-                lastSecond = time + 1.0 - fpsDelta;
-                fps = 0;
+                const int stepCount = floor(fixedDeltaTime / maxFixedPeriod);
+                lastFixedTime = time - (fixedDeltaTime - static_cast<float>(stepCount) * maxFixedPeriod);
+                for (int i = 0; i < stepCount; ++i)
+                {
+                    eventManager->Dispatch<OnEarlyFixedUpdateEvent>();
+                    eventManager->Dispatch<OnFixedUpdateEvent>();
+                    eventManager->Dispatch<OnLateFixedUpdateEvent>();
+                }
+            }
+
+            if (shouldUpdate)
+            {
+                eventManager->Dispatch<OnPreRenderEvent>();
+                eventManager->Dispatch<OnRenderEvent>();
+                eventManager->Dispatch<OnPostRenderEvent>();
             }
         }
     };
@@ -91,13 +114,13 @@ namespace pluto
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& logManager = serviceCollection.GetService<LogManager>();
+        auto& eventManager = serviceCollection.GetService<EventManager>();
+
         auto& inputManager = serviceCollection.GetService<InputManager>();
         auto& sceneManager = serviceCollection.GetService<SceneManager>();
-        auto& physics2DManager = serviceCollection.GetService<Physics2DManager>();
-        auto& renderManager = serviceCollection.GetService<RenderManager>();
 
         return std::make_unique<SimulationManager>(
-            std::make_unique<Impl>(logManager, inputManager, sceneManager, physics2DManager, renderManager));
+            std::make_unique<Impl>(logManager, eventManager, inputManager, sceneManager));
     }
 
     SimulationManager::SimulationManager(std::unique_ptr<Impl> impl)

@@ -24,7 +24,5 @@ namespace pluto
         virtual void DrawCircleGizmo(const Vector2F& position, float radius, const Color& color) = 0;
         virtual void DrawPolygonGizmo(const std::vector<Vector2F>& points, const Color& color) = 0;
         virtual void DrawLineGizmo(const Vector2F& from, const Vector2F& to, const Color& color) = 0;
-
-        virtual void MainLoop() = 0;
     };
 }

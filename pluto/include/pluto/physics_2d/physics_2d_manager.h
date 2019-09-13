@@ -44,7 +44,5 @@ namespace pluto
         std::shared_ptr<Physics2DBody> GetOrCreateBody(const Resource<GameObject>& gameObject);
 
         void* GetWorld() const;
-
-        void MainLoop(float deltaTime);
     };
 }

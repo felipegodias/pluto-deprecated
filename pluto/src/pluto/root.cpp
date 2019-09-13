@@ -76,7 +76,7 @@ namespace pluto
         {
             SimulationInstaller::Uninstall(*serviceCollection);
             SceneInstaller::Uninstall(*serviceCollection);
-            Physics2DInstaller::Uninstall(*serviceCollection);
+            Physics2DInstaller::Uninstall(*serviceCollection); 
             RenderInstaller::Uninstall(*serviceCollection);
             AssetInstaller::Uninstall(*serviceCollection);
             MemoryInstaller::Uninstall(*serviceCollection);

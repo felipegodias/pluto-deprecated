@@ -33,7 +33,5 @@ namespace pluto
         void DrawCircleGizmo(const Vector2F& position, float radius, const Color& color) override;
         void DrawPolygonGizmo(const std::vector<Vector2F>& points, const Color& color) override;
         void DrawLineGizmo(const Vector2F& from, const Vector2F& to, const Color& color) override;
-
-        void MainLoop() override;
     };
 }
