@@ -126,7 +126,7 @@ namespace pluto
             }
             else
             {
-                localPosition = GetWorldMatrix().GetInverse() * Vector4F(value);
+                localPosition = parent->GetWorldMatrix().GetInverse() * Vector4F(value);
             }
             SetDirty();
         }
