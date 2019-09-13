@@ -30,6 +30,21 @@ namespace pluto
         {
         }
 
+        void AddForce(const Vector2F& force)
+        {
+            body->AddForce(force);
+        }
+
+        void AddForce(const Vector2F& force, const Vector2F& point)
+        {
+            body->AddForce(force, point);
+        }
+
+        void AddTorque(const float torque)
+        {
+            body->AddTorque(torque);
+        }
+
         void OnUpdate()
         {
             const Vector2F bodyPosition = body->GetPosition();
@@ -71,6 +86,21 @@ namespace pluto
     Rigidbody2D::Rigidbody2D(Rigidbody2D&& other) noexcept = default;
 
     Rigidbody2D& Rigidbody2D::operator=(Rigidbody2D&& rhs) noexcept = default;
+
+    void Rigidbody2D::AddForce(const Vector2F& force)
+    {
+        impl->AddForce(force);
+    }
+
+    void Rigidbody2D::AddForce(const Vector2F& force, const Vector2F& point)
+    {
+        impl->AddForce(force, point);
+    }
+
+    void Rigidbody2D::AddTorque(const float torque)
+    {
+        impl->AddTorque(torque);
+    }
 
     void Rigidbody2D::OnUpdate()
     {

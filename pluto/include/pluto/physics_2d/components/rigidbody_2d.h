@@ -5,6 +5,8 @@
 
 namespace pluto
 {
+    class Vector2F;
+
     class PLUTO_API Rigidbody2D final : public Component
     {
     public:
@@ -27,6 +29,10 @@ namespace pluto
         Rigidbody2D(Rigidbody2D&& other) noexcept;
         Rigidbody2D& operator=(const Rigidbody2D& rhs) = delete;
         Rigidbody2D& operator=(Rigidbody2D&& rhs) noexcept;
+
+        void AddForce(const Vector2F& force);
+        void AddForce(const Vector2F& force, const Vector2F& point);
+        void AddTorque(float torque);
 
         void OnUpdate() override;
     };

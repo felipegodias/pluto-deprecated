@@ -58,6 +58,10 @@ namespace pluto
         float GetAngularVelocity() const;
         void SetAngularVelocity(float value);
 
+        void AddForce(const Vector2F& force);
+        void AddForce(const Vector2F& force, const Vector2F& point);
+        void AddTorque(float torque);
+
         std::unique_ptr<Physics2DCircleShape> CreateCircleShape(const Vector2F& offset, float radius);
         std::unique_ptr<Physics2DBoxShape> CreateBoxShape(const Vector2F& offset, const Vector2F& size);
 

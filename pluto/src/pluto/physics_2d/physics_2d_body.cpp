@@ -120,6 +120,21 @@ namespace pluto
             body->SetAngularVelocity(value);
         }
 
+        void AddForce(const Vector2F& force)
+        {
+            body->ApplyForceToCenter({force.x, force.y}, true);
+        }
+
+        void AddForce(const Vector2F& force, const Vector2F& point)
+        {
+            body->ApplyForce({force.x, force.y}, {point.x, point.y}, true);
+        }
+
+        void AddTorque(const float torque)
+        {
+            body->ApplyTorque(torque, true);
+        }
+
         std::unique_ptr<Physics2DCircleShape> CreateCircleShape(const Vector2F& offset, const float radius)
         {
             return circleShapeFactory->Create(*instance, offset, radius);
@@ -220,6 +235,21 @@ namespace pluto
     void Physics2DBody::SetAngularVelocity(const float value)
     {
         impl->SetAngularVelocity(value);
+    }
+
+    void Physics2DBody::AddForce(const Vector2F& force)
+    {
+        impl->AddForce(force);
+    }
+
+    void Physics2DBody::AddForce(const Vector2F& force, const Vector2F& point)
+    {
+        impl->AddForce(force, point);
+    }
+
+    void Physics2DBody::AddTorque(const float torque)
+    {
+        impl->AddTorque(torque);
     }
 
     std::unique_ptr<Physics2DCircleShape> Physics2DBody::CreateCircleShape(const Vector2F& offset, const float radius)
