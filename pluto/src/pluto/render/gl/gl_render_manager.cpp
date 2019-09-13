@@ -33,16 +33,107 @@
 #include "pluto/service/service_collection.h"
 
 #include <GL/glew.h>
+#include <Box2D/Box2D.h>
+#include <utility>
 
 namespace pluto
 {
+    class Gizmo
+    {
+    public:
+        virtual void Draw(const Matrix4X4& projection, const Matrix4X4& view) = 0;
+    };
+
+    class CircleGizmo final : public Gizmo
+    {
+        Vector2F position;
+        float radius;
+        Color color;
+
+    public:
+        CircleGizmo(const Vector2F& position, const float radius, const Color& color)
+            : position(position),
+              radius(radius),
+              color(color)
+        {
+        }
+
+        void Draw(const Matrix4X4& projection, const Matrix4X4& view) override
+        {
+            const Matrix4X4 mvp = projection * view * Matrix4X4::Translate({position.x, position.y, 0});
+
+            glColor3f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f);
+
+            glBegin(GL_LINE_LOOP);
+            for (float a = 0; a < Math::Radians(360); a += Math::Radians(15))
+            {
+                Vector2F p = mvp.MultiplyPoint(Vector2F(sinf(a) * radius, cosf(a) * radius));
+                glVertex2f(p.x, p.y);
+            }
+            glEnd();
+        }
+    };
+
+    class PolygonGizmo final : public Gizmo
+    {
+        std::vector<Vector2F> points;
+        Color color;
+
+    public:
+        PolygonGizmo(std::vector<Vector2F> vector2Fs, const Color& color)
+            : points(std::move(vector2Fs)),
+              color(color)
+        {
+        }
+
+        void Draw(const Matrix4X4& projection, const Matrix4X4& view) override
+        {
+            glColor3f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f);
+            glBegin(GL_LINE_LOOP);
+            for (size_t i = 0; i < points.size(); ++i)
+            {
+                const Matrix4X4 from = projection * view * Matrix4X4::Translate({points[i].x, points[i].y, 0});
+                const Vector2F a = from.MultiplyPoint(Vector2F::ZERO);
+                glVertex2f(a.x, a.y);
+            }
+            glEnd();
+        }
+    };
+
+    class LineGizmo : public Gizmo
+    {
+        Vector2F from;
+        Vector2F to;
+        Color color;
+
+    public:
+
+        LineGizmo(const Vector2F& from, const Vector2F& to, const Color& color)
+            : from(from),
+              to(to),
+              color(color)
+        {
+        }
+
+        void Draw(const Matrix4X4& projection, const Matrix4X4& view) override
+        {
+        }
+    };
+
     class GlRenderManager::Impl
     {
         LogManager* logManager;
         SceneManager* sceneManager;
         WindowManager* windowManager;
 
+        std::vector<std::unique_ptr<Gizmo>> gizmosToDraw;
+
     public:
+        ~Impl()
+        {
+            logManager->LogInfo("OpenGL RenderManager terminated!");
+        }
+
         Impl(LogManager& logManager, SceneManager& sceneManager, WindowManager& windowManager)
             : logManager(&logManager),
               sceneManager(&sceneManager),
@@ -53,9 +144,23 @@ namespace pluto
             logManager.LogInfo("OpenGL RenderManager initialized!");
         }
 
-        ~Impl()
+        Impl(const Impl& other) = delete;
+        Impl(Impl&& other) noexcept = default;
+        Impl& operator=(const Impl& rhs) = delete;
+        Impl& operator=(Impl&& rhs) noexcept = default;
+
+        void DrawCircleGizmo(const Vector2F& position, float radius, const Color& color)
         {
-            logManager->LogInfo("OpenGL RenderManager terminated!");
+            gizmosToDraw.push_back(std::make_unique<CircleGizmo>(position, radius, color));
+        }
+
+        void DrawPolygonGizmo(const std::vector<Vector2F>& points, const Color& color)
+        {
+            gizmosToDraw.push_back(std::make_unique<PolygonGizmo>(points, color));
+        }
+
+        void DrawLineGizmo(const Vector2F& from, const Vector2F& to, const Color& color)
+        {
         }
 
         void MainLoop()
@@ -100,12 +205,11 @@ namespace pluto
             GL_CALL(glUseProgram(0));
             GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
 
-            glColor3f(0, 1, 0);
-            std::vector<Resource<Collider2D>> colliders = rootGameObject->GetComponentsInChildren<Collider2D>();
-            for (auto& it : colliders)
+            for (auto it = gizmosToDraw.begin(); it != gizmosToDraw.end(); ++it)
             {
-                DrawCollider(*camera.Get(), *it.Get());
+                it->get()->Draw(camera->GetProjectionMatrix(), camera->GetViewMatrix());
             }
+            gizmosToDraw.clear();
 
             glColor3f(0.2f, 0.2f, 0.2f);
             glBegin(GL_LINES);
@@ -116,46 +220,6 @@ namespace pluto
             glEnd();
 
             windowManager->SwapBuffers();
-        }
-
-        void DrawCollider(Camera& camera, Collider2D& collider)
-        {
-            Transform* t = collider.GetGameObject()->GetTransform().Get();
-            const Matrix4X4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * t->GetWorldMatrix();
-
-            auto* circle = dynamic_cast<CircleCollider2D*>(&collider);
-            if (circle != nullptr)
-            {
-                DrawCircleGizmo(mvp, circle->GetOffset(), circle->GetRadius(), Color::GREEN);
-            }
-            else
-            {
-                auto* box = dynamic_cast<BoxCollider2D*>(&collider);
-                if (box != nullptr)
-                {
-                    DrawQuadGizmo(mvp, box->GetOffset(), box->GetSize(), Color::GREEN);
-                }
-            }
-        }
-
-        void DrawCircleGizmo(const Matrix4X4& mvp, const Vector2F& offset, const float radius, const Color& color)
-        {
-            glColor3f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f);
-
-            glBegin(GL_LINE_LOOP);
-            for (float a = 0; a < Math::Radians(360); a += Math::Radians(15))
-            {
-                Vector2F p = mvp.MultiplyPoint(Vector2F(sinf(a) * radius, cosf(a) * radius) + offset);
-                glVertex2f(p.x, p.y);
-            }
-            glEnd();
-
-            glBegin(GL_LINES);
-            const Vector2F center = mvp.MultiplyPoint(offset);
-            const Vector2F right = mvp.MultiplyPoint(offset + Vector2F::RIGHT * radius);
-            glVertex2f(center.x, center.y);
-            glVertex2f(right.x, right.y);
-            glEnd();
         }
 
         void DrawQuadGizmo(const Matrix4X4& mvp, const Vector2F& offset, const Vector2F& size, const Color& color)
@@ -226,6 +290,21 @@ namespace pluto
 
         impl = std::move(rhs.impl);
         return *this;
+    }
+
+    void GlRenderManager::DrawCircleGizmo(const Vector2F& position, const float radius, const Color& color)
+    {
+        impl->DrawCircleGizmo(position, radius, color);
+    }
+
+    void GlRenderManager::DrawPolygonGizmo(const std::vector<Vector2F>& points, const Color& color)
+    {
+        impl->DrawPolygonGizmo(points, color);
+    }
+
+    void GlRenderManager::DrawLineGizmo(const Vector2F& from, const Vector2F& to, const Color& color)
+    {
+        impl->DrawLineGizmo(from, to, color);
     }
 
     void GlRenderManager::MainLoop()
