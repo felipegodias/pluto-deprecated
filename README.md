@@ -12,6 +12,7 @@
 * [boost 1.70.0](https://github.com/boostorg/boost)
 * [yaml-cpp 0.6.2](https://github.com/jbeder/yaml-cpp)
 * [stb 20190512](https://github.com/nothings/stb)
+* [box2d 2.3.1](https://github.com/erincatto/Box2D)
 #### Install Libraries
 ```bash
 # On root folder.
