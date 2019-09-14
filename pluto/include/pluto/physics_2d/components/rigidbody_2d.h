@@ -30,6 +30,12 @@ namespace pluto
         Rigidbody2D& operator=(const Rigidbody2D& rhs) = delete;
         Rigidbody2D& operator=(Rigidbody2D&& rhs) noexcept;
 
+        Vector2F GetVelocity() const;
+        void SetVelocity(const Vector2F& value);
+
+        float GetAngularVelocity() const;
+        void SetAngularVelocity(float value);
+
         void AddForce(const Vector2F& force);
         void AddForce(const Vector2F& force, const Vector2F& point);
         void AddTorque(float torque);

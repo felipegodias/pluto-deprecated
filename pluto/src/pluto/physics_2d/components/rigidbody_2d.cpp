@@ -30,6 +30,26 @@ namespace pluto
         {
         }
 
+        Vector2F GetVelocity() const
+        {
+            return body->GetVelocity();
+        }
+
+        void SetVelocity(const Vector2F& value)
+        {
+            body->SetVelocity(value);
+        }
+
+        float GetAngularVelocity() const
+        {
+            return body->GetAngularVelocity();
+        }
+
+        void SetAngularVelocity(const float value)
+        {
+            body->SetAngularVelocity(value);
+        }
+
         void AddForce(const Vector2F& force)
         {
             body->AddForce(force);
@@ -86,6 +106,26 @@ namespace pluto
     Rigidbody2D::Rigidbody2D(Rigidbody2D&& other) noexcept = default;
 
     Rigidbody2D& Rigidbody2D::operator=(Rigidbody2D&& rhs) noexcept = default;
+
+    Vector2F Rigidbody2D::GetVelocity() const
+    {
+        return impl->GetVelocity();
+    }
+
+    void Rigidbody2D::SetVelocity(const Vector2F& value)
+    {
+        return impl->SetVelocity(value);
+    }
+
+    float Rigidbody2D::GetAngularVelocity() const
+    {
+        return impl->GetAngularVelocity();
+    }
+
+    void Rigidbody2D::SetAngularVelocity(const float value)
+    {
+        return impl->SetAngularVelocity(value);
+    }
 
     void Rigidbody2D::AddForce(const Vector2F& force)
     {
