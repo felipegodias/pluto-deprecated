@@ -14,8 +14,8 @@ namespace pluto
     public:
         ~Impl() override = default;
 
-        explicit Impl(b2Fixture& fixture)
-            : Physics2DShape::Impl(fixture)
+        explicit Impl(std::unique_ptr<Guid> colliderId, b2Fixture& fixture)
+            : Physics2DShape::Impl(std::move(colliderId), fixture)
         {
             ASSERT_THAT_IS_TRUE(fixture.GetType() == b2Shape::e_polygon);
         }
@@ -66,7 +66,7 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<Physics2DBoxShape> Physics2DBoxShape::Factory::Create(Physics2DBody& body,
+    std::unique_ptr<Physics2DBoxShape> Physics2DBoxShape::Factory::Create(Physics2DBody& body, const Guid& colliderId,
                                                                           const Vector2F& offset,
                                                                           const Vector2F& size) const
     {
@@ -75,14 +75,16 @@ namespace pluto
         shape.SetAsBox(size.x / 2, size.y / 2);
         shape.m_centroid.Set(offset.x, offset.y);
 
+        auto colliderIdPtr = std::make_unique<Guid>(colliderId);
         b2FixtureDef fixtureDef;
         fixtureDef.density = 1;
         fixtureDef.friction = 0.9f;
         fixtureDef.restitution = 0.1f;
         fixtureDef.shape = &shape;
+        fixtureDef.userData = colliderIdPtr.get();
 
         b2Fixture* fixture = nativeBody->CreateFixture(&fixtureDef);
-        return std::make_unique<Physics2DBoxShape>(std::make_unique<Impl>(*fixture));
+        return std::make_unique<Physics2DBoxShape>(std::make_unique<Impl>(std::move(colliderIdPtr), *fixture));
     }
 
     Physics2DBoxShape::~Physics2DBoxShape() = default;

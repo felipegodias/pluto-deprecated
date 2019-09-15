@@ -6,16 +6,18 @@
 
 namespace pluto
 {
+    class Guid;
     class Physics2DBody;
 
-    class PLUTO_API Physics2DBoxShape : public Physics2DShape
+    class PLUTO_API Physics2DBoxShape final : public Physics2DShape
     {
     public:
         class PLUTO_API Factory final : public BaseFactory
         {
         public:
             explicit Factory(ServiceCollection& serviceCollection);
-            std::unique_ptr<Physics2DBoxShape> Create(Physics2DBody& body, const Vector2F& offset,
+            std::unique_ptr<Physics2DBoxShape> Create(Physics2DBody& body, const Guid& colliderId,
+                                                      const Vector2F& offset,
                                                       const Vector2F& size) const;
         };
 

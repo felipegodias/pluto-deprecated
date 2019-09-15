@@ -3,6 +3,9 @@
 #include "pluto/physics_2d/shapes/physics_2d_circle_shape.h"
 #include "pluto/physics_2d/shapes/physics_2d_box_shape.h"
 
+#include "pluto/memory/resource.h"
+#include "pluto/scene/game_object.h"
+
 #include "pluto/service/service_collection.h"
 #include "pluto/math/math.h"
 #include "pluto/math/vector2f.h"
@@ -135,14 +138,16 @@ namespace pluto
             body->ApplyTorque(torque, true);
         }
 
-        std::unique_ptr<Physics2DCircleShape> CreateCircleShape(const Vector2F& offset, const float radius)
+        std::unique_ptr<Physics2DCircleShape> CreateCircleShape(const Guid& colliderId, const Vector2F& offset,
+                                                                const float radius)
         {
-            return circleShapeFactory->Create(*instance, offset, radius);
+            return circleShapeFactory->Create(*instance, colliderId, offset, radius);
         }
 
-        std::unique_ptr<Physics2DBoxShape> CreateBoxShape(const Vector2F& offset, const Vector2F& size)
+        std::unique_ptr<Physics2DBoxShape> CreateBoxShape(const Guid& colliderId, const Vector2F& offset,
+                                                          const Vector2F& size)
         {
-            return boxShapeFactory->Create(*instance, offset, size);
+            return boxShapeFactory->Create(*instance, colliderId, offset, size);
         }
 
         void* GetNativeBody() const
@@ -156,7 +161,8 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<Physics2DBody> Physics2DBody::Factory::Create(const Vector2F& position, const float angle) const
+    std::unique_ptr<Physics2DBody> Physics2DBody::Factory::Create(Resource<GameObject> gameObject,
+                                                                  const Vector2F& position, const float angle) const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& physics2DManager = serviceCollection.GetService<Physics2DManager>();
@@ -166,6 +172,7 @@ namespace pluto
         b2BodyDef bodyDef;
         bodyDef.position = {position.x, position.y};
         bodyDef.angle = angle;
+        bodyDef.userData = gameObject.Get();
 
         auto* world = reinterpret_cast<b2World*>(physics2DManager.GetWorld());
         b2Body* body = world->CreateBody(&bodyDef);
@@ -252,14 +259,16 @@ namespace pluto
         impl->AddTorque(torque);
     }
 
-    std::unique_ptr<Physics2DCircleShape> Physics2DBody::CreateCircleShape(const Vector2F& offset, const float radius)
+    std::unique_ptr<Physics2DCircleShape> Physics2DBody::CreateCircleShape(
+        const Guid& colliderId, const Vector2F& offset, const float radius)
     {
-        return impl->CreateCircleShape(offset, radius);
+        return impl->CreateCircleShape(colliderId, offset, radius);
     }
 
-    std::unique_ptr<Physics2DBoxShape> Physics2DBody::CreateBoxShape(const Vector2F& offset, const Vector2F& size)
+    std::unique_ptr<Physics2DBoxShape> Physics2DBody::CreateBoxShape(const Guid& colliderId, const Vector2F& offset,
+                                                                     const Vector2F& size)
     {
-        return impl->CreateBoxShape(offset, size);
+        return impl->CreateBoxShape(colliderId, offset, size);
     }
 
     void* Physics2DBody::GetNativeBody() const

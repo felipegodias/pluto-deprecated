@@ -40,9 +40,10 @@ namespace pluto
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& physics2DManager = serviceCollection.GetService<Physics2DManager>();
         std::shared_ptr<Physics2DBody> body = physics2DManager.GetOrCreateBody(gameObject);
-        std::unique_ptr<Physics2DCircleShape> shape = body->CreateCircleShape(Vector2F::ZERO, 1);
+        Guid colliderId = Guid::New();
+        std::unique_ptr<Physics2DCircleShape> shape = body->CreateCircleShape(colliderId, Vector2F::ZERO, 1);
         return std::make_unique<CircleCollider2D>(
-            std::make_unique<Impl>(Guid::New(), gameObject, std::move(shape), body));
+            std::make_unique<Impl>(colliderId, gameObject, std::move(shape), body));
     }
 
     CircleCollider2D::~CircleCollider2D() = default;

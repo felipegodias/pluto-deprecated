@@ -17,6 +17,8 @@ namespace pluto
     class Transform;
     class Component;
 
+    class Collision2D;
+
     class PLUTO_API GameObject final : public Object
     {
     public:
@@ -88,6 +90,9 @@ namespace pluto
         void OnEarlyFixedUpdate();
         void OnFixedUpdate();
         void OnLateFixedUpdate();
+
+        void OnCollision2DBegin(const Collision2D& collision);
+        void OnCollision2DEnd(const Collision2D& collision);
 
         void OnEarlyUpdate();
         void OnUpdate();

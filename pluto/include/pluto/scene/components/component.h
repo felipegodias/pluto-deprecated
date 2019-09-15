@@ -12,6 +12,7 @@ namespace pluto
 
     class Guid;
     class GameObject;
+    class Collision2D;
 
     class PLUTO_API Component : public Object
     {
@@ -47,6 +48,9 @@ namespace pluto
         virtual void OnEarlyFixedUpdate();
         virtual void OnFixedUpdate();
         virtual void OnLateFixedUpdate();
+
+        virtual void OnCollision2DBegin(const Collision2D& collision);
+        virtual void OnCollision2DEnd(const Collision2D& collision);
 
         virtual void OnEarlyUpdate();
         virtual void OnUpdate();

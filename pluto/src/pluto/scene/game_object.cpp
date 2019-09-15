@@ -191,6 +191,16 @@ namespace pluto
             EvaluateComponents(&Component::OnLateFixedUpdate);
         }
 
+        void OnCollision2DBegin(const Collision2D& collision)
+        {
+            EvaluateComponents(&Component::OnCollision2DBegin, collision);
+        }
+
+        void OnCollision2DEnd(const Collision2D& collision)
+        {
+            EvaluateComponents(&Component::OnCollision2DEnd, collision);
+        }
+
         void OnEarlyUpdate()
         {
             EvaluateComponents(&Component::OnEarlyUpdate);
@@ -222,9 +232,11 @@ namespace pluto
         }
 
     private:
-        typedef void (Component::* ComponentFunction)();
+        template <typename ... Args>
+        using ComponentFunction = void(Component::*)(Args ...);
 
-        void EvaluateComponents(ComponentFunction&& function)
+        template <typename ... Args>
+        void EvaluateComponents(ComponentFunction<Args...>&& function, Args&& ... args)
         {
             if (isDestroyed)
             {
@@ -234,7 +246,7 @@ namespace pluto
             for (auto& component : components)
             {
                 Component* ptr = component.Get();
-                (*ptr.*function)();
+                (*ptr.*function)(std::forward<Args>(args)...);
             }
         }
     };
@@ -340,6 +352,16 @@ namespace pluto
     void GameObject::OnLateFixedUpdate()
     {
         impl->OnLateFixedUpdate();
+    }
+
+    void GameObject::OnCollision2DBegin(const Collision2D& collision)
+    {
+        impl->OnCollision2DBegin(collision);
+    }
+
+    void GameObject::OnCollision2DEnd(const Collision2D& collision)
+    {
+        impl->OnCollision2DEnd(collision);
     }
 
     void GameObject::OnEarlyUpdate()

@@ -55,6 +55,14 @@ namespace pluto
     {
     }
 
+    void Component::OnCollision2DBegin(const Collision2D& collision)
+    {
+    }
+
+    void Component::OnCollision2DEnd(const Collision2D& collision)
+    {
+    }
+
     void Component::OnEarlyUpdate()
     {
     }

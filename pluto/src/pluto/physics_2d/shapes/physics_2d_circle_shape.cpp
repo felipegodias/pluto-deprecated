@@ -14,8 +14,8 @@ namespace pluto
     public:
         ~Impl() override = default;
 
-        explicit Impl(b2Fixture& fixture)
-            : Physics2DShape::Impl(fixture)
+        explicit Impl(std::unique_ptr<Guid> colliderId, b2Fixture& fixture)
+            : Physics2DShape::Impl(std::move(colliderId), fixture)
         {
             ASSERT_THAT_IS_TRUE(fixture.GetType() == b2Shape::e_circle);
         }
@@ -64,22 +64,26 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<Physics2DCircleShape> Physics2DCircleShape::Factory::Create(Physics2DBody& body,
-                                                                                const Vector2F& offset,
-                                                                                const float radius) const
+    std::unique_ptr<Physics2DCircleShape> Physics2DCircleShape::Factory::Create(
+        Physics2DBody& body, const Guid& colliderId,
+        const Vector2F& offset,
+        const float radius) const
     {
         auto* nativeBody = reinterpret_cast<b2Body*>(body.GetNativeBody());
         b2CircleShape shape;
         shape.m_p.Set(offset.x, offset.y);
         shape.m_radius = radius;
-        
+
+        auto colliderIdPtr = std::make_unique<Guid>(colliderId);
         b2FixtureDef fixtureDef;
         fixtureDef.density = 1;
         fixtureDef.friction = 0.9f;
         fixtureDef.restitution = 1;
         fixtureDef.shape = &shape;
+        fixtureDef.userData = colliderIdPtr.get();
+
         b2Fixture* fixture = nativeBody->CreateFixture(&fixtureDef);
-        return std::make_unique<Physics2DCircleShape>(std::make_unique<Impl>(*fixture));
+        return std::make_unique<Physics2DCircleShape>(std::make_unique<Impl>(std::move(colliderIdPtr), *fixture));
     }
 
     Physics2DCircleShape::~Physics2DCircleShape() = default;
