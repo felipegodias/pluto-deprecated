@@ -9,12 +9,14 @@
 #include "pluto/physics_2d/events/on_late_fixed_update_event.h"
 #include "pluto/physics_2d/events/on_fixed_update_event.h"
 
+#include "pluto/scene/events/on_early_update_event.h"
+#include "pluto/scene/events/on_late_update_event.h"
+#include "pluto/scene/events/on_update_event.h"
+
 #include "pluto/render/events/on_post_render_event.h"
 #include "pluto/render/events/on_pre_render_event.h"
 #include "pluto/render/events/on_render_event.h"
 
-#include <pluto/input/input_manager.h>
-#include <pluto/scene/scene_manager.h>
 #include <pluto/service/service_collection.h>
 #include <GLFW/glfw3.h>
 
@@ -30,9 +32,6 @@ namespace pluto
         LogManager* logManager;
         EventManager* eventManager;
 
-        InputManager* inputManager;
-        SceneManager* sceneManager;
-
         float lastTime;
         float deltaTime;
 
@@ -44,11 +43,9 @@ namespace pluto
             logManager->LogInfo("SimulationManager terminated!");
         }
 
-        Impl(LogManager& logManager, EventManager& eventManager, InputManager& inputManager, SceneManager& sceneManager)
+        Impl(LogManager& logManager, EventManager& eventManager)
             : logManager(&logManager),
               eventManager(&eventManager),
-              inputManager(&inputManager),
-              sceneManager(&sceneManager),
               lastTime(0),
               deltaTime(0),
               lastFixedTime(0)
@@ -83,14 +80,6 @@ namespace pluto
                 eventManager->Dispatch<OnMainLoopBeginEvent>();
             }
 
-            if (shouldCallUpdate)
-            {
-                lastTime = time - (deltaTime - maxPeriod);
-
-                inputManager->MainLoop();
-                sceneManager->MainLoop();
-            }
-
             if (shouldCallFixedUpdate)
             {
                 const int stepCount = floor(fixedDeltaTime / maxFixedPeriod);
@@ -105,6 +94,11 @@ namespace pluto
 
             if (shouldCallUpdate)
             {
+                lastTime = time - (deltaTime - maxPeriod);
+
+                eventManager->Dispatch<OnEarlyUpdateEvent>();
+                eventManager->Dispatch<OnUpdateEvent>();
+                eventManager->Dispatch<OnLateUpdateEvent>();
                 eventManager->Dispatch<OnPreRenderEvent>();
                 eventManager->Dispatch<OnRenderEvent>();
                 eventManager->Dispatch<OnPostRenderEvent>();
@@ -128,11 +122,7 @@ namespace pluto
         auto& logManager = serviceCollection.GetService<LogManager>();
         auto& eventManager = serviceCollection.GetService<EventManager>();
 
-        auto& inputManager = serviceCollection.GetService<InputManager>();
-        auto& sceneManager = serviceCollection.GetService<SceneManager>();
-
-        return std::make_unique<SimulationManager>(
-            std::make_unique<Impl>(logManager, eventManager, inputManager, sceneManager));
+        return std::make_unique<SimulationManager>(std::make_unique<Impl>(logManager, eventManager));
     }
 
     SimulationManager::SimulationManager(std::unique_ptr<Impl> impl)

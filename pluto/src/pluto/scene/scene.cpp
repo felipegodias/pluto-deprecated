@@ -62,14 +62,6 @@ namespace pluto
             gameObjects.front()->Destroy();
         }
 
-        void OnUpdate()
-        {
-            for (auto& gameObject : gameObjects)
-            {
-                gameObject->OnUpdate();
-            }
-        }
-
         void OnEarlyFixedUpdate()
         {
             for (auto& gameObject : gameObjects)
@@ -91,6 +83,30 @@ namespace pluto
             for (auto& gameObject : gameObjects)
             {
                 gameObject->OnLatePhysicsUpdate();
+            }
+        }
+
+        void OnEarlyUpdate()
+        {
+            for (auto& gameObject : gameObjects)
+            {
+                gameObject->OnEarlyUpdate();
+            }
+        }
+
+        void OnUpdate()
+        {
+            for (auto& gameObject : gameObjects)
+            {
+                gameObject->OnUpdate();
+            }
+        }
+
+        void OnLateUpdate()
+        {
+            for (auto& gameObject : gameObjects)
+            {
+                gameObject->OnLateUpdate();
             }
         }
 
@@ -209,11 +225,6 @@ namespace pluto
         impl->Destroy();
     }
 
-    void Scene::OnUpdate()
-    {
-        impl->OnUpdate();
-    }
-
     void Scene::OnEarlyFixedUpdate()
     {
         impl->OnEarlyFixedUpdate();
@@ -227,6 +238,21 @@ namespace pluto
     void Scene::OnLateFixedUpdate()
     {
         impl->OnLateFixedUpdate();
+    }
+
+    void Scene::OnEarlyUpdate()
+    {
+        impl->OnEarlyUpdate();
+    }
+
+    void Scene::OnUpdate()
+    {
+        impl->OnUpdate();
+    }
+
+    void Scene::OnLateUpdate()
+    {
+        impl->OnLateUpdate();
     }
 
     void Scene::OnPreRender()

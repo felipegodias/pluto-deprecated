@@ -1,10 +1,15 @@
-#include <pluto/input/input_manager.h>
-#include <pluto/input/key_code.h>
-#include <pluto/log/log_manager.h>
-#include <pluto/window/window_manager.h>
-#include <pluto/service/service_collection.h>
+#include "pluto/input/input_manager.h"
 
-#include <pluto/math/vector2f.h>
+#include "pluto/input/key_code.h"
+#include "pluto/log/log_manager.h"
+#include "pluto/window/window_manager.h"
+#include "pluto/event/event_manager.h"
+#include "pluto/service/service_collection.h"
+
+#include "pluto/simulation/events/on_main_loop_begin.h"
+
+#include "pluto/guid.h"
+#include "pluto/math/vector2f.h"
 
 #include <unordered_set>
 #include <GLFW/glfw3.h>
@@ -13,8 +18,6 @@ namespace pluto
 {
     class InputManager::Impl
     {
-        LogManager& logManager;
-
         std::unordered_set<KeyCode> keys;
         std::unordered_set<KeyCode> keysDown;
         std::unordered_set<KeyCode> keysUp;
@@ -24,14 +27,29 @@ namespace pluto
         double mouseScrollDeltaX;
         double mouseScrollDeltaY;
 
+        Guid onMainLoopBeginEventListenerId;
+
+        LogManager* logManager;
+        EventManager* eventManager;
+
     public:
-        Impl(LogManager& logManager, GLFWwindow* window)
-            : logManager(logManager),
-              mousePositionX(0),
+        ~Impl()
+        {
+            eventManager->Unsubscribe<OnMainLoopBeginEvent>(onMainLoopBeginEventListenerId);
+            logManager->LogInfo("InputManager terminated!");
+        }
+
+        Impl(LogManager& logManager, EventManager& eventManager, GLFWwindow* window)
+            : mousePositionX(0),
               mousePositionY(0),
               mouseScrollDeltaX(0),
-              mouseScrollDeltaY(0)
+              mouseScrollDeltaY(0),
+              logManager(&logManager),
+              eventManager(&eventManager)
         {
+            onMainLoopBeginEventListenerId = eventManager.Subscribe<OnMainLoopBeginEvent>(
+                std::bind(&Impl::OnMainLoopBegin, this, std::placeholders::_1));
+
             static Impl* instance = this;
 
             glfwSetKeyCallback(window, [](GLFWwindow* window, const int key, const int scanCode, const int action,
@@ -60,11 +78,6 @@ namespace pluto
             });
 
             logManager.LogInfo("InputManager initialized!");
-        }
-
-        ~Impl()
-        {
-            logManager.LogInfo("InputManager terminated!");
         }
 
         bool AnyKey() const
@@ -102,7 +115,7 @@ namespace pluto
             return Vector2F(static_cast<float>(mouseScrollDeltaX), static_cast<float>(mouseScrollDeltaY));
         }
 
-        void MainLoop()
+        void OnMainLoopBegin(const OnMainLoopBeginEvent& evt)
         {
             mouseScrollDeltaX = 0;
             mouseScrollDeltaY = 0;
@@ -153,9 +166,10 @@ namespace pluto
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& logManager = serviceCollection.GetService<LogManager>();
+        auto& eventManager = serviceCollection.GetService<EventManager>();
         auto& windowManager = serviceCollection.GetService<WindowManager>();
         auto window = static_cast<GLFWwindow*>(windowManager.GetNativeWindow());
-        return std::make_unique<InputManager>(std::make_unique<Impl>(logManager, window));
+        return std::make_unique<InputManager>(std::make_unique<Impl>(logManager, eventManager, window));
     }
 
     InputManager::InputManager(std::unique_ptr<Impl> impl)
@@ -198,10 +212,5 @@ namespace pluto
     Vector2F InputManager::GetMouseScrollDelta() const
     {
         return impl->GetMouseScrollDelta();
-    }
-
-    void InputManager::MainLoop()
-    {
-        impl->MainLoop();
     }
 }

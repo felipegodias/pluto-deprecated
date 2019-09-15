@@ -36,7 +36,5 @@ namespace pluto
         Scene& GetActiveScene() const;
 
         void LoadEmptyScene();
-
-        void MainLoop();
     };
 }

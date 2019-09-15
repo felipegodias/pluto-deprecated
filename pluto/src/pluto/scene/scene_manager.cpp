@@ -12,6 +12,10 @@
 #include "pluto/physics_2d/events/on_fixed_update_event.h"
 #include "pluto/physics_2d/events/on_late_fixed_update_event.h"
 
+#include "pluto/scene/events/on_early_update_event.h"
+#include "pluto/scene/events/on_update_event.h"
+#include "pluto/scene/events/on_late_update_event.h"
+
 #include "pluto/render/events/on_render_event.h"
 #include "pluto/render/events/on_post_render_event.h"
 #include "pluto/render/events/on_pre_render_event.h"
@@ -30,6 +34,9 @@ namespace pluto
         Guid onEarlyFixedUpdateEventListenerId;
         Guid onFixedUpdateEventListenerId;
         Guid onLateFixedUpdateEventListenerId;
+        Guid onEarlyUpdateEventListenerId;
+        Guid onUpdateEventListenerId;
+        Guid onLateUpdateEventListenerId;
         Guid onPreRenderEventListenerId;
         Guid onRenderEventListenerId;
         Guid onPostRenderEventListenerId;
@@ -47,6 +54,9 @@ namespace pluto
             eventManager.Unsubscribe<OnEarlyFixedUpdateEvent>(onEarlyFixedUpdateEventListenerId);
             eventManager.Unsubscribe<OnFixedUpdateEvent>(onFixedUpdateEventListenerId);
             eventManager.Unsubscribe<OnLateFixedUpdateEvent>(onLateFixedUpdateEventListenerId);
+            eventManager.Unsubscribe<OnEarlyUpdateEvent>(onEarlyUpdateEventListenerId);
+            eventManager.Unsubscribe<OnUpdateEvent>(onUpdateEventListenerId);
+            eventManager.Unsubscribe<OnLateUpdateEvent>(onLateUpdateEventListenerId);
             eventManager.Unsubscribe<OnPreRenderEvent>(onPreRenderEventListenerId);
             eventManager.Unsubscribe<OnRenderEvent>(onRenderEventListenerId);
             eventManager.Unsubscribe<OnPostRenderEvent>(onPostRenderEventListenerId);
@@ -70,6 +80,15 @@ namespace pluto
 
             onLateFixedUpdateEventListenerId = eventManager.Subscribe<OnLateFixedUpdateEvent>(
                 std::bind(&Impl::OnLateFixedUpdate, this, std::placeholders::_1));
+
+            onEarlyUpdateEventListenerId = eventManager.Subscribe<OnEarlyUpdateEvent>(
+                std::bind(&Impl::OnEarlyUpdate, this, std::placeholders::_1));
+
+            onUpdateEventListenerId = eventManager.Subscribe<OnUpdateEvent>(
+                std::bind(&Impl::OnUpdate, this, std::placeholders::_1));
+
+            onLateUpdateEventListenerId = eventManager.Subscribe<OnLateUpdateEvent>(
+                std::bind(&Impl::OnLateUpdate, this, std::placeholders::_1));
 
             onPreRenderEventListenerId = eventManager.Subscribe<OnPreRenderEvent>(
                 std::bind(&Impl::OnPreRender, this, std::placeholders::_1));
@@ -101,14 +120,7 @@ namespace pluto
             activeScene = sceneFactory.Create();
         }
 
-        void MainLoop()
-        {
-            if (activeScene != nullptr)
-            {
-                activeScene->OnUpdate();
-            }
-        }
-
+    private:
         void OnEarlyFixedUpdate(const OnEarlyFixedUpdateEvent& evt)
         {
             if (activeScene != nullptr)
@@ -130,6 +142,30 @@ namespace pluto
             if (activeScene != nullptr)
             {
                 activeScene->OnLateFixedUpdate();
+            }
+        }
+
+        void OnEarlyUpdate(const OnEarlyUpdateEvent& evt)
+        {
+            if (activeScene != nullptr)
+            {
+                activeScene->OnEarlyUpdate();
+            }
+        }
+
+        void OnUpdate(const OnUpdateEvent& evt)
+        {
+            if (activeScene != nullptr)
+            {
+                activeScene->OnUpdate();
+            }
+        }
+
+        void OnLateUpdate(const OnLateUpdateEvent& evt)
+        {
+            if (activeScene != nullptr)
+            {
+                activeScene->OnLateUpdate();
             }
         }
 
@@ -213,10 +249,5 @@ namespace pluto
     void SceneManager::LoadEmptyScene()
     {
         return impl->LoadEmptyScene();
-    }
-
-    void SceneManager::MainLoop()
-    {
-        impl->MainLoop();
     }
 }

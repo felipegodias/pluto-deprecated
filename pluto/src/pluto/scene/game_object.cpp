@@ -176,85 +176,55 @@ namespace pluto
             }
         }
 
-        void OnUpdate()
-        {
-            if (isDestroyed)
-            {
-                return;
-            }
-
-            for (auto& component : components)
-            {
-                component->OnUpdate();
-            }
-        }
-
         void OnEarlyPhysicsUpdate()
         {
-            if (isDestroyed)
-            {
-                return;
-            }
-
-            for (auto& component : components)
-            {
-                component->OnEarlyPhysicsUpdate();
-            }
+            EvaluateComponents(&Component::OnEarlyPhysicsUpdate);
         }
 
         void OnPhysicsUpdate()
         {
-            if (isDestroyed)
-            {
-                return;
-            }
-
-            for (auto& component : components)
-            {
-                component->OnPhysicsUpdate();
-            }
+            EvaluateComponents(&Component::OnPhysicsUpdate);
         }
 
         void OnLatePhysicsUpdate()
         {
-            if (isDestroyed)
-            {
-                return;
-            }
+            EvaluateComponents(&Component::OnLatePhysicsUpdate);
+        }
 
-            for (auto& component : components)
-            {
-                component->OnLatePhysicsUpdate();
-            }
+        void OnEarlyUpdate()
+        {
+            EvaluateComponents(&Component::OnEarlyUpdate);
+        }
+
+        void OnUpdate()
+        {
+            EvaluateComponents(&Component::OnUpdate);
+        }
+
+        void OnLateUpdate()
+        {
+            EvaluateComponents(&Component::OnLateUpdate);
         }
 
         void OnPreRender()
         {
-            if (isDestroyed)
-            {
-                return;
-            }
-
-            for (auto& component : components)
-            {
-                component->OnPreRender();
-            }
+            EvaluateComponents(&Component::OnPreRender);
         }
 
         void OnRender()
         {
-            if (isDestroyed)
-            {
-                return;
-            }
-
-            for (auto& component : components)
-            {
-                component->OnRender();
-            }
+            EvaluateComponents(&Component::OnRender);
         }
 
         void OnPostRender()
+        {
+            EvaluateComponents(&Component::OnPostRender);
+        }
+
+    private:
+        typedef void (Component::* ComponentFunction)();
+
+        void EvaluateComponents(ComponentFunction&& function)
         {
             if (isDestroyed)
             {
@@ -263,7 +233,8 @@ namespace pluto
 
             for (auto& component : components)
             {
-                component->OnPostRender();
+                Component* ptr = component.Get();
+                (*ptr.*function)();
             }
         }
     };
@@ -356,11 +327,6 @@ namespace pluto
         impl->Destroy();
     }
 
-    void GameObject::OnUpdate()
-    {
-        impl->OnUpdate();
-    }
-
     void GameObject::OnEarlyPhysicsUpdate()
     {
         impl->OnEarlyPhysicsUpdate();
@@ -374,6 +340,21 @@ namespace pluto
     void GameObject::OnLatePhysicsUpdate()
     {
         impl->OnLatePhysicsUpdate();
+    }
+
+    void GameObject::OnEarlyUpdate()
+    {
+        impl->OnEarlyUpdate();
+    }
+
+    void GameObject::OnUpdate()
+    {
+        impl->OnUpdate();
+    }
+
+    void GameObject::OnLateUpdate()
+    {
+        impl->OnLateUpdate();
     }
 
     void GameObject::OnPreRender()
