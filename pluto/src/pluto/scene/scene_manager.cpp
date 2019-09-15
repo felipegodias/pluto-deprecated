@@ -28,9 +28,6 @@ namespace pluto
     {
         std::unique_ptr<Scene> activeScene;
 
-        const Scene::Factory& sceneFactory;
-        const GameObject::Factory& gameObjectFactory;
-
         Guid onEarlyFixedUpdateEventListenerId;
         Guid onFixedUpdateEventListenerId;
         Guid onLateFixedUpdateEventListenerId;
@@ -42,8 +39,9 @@ namespace pluto
         Guid onPostRenderEventListenerId;
         Guid onMainLoopEndEventListenerId;
 
-        EventManager& eventManager;
-        LogManager& logManager;
+        const Scene::Factory* sceneFactory;
+        EventManager* eventManager;
+        LogManager* logManager;
 
     public:
         ~Impl()
@@ -51,56 +49,44 @@ namespace pluto
             activeScene->Destroy();
             activeScene->Cleanup();
 
-            eventManager.Unsubscribe<OnEarlyFixedUpdateEvent>(onEarlyFixedUpdateEventListenerId);
-            eventManager.Unsubscribe<OnFixedUpdateEvent>(onFixedUpdateEventListenerId);
-            eventManager.Unsubscribe<OnLateFixedUpdateEvent>(onLateFixedUpdateEventListenerId);
-            eventManager.Unsubscribe<OnEarlyUpdateEvent>(onEarlyUpdateEventListenerId);
-            eventManager.Unsubscribe<OnUpdateEvent>(onUpdateEventListenerId);
-            eventManager.Unsubscribe<OnLateUpdateEvent>(onLateUpdateEventListenerId);
-            eventManager.Unsubscribe<OnPreRenderEvent>(onPreRenderEventListenerId);
-            eventManager.Unsubscribe<OnRenderEvent>(onRenderEventListenerId);
-            eventManager.Unsubscribe<OnPostRenderEvent>(onPostRenderEventListenerId);
-            eventManager.Unsubscribe<OnMainLoopEndEvent>(onMainLoopEndEventListenerId);
+            eventManager->Unsubscribe<OnEarlyFixedUpdateEvent>(onEarlyFixedUpdateEventListenerId);
+            eventManager->Unsubscribe<OnFixedUpdateEvent>(onFixedUpdateEventListenerId);
+            eventManager->Unsubscribe<OnLateFixedUpdateEvent>(onLateFixedUpdateEventListenerId);
+            eventManager->Unsubscribe<OnEarlyUpdateEvent>(onEarlyUpdateEventListenerId);
+            eventManager->Unsubscribe<OnUpdateEvent>(onUpdateEventListenerId);
+            eventManager->Unsubscribe<OnLateUpdateEvent>(onLateUpdateEventListenerId);
+            eventManager->Unsubscribe<OnPreRenderEvent>(onPreRenderEventListenerId);
+            eventManager->Unsubscribe<OnRenderEvent>(onRenderEventListenerId);
+            eventManager->Unsubscribe<OnPostRenderEvent>(onPostRenderEventListenerId);
+            eventManager->Unsubscribe<OnMainLoopEndEvent>(onMainLoopEndEventListenerId);
 
-            logManager.LogInfo("SceneManager terminated!");
+            logManager->LogInfo("SceneManager terminated!");
         }
 
-        Impl(const Scene::Factory& sceneFactory, const GameObject::Factory& gameObjectFactory,
-             EventManager& eventManager, LogManager& logManager)
-            : sceneFactory(sceneFactory),
-              gameObjectFactory(gameObjectFactory),
-              eventManager(eventManager),
-              logManager(logManager)
+        Impl(const Scene::Factory& sceneFactory, EventManager& eventManager, LogManager& logManager)
+            : sceneFactory(&sceneFactory),
+              eventManager(&eventManager),
+              logManager(&logManager)
         {
-            onEarlyFixedUpdateEventListenerId = eventManager.Subscribe<OnEarlyFixedUpdateEvent>(
-                std::bind(&Impl::OnEarlyFixedUpdate, this, std::placeholders::_1));
+            onEarlyFixedUpdateEventListenerId = eventManager.Subscribe(*this, &Impl::OnEarlyFixedUpdate);
 
-            onFixedUpdateEventListenerId = eventManager.Subscribe<OnFixedUpdateEvent>(
-                std::bind(&Impl::OnFixedUpdate, this, std::placeholders::_1));
+            onFixedUpdateEventListenerId = eventManager.Subscribe(*this, &Impl::OnFixedUpdate);
 
-            onLateFixedUpdateEventListenerId = eventManager.Subscribe<OnLateFixedUpdateEvent>(
-                std::bind(&Impl::OnLateFixedUpdate, this, std::placeholders::_1));
+            onLateFixedUpdateEventListenerId = eventManager.Subscribe(*this, &Impl::OnLateFixedUpdate);
 
-            onEarlyUpdateEventListenerId = eventManager.Subscribe<OnEarlyUpdateEvent>(
-                std::bind(&Impl::OnEarlyUpdate, this, std::placeholders::_1));
+            onEarlyUpdateEventListenerId = eventManager.Subscribe(*this, &Impl::OnEarlyUpdate);
 
-            onUpdateEventListenerId = eventManager.Subscribe<OnUpdateEvent>(
-                std::bind(&Impl::OnUpdate, this, std::placeholders::_1));
+            onUpdateEventListenerId = eventManager.Subscribe(*this, &Impl::OnUpdate);
 
-            onLateUpdateEventListenerId = eventManager.Subscribe<OnLateUpdateEvent>(
-                std::bind(&Impl::OnLateUpdate, this, std::placeholders::_1));
+            onLateUpdateEventListenerId = eventManager.Subscribe(*this, &Impl::OnLateUpdate);
 
-            onPreRenderEventListenerId = eventManager.Subscribe<OnPreRenderEvent>(
-                std::bind(&Impl::OnPreRender, this, std::placeholders::_1));
+            onPreRenderEventListenerId = eventManager.Subscribe(*this, &Impl::OnPreRender);
 
-            onRenderEventListenerId = eventManager.Subscribe<OnRenderEvent>(
-                std::bind(&Impl::OnRender, this, std::placeholders::_1));
+            onRenderEventListenerId = eventManager.Subscribe(*this, &Impl::OnRender);
 
-            onPostRenderEventListenerId = eventManager.Subscribe<OnPostRenderEvent>(
-                std::bind(&Impl::OnPostRender, this, std::placeholders::_1));
+            onPostRenderEventListenerId = eventManager.Subscribe(*this, &Impl::OnPostRender);
 
-            onMainLoopEndEventListenerId = eventManager.Subscribe<OnMainLoopEndEvent>(
-                std::bind(&Impl::OnMainLoopEnd, this, std::placeholders::_1));
+            onMainLoopEndEventListenerId = eventManager.Subscribe(*this, &Impl::OnMainLoopEnd);
 
             logManager.LogInfo("SceneManager initialized!");
         }
@@ -117,7 +103,7 @@ namespace pluto
                 activeScene->Destroy();
             }
 
-            activeScene = sceneFactory.Create();
+            activeScene = sceneFactory->Create();
         }
 
     private:
@@ -211,11 +197,10 @@ namespace pluto
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         Scene::Factory& sceneFactory = serviceCollection.GetFactory<Scene>();
-        GameObject::Factory& gameObjectFactory = serviceCollection.GetFactory<GameObject>();
         auto& eventManager = serviceCollection.GetService<EventManager>();
         auto& logManager = serviceCollection.GetService<LogManager>();
         return std::make_unique<SceneManager>(
-            std::make_unique<Impl>(sceneFactory, gameObjectFactory, eventManager, logManager));
+            std::make_unique<Impl>(sceneFactory, eventManager, logManager));
     }
 
     SceneManager::SceneManager(std::unique_ptr<Impl> impl)
