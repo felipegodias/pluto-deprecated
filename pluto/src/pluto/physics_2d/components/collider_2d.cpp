@@ -29,4 +29,14 @@ namespace pluto
     {
         impl->SetOffset(value);
     }
+
+    void Collider2D::OnEarlyFixedUpdate()
+    {
+        impl->OnEarlyFixedUpdate();
+    }
+
+    void Collider2D::OnLateFixedUpdate()
+    {
+        impl->OnLateFixedUpdate();
+    }
 }

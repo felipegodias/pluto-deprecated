@@ -40,6 +40,7 @@ namespace pluto
         void AddForce(const Vector2F& force, const Vector2F& point);
         void AddTorque(float torque);
 
-        void OnUpdate() override;
+        void OnEarlyFixedUpdate() override;
+        void OnLateFixedUpdate() override;
     };
 }

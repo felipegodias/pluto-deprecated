@@ -8,6 +8,7 @@
 #include "pluto/scene/components/component.impl.hpp"
 #include "pluto/memory/resource.h"
 
+#include "pluto/math/math.h"
 #include "pluto/math/vector2f.h"
 #include "pluto/math/vector3f.h"
 #include "pluto/math/quaternion.h"
@@ -18,6 +19,9 @@ namespace pluto
 {
     class Rigidbody2D::Impl : public Component::Impl
     {
+        Vector2F lastPosition;
+        float lastAngle;
+
         Resource<Transform> transform;
         std::shared_ptr<Physics2DBody> body;
 
@@ -25,6 +29,8 @@ namespace pluto
         explicit Impl(const Guid& guid, const Resource<GameObject>& gameObject,
                       std::shared_ptr<Physics2DBody> body)
             : Component::Impl(guid, gameObject),
+              lastPosition(body->GetPosition()),
+              lastAngle(body->GetAngle()),
               transform(gameObject->GetTransform()),
               body(std::move(body))
         {
@@ -65,18 +71,37 @@ namespace pluto
             body->AddTorque(torque);
         }
 
-        void OnUpdate()
+        void OnEarlyFixedUpdate()
         {
-            const Vector2F bodyPosition = body->GetPosition();
-            const float bodyAngle = body->GetAngle();
+            const Vector3F transformPosition = transform->GetPosition();
+            const Vector2F position = {transformPosition.x, transformPosition.y};
+
+            if (Vector2F::Distance(lastPosition, position) > Math::EPSILON)
+            {
+                body->SetPosition(position);
+            }
+
+            const Vector3F transformEulerAngles = transform->GetRotation().GetEulerAngles();
+            const float angle = transformEulerAngles.z;
+            if (abs(angle - lastAngle) > Math::EPSILON)
+            {
+                body->SetAngle(angle);
+            }
+        }
+
+        void OnLateFixedUpdate()
+        {
+            lastPosition = body->GetPosition();
+            lastAngle = body->GetAngle();
 
             Vector3F transformPosition = transform->GetPosition();
-            transformPosition.x = bodyPosition.x;
-            transformPosition.y = bodyPosition.y;
+            transformPosition.x = lastPosition.x;
+            transformPosition.y = lastPosition.y;
+
             transform->SetPosition(transformPosition);
 
             Vector3F transformEulerAngles = transform->GetRotation().GetEulerAngles();
-            transformEulerAngles.z = bodyAngle;
+            transformEulerAngles.z = lastAngle;
             transform->SetRotation(Quaternion::Euler(transformEulerAngles));
         }
     };
@@ -142,8 +167,13 @@ namespace pluto
         impl->AddTorque(torque);
     }
 
-    void Rigidbody2D::OnUpdate()
+    void Rigidbody2D::OnEarlyFixedUpdate()
     {
-        impl->OnUpdate();
+        impl->OnEarlyFixedUpdate();
+    }
+
+    void Rigidbody2D::OnLateFixedUpdate()
+    {
+        impl->OnLateFixedUpdate();
     }
 }

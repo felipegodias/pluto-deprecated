@@ -26,5 +26,8 @@ namespace pluto
 
         Vector2F GetOffset() const;
         void SetOffset(const Vector2F& value);
+
+        void OnEarlyFixedUpdate() override;
+        void OnLateFixedUpdate() override;
     };
 }
