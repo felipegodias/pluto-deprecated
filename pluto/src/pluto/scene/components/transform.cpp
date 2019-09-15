@@ -115,7 +115,7 @@ namespace pluto
                 return localPosition;
             }
 
-            return Vector3F(GetWorldMatrix() * Vector4F(localPosition));
+            return Vector3F(GetParent()->GetWorldMatrix() * Vector4F(localPosition));
         }
 
         void SetPosition(const Vector3F& value)
@@ -126,7 +126,7 @@ namespace pluto
             }
             else
             {
-                localPosition = parent->GetWorldMatrix().GetInverse() * Vector4F(value);
+                localPosition = GetParent()->GetWorldMatrix().GetInverse() * Vector4F(value);
             }
             SetDirty();
         }
@@ -149,7 +149,7 @@ namespace pluto
             }
             else
             {
-                localRotation = parent->GetRotation().GetInverse() * value;
+                localRotation = GetParent()->GetRotation().GetInverse() * value;
             }
             SetDirty();
         }
