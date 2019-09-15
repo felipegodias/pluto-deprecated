@@ -43,15 +43,15 @@ namespace pluto
         return impl->GetGameObject();
     }
 
-    void Component::OnEarlyPhysicsUpdate()
+    void Component::OnEarlyFixedUpdate()
     {
     }
 
-    void Component::OnPhysicsUpdate()
+    void Component::OnFixedUpdate()
     {
     }
 
-    void Component::OnLatePhysicsUpdate()
+    void Component::OnLateFixedUpdate()
     {
     }
 

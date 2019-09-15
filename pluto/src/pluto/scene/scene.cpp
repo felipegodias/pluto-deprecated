@@ -66,7 +66,7 @@ namespace pluto
         {
             for (auto& gameObject : gameObjects)
             {
-                gameObject->OnEarlyPhysicsUpdate();
+                gameObject->OnEarlyFixedUpdate();
             }
         }
 
@@ -74,7 +74,7 @@ namespace pluto
         {
             for (auto& gameObject : gameObjects)
             {
-                gameObject->OnPhysicsUpdate();
+                gameObject->OnFixedUpdate();
             }
         }
 
@@ -82,7 +82,7 @@ namespace pluto
         {
             for (auto& gameObject : gameObjects)
             {
-                gameObject->OnLatePhysicsUpdate();
+                gameObject->OnLateFixedUpdate();
             }
         }
 

@@ -176,19 +176,19 @@ namespace pluto
             }
         }
 
-        void OnEarlyPhysicsUpdate()
+        void OnEarlyFixedUpdate()
         {
-            EvaluateComponents(&Component::OnEarlyPhysicsUpdate);
+            EvaluateComponents(&Component::OnEarlyFixedUpdate);
         }
 
-        void OnPhysicsUpdate()
+        void OnFixedUpdate()
         {
-            EvaluateComponents(&Component::OnPhysicsUpdate);
+            EvaluateComponents(&Component::OnFixedUpdate);
         }
 
-        void OnLatePhysicsUpdate()
+        void OnLateFixedUpdate()
         {
-            EvaluateComponents(&Component::OnLatePhysicsUpdate);
+            EvaluateComponents(&Component::OnLateFixedUpdate);
         }
 
         void OnEarlyUpdate()
@@ -327,19 +327,19 @@ namespace pluto
         impl->Destroy();
     }
 
-    void GameObject::OnEarlyPhysicsUpdate()
+    void GameObject::OnEarlyFixedUpdate()
     {
-        impl->OnEarlyPhysicsUpdate();
+        impl->OnEarlyFixedUpdate();
     }
 
-    void GameObject::OnPhysicsUpdate()
+    void GameObject::OnFixedUpdate()
     {
-        impl->OnPhysicsUpdate();
+        impl->OnFixedUpdate();
     }
 
-    void GameObject::OnLatePhysicsUpdate()
+    void GameObject::OnLateFixedUpdate()
     {
-        impl->OnLatePhysicsUpdate();
+        impl->OnLateFixedUpdate();
     }
 
     void GameObject::OnEarlyUpdate()

@@ -44,9 +44,9 @@ namespace pluto
 
         Resource<GameObject> GetGameObject() const;
 
-        virtual void OnEarlyPhysicsUpdate();
-        virtual void OnPhysicsUpdate();
-        virtual void OnLatePhysicsUpdate();
+        virtual void OnEarlyFixedUpdate();
+        virtual void OnFixedUpdate();
+        virtual void OnLateFixedUpdate();
 
         virtual void OnEarlyUpdate();
         virtual void OnUpdate();
