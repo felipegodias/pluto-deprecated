@@ -85,10 +85,15 @@ namespace pluto
 
         void Destroy();
 
-        void OnUpdate(uint32_t frame);
+        void OnUpdate();
 
+        void OnEarlyPhysicsUpdate();
         void OnPhysicsUpdate();
         void OnLatePhysicsUpdate();
+
+        void OnPreRender();
+        void OnRender();
+        void OnPostRender();
     };
 }
 

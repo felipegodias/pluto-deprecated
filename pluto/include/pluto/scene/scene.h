@@ -47,7 +47,17 @@ namespace pluto
         Resource<GameObject> CreateGameObject(const Resource<Transform>& parent, const std::string& name);
 
         void Destroy();
-        void OnUpdate(uint32_t currentFrame);
-        void OnCleanup();
+        
+        void OnUpdate();
+
+        void OnEarlyFixedUpdate();
+        void OnFixedUpdate();
+        void OnLateFixedUpdate();
+
+        void OnPreRender();
+        void OnRender();
+        void OnPostRender();
+
+        void Cleanup();
     };
 }

@@ -47,6 +47,30 @@ namespace pluto
     {
     }
 
+    void Component::OnEarlyPhysicsUpdate()
+    {
+    }
+
+    void Component::OnPhysicsUpdate()
+    {
+    }
+
+    void Component::OnLatePhysicsUpdate()
+    {
+    }
+
+    void Component::OnPreRender()
+    {
+    }
+
+    void Component::OnRender()
+    {
+    }
+
+    void Component::OnPostRender()
+    {
+    }
+
     void Component::OnDestroy()
     {
     }

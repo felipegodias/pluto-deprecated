@@ -24,7 +24,6 @@ namespace pluto
 
         std::vector<Resource<Component>> components;
 
-        uint32_t lastFrame;
         bool isDestroyed;
 
         MemoryManager* memoryManager;
@@ -35,7 +34,6 @@ namespace pluto
             : guid(guid),
               flags(Flags::None),
               transform(nullptr),
-              lastFrame(0),
               isDestroyed(false),
               memoryManager(&memoryManager),
               serviceCollection(&serviceCollection)
@@ -178,28 +176,94 @@ namespace pluto
             }
         }
 
-        void OnUpdate(const uint32_t currentFrame)
+        void OnUpdate()
         {
-            // Only run update if the object was not destroyed or already updated in the current frame.
-            if (isDestroyed || lastFrame >= currentFrame)
+            if (isDestroyed)
             {
                 return;
             }
 
-            lastFrame = currentFrame;
             for (auto& component : components)
             {
                 component->OnUpdate();
             }
+        }
 
-            if (!isDestroyed)
+        void OnEarlyPhysicsUpdate()
+        {
+            if (isDestroyed)
             {
-                // Uses a copy of the children because the parent can be changed while in update.
-                std::vector<Resource<Transform>> children = transform->GetChildren();
-                for (auto& it : children)
-                {
-                    it->GetGameObject()->OnUpdate(currentFrame);
-                }
+                return;
+            }
+
+            for (auto& component : components)
+            {
+                component->OnEarlyPhysicsUpdate();
+            }
+        }
+
+        void OnPhysicsUpdate()
+        {
+            if (isDestroyed)
+            {
+                return;
+            }
+
+            for (auto& component : components)
+            {
+                component->OnPhysicsUpdate();
+            }
+        }
+
+        void OnLatePhysicsUpdate()
+        {
+            if (isDestroyed)
+            {
+                return;
+            }
+
+            for (auto& component : components)
+            {
+                component->OnLatePhysicsUpdate();
+            }
+        }
+
+        void OnPreRender()
+        {
+            if (isDestroyed)
+            {
+                return;
+            }
+
+            for (auto& component : components)
+            {
+                component->OnPreRender();
+            }
+        }
+
+        void OnRender()
+        {
+            if (isDestroyed)
+            {
+                return;
+            }
+
+            for (auto& component : components)
+            {
+                component->OnRender();
+            }
+        }
+
+        void OnPostRender()
+        {
+            if (isDestroyed)
+            {
+                return;
+            }
+
+            for (auto& component : components)
+            {
+                component->OnPostRender();
             }
         }
     };
@@ -292,8 +356,38 @@ namespace pluto
         impl->Destroy();
     }
 
-    void GameObject::OnUpdate(const uint32_t currentFrame)
+    void GameObject::OnUpdate()
     {
-        impl->OnUpdate(currentFrame);
+        impl->OnUpdate();
+    }
+
+    void GameObject::OnEarlyPhysicsUpdate()
+    {
+        impl->OnEarlyPhysicsUpdate();
+    }
+
+    void GameObject::OnPhysicsUpdate()
+    {
+        impl->OnPhysicsUpdate();
+    }
+
+    void GameObject::OnLatePhysicsUpdate()
+    {
+        impl->OnLatePhysicsUpdate();
+    }
+
+    void GameObject::OnPreRender()
+    {
+        impl->OnPreRender();
+    }
+
+    void GameObject::OnRender()
+    {
+        impl->OnRender();
+    }
+
+    void GameObject::OnPostRender()
+    {
+        impl->OnPostRender();
     }
 }

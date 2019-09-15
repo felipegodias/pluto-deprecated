@@ -7,7 +7,16 @@
 #include <pluto/scene/game_object.h>
 
 #include <pluto/service/service_collection.h>
-#include <pluto/scene/game_object.h>
+
+#include "pluto/physics_2d/events/on_early_fixed_update_event.h"
+#include "pluto/physics_2d/events/on_fixed_update_event.h"
+#include "pluto/physics_2d/events/on_late_fixed_update_event.h"
+
+#include "pluto/render/events/on_render_event.h"
+#include "pluto/render/events/on_post_render_event.h"
+#include "pluto/render/events/on_pre_render_event.h"
+
+#include "pluto/simulation/events/on_main_loop_end.h"
 
 namespace pluto
 {
@@ -18,28 +27,63 @@ namespace pluto
         const Scene::Factory& sceneFactory;
         const GameObject::Factory& gameObjectFactory;
 
+        Guid onEarlyFixedUpdateEventListenerId;
+        Guid onFixedUpdateEventListenerId;
+        Guid onLateFixedUpdateEventListenerId;
+        Guid onPreRenderEventListenerId;
+        Guid onRenderEventListenerId;
+        Guid onPostRenderEventListenerId;
+        Guid onMainLoopEndEventListenerId;
+
         EventManager& eventManager;
         LogManager& logManager;
 
-        uint32_t currentFrame;
-
     public:
+        ~Impl()
+        {
+            activeScene->Destroy();
+            activeScene->Cleanup();
+
+            eventManager.Unsubscribe<OnEarlyFixedUpdateEvent>(onEarlyFixedUpdateEventListenerId);
+            eventManager.Unsubscribe<OnFixedUpdateEvent>(onFixedUpdateEventListenerId);
+            eventManager.Unsubscribe<OnLateFixedUpdateEvent>(onLateFixedUpdateEventListenerId);
+            eventManager.Unsubscribe<OnPreRenderEvent>(onPreRenderEventListenerId);
+            eventManager.Unsubscribe<OnRenderEvent>(onRenderEventListenerId);
+            eventManager.Unsubscribe<OnPostRenderEvent>(onPostRenderEventListenerId);
+            eventManager.Unsubscribe<OnMainLoopEndEvent>(onMainLoopEndEventListenerId);
+
+            logManager.LogInfo("SceneManager terminated!");
+        }
+
         Impl(const Scene::Factory& sceneFactory, const GameObject::Factory& gameObjectFactory,
              EventManager& eventManager, LogManager& logManager)
             : sceneFactory(sceneFactory),
               gameObjectFactory(gameObjectFactory),
               eventManager(eventManager),
-              logManager(logManager),
-              currentFrame(0)
+              logManager(logManager)
         {
-            logManager.LogInfo("SceneManager initialized!");
-        }
+            onEarlyFixedUpdateEventListenerId = eventManager.Subscribe<OnEarlyFixedUpdateEvent>(
+                std::bind(&Impl::OnEarlyFixedUpdate, this, std::placeholders::_1));
 
-        ~Impl()
-        {
-            activeScene->Destroy();
-            activeScene->OnCleanup();
-            logManager.LogInfo("SceneManager terminated!");
+            onFixedUpdateEventListenerId = eventManager.Subscribe<OnFixedUpdateEvent>(
+                std::bind(&Impl::OnFixedUpdate, this, std::placeholders::_1));
+
+            onLateFixedUpdateEventListenerId = eventManager.Subscribe<OnLateFixedUpdateEvent>(
+                std::bind(&Impl::OnLateFixedUpdate, this, std::placeholders::_1));
+
+            onPreRenderEventListenerId = eventManager.Subscribe<OnPreRenderEvent>(
+                std::bind(&Impl::OnPreRender, this, std::placeholders::_1));
+
+            onRenderEventListenerId = eventManager.Subscribe<OnRenderEvent>(
+                std::bind(&Impl::OnRender, this, std::placeholders::_1));
+
+            onPostRenderEventListenerId = eventManager.Subscribe<OnPostRenderEvent>(
+                std::bind(&Impl::OnPostRender, this, std::placeholders::_1));
+
+            onMainLoopEndEventListenerId = eventManager.Subscribe<OnMainLoopEndEvent>(
+                std::bind(&Impl::OnMainLoopEnd, this, std::placeholders::_1));
+
+            logManager.LogInfo("SceneManager initialized!");
         }
 
         Scene& GetActiveScene() const
@@ -59,19 +103,65 @@ namespace pluto
 
         void MainLoop()
         {
-            ++currentFrame;
             if (activeScene != nullptr)
             {
-                activeScene->OnUpdate(currentFrame);
+                activeScene->OnUpdate();
             }
         }
 
-    private:
-        void OnCleanup()
+        void OnEarlyFixedUpdate(const OnEarlyFixedUpdateEvent& evt)
         {
             if (activeScene != nullptr)
             {
-                activeScene->OnCleanup();
+                activeScene->OnEarlyFixedUpdate();
+            }
+        }
+
+        void OnFixedUpdate(const OnFixedUpdateEvent& evt)
+        {
+            if (activeScene != nullptr)
+            {
+                activeScene->OnFixedUpdate();
+            }
+        }
+
+        void OnLateFixedUpdate(const OnLateFixedUpdateEvent& evt)
+        {
+            if (activeScene != nullptr)
+            {
+                activeScene->OnLateFixedUpdate();
+            }
+        }
+
+        void OnPreRender(const OnPreRenderEvent& evt)
+        {
+            if (activeScene != nullptr)
+            {
+                activeScene->OnPreRender();
+            }
+        }
+
+        void OnRender(const OnRenderEvent& evt)
+        {
+            if (activeScene != nullptr)
+            {
+                activeScene->OnRender();
+            }
+        }
+
+        void OnPostRender(const OnPostRenderEvent& evt)
+        {
+            if (activeScene != nullptr)
+            {
+                activeScene->OnPostRender();
+            }
+        }
+
+        void OnMainLoopEnd(const OnMainLoopEndEvent& evt)
+        {
+            if (activeScene != nullptr)
+            {
+                activeScene->Cleanup();
             }
         }
     };

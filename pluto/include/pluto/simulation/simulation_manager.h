@@ -25,6 +25,6 @@ namespace pluto
         ~SimulationManager();
 
         float GetDeltaTime() const;
-        void Run();
+        void MainLoop();
     };
 }

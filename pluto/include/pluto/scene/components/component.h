@@ -45,6 +45,15 @@ namespace pluto
         Resource<GameObject> GetGameObject() const;
 
         virtual void OnUpdate();
+
+        virtual void OnEarlyPhysicsUpdate();
+        virtual void OnPhysicsUpdate();
+        virtual void OnLatePhysicsUpdate();
+
+        virtual void OnPreRender();
+        virtual void OnRender();
+        virtual void OnPostRender();
+
         virtual void OnDestroy();
     };
 }

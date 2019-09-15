@@ -5,6 +5,7 @@
 #include <pluto/guid.h>
 
 #include <pluto/service/service_collection.h>
+#include <pluto/event/event_manager.h>
 #include <pluto/memory/memory_manager.h>
 
 #include <list>
@@ -61,12 +62,63 @@ namespace pluto
             gameObjects.front()->Destroy();
         }
 
-        void OnUpdate(const uint32_t currentFrame)
+        void OnUpdate()
         {
-            gameObjects.front()->OnUpdate(currentFrame);
+            for (auto& gameObject : gameObjects)
+            {
+                gameObject->OnUpdate();
+            }
         }
 
-        void OnCleanup()
+        void OnEarlyFixedUpdate()
+        {
+            for (auto& gameObject : gameObjects)
+            {
+                gameObject->OnEarlyPhysicsUpdate();
+            }
+        }
+
+        void OnFixedUpdate()
+        {
+            for (auto& gameObject : gameObjects)
+            {
+                gameObject->OnPhysicsUpdate();
+            }
+        }
+
+        void OnLateFixedUpdate()
+        {
+            for (auto& gameObject : gameObjects)
+            {
+                gameObject->OnLatePhysicsUpdate();
+            }
+        }
+
+        void OnPreRender()
+        {
+            for (auto& gameObject : gameObjects)
+            {
+                gameObject->OnPreRender();
+            }
+        }
+
+        void OnRender()
+        {
+            for (auto& gameObject : gameObjects)
+            {
+                gameObject->OnRender();
+            }
+        }
+
+        void OnPostRender()
+        {
+            for (auto& gameObject : gameObjects)
+            {
+                gameObject->OnPostRender();
+            }
+        }
+
+        void Cleanup()
         {
             auto it = gameObjects.begin();
             while (it != gameObjects.end())
@@ -157,13 +209,43 @@ namespace pluto
         impl->Destroy();
     }
 
-    void Scene::OnUpdate(const uint32_t currentFrame)
+    void Scene::OnUpdate()
     {
-        impl->OnUpdate(currentFrame);
+        impl->OnUpdate();
     }
 
-    void Scene::OnCleanup()
+    void Scene::OnEarlyFixedUpdate()
     {
-        impl->OnCleanup();
+        impl->OnEarlyFixedUpdate();
+    }
+
+    void Scene::OnFixedUpdate()
+    {
+        impl->OnFixedUpdate();
+    }
+
+    void Scene::OnLateFixedUpdate()
+    {
+        impl->OnLateFixedUpdate();
+    }
+
+    void Scene::OnPreRender()
+    {
+        impl->OnPreRender();
+    }
+
+    void Scene::OnRender()
+    {
+        impl->OnRender();
+    }
+
+    void Scene::OnPostRender()
+    {
+        impl->OnPostRender();
+    }
+
+    void Scene::Cleanup()
+    {
+        impl->Cleanup();
     }
 }

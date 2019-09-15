@@ -99,7 +99,7 @@ namespace pluto
                 onInit(*serviceCollection);
                 while (windowManager.IsOpen())
                 {
-                    simulationManager.Run();
+                    simulationManager.MainLoop();
                 }
             }
             catch (const Exception& e)

@@ -1,4 +1,6 @@
 #include <pluto/simulation/simulation_manager.h>
+#include <pluto/simulation/events/on_main_loop_begin.h>
+#include <pluto/simulation/events/on_main_loop_end.h>
 
 #include <pluto/log/log_manager.h>
 #include <pluto/event/event_manager.h>
@@ -59,7 +61,7 @@ namespace pluto
             return deltaTime;
         }
 
-        void Run()
+        void MainLoop()
         {
             const auto time = static_cast<float>(glfwGetTime());
             if (lastTime == 0)
@@ -72,9 +74,16 @@ namespace pluto
             }
 
             deltaTime = time - lastTime;
-            const bool shouldUpdate = deltaTime >= maxPeriod;
+            const bool shouldCallUpdate = deltaTime >= maxPeriod;
+            const float fixedDeltaTime = time - lastFixedTime;
+            const bool shouldCallFixedUpdate = fixedDeltaTime >= maxFixedPeriod;
 
-            if (shouldUpdate)
+            if (shouldCallUpdate || shouldCallFixedUpdate)
+            {
+                eventManager->Dispatch<OnMainLoopBeginEvent>();
+            }
+
+            if (shouldCallUpdate)
             {
                 lastTime = time - (deltaTime - maxPeriod);
 
@@ -82,9 +91,7 @@ namespace pluto
                 sceneManager->MainLoop();
             }
 
-            const float fixedDeltaTime = time - lastFixedTime;
-            const bool shouldFixedUpdate = fixedDeltaTime >= maxFixedPeriod;
-            if (shouldFixedUpdate)
+            if (shouldCallFixedUpdate)
             {
                 const int stepCount = floor(fixedDeltaTime / maxFixedPeriod);
                 lastFixedTime = time - (fixedDeltaTime - static_cast<float>(stepCount) * maxFixedPeriod);
@@ -96,11 +103,16 @@ namespace pluto
                 }
             }
 
-            if (shouldUpdate)
+            if (shouldCallUpdate)
             {
                 eventManager->Dispatch<OnPreRenderEvent>();
                 eventManager->Dispatch<OnRenderEvent>();
                 eventManager->Dispatch<OnPostRenderEvent>();
+            }
+
+            if (shouldCallUpdate || shouldCallFixedUpdate)
+            {
+                eventManager->Dispatch<OnMainLoopEndEvent>();
             }
         }
     };
@@ -135,8 +147,8 @@ namespace pluto
         return impl->GetDeltaTime();
     }
 
-    void SimulationManager::Run()
+    void SimulationManager::MainLoop()
     {
-        impl->Run();
+        impl->MainLoop();
     }
 }
