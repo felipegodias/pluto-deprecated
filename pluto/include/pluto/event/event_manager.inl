@@ -14,6 +14,12 @@ namespace pluto
         return Subscribe(typeid(T), callback);
     }
 
+    template <typename T1, typename T2, std::enable_if_t<std::is_base_of_v<BaseEvent, T2>, bool>>
+    Guid EventManager::Subscribe(T1& obj, EventMemberListener<T1, T2>&& listener)
+    {
+        return Subscribe<T2>(std::bind(listener, &obj, std::placeholders::_1));
+    }
+
     template <typename T, std::enable_if_t<std::is_base_of_v<BaseEvent, T>, bool>>
     void EventManager::Unsubscribe(const Guid& guid)
     {

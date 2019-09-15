@@ -15,6 +15,9 @@ namespace pluto
     template <typename T, std::enable_if_t<std::is_base_of_v<BaseEvent, T>, bool>  = false>
     using EventListener = std::function<void(const T&)>;
 
+    template <typename T1, typename T2, std::enable_if_t<std::is_base_of_v<BaseEvent, T2>, bool>  = false>
+    using EventMemberListener = void(T1::*)(const T2&);
+
     class PLUTO_API EventManager final : public BaseService
     {
     public:
@@ -40,6 +43,9 @@ namespace pluto
 
         template <typename T, std::enable_if_t<std::is_base_of_v<BaseEvent, T>, bool>  = false>
         Guid Subscribe(const EventListener<T>& listener);
+
+        template <typename T1, typename T2, std::enable_if_t<std::is_base_of_v<BaseEvent, T2>, bool>  = false>
+        Guid Subscribe(T1& obj, EventMemberListener<T1, T2>&& listener);
 
         template <typename T, std::enable_if_t<std::is_base_of_v<BaseEvent, T>, bool>  = false>
         void Unsubscribe(const Guid& guid);
