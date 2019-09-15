@@ -34,6 +34,7 @@ namespace pluto
                 throw std::runtime_error("Failed to initialize GLFW!");
             }
 
+            glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
             window = glfwCreateWindow(this->windowSize.x, this->windowSize.y, screenTitle.c_str(), nullptr, nullptr);
             if (!window)
             {
