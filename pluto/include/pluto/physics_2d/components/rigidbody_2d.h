@@ -30,6 +30,9 @@ namespace pluto
         Rigidbody2D& operator=(const Rigidbody2D& rhs) = delete;
         Rigidbody2D& operator=(Rigidbody2D&& rhs) noexcept;
 
+        float GetDensity() const;
+        void SetDensity(float value);
+
         Vector2F GetVelocity() const;
         void SetVelocity(const Vector2F& value);
 

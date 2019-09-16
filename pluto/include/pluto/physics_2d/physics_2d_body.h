@@ -50,6 +50,9 @@ namespace pluto
         Physics2DBody& operator=(const Physics2DBody& rhs) = delete;
         Physics2DBody& operator=(Physics2DBody&& rhs) noexcept;
 
+        float GetDensity() const;
+        void SetDensity(float value);
+
         Type GetType(Type type) const;
         void SetType(Type value);
 

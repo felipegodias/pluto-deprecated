@@ -16,6 +16,8 @@ namespace pluto
 {
     class Physics2DBody::Impl
     {
+        float density;
+
         b2Body* body;
         Physics2DCircleShape::Factory* circleShapeFactory;
         Physics2DBoxShape::Factory* boxShapeFactory;
@@ -31,7 +33,8 @@ namespace pluto
 
         Impl(b2Body& body, Physics2DCircleShape::Factory& circleShapeFactory,
              Physics2DBoxShape::Factory& boxShapeFactory)
-            : body(&body),
+            : density(1.0f),
+              body(&body),
               circleShapeFactory(&circleShapeFactory),
               boxShapeFactory(&boxShapeFactory),
               instance(nullptr)
@@ -46,6 +49,20 @@ namespace pluto
         void SetInstance(Physics2DBody& value)
         {
             this->instance = &value;
+        }
+
+        float GetDensity() const
+        {
+            return density;
+        }
+
+        void SetDensity(const float value)
+        {
+            density = value;
+            for (b2Fixture* fixture = body->GetFixtureList(); fixture != nullptr; fixture = fixture->GetNext())
+            {
+                fixture->SetDensity(density);
+            }
         }
 
         Type GetType() const
@@ -193,6 +210,16 @@ namespace pluto
     Physics2DBody::Physics2DBody(Physics2DBody&& other) noexcept = default;
 
     Physics2DBody& Physics2DBody::operator=(Physics2DBody&& rhs) noexcept = default;
+
+    float Physics2DBody::GetDensity() const
+    {
+        return impl->GetDensity();
+    }
+
+    void Physics2DBody::SetDensity(const float value)
+    {
+        return impl->SetDensity(value);
+    }
 
     Physics2DBody::Type Physics2DBody::GetType(Type type) const
     {

@@ -77,7 +77,7 @@ namespace pluto
 
         auto colliderIdPtr = std::make_unique<Guid>(colliderId);
         b2FixtureDef fixtureDef;
-        fixtureDef.density = 1;
+        fixtureDef.density = body.GetDensity();
         fixtureDef.friction = 0.9f;
         fixtureDef.restitution = 0.1f;
         fixtureDef.shape = &shape;

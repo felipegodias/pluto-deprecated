@@ -20,6 +20,26 @@ namespace pluto
 
     Collider2D& Collider2D::operator=(Collider2D&& rhs) noexcept = default;
 
+    float Collider2D::GetFriction() const
+    {
+        return impl->GetFriction();
+    }
+
+    void Collider2D::SetFriction(const float value)
+    {
+        impl->SetFriction(value);
+    }
+
+    float Collider2D::GetRestitution() const
+    {
+        return impl->GetFriction();
+    }
+
+    void Collider2D::SetRestitution(const float value)
+    {
+        impl->SetRestitution(value);
+    }
+
     Vector2F Collider2D::GetOffset() const
     {
         return impl->GetOffset();

@@ -38,6 +38,26 @@ namespace pluto
         {
         }
 
+        float GetFriction() const
+        {
+            return shape->GetFriction();
+        }
+
+        void SetFriction(const float value)
+        {
+            shape->SetFriction(value);
+        }
+
+        float GetRestitution() const
+        {
+            return shape->GetFriction();
+        }
+
+        void SetRestitution(const float value)
+        {
+            shape->SetRestitution(value);
+        }
+
         Vector2F GetOffset() const
         {
             return shape->GetOffset();

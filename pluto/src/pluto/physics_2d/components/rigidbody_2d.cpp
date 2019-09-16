@@ -36,6 +36,16 @@ namespace pluto
         {
         }
 
+        float GetDensity() const
+        {
+            return body->GetDensity();
+        }
+
+        void SetDensity(const float value)
+        {
+            body->SetDensity(value);
+        }
+
         Vector2F GetVelocity() const
         {
             return body->GetVelocity();
@@ -131,6 +141,16 @@ namespace pluto
     Rigidbody2D::Rigidbody2D(Rigidbody2D&& other) noexcept = default;
 
     Rigidbody2D& Rigidbody2D::operator=(Rigidbody2D&& rhs) noexcept = default;
+
+    float Rigidbody2D::GetDensity() const
+    {
+        return impl->GetDensity();
+    }
+
+    void Rigidbody2D::SetDensity(float value)
+    {
+        impl->SetDensity(value);
+    }
 
     Vector2F Rigidbody2D::GetVelocity() const
     {

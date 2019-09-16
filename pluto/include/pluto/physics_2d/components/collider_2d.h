@@ -24,6 +24,12 @@ namespace pluto
         Collider2D& operator=(const Collider2D& rhs) = delete;
         Collider2D& operator=(Collider2D&& rhs) noexcept;
 
+        float GetFriction() const;
+        void SetFriction(float value);
+
+        float GetRestitution() const;
+        void SetRestitution(float value);
+
         Vector2F GetOffset() const;
         void SetOffset(const Vector2F& value);
 

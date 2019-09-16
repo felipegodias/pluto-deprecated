@@ -30,5 +30,25 @@ namespace pluto
         Impl(Impl&& other) noexcept = default;
         Impl& operator=(const Impl& rhs) = delete;
         Impl& operator=(Impl&& rhs) noexcept = default;
+
+        float GetFriction() const
+        {
+            return fixture->GetFriction();
+        }
+
+        void SetFriction(const float value)
+        {
+            fixture->SetFriction(value);
+        }
+
+        float GetRestitution() const
+        {
+            return fixture->GetRestitution();
+        }
+
+        void SetRestitution(const float value)
+        {
+            fixture->SetRestitution(value);
+        }
     };
 }
