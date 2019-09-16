@@ -67,6 +67,11 @@ namespace pluto
             const Resource<Collider2D> colliderA = GetCollider(*contact->GetFixtureA());
             const Resource<Collider2D> colliderB = GetCollider(*contact->GetFixtureB());
 
+            if (colliderA == nullptr || colliderB == nullptr)
+            {
+                return;
+            }
+
             const std::vector<Vector2F> contactPoints = GetContactPoints(*contact->GetManifold());
 
             const std::unique_ptr<Collision2D> collisionA = collisionFactory->Create(
