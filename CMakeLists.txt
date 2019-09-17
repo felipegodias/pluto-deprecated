@@ -38,5 +38,5 @@ target_include_directories(pluto PRIVATE
     $<BUILD_INTERFACE:${PLUTO_SOURCE_DIR}>
 )
 
-add_subdirectory(sandbox)
+add_subdirectory(examples/sandbox)
 add_subdirectory(tools/pluto_asset_manager)
