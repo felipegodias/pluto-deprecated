@@ -71,16 +71,8 @@ namespace pluto
             }
 
             deltaTime = time - lastTime;
-            const bool shouldCallUpdate = deltaTime >= maxPeriod;
             const float fixedDeltaTime = time - lastFixedTime;
-            const bool shouldCallFixedUpdate = fixedDeltaTime >= maxFixedPeriod;
-
-            if (shouldCallUpdate || shouldCallFixedUpdate)
-            {
-                eventManager->Dispatch<OnMainLoopBeginEvent>();
-            }
-
-            if (shouldCallFixedUpdate)
+            if (fixedDeltaTime >= maxFixedPeriod)
             {
                 const int stepCount = floor(fixedDeltaTime / maxFixedPeriod);
                 lastFixedTime = time - (fixedDeltaTime - static_cast<float>(stepCount) * maxFixedPeriod);
@@ -92,20 +84,16 @@ namespace pluto
                 }
             }
 
-            if (shouldCallUpdate)
+            if (deltaTime >= maxPeriod)
             {
-                lastTime = time - (deltaTime - maxPeriod);
-
+                lastTime = time;
+                eventManager->Dispatch<OnMainLoopBeginEvent>();
                 eventManager->Dispatch<OnEarlyUpdateEvent>();
                 eventManager->Dispatch<OnUpdateEvent>();
                 eventManager->Dispatch<OnLateUpdateEvent>();
                 eventManager->Dispatch<OnPreRenderEvent>();
                 eventManager->Dispatch<OnRenderEvent>();
                 eventManager->Dispatch<OnPostRenderEvent>();
-            }
-
-            if (shouldCallUpdate || shouldCallFixedUpdate)
-            {
                 eventManager->Dispatch<OnMainLoopEndEvent>();
             }
         }
