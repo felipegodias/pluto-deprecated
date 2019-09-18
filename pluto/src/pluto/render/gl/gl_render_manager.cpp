@@ -187,11 +187,9 @@ namespace pluto
             // TODO: Optimize this... Use a heap or other approach.
             auto compare = [&](Resource<Renderer>& lhs, Resource<Renderer>& rhs) -> bool
             {
-                float d1 = Vector3F::Distance(lhs->GetGameObject()->GetTransform()->GetPosition(),
-                                              camera->GetGameObject()->GetTransform()->GetPosition());
-                float d2 = Vector3F::Distance(rhs->GetGameObject()->GetTransform()->GetPosition(),
-                                              camera->GetGameObject()->GetTransform()->GetPosition());
-                return d1 > d2;
+                float d1 = (lhs->GetGameObject()->GetTransform()->GetPosition() - camera->GetGameObject()->GetTransform()->GetPosition()).z;
+                float d2 = (rhs->GetGameObject()->GetTransform()->GetPosition() - camera->GetGameObject()->GetTransform()->GetPosition()).z;
+                return d1 < d2;
             };
 
             std::sort(renderers.begin(), renderers.end(), compare);
