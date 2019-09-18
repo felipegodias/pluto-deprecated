@@ -64,32 +64,27 @@ namespace pluto::compiler
     {
         std::unique_ptr<ServiceCollection> serviceCollection = std::make_unique<ServiceCollection>();
 
-        auto& fontAssetFactory = serviceCollection->EmplaceFactory<FontAsset, FontAsset::Factory>(*serviceCollection);
+        auto& fontAssetFactory = serviceCollection->EmplaceFactory<FontAsset>();
 
-        auto& materialAssetFactory = serviceCollection->EmplaceFactory<MaterialAsset, MaterialAsset::Factory>(
-            *serviceCollection);
+        auto& materialAssetFactory = serviceCollection->EmplaceFactory<MaterialAsset>();
 
-        auto& meshAssetFactory = serviceCollection->EmplaceFactory<MeshAsset, MeshAsset::Factory>(*serviceCollection);
+        auto& meshAssetFactory = serviceCollection->EmplaceFactory<MeshAsset>();
 
-        auto& packageManifestAssetFactory = serviceCollection->EmplaceFactory<
-            PackageManifestAsset, PackageManifestAsset::Factory>(*serviceCollection);
+        auto& packageManifestAssetFactory = serviceCollection->EmplaceFactory<PackageManifestAsset>();
 
-        auto& shaderAssetFactory = serviceCollection->EmplaceFactory<ShaderAsset, ShaderAsset::Factory>(
-            *serviceCollection);
+        auto& shaderAssetFactory = serviceCollection->EmplaceFactory<ShaderAsset>();
 
-        auto& textAssetFactory = serviceCollection->EmplaceFactory<TextAsset, TextAsset::Factory>(*serviceCollection);
+        auto& textAssetFactory = serviceCollection->EmplaceFactory<TextAsset>();
 
-        auto& textureAssetFactory = serviceCollection->EmplaceFactory<TextureAsset, TextureAsset::Factory>(
-            *serviceCollection);
+        auto& textureAssetFactory = serviceCollection->EmplaceFactory<TextureAsset>();
 
-        auto& resourceControlFactory = serviceCollection->EmplaceFactory<ResourceControl, ResourceControl::Factory>(
-            *serviceCollection);
+        auto& resourceControlFactory = serviceCollection->EmplaceFactory<ResourceControl>();
 
-        serviceCollection->EmplaceFactory<MeshBuffer, GlMeshBuffer::Factory>(*serviceCollection);
+        serviceCollection->EmplaceFactory<MeshBuffer, GlMeshBuffer::Factory>();
 
-        serviceCollection->EmplaceFactory<ShaderProgram, DummyShaderProgram::Factory>(*serviceCollection);
+        serviceCollection->EmplaceFactory<ShaderProgram, DummyShaderProgram::Factory>();
 
-        serviceCollection->EmplaceFactory<TextureBuffer, DummyTextureBuffer::Factory>(*serviceCollection);
+        serviceCollection->EmplaceFactory<TextureBuffer, DummyTextureBuffer::Factory>();
 
         LogInstaller::Install(nullptr, *serviceCollection);
 
