@@ -144,7 +144,7 @@ namespace pluto
         {
             glewInit();
             glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
-
+            glEnable(GL_MULTISAMPLE);
             onRenderEventListenerId = eventManager.Subscribe<OnRenderEvent>(
                 std::bind(&Impl::OnRender, this, std::placeholders::_1));
             logManager.LogInfo("OpenGL RenderManager initialized!");

@@ -35,6 +35,7 @@ namespace pluto
             }
 
             glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+            glfwWindowHint(GLFW_SAMPLES, 4);
             window = glfwCreateWindow(this->windowSize.x, this->windowSize.y, screenTitle.c_str(), nullptr, nullptr);
             if (!window)
             {
