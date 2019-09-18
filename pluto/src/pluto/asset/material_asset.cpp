@@ -81,7 +81,7 @@ namespace pluto
             {
                 uint8_t uniformNameLength = it.first.size();
                 fileWriter.Write(&uniformNameLength, sizeof(uint8_t));
-                fileWriter.Write(it.first.data(), assetNameLength);
+                fileWriter.Write(it.first.data(), uniformNameLength);
                 fileWriter.Write(&it.second, sizeof(float));
             }
 
@@ -91,7 +91,7 @@ namespace pluto
             {
                 uint8_t uniformNameLength = it.first.size();
                 fileWriter.Write(&uniformNameLength, sizeof(uint8_t));
-                fileWriter.Write(it.first.data(), assetNameLength);
+                fileWriter.Write(it.first.data(), uniformNameLength);
                 fileWriter.Write(&it.second, sizeof(Vector4F));
             }
 
@@ -101,7 +101,7 @@ namespace pluto
             {
                 uint8_t uniformNameLength = it.first.size();
                 fileWriter.Write(&uniformNameLength, sizeof(uint8_t));
-                fileWriter.Write(it.first.data(), assetNameLength);
+                fileWriter.Write(it.first.data(), uniformNameLength);
                 fileWriter.Write(&it.second, sizeof(Matrix4X4));
             }
 
@@ -111,7 +111,7 @@ namespace pluto
             {
                 uint8_t uniformNameLength = it.first.size();
                 fileWriter.Write(&uniformNameLength, sizeof(uint8_t));
-                fileWriter.Write(it.first.data(), assetNameLength);
+                fileWriter.Write(it.first.data(), uniformNameLength);
                 Guid textureGuid = it.second.GetObjectId();
                 fileWriter.Write(&textureGuid, sizeof(Guid));
             }
@@ -332,7 +332,7 @@ namespace pluto
             uint8_t uniformNameLength;
             fileReader.Read(&uniformNameLength, sizeof(uint8_t));
             std::string uniformName(uniformNameLength, ' ');
-            fileReader.Read(uniformName.data(), assetNameLength);
+            fileReader.Read(uniformName.data(), uniformNameLength);
             float value;
             fileReader.Read(&value, sizeof(float));
             materialAsset->SetFloat("u_mat." + uniformName, value);
@@ -345,7 +345,7 @@ namespace pluto
             uint8_t uniformNameLength;
             fileReader.Read(&uniformNameLength, sizeof(uint8_t));
             std::string uniformName(uniformNameLength, ' ');
-            fileReader.Read(uniformName.data(), assetNameLength);
+            fileReader.Read(uniformName.data(), uniformNameLength);
             Vector4F value;
             fileReader.Read(&value, sizeof(Vector4F));
             materialAsset->SetVector4F("u_mat." + uniformName, value);
@@ -358,7 +358,7 @@ namespace pluto
             uint8_t uniformNameLength;
             fileReader.Read(&uniformNameLength, sizeof(uint8_t));
             std::string uniformName(uniformNameLength, ' ');
-            fileReader.Read(uniformName.data(), assetNameLength);
+            fileReader.Read(uniformName.data(), uniformNameLength);
             Matrix4X4 value;
             fileReader.Read(&value, sizeof(Matrix4X4));
             materialAsset->SetMatrix4X4("u_mat." + uniformName, value);
@@ -371,7 +371,7 @@ namespace pluto
             uint8_t uniformNameLength;
             fileReader.Read(&uniformNameLength, sizeof(uint8_t));
             std::string uniformName(uniformNameLength, ' ');
-            fileReader.Read(uniformName.data(), assetNameLength);
+            fileReader.Read(uniformName.data(), uniformNameLength);
 
             Guid textureGuid;
             fileReader.Read(&textureGuid, sizeof(Guid));
