@@ -58,6 +58,8 @@
 #include "pluto/scene/components/renderer.h"
 #include "pluto/scene/components/text_renderer.h"
 #include "pluto/scene/components/transform.h"
+#include "pluto/scene/events/on_scene_loaded_event.h"
+#include "pluto/scene/events/on_scene_unloaded_event.h"
 
 #include "pluto/service/base_factory.h"
 #include "pluto/service/base_service.h"

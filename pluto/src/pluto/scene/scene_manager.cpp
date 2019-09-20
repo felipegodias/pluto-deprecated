@@ -12,6 +12,9 @@
 #include "pluto/physics_2d/events/on_fixed_update_event.h"
 #include "pluto/physics_2d/events/on_late_fixed_update_event.h"
 
+#include "pluto/scene/events/on_scene_loaded_event.h"
+#include "pluto/scene/events/on_scene_unloaded_event.h"
+
 #include "pluto/scene/events/on_early_update_event.h"
 #include "pluto/scene/events/on_update_event.h"
 #include "pluto/scene/events/on_late_update_event.h"
@@ -20,6 +23,7 @@
 #include "pluto/render/events/on_post_render_event.h"
 #include "pluto/render/events/on_pre_render_event.h"
 
+#include "pluto/simulation/events/on_main_loop_begin.h"
 #include "pluto/simulation/events/on_main_loop_end.h"
 
 namespace pluto
@@ -27,6 +31,7 @@ namespace pluto
     class SceneManager::Impl
     {
         std::unique_ptr<Scene> activeScene;
+        bool shouldLoadNewScene;
 
         Guid onEarlyFixedUpdateEventListenerId;
         Guid onFixedUpdateEventListenerId;
@@ -37,6 +42,7 @@ namespace pluto
         Guid onPreRenderEventListenerId;
         Guid onRenderEventListenerId;
         Guid onPostRenderEventListenerId;
+        Guid onMainLoopBeginEventListenerId;
         Guid onMainLoopEndEventListenerId;
 
         const Scene::Factory* sceneFactory;
@@ -58,13 +64,16 @@ namespace pluto
             eventManager->Unsubscribe<OnPreRenderEvent>(onPreRenderEventListenerId);
             eventManager->Unsubscribe<OnRenderEvent>(onRenderEventListenerId);
             eventManager->Unsubscribe<OnPostRenderEvent>(onPostRenderEventListenerId);
+
+            eventManager->Unsubscribe<OnMainLoopBeginEvent>(onMainLoopBeginEventListenerId);
             eventManager->Unsubscribe<OnMainLoopEndEvent>(onMainLoopEndEventListenerId);
 
             logManager->LogInfo("SceneManager terminated!");
         }
 
         Impl(const Scene::Factory& sceneFactory, EventManager& eventManager, LogManager& logManager)
-            : sceneFactory(&sceneFactory),
+            : shouldLoadNewScene(true),
+              sceneFactory(&sceneFactory),
               eventManager(&eventManager),
               logManager(&logManager)
         {
@@ -86,6 +95,7 @@ namespace pluto
 
             onPostRenderEventListenerId = eventManager.Subscribe(*this, &Impl::OnPostRender);
 
+            onMainLoopBeginEventListenerId = eventManager.Subscribe(*this, &Impl::OnMainLoopBegin);
             onMainLoopEndEventListenerId = eventManager.Subscribe(*this, &Impl::OnMainLoopEnd);
 
             logManager.LogInfo("SceneManager initialized!");
@@ -98,12 +108,7 @@ namespace pluto
 
         void LoadEmptyScene()
         {
-            if (activeScene != nullptr)
-            {
-                activeScene->Destroy();
-            }
-
-            activeScene = sceneFactory->Create();
+            shouldLoadNewScene = true;
         }
 
     private:
@@ -179,11 +184,28 @@ namespace pluto
             }
         }
 
+        void OnMainLoopBegin(const OnMainLoopBeginEvent& evt)
+        {
+            if (shouldLoadNewScene)
+            {
+                activeScene = sceneFactory->Create();
+                shouldLoadNewScene = false;
+                eventManager->Dispatch<OnSceneLoadedEvent>();
+            }
+        }
+
         void OnMainLoopEnd(const OnMainLoopEndEvent& evt)
         {
             if (activeScene != nullptr)
             {
                 activeScene->Cleanup();
+                if (shouldLoadNewScene)
+                {
+                    activeScene->Destroy();
+                    activeScene->Cleanup();
+                    activeScene.reset();
+                    eventManager->Dispatch<OnSceneUnloadedEvent>();
+                }
             }
         }
     };
