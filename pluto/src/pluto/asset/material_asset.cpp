@@ -322,7 +322,7 @@ namespace pluto
         fileReader.Read(&shaderGuid, sizeof(Guid));
         Resource<ShaderAsset> shader = assetManager.Load<ShaderAsset>(shaderGuid);
 
-        auto materialAsset = std::make_unique<MaterialAsset>(std::make_unique<Impl>(Guid::New(), shader));
+        auto materialAsset = std::make_unique<MaterialAsset>(std::make_unique<Impl>(assetId, shader));
         materialAsset->SetName(assetName);
 
         uint8_t floatsCount;

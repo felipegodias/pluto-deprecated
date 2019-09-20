@@ -433,7 +433,16 @@ namespace pluto
         std::vector<uint8_t> data(dataSize);
         fileReader.Read(data.data(), dataSize);
 
-        auto textureAsset = Create(width, height, static_cast<Format>(format), std::move(data));
+        ServiceCollection& serviceCollection = GetServiceCollection();
+        const auto& textureBufferFactory = serviceCollection.GetFactory<TextureBuffer>();
+        auto textureBuffer = textureBufferFactory.Create();
+
+        auto textureAsset = std::make_unique<TextureAsset>(
+            std::make_unique<Impl>(assetId, width, height, static_cast<Format>(format), std::move(data), std::move(textureBuffer)));
+
+        textureAsset->impl->Init(*textureAsset);
+        textureAsset->Apply();
+
         textureAsset->SetName(assetName);
         textureAsset->SetWrap(static_cast<Wrap>(wrap));
         textureAsset->SetFilter(static_cast<Filter>(filter));
