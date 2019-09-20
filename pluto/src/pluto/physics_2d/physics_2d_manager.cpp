@@ -250,7 +250,7 @@ namespace pluto
             {
                 if (it->second.use_count() == 1)
                 {
-                    bodies.erase(it);
+                    bodies.erase(it++);
                 }
                 else
                 {
