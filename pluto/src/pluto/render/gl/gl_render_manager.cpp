@@ -39,7 +39,13 @@ namespace pluto
     class Gizmo
     {
     public:
-        virtual void Draw(const Matrix4X4& projection, const Matrix4X4& view) = 0;
+        virtual ~Gizmo() = 0
+        {
+        }
+
+        virtual void Draw(const Matrix4X4& projection, const Matrix4X4& view) = 0
+        {
+        }
     };
 
     class CircleGizmo final : public Gizmo
@@ -49,6 +55,8 @@ namespace pluto
         Color color;
 
     public:
+        ~CircleGizmo() override = default;
+
         CircleGizmo(const Vector2F& position, const float radius, const Color& color)
             : position(position),
               radius(radius),
@@ -78,6 +86,8 @@ namespace pluto
         Color color;
 
     public:
+        ~PolygonGizmo() override = default;
+
         PolygonGizmo(std::vector<Vector2F> vector2Fs, const Color& color)
             : points(std::move(vector2Fs)),
               color(color)
@@ -105,6 +115,7 @@ namespace pluto
         Color color;
 
     public:
+        ~LineGizmo() override = default;
 
         LineGizmo(const Vector2F& from, const Vector2F& to, const Color& color)
             : from(from),
