@@ -39,4 +39,5 @@ target_include_directories(pluto PRIVATE
 )
 
 add_subdirectory(examples/sandbox)
+add_subdirectory(examples/flappy_bird)
 add_subdirectory(tools/pluto_asset_manager)
