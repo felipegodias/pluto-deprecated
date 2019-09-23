@@ -196,17 +196,21 @@ namespace pluto
 
         void OnMainLoopEnd(const OnMainLoopEndEvent& evt)
         {
-            if (activeScene != nullptr)
+            if (activeScene == nullptr)
             {
-                activeScene->Cleanup();
-                if (shouldLoadNewScene)
-                {
-                    activeScene->Destroy();
-                    activeScene->Cleanup();
-                    activeScene.reset();
-                    eventManager->Dispatch<OnSceneUnloadedEvent>();
-                }
+                return;
+            } 
+
+            activeScene->Cleanup();
+            if (!shouldLoadNewScene)
+            {
+                return;
             }
+
+            activeScene->Destroy();
+            activeScene->Cleanup();
+            activeScene.reset();
+            eventManager->Dispatch<OnSceneUnloadedEvent>();
         }
     };
 

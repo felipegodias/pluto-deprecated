@@ -20,6 +20,7 @@ namespace pluto
 
         ~Root();
 
-        int Run(const std::function<void(ServiceCollection& serviceCollection)>& onInit) const;
+        int Run(const std::function<void(ServiceCollection& serviceCollection)>& onSetup,
+                const std::function<void(ServiceCollection& serviceCollection)>& onTeardown) const;
     };
 }
