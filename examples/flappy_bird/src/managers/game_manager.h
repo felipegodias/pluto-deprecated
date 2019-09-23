@@ -45,5 +45,7 @@ private:
 
     void CratePipe(const pluto::Vector2F& position);
 
+    void CreateFPSCounter();
+
     void OnSceneLoaded(const pluto::OnSceneLoadedEvent& evt);
 };

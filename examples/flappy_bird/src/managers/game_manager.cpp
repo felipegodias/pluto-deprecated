@@ -3,6 +3,7 @@
 #include "../components/pipe.h"
 #include "../components/flappy_animation.h"
 #include "../components/flappy_controller.h"
+#include "../components/fps_counter.h"
 
 using namespace pluto;
 
@@ -130,6 +131,19 @@ void GameManager::CratePipe(const Vector2F& position)
     rendererTop->SetMaterial(material);
 }
 
+void GameManager::CreateFPSCounter()
+{
+    const Resource<FontAsset> fontAsset = assetManager->Load<FontAsset>("fonts/roboto-regular.ttf");
+
+    Resource<GameObject> textGo = sceneManager->GetActiveScene().CreateGameObject("FPSCounter");
+    textGo->GetTransform()->SetPosition({-0.5f, 0.92f, 5});
+    textGo->GetTransform()->SetLocalScale({ 0.15f, 0.15f, 1 });
+    Resource<TextRenderer> textRenderer = textGo->AddComponent<TextRenderer>();
+    textRenderer->SetFont(fontAsset);
+    textRenderer->SetAnchor(TextRenderer::Anchor::UpperLeft);
+    textGo->AddComponent<FPSCounter>();
+}
+
 void GameManager::OnSceneLoaded(const OnSceneLoadedEvent& evt)
 {
     Resource<GameObject> cameraGo = sceneManager->GetActiveScene().CreateGameObject("Camera");
@@ -143,7 +157,8 @@ void GameManager::OnSceneLoaded(const OnSceneLoadedEvent& evt)
     CreateGround();
     CreateFlappy();
     CratePipe({0.6, 0});
-    CratePipe({ 1.1f, 0 });
-    CratePipe({ 1.6f, 0});
+    CratePipe({1.1f, 0});
+    CratePipe({1.6f, 0});
+    CreateFPSCounter();
     isPlaying = true;
 }

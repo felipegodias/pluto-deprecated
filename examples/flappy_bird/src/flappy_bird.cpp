@@ -4,6 +4,7 @@
 #include "components/pipe.h"
 #include "components/flappy_animation.h"
 #include "components/flappy_controller.h"
+#include "components/fps_counter.h"
 #include "managers/game_manager.h"
 
 using namespace pluto;
@@ -17,12 +18,14 @@ void OnSetup(ServiceCollection& serviceCollection)
     serviceCollection.EmplaceFactory<Pipe>();
     serviceCollection.EmplaceFactory<FlappyAnimation>();
     serviceCollection.EmplaceFactory<FlappyController>();
+    serviceCollection.EmplaceFactory<FPSCounter>();
     serviceCollection.AddService<GameManager>(GameManager::Factory(serviceCollection).Create());
 }
 
 void OnTeardown(ServiceCollection& serviceCollection)
 {
     serviceCollection.RemoveService<GameManager>();
+    serviceCollection.RemoveFactory<FPSCounter>();
     serviceCollection.RemoveFactory<FlappyController>();
     serviceCollection.RemoveFactory<FlappyAnimation>();
     serviceCollection.RemoveFactory<Pipe>();
