@@ -76,7 +76,7 @@ namespace pluto
         {
             SimulationInstaller::Uninstall(*serviceCollection);
             SceneInstaller::Uninstall(*serviceCollection);
-            Physics2DInstaller::Uninstall(*serviceCollection); 
+            Physics2DInstaller::Uninstall(*serviceCollection);
             RenderInstaller::Uninstall(*serviceCollection);
             AssetInstaller::Uninstall(*serviceCollection);
             MemoryInstaller::Uninstall(*serviceCollection);
@@ -87,7 +87,8 @@ namespace pluto
             LogInstaller::Uninstall(*serviceCollection);
         }
 
-        int Run(const std::function<void(ServiceCollection& serviceCollection)>& onInit) const
+        int Run(const std::function<void(ServiceCollection& serviceCollection)>& onSetup,
+                const std::function<void(ServiceCollection& serviceCollection)>& onTeardown) const
         {
             auto& windowManager = serviceCollection->GetService<WindowManager>();
             auto& simulationManager = serviceCollection->GetService<SimulationManager>();
@@ -96,11 +97,12 @@ namespace pluto
             int exitCode = EXIT_SUCCESS;
             try
             {
-                onInit(*serviceCollection);
+                onSetup(*serviceCollection);
                 while (windowManager.IsOpen())
                 {
                     simulationManager.MainLoop();
                 }
+                onTeardown(*serviceCollection);
             }
             catch (const Exception& e)
             {
@@ -120,8 +122,9 @@ namespace pluto
 
     Root::~Root() = default;
 
-    int Root::Run(const std::function<void(ServiceCollection& serviceCollection)>& onInit) const
+    int Root::Run(const std::function<void(ServiceCollection& serviceCollection)>& onSetup,
+                  const std::function<void(ServiceCollection& serviceCollection)>& onTeardown) const
     {
-        return impl->Run(onInit);
+        return impl->Run(onSetup, onTeardown);
     }
 }
