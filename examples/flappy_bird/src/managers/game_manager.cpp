@@ -1,5 +1,6 @@
 #include "game_manager.h"
 #include "../components/ground.h"
+#include "../components/pipe.h"
 #include "../components/flappy_animation.h"
 #include "../components/flappy_controller.h"
 
@@ -73,7 +74,7 @@ void GameManager::CreateGround()
     Resource<GameObject> groundGo = sceneManager->GetActiveScene().CreateGameObject("Ground");
     const Vector3F scale = ResolutionToScale({336, 112});
     groundGo->GetTransform()->SetLocalScale(scale);
-    groundGo->GetTransform()->SetPosition({0.083f, -0.7, 1});
+    groundGo->GetTransform()->SetPosition({0.083f, -0.7, 2});
 
     Resource<MeshRenderer> groundRenderer = groundGo->AddComponent<MeshRenderer>();
     const Resource<MeshAsset> meshAsset = assetManager->Load<MeshAsset>("meshes/quad.obj");
@@ -88,7 +89,7 @@ void GameManager::CreateGround()
 void GameManager::CreateFlappy()
 {
     Resource<GameObject> flappyGo = sceneManager->GetActiveScene().CreateGameObject("Flappy");
-    flappyGo->GetTransform()->SetPosition({0, 0, 2});
+    flappyGo->GetTransform()->SetPosition({0, 0, 3});
     Resource<MeshRenderer> renderer = flappyGo->AddComponent<MeshRenderer>();
     const Resource<MeshAsset> meshAsset = assetManager->Load<MeshAsset>("meshes/quad.obj");
     renderer->SetMesh(meshAsset);
@@ -99,6 +100,34 @@ void GameManager::CreateFlappy()
     flappyGo->AddComponent<FlappyController>();
     Resource<CircleCollider2D> collider = flappyGo->AddComponent<CircleCollider2D>();
     collider->SetRadius(0.04f);
+}
+
+void GameManager::CratePipe(const Vector2F& position)
+{
+    const Resource<MeshAsset> meshAsset = assetManager->Load<MeshAsset>("meshes/quad.obj");
+    const Resource<MaterialAsset> material = assetManager->Load<MaterialAsset>("materials/pipe.mat");
+    const Vector3F scale = ResolutionToScale({52, 320});
+
+    Resource<GameObject> pipeContainer = sceneManager->GetActiveScene().CreateGameObject("PipeContainer");
+    pipeContainer->GetTransform()->SetLocalPosition({position.x, position.y, 0,});
+    pipeContainer->AddComponent<Pipe>();
+
+    Resource<GameObject> pipeBottomGO = sceneManager->GetActiveScene().CreateGameObject(
+        pipeContainer->GetTransform(), "PipeBottom");
+    pipeBottomGO->GetTransform()->SetPosition({0, -0.8f, 1});
+    pipeBottomGO->GetTransform()->SetLocalScale(scale);
+    Resource<MeshRenderer> rendererBottom = pipeBottomGO->AddComponent<MeshRenderer>();
+    rendererBottom->SetMesh(meshAsset);
+    rendererBottom->SetMaterial(material);
+
+    Resource<GameObject> pipeTopGO = sceneManager->GetActiveScene().CreateGameObject(
+        pipeContainer->GetTransform(), "PipeTop");
+    pipeTopGO->GetTransform()->SetPosition({0, 0.8f, 1});
+    pipeTopGO->GetTransform()->SetLocalScale(scale);
+    pipeTopGO->GetTransform()->SetLocalRotation(Quaternion::Euler({0, 0, 180}));
+    Resource<MeshRenderer> rendererTop = pipeTopGO->AddComponent<MeshRenderer>();
+    rendererTop->SetMesh(meshAsset);
+    rendererTop->SetMaterial(material);
 }
 
 void GameManager::OnSceneLoaded(const OnSceneLoadedEvent& evt)
@@ -113,5 +142,8 @@ void GameManager::OnSceneLoaded(const OnSceneLoadedEvent& evt)
     CreateBackground();
     CreateGround();
     CreateFlappy();
+    CratePipe({0.6, 0});
+    CratePipe({ 1.1f, 0 });
+    CratePipe({ 1.6f, 0});
     isPlaying = true;
 }

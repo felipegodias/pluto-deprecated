@@ -1,0 +1,14 @@
+version: 1
+type: 6
+material:
+    shader: 990a3a18bd7545c29be65be3792a0fdf
+    floats: null
+    vectors:
+        mainColor:
+            x: 1
+            y: 1
+            z: 1
+            w: 1
+    matrices: null
+    textures:
+        mainTex: 1e096affc7bb48d69fe1c8ee52536282

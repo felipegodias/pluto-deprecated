@@ -43,5 +43,7 @@ private:
 
     void CreateFlappy();
 
+    void CratePipe(const pluto::Vector2F& position);
+
     void OnSceneLoaded(const pluto::OnSceneLoadedEvent& evt);
 };
