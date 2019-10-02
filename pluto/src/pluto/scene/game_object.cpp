@@ -201,6 +201,16 @@ namespace pluto
             EvaluateComponents(&Component::OnCollision2DEnd, collision);
         }
 
+        void OnTrigger2DEnter(const Resource<Collider2D>& collider)
+        {
+            EvaluateComponents(&Component::OnTrigger2DEnter, collider);
+        }
+
+        void OnTrigger2DExit(const Resource<Collider2D>& collider)
+        {
+            EvaluateComponents(&Component::OnTrigger2DExit, collider);
+        }
+
         void OnEarlyUpdate()
         {
             EvaluateComponents(&Component::OnEarlyUpdate);
@@ -362,6 +372,16 @@ namespace pluto
     void GameObject::OnCollision2DEnd(const Collision2D& collision)
     {
         impl->OnCollision2DEnd(collision);
+    }
+
+    void GameObject::OnTrigger2DEnter(const Resource<Collider2D>& collider)
+    {
+        impl->OnTrigger2DEnter(collider);
+    }
+
+    void GameObject::OnTrigger2DExit(const Resource<Collider2D>& collider)
+    {
+        impl->OnTrigger2DExit(collider);
     }
 
     void GameObject::OnEarlyUpdate()

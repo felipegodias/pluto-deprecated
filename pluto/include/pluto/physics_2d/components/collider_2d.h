@@ -30,6 +30,9 @@ namespace pluto
         float GetRestitution() const;
         void SetRestitution(float value);
 
+        bool IsTrigger() const;
+        void SetTrigger(bool value);
+
         Vector2F GetOffset() const;
         void SetOffset(const Vector2F& value);
 

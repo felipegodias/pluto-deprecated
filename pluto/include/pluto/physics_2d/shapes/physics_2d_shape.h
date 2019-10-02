@@ -29,6 +29,9 @@ namespace pluto
         float GetRestitution() const;
         void SetRestitution(float value);
 
+        bool IsTrigger() const;
+        void SetTrigger(bool value);
+
         virtual Vector2F GetOffset() const = 0;
         virtual void SetOffset(const Vector2F& value) = 0;
     };

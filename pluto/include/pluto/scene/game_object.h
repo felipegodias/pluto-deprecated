@@ -18,6 +18,7 @@ namespace pluto
     class Component;
 
     class Collision2D;
+    class Collider2D;
 
     class PLUTO_API GameObject final : public Object
     {
@@ -93,6 +94,9 @@ namespace pluto
 
         void OnCollision2DBegin(const Collision2D& collision);
         void OnCollision2DEnd(const Collision2D& collision);
+
+        void OnTrigger2DEnter(const Resource<Collider2D>& collider);
+        void OnTrigger2DExit(const Resource<Collider2D>& collider);
 
         void OnEarlyUpdate();
         void OnUpdate();

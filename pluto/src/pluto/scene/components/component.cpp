@@ -63,6 +63,14 @@ namespace pluto
     {
     }
 
+    void Component::OnTrigger2DEnter(const Resource<Collider2D>& collider)
+    {
+    }
+
+    void Component::OnTrigger2DExit(const Resource<Collider2D>& collider)
+    {
+    }
+
     void Component::OnEarlyUpdate()
     {
     }
