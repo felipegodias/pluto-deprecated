@@ -40,6 +40,16 @@ namespace pluto
         impl->SetRestitution(value);
     }
 
+    bool Collider2D::IsTrigger() const
+    {
+        return impl->IsTrigger();
+    }
+
+    void Collider2D::SetTrigger(const bool value)
+    {
+        impl->SetTrigger(value);
+    }
+
     Vector2F Collider2D::GetOffset() const
     {
         return impl->GetOffset();

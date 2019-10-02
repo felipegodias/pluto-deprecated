@@ -50,5 +50,15 @@ namespace pluto
         {
             fixture->SetRestitution(value);
         }
+
+        bool IsTrigger() const
+        {
+            return fixture->IsSensor();
+        }
+
+        void SetTrigger(const bool value)
+        {
+            fixture->SetSensor(value);
+        }
     };
 }

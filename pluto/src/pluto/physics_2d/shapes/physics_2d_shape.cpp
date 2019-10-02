@@ -25,7 +25,7 @@ namespace pluto
 
     void Physics2DShape::SetFriction(const float value)
     {
-        return impl->SetFriction(value);
+        impl->SetFriction(value);
     }
 
     float Physics2DShape::GetRestitution() const
@@ -35,6 +35,16 @@ namespace pluto
 
     void Physics2DShape::SetRestitution(const float value)
     {
-        return impl->SetRestitution(value);
+        impl->SetRestitution(value);
+    }
+
+    bool Physics2DShape::IsTrigger() const
+    {
+        return impl->IsTrigger();
+    }
+
+    void Physics2DShape::SetTrigger(const bool value)
+    {
+        impl->SetTrigger(value);
     }
 }

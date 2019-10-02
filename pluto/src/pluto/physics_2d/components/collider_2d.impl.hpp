@@ -13,6 +13,7 @@
 #include "pluto/math/vector2f.h"
 #include "pluto/math/vector3f.h"
 #include "pluto/math/quaternion.h"
+#include <iostream>
 
 namespace pluto
 {
@@ -56,6 +57,16 @@ namespace pluto
         void SetRestitution(const float value)
         {
             shape->SetRestitution(value);
+        }
+
+        bool IsTrigger() const
+        {
+            return shape->IsTrigger();
+        }
+
+        void SetTrigger(const bool value)
+        {
+            shape->SetTrigger(value);
         }
 
         Vector2F GetOffset() const

@@ -48,42 +48,81 @@ namespace pluto
 
         void BeginContact(b2Contact* contact) override
         {
-            const Resource<Collider2D> colliderA = GetCollider(*contact->GetFixtureA());
-            const Resource<Collider2D> colliderB = GetCollider(*contact->GetFixtureB());
-
-            const std::vector<Vector2F> contactPoints = GetContactPoints(*contact->GetManifold());
-
-            const std::unique_ptr<Collision2D> collisionA = collisionFactory->Create(
-                colliderA, colliderB, contactPoints);
-            const std::unique_ptr<Collision2D> collisionB = collisionFactory->Create(
-                colliderB, colliderA, contactPoints);
-
-            colliderA->GetGameObject()->OnCollision2DBegin(*collisionA);
-            colliderB->GetGameObject()->OnCollision2DBegin(*collisionB);
+            HandleContact(*contact, true);
         }
 
         void EndContact(b2Contact* contact) override
         {
-            const Resource<Collider2D> colliderA = GetCollider(*contact->GetFixtureA());
-            const Resource<Collider2D> colliderB = GetCollider(*contact->GetFixtureB());
+            HandleContact(*contact, false);
+        }
+
+    private:
+        void HandleContact(const b2Contact& contact, const bool isBegin)
+        {
+            const b2Fixture* fixtureA = contact.GetFixtureA();
+            const b2Fixture* fixtureB = contact.GetFixtureB();
+
+            if (fixtureA->IsSensor() && fixtureB->IsSensor())
+            {
+                return;
+            }
+
+            const Resource<Collider2D> colliderA = GetCollider(*fixtureA);
+            const Resource<Collider2D> colliderB = GetCollider(*fixtureB);
 
             if (colliderA == nullptr || colliderB == nullptr)
             {
                 return;
             }
 
-            const std::vector<Vector2F> contactPoints = GetContactPoints(*contact->GetManifold());
+            if (fixtureA->IsSensor())
+            {
+                HandleSensor(colliderB, colliderA, isBegin);
+            }
+            else if (fixtureB->IsSensor())
+            {
+                HandleSensor(colliderA, colliderB, isBegin);
+            }
+            else
+            {
+                HandleCollision(colliderA, colliderB, *contact.GetManifold(), isBegin);
+            }
+        }
+
+        void HandleCollision(const Resource<Collider2D>& colliderA, const Resource<Collider2D>& colliderB,
+                             const b2Manifold& manifold, const bool isBegin)
+        {
+            const std::vector<Vector2F> contactPoints = GetContactPoints(manifold);
 
             const std::unique_ptr<Collision2D> collisionA = collisionFactory->Create(
                 colliderA, colliderB, contactPoints);
             const std::unique_ptr<Collision2D> collisionB = collisionFactory->Create(
                 colliderB, colliderA, contactPoints);
 
-            colliderA->GetGameObject()->OnCollision2DEnd(*collisionA);
-            colliderB->GetGameObject()->OnCollision2DEnd(*collisionB);
+            if (isBegin)
+            {
+                colliderA->GetGameObject()->OnCollision2DEnd(*collisionA);
+                colliderB->GetGameObject()->OnCollision2DEnd(*collisionB);
+            }
+            else
+            {
+                colliderA->GetGameObject()->OnCollision2DEnd(*collisionA);
+                colliderB->GetGameObject()->OnCollision2DEnd(*collisionB);
+            }
         }
 
-    private:
+        void HandleSensor(const Resource<Collider2D>& collider, const Resource<Collider2D>& sensor, const bool isBegin)
+        {
+            if (isBegin)
+            {
+                collider->GetGameObject()->OnTrigger2DEnter(sensor);
+            }
+            else
+            {
+                collider->GetGameObject()->OnTrigger2DExit(sensor);
+            }
+        }
+
         Resource<Collider2D> GetCollider(const b2Fixture& fixture) const
         {
             Guid* colliderId = reinterpret_cast<Guid*>(fixture.GetUserData());
