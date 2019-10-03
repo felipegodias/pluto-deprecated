@@ -15,6 +15,7 @@ public:
 
 private:
     bool isPlaying;
+    int points;
     pluto::Guid onSceneLoadedListenerId;
 
     pluto::EventManager* eventManager;
@@ -30,9 +31,10 @@ public:
     bool IsPlaying() const;
     void Reload();
 
-    void Pause();
+    void GameOver();
 
-    void UnPause();
+    int GetPoints() const;
+    void IncreasePoint();
 
 private:
     pluto::Vector3F ResolutionToScale(const pluto::Vector2F& resolution);
@@ -46,6 +48,10 @@ private:
     void CratePipe(const pluto::Vector2F& position);
 
     void CreateFPSCounter();
+
+    void CreateTopCollider();
+
+    void CreatePointCounter();
 
     void OnSceneLoaded(const pluto::OnSceneLoadedEvent& evt);
 };

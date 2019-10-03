@@ -1,5 +1,6 @@
 #include "flappy_controller.h"
 #include "../managers/game_manager.h"
+#include <iostream>
 
 using namespace pluto;
 
@@ -27,7 +28,7 @@ FlappyController::FlappyController(const Resource<GameObject>& gameObject, Input
 
 void FlappyController::OnUpdate()
 {
-    if (inputManager->GetKeyDown(KeyCode::MouseButton0))
+    if (inputManager->GetKeyDown(KeyCode::MouseButton0) && gameManager->IsPlaying())
     {
         rigidbody->SetVelocity(Vector2F::UP * 2);
     }
@@ -45,4 +46,29 @@ void FlappyController::OnUpdate()
     {
         gameManager->Reload();
     }
+}
+
+void FlappyController::OnCollision2DBegin(const Collision2D& collision)
+{
+    const std::string& colliderName = collision.GetOtherCollider()->GetName();
+    if (colliderName == "Ground")
+    {
+        gameManager->GameOver();
+    }
+}
+
+void FlappyController::OnTrigger2DEnter(const Resource<Collider2D>& collider)
+{
+    const std::string& colliderName = collider->GetName();
+
+    if (colliderName == "PipeBottom" || colliderName == "PipeTop")
+    {
+        gameManager->GameOver();
+    }
+    else
+    {
+        gameManager->IncreasePoint();
+    }
+
+    std::cout << collider->GetName() << std::endl;
 }

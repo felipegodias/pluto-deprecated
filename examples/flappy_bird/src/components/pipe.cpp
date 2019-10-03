@@ -1,4 +1,6 @@
 #include "pipe.h"
+#include "../managers/game_manager.h"
+
 using namespace pluto;
 
 float GenRandomHeight()
@@ -15,12 +17,14 @@ Pipe::Factory::Factory(ServiceCollection& serviceCollection)
 std::unique_ptr<Component> Pipe::Factory::Create(const Resource<GameObject>& gameObject) const
 {
     auto& simulationManager = GetServiceCollection().GetService<SimulationManager>();
-    return std::make_unique<Pipe>(gameObject, simulationManager);
+    auto& gameManager = GetServiceCollection().GetService<GameManager>();
+    return std::make_unique<Pipe>(gameObject, simulationManager, gameManager);
 }
 
-Pipe::Pipe(const Resource<GameObject>& gameObject, SimulationManager& simulationManager)
+Pipe::Pipe(const Resource<GameObject>& gameObject, SimulationManager& simulationManager, GameManager& gameManager)
     : Behaviour(gameObject),
-      simulationManager(&simulationManager)
+      simulationManager(&simulationManager),
+      gameManager(&gameManager)
 {
     Vector3F pos = gameObject->GetTransform()->GetLocalPosition();
     pos.y = GenRandomHeight();
@@ -29,6 +33,11 @@ Pipe::Pipe(const Resource<GameObject>& gameObject, SimulationManager& simulation
 
 void Pipe::OnUpdate()
 {
+    if (!gameManager->IsPlaying())
+    {
+        return;
+    }
+
     Resource<Transform> transform = GetGameObject()->GetTransform();
     Vector3F pos = transform->GetPosition();
     pos.x += -moveSpeed * simulationManager->GetDeltaTime();

@@ -4,6 +4,7 @@
 #include "../components/flappy_animation.h"
 #include "../components/flappy_controller.h"
 #include "../components/fps_counter.h"
+#include "../components/point_counter.h"
 
 using namespace pluto;
 
@@ -43,14 +44,19 @@ void GameManager::Reload()
     sceneManager->LoadEmptyScene();
 }
 
-void GameManager::Pause()
+void GameManager::GameOver()
 {
     isPlaying = false;
 }
 
-void GameManager::UnPause()
+int GameManager::GetPoints() const
 {
-    isPlaying = true;
+    return points;
+}
+
+void GameManager::IncreasePoint()
+{
+    ++points;
 }
 
 Vector3F GameManager::ResolutionToScale(const Vector2F& resolution)
@@ -115,20 +121,39 @@ void GameManager::CratePipe(const Vector2F& position)
 
     Resource<GameObject> pipeBottomGO = sceneManager->GetActiveScene().CreateGameObject(
         pipeContainer->GetTransform(), "PipeBottom");
-    pipeBottomGO->GetTransform()->SetPosition({0, -0.8f, 1});
+    pipeBottomGO->GetTransform()->SetLocalPosition({0, -0.8f, 1});
     pipeBottomGO->GetTransform()->SetLocalScale(scale);
+
+    Resource<BoxCollider2D> bottomCollider = pipeBottomGO->AddComponent<BoxCollider2D>();
+    bottomCollider->SetSize({scale.x, scale.y});
+    bottomCollider->SetTrigger(true);
+
     Resource<MeshRenderer> rendererBottom = pipeBottomGO->AddComponent<MeshRenderer>();
     rendererBottom->SetMesh(meshAsset);
     rendererBottom->SetMaterial(material);
 
     Resource<GameObject> pipeTopGO = sceneManager->GetActiveScene().CreateGameObject(
         pipeContainer->GetTransform(), "PipeTop");
-    pipeTopGO->GetTransform()->SetPosition({0, 0.8f, 1});
+
+    pipeTopGO->GetTransform()->SetLocalPosition({0, 0.8f, 1});
     pipeTopGO->GetTransform()->SetLocalScale(scale);
     pipeTopGO->GetTransform()->SetLocalRotation(Quaternion::Euler({0, 0, 180}));
+
+    Resource<BoxCollider2D> topCollider = pipeTopGO->AddComponent<BoxCollider2D>();
+    topCollider->SetSize({scale.x, scale.y});
+    topCollider->SetTrigger(true);
+
     Resource<MeshRenderer> rendererTop = pipeTopGO->AddComponent<MeshRenderer>();
     rendererTop->SetMesh(meshAsset);
     rendererTop->SetMaterial(material);
+
+    Resource<GameObject> pipeCheckPointGO = sceneManager->GetActiveScene().CreateGameObject(
+        pipeContainer->GetTransform(), "PipeCheckPoint");
+
+    pipeCheckPointGO->GetTransform()->SetLocalPosition(Vector3F::RIGHT * 0.085f);
+    Resource<BoxCollider2D> checkPointCollider = pipeCheckPointGO->AddComponent<BoxCollider2D>();
+    checkPointCollider->SetSize({0.033f, 0.45f});
+    checkPointCollider->SetTrigger(true);
 }
 
 void GameManager::CreateFPSCounter()
@@ -136,12 +161,39 @@ void GameManager::CreateFPSCounter()
     const Resource<FontAsset> fontAsset = assetManager->Load<FontAsset>("fonts/roboto-regular.ttf");
 
     Resource<GameObject> textGo = sceneManager->GetActiveScene().CreateGameObject("FPSCounter");
-    textGo->GetTransform()->SetPosition({-0.5f, 0.92f, 5});
-    textGo->GetTransform()->SetLocalScale({ 0.15f, 0.15f, 1 });
+    textGo->GetTransform()->SetPosition({-0.5f, 0.91f, 5});
+    textGo->GetTransform()->SetLocalScale({0.1f, 0.1f, 1});
     Resource<TextRenderer> textRenderer = textGo->AddComponent<TextRenderer>();
     textRenderer->SetFont(fontAsset);
     textRenderer->SetAnchor(TextRenderer::Anchor::UpperLeft);
     textGo->AddComponent<FPSCounter>();
+}
+
+void GameManager::CreateTopCollider()
+{
+    Resource<GameObject> topGo = sceneManager->GetActiveScene().CreateGameObject("Top");
+    const Vector3F scale = ResolutionToScale({336, 10});
+    topGo->GetTransform()->SetLocalScale(scale);
+    topGo->GetTransform()->SetPosition({0, 0.95f, 0});
+    Resource<BoxCollider2D> topCollider = topGo->AddComponent<BoxCollider2D>();
+    topCollider->SetSize({scale.x, scale.y});
+}
+
+void GameManager::CreatePointCounter()
+{
+    const Resource<FontAsset> fontAsset = assetManager->Load<FontAsset>("fonts/roboto-regular.ttf");
+
+    Resource<GameObject> containerGo = sceneManager->GetActiveScene().CreateGameObject("PointCounterContainer");
+    containerGo->GetTransform()->SetPosition({0, 0.7f, 5});
+
+    Resource<GameObject> textGo = sceneManager->GetActiveScene().CreateGameObject(
+        containerGo->GetTransform(), "PointCounterText");
+    textGo->GetTransform()->SetLocalScale({0.2f, 0.2f, 1});
+    Resource<TextRenderer> textRenderer = textGo->AddComponent<TextRenderer>();
+    textRenderer->SetFont(fontAsset);
+    textRenderer->SetAnchor(TextRenderer::Anchor::MiddleCenter);
+
+    containerGo->AddComponent<PointCounter>();
 }
 
 void GameManager::OnSceneLoaded(const OnSceneLoadedEvent& evt)
@@ -160,5 +212,8 @@ void GameManager::OnSceneLoaded(const OnSceneLoadedEvent& evt)
     CratePipe({1.1f, 0});
     CratePipe({1.6f, 0});
     CreateFPSCounter();
+    CreateTopCollider();
+    CreatePointCounter();
     isPlaying = true;
+    points = 0;
 }

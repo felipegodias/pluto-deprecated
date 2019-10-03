@@ -2,6 +2,8 @@
 
 #include <pluto/pluto.h>
 
+class GameManager;
+
 class Pipe final : public pluto::Behaviour
 {
 public:
@@ -15,9 +17,11 @@ public:
 private:
     float moveSpeed = 0.25f;
     pluto::SimulationManager* simulationManager;
+    GameManager* gameManager;
 
 public:
-    Pipe(const pluto::Resource<pluto::GameObject>& gameObject, pluto::SimulationManager& simulationManager);
+    Pipe(const pluto::Resource<pluto::GameObject>& gameObject, pluto::SimulationManager& simulationManager,
+         GameManager& gameManager);
 
     void OnUpdate() override;
 };

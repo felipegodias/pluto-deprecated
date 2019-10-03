@@ -1,4 +1,5 @@
 #include "ground.h"
+#include "../managers/game_manager.h"
 
 using namespace pluto;
 
@@ -10,17 +11,24 @@ Ground::Factory::Factory(ServiceCollection& serviceCollection)
 std::unique_ptr<Component> Ground::Factory::Create(const Resource<GameObject>& gameObject) const
 {
     auto& simulationManager = GetServiceCollection().GetService<SimulationManager>();
-    return std::make_unique<Ground>(gameObject, simulationManager);
+    auto& gameManager = GetServiceCollection().GetService<GameManager>();
+    return std::make_unique<Ground>(gameObject, simulationManager, gameManager);
 }
 
-Ground::Ground(const Resource<GameObject>& gameObject, SimulationManager& simulationManager)
+Ground::Ground(const Resource<GameObject>& gameObject, SimulationManager& simulationManager, GameManager& gameManager)
     : Behaviour(gameObject),
-      simulationManager(&simulationManager)
+      simulationManager(&simulationManager),
+      gameManager(&gameManager)
 {
 }
 
 void Ground::OnUpdate()
 {
+    if (!gameManager->IsPlaying())
+    {
+        return;
+    }
+
     Resource<Transform> transform = GetGameObject()->GetTransform();
     Vector3F pos = transform->GetPosition();
     pos.x += -moveSpeed * simulationManager->GetDeltaTime();

@@ -26,4 +26,7 @@ public:
                      GameManager& gameManager);
 
     void OnUpdate() override;
+
+    void OnCollision2DBegin(const pluto::Collision2D& collision) override;
+    void OnTrigger2DEnter(const pluto::Resource<pluto::Collider2D>& collider) override;
 };
