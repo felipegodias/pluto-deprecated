@@ -46,6 +46,8 @@ namespace pluto
         Resource<GameObject> CreateGameObject(const Resource<Transform>& parent);
         Resource<GameObject> CreateGameObject(const Resource<Transform>& parent, const std::string& name);
 
+        Resource<GameObject> FindGameObject(const std::string& name) const;
+
         void Destroy();
 
         void OnEarlyFixedUpdate();

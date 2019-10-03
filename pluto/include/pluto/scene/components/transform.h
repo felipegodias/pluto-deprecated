@@ -42,6 +42,8 @@ namespace pluto
 
         const std::vector<Resource<Transform>>& GetChildren() const;
 
+        Resource<Transform> FindChild(const std::string& name) const;
+
         const Vector3F& GetLocalPosition() const;
         void SetLocalPosition(const Vector3F& value);
 

@@ -75,6 +75,23 @@ namespace pluto
             return children;
         }
 
+        Resource<Transform> FindChild(const std::string& name) const
+        {
+            for (auto& child : children)
+            {
+                if (child->GetName() == name)
+                {
+                    return child;
+                }
+                Resource<Transform> obj = child->FindChild(name);
+                if (obj != nullptr)
+                {
+                    return obj;
+                }
+            }
+            return nullptr;
+        }
+
         const Vector3F& GetLocalPosition() const
         {
             return localPosition;
@@ -317,6 +334,11 @@ namespace pluto
     const std::vector<Resource<Transform>>& Transform::GetChildren() const
     {
         return impl->GetChildren();
+    }
+
+    Resource<Transform> Transform::FindChild(const std::string& name) const
+    {
+        return impl->FindChild(name);
     }
 
     const Vector3F& Transform::GetLocalPosition() const
