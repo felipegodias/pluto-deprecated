@@ -25,16 +25,23 @@ FlappyController::FlappyController(const Resource<GameObject>& gameObject, Input
       inputManager(&inputManager),
       gameManager(&gameManager)
 {
+    rigidbody->SetGravityScale(0);
 }
 
 void FlappyController::OnUpdate()
 {
-    if (inputManager->GetKeyDown(KeyCode::MouseButton0) && (gameManager->IsGameStarted() && !gameManager->IsGameOver()))
+    if (inputManager->GetKeyDown(KeyCode::MouseButton0))
     {
-        rigidbody->SetVelocity(Vector2F::UP * 2);
-    } else
-    {
-        gameManager->StartGame();
+        if (gameManager->IsGameStarted() && !gameManager->IsGameOver())
+        {
+            rigidbody->SetVelocity(Vector2F::UP * 2);
+        }
+        else if (!gameManager->IsGameStarted())
+        {
+            gameManager->StartGame();
+            rigidbody->SetGravityScale(1);
+            rigidbody->SetVelocity(Vector2F::UP * 2);
+        }
     }
 
     if (shouldUpdate)

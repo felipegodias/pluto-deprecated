@@ -30,6 +30,13 @@ void PointCounter::OnUpdate()
     ss << gameManager->GetPoints();
     for (auto& textRenderer : textRenderers)
     {
-        textRenderer->SetText(ss.str());
+        if (gameManager->IsGameStarted())
+        {
+            textRenderer->SetText(ss.str());
+        } else
+        {
+            textRenderer->SetText("");
+        }
+        
     }
 }
