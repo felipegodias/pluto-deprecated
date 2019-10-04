@@ -56,6 +56,9 @@ namespace pluto
         Type GetType(Type type) const;
         void SetType(Type value);
 
+        float GetGravityScale() const;
+        void SetGravityScale(float value);
+
         Vector2F GetPosition() const;
         void SetPosition(const Vector2F& value);
 

@@ -46,6 +46,16 @@ namespace pluto
             body->SetDensity(value);
         }
 
+        float GetGravityScale() const
+        {
+            return body->GetGravityScale();
+        }
+
+        void SetGravityScale(const float value)
+        {
+            body->SetGravityScale(value);
+        }
+
         Vector2F GetVelocity() const
         {
             return body->GetVelocity();
@@ -147,9 +157,19 @@ namespace pluto
         return impl->GetDensity();
     }
 
-    void Rigidbody2D::SetDensity(float value)
+    void Rigidbody2D::SetDensity(const float value)
     {
         impl->SetDensity(value);
+    }
+
+    float Rigidbody2D::GetGravityScale() const
+    {
+        return impl->GetGravityScale();
+    }
+
+    void Rigidbody2D::SetGravityScale(const float value)
+    {
+        impl->SetGravityScale(value);
     }
 
     Vector2F Rigidbody2D::GetVelocity() const
