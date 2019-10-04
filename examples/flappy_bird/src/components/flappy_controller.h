@@ -17,6 +17,7 @@ public:
 
 private:
     float currentAngle;
+    bool shouldUpdate;
     pluto::Resource<pluto::Rigidbody2D> rigidbody;
     pluto::InputManager* inputManager;
     GameManager* gameManager;

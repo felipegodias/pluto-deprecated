@@ -14,7 +14,9 @@ public:
     };
 
 private:
-    bool isPlaying;
+    bool isGameStarted;
+    bool isGameOver;
+
     int points;
     pluto::Guid onSceneLoadedListenerId;
 
@@ -28,9 +30,12 @@ public:
     GameManager(pluto::EventManager& eventManager, pluto::SceneManager& sceneManager,
                 pluto::AssetManager& assetManager);
 
-    bool IsPlaying() const;
     void Reload();
 
+    bool IsGameStarted() const;
+    void StartGame();
+
+    bool IsGameOver();
     void GameOver();
 
     int GetPoints() const;

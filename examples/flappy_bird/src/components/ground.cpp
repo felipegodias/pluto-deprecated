@@ -24,7 +24,7 @@ Ground::Ground(const Resource<GameObject>& gameObject, SimulationManager& simula
 
 void Ground::OnUpdate()
 {
-    if (!gameManager->IsPlaying())
+    if (gameManager->IsGameOver())
     {
         return;
     }

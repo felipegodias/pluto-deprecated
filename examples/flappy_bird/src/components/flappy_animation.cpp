@@ -1,4 +1,5 @@
 #include "flappy_animation.h"
+#include "../managers/game_manager.h"
 
 using namespace pluto;
 
@@ -16,16 +17,19 @@ std::unique_ptr<Component> FlappyAnimation::Factory::Create(const Resource<GameO
 {
     auto& simulationManager = GetServiceCollection().GetService<SimulationManager>();
     auto& assetManager = GetServiceCollection().GetService<AssetManager>();
-    return std::make_unique<FlappyAnimation>(gameObject, simulationManager, assetManager);
+    auto& gameManager = GetServiceCollection().GetService<GameManager>();
+    return std::make_unique<FlappyAnimation>(gameObject, simulationManager, assetManager, gameManager);
 }
 
 FlappyAnimation::FlappyAnimation(const Resource<GameObject>& gameObject,
-                                 SimulationManager& simulationManager, AssetManager& assetManager)
+                                 SimulationManager& simulationManager, AssetManager& assetManager,
+                                 GameManager& gameManager)
     : Behaviour(gameObject),
       currentAnimationTime(0),
       animationThreshold(0.1f),
       currentTexture(0),
-      simulationManager(&simulationManager)
+      simulationManager(&simulationManager),
+      gameManager(&gameManager)
 {
     material = gameObject->GetComponent<Renderer>()->GetMaterial();
 
@@ -38,6 +42,11 @@ FlappyAnimation::FlappyAnimation(const Resource<GameObject>& gameObject,
 
 void FlappyAnimation::OnUpdate()
 {
+    if (gameManager->IsGameOver())
+    {
+        return;
+    }
+
     currentAnimationTime += simulationManager->GetDeltaTime();
     if (currentAnimationTime > animationThreshold)
     {

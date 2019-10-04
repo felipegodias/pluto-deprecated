@@ -33,7 +33,7 @@ Pipe::Pipe(const Resource<GameObject>& gameObject, SimulationManager& simulation
 
 void Pipe::OnUpdate()
 {
-    if (!gameManager->IsPlaying())
+    if (gameManager->IsGameOver() || !gameManager->IsGameStarted())
     {
         return;
     }

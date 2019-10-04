@@ -20,6 +20,7 @@ FlappyController::FlappyController(const Resource<GameObject>& gameObject, Input
                                    GameManager& gameManager)
     : Behaviour(gameObject),
       currentAngle(0),
+      shouldUpdate(true),
       rigidbody(gameObject->GetComponent<Rigidbody2D>()),
       inputManager(&inputManager),
       gameManager(&gameManager)
@@ -28,19 +29,25 @@ FlappyController::FlappyController(const Resource<GameObject>& gameObject, Input
 
 void FlappyController::OnUpdate()
 {
-    if (inputManager->GetKeyDown(KeyCode::MouseButton0) && gameManager->IsPlaying())
+    if (inputManager->GetKeyDown(KeyCode::MouseButton0) && (gameManager->IsGameStarted() && !gameManager->IsGameOver()))
     {
         rigidbody->SetVelocity(Vector2F::UP * 2);
-    }
-
-    Vector2F velocity = Vector2F::ZERO;
-    if (Vector2F::Distance(rigidbody->GetVelocity(), Vector2F::ZERO) > Math::EPSILON)
+    } else
     {
-        velocity = rigidbody->GetVelocity().GetNormalized();
+        gameManager->StartGame();
     }
 
-    currentAngle = currentAngle + 0.05f * (velocity.y - currentAngle);
-    GetGameObject()->GetTransform()->SetRotation(Quaternion::Euler({0, 0, currentAngle * 60}));
+    if (shouldUpdate)
+    {
+        Vector2F velocity = Vector2F::ZERO;
+        if (Vector2F::Distance(rigidbody->GetVelocity(), Vector2F::ZERO) > Math::EPSILON)
+        {
+            velocity = rigidbody->GetVelocity().GetNormalized();
+        }
+
+        currentAngle = currentAngle + 0.05f * (velocity.y - currentAngle);
+        GetGameObject()->GetTransform()->SetRotation(Quaternion::Euler({0, 0, currentAngle * 60}));
+    }
 
     if (inputManager->GetKeyDown(KeyCode::MouseButton1))
     {
@@ -53,6 +60,7 @@ void FlappyController::OnCollision2DBegin(const Collision2D& collision)
     const std::string& colliderName = collision.GetOtherCollider()->GetName();
     if (colliderName == "Ground")
     {
+        shouldUpdate = false;
         gameManager->GameOver();
     }
 }

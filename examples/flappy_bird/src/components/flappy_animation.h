@@ -2,6 +2,8 @@
 
 #include <pluto/pluto.h>
 
+class GameManager;
+
 class FlappyAnimation final : public pluto::Behaviour
 {
 public:
@@ -20,10 +22,11 @@ private:
     pluto::Resource<pluto::MaterialAsset> material;
     std::vector<pluto::Resource<pluto::TextureAsset>> textures;
     pluto::SimulationManager* simulationManager;
+    GameManager* gameManager;
 
 public:
     FlappyAnimation(const pluto::Resource<pluto::GameObject>& gameObject, pluto::SimulationManager& simulationManager,
-                    pluto::AssetManager& assetManager);
+                    pluto::AssetManager& assetManager, GameManager& gameManager);
 
     void OnUpdate() override;
 };

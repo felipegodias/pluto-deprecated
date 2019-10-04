@@ -6,6 +6,9 @@
 #include "../components/fps_counter.h"
 #include "../components/point_counter.h"
 
+#include "../events/on_game_over_event.h"
+#include "../events/on_game_start_event.h"
+
 using namespace pluto;
 
 GameManager::Factory::Factory(ServiceCollection& serviceCollection)
@@ -34,19 +37,31 @@ GameManager::GameManager(EventManager& eventManager, SceneManager& sceneManager,
     onSceneLoadedListenerId = eventManager.Subscribe(*this, &GameManager::OnSceneLoaded);
 }
 
-bool GameManager::IsPlaying() const
-{
-    return isPlaying;
-}
-
 void GameManager::Reload()
 {
     sceneManager->LoadEmptyScene();
 }
 
+bool GameManager::IsGameStarted() const
+{
+    return isGameStarted;
+}
+
+void GameManager::StartGame()
+{
+    isGameStarted = true;
+    eventManager->Dispatch<OnGameStartEvent>();
+}
+
+bool GameManager::IsGameOver()
+{
+    return isGameOver;
+}
+
 void GameManager::GameOver()
 {
-    isPlaying = false;
+    isGameOver = true;
+    eventManager->Dispatch<OnGameOverEvent>();
 }
 
 int GameManager::GetPoints() const
@@ -81,7 +96,7 @@ void GameManager::CreateGround()
     Resource<GameObject> groundGo = sceneManager->GetActiveScene().CreateGameObject("Ground");
     const Vector3F scale = ResolutionToScale({336, 112});
     groundGo->GetTransform()->SetLocalScale(scale);
-    groundGo->GetTransform()->SetPosition({0.083f, -0.7, 2});
+    groundGo->GetTransform()->SetPosition({0.083f, -0.9, 2});
 
     Resource<MeshRenderer> groundRenderer = groundGo->AddComponent<MeshRenderer>();
     const Resource<MeshAsset> meshAsset = assetManager->Load<MeshAsset>("meshes/quad.obj");
@@ -96,7 +111,7 @@ void GameManager::CreateGround()
 void GameManager::CreateFlappy()
 {
     Resource<GameObject> flappyGo = sceneManager->GetActiveScene().CreateGameObject("Flappy");
-    flappyGo->GetTransform()->SetPosition({0, 0, 3});
+    flappyGo->GetTransform()->SetPosition({-0.2, 0, 3});
     Resource<MeshRenderer> renderer = flappyGo->AddComponent<MeshRenderer>();
     const Resource<MeshAsset> meshAsset = assetManager->Load<MeshAsset>("meshes/quad.obj");
     renderer->SetMesh(meshAsset);
@@ -214,6 +229,7 @@ void GameManager::OnSceneLoaded(const OnSceneLoadedEvent& evt)
     CreateFPSCounter();
     CreateTopCollider();
     CreatePointCounter();
-    isPlaying = true;
+    isGameStarted = false;
+    isGameOver = false;
     points = 0;
 }
