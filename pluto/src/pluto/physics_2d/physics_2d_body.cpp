@@ -98,6 +98,16 @@ namespace pluto
             }
         }
 
+        float GetGravityScale() const
+        {
+            return body->GetGravityScale();
+        }
+
+        void SetGravityScale(const float value)
+        {
+            body->SetGravityScale(value);
+        }
+
         Vector2F GetPosition() const
         {
             const b2Vec2 position = body->GetPosition();
@@ -229,6 +239,16 @@ namespace pluto
     void Physics2DBody::SetType(const Type value)
     {
         impl->SetType(value);
+    }
+
+    float Physics2DBody::GetGravityScale() const
+    {
+        return impl->GetGravityScale();
+    }
+
+    void Physics2DBody::SetGravityScale(const float value)
+    {
+        impl->SetGravityScale(value);
     }
 
     Vector2F Physics2DBody::GetPosition() const

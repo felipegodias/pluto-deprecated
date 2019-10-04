@@ -33,6 +33,9 @@ namespace pluto
         float GetDensity() const;
         void SetDensity(float value);
 
+        float GetGravityScale() const;
+        void SetGravityScale(float value);
+
         Vector2F GetVelocity() const;
         void SetVelocity(const Vector2F& value);
 
