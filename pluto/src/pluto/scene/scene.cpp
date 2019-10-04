@@ -57,6 +57,16 @@ namespace pluto
             return gameObjectResource;
         }
 
+        Resource<GameObject> FindGameObject(const std::string& name) const
+        {
+            Resource<Transform> obj = root->GetTransform()->FindChild(name);
+            if (obj != nullptr)
+            {
+                return obj->GetGameObject();
+            }
+            return nullptr;
+        }
+
         void Destroy()
         {
             gameObjects.front()->Destroy();
@@ -218,6 +228,11 @@ namespace pluto
     Resource<GameObject> Scene::CreateGameObject(const Resource<Transform>& parent, const std::string& name)
     {
         return impl->CreateGameObject(parent, name);
+    }
+
+    Resource<GameObject> Scene::FindGameObject(const std::string& name) const
+    {
+        return impl->FindGameObject(name);
     }
 
     void Scene::Destroy()

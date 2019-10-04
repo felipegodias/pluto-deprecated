@@ -217,6 +217,9 @@ namespace pluto
                      *renderer.GetMaterial().Get());
             }
 
+            gizmosToDraw.clear();
+
+            /*
             GL_CALL(glUseProgram(0));
             GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
 
@@ -233,6 +236,7 @@ namespace pluto
             glVertex2f(0, -1);
             glVertex2f(0, 1);
             glEnd();
+            */
 
             windowManager->SwapBuffers();
         }

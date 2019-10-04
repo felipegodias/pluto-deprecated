@@ -101,8 +101,8 @@ namespace pluto
 
             if (isBegin)
             {
-                colliderA->GetGameObject()->OnCollision2DEnd(*collisionA);
-                colliderB->GetGameObject()->OnCollision2DEnd(*collisionB);
+                colliderA->GetGameObject()->OnCollision2DBegin(*collisionA);
+                colliderB->GetGameObject()->OnCollision2DBegin(*collisionB);
             }
             else
             {
