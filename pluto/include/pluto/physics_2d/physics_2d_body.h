@@ -80,6 +80,7 @@ namespace pluto
         std::unique_ptr<Physics2DBoxShape> CreateBoxShape(const Guid& colliderId, const Vector2F& offset,
                                                           const Vector2F& size);
 
+        void Update();
         void* GetNativeBody() const;
     };
 }

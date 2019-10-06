@@ -208,6 +208,7 @@ namespace pluto
 
         LogManager* logManager;
         EventManager* eventManager;
+        MemoryManager* memoryManager;
         Physics2DBody::Factory* bodyFactory;
 
     public:
@@ -218,12 +219,14 @@ namespace pluto
             logManager->LogInfo("Physics2DManager terminated!");
         }
 
-        Impl(LogManager& logManager, EventManager& eventManager, Physics2DBody::Factory& bodyFactory,
-             std::unique_ptr<PhysicsContactListener> contactListener, std::unique_ptr<PhysicsDebugDrawer> debugDrawer)
+        Impl(LogManager& logManager, EventManager& eventManager, MemoryManager& memoryManager,
+             Physics2DBody::Factory& bodyFactory, std::unique_ptr<PhysicsContactListener> contactListener,
+             std::unique_ptr<PhysicsDebugDrawer> debugDrawer)
             : contactListener(std::move(contactListener)),
               debugDrawer(std::move(debugDrawer)),
               logManager(&logManager),
               eventManager(&eventManager),
+              memoryManager(&memoryManager),
               bodyFactory(&bodyFactory)
 
         {
@@ -293,6 +296,11 @@ namespace pluto
                 }
                 else
                 {
+                    auto* body = reinterpret_cast<b2Body*>(it->second->GetNativeBody());
+                    Guid* gameObjectId = reinterpret_cast<Guid*>(body->GetUserData());
+                    Resource<GameObject> gameObject = ResourceUtils::Cast<GameObject
+                    >(memoryManager->Get(*gameObjectId));
+                    body->SetActive(gameObject->IsGloballyActive());
                     ++it;
                 }
             }
@@ -323,7 +331,7 @@ namespace pluto
         Collision2D::Factory& collisionFactory = serviceCollection.GetFactory<Collision2D>();
 
         return std::make_unique<Physics2DManager>(std::make_unique<Impl>(
-            logManager, eventManager, bodyFactory,
+            logManager, eventManager, memoryManager, bodyFactory,
             std::make_unique<PhysicsContactListener>(memoryManager, collisionFactory),
             std::make_unique<PhysicsDebugDrawer>(renderManager)));
     }
