@@ -58,5 +58,7 @@ private:
 
     void CreatePointCounter();
 
+    void CreateIntroScreen();
+
     void OnSceneLoaded(const pluto::OnSceneLoadedEvent& evt);
 };

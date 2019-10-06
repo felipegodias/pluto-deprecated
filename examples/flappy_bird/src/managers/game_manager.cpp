@@ -5,6 +5,7 @@
 #include "../components/flappy_controller.h"
 #include "../components/fps_counter.h"
 #include "../components/point_counter.h"
+#include "../components/intro.h"
 
 #include "../events/on_game_over_event.h"
 #include "../events/on_game_start_event.h"
@@ -211,6 +212,21 @@ void GameManager::CreatePointCounter()
     containerGo->AddComponent<PointCounter>();
 }
 
+void GameManager::CreateIntroScreen()
+{
+    Resource<GameObject> introGo = sceneManager->GetActiveScene().CreateGameObject("Intro");
+    const Vector3F scale = ResolutionToScale({ 184, 267});
+    introGo->GetTransform()->SetLocalScale(scale);
+    introGo->GetTransform()->SetLocalPosition({0, 0.25f, 4});
+
+    Resource<MeshRenderer> groundRenderer = introGo->AddComponent<MeshRenderer>();
+    const Resource<MeshAsset> meshAsset = assetManager->Load<MeshAsset>("meshes/quad.obj");
+    groundRenderer->SetMesh(meshAsset);
+    const Resource<MaterialAsset> material = assetManager->Load<MaterialAsset>("materials/message.mat");
+    groundRenderer->SetMaterial(material);
+    introGo->AddComponent<Intro>();
+}
+
 void GameManager::OnSceneLoaded(const OnSceneLoadedEvent& evt)
 {
     Resource<GameObject> cameraGo = sceneManager->GetActiveScene().CreateGameObject("Camera");
@@ -229,6 +245,7 @@ void GameManager::OnSceneLoaded(const OnSceneLoadedEvent& evt)
     CreateFPSCounter();
     CreateTopCollider();
     CreatePointCounter();
+    CreateIntroScreen();
     isGameStarted = false;
     isGameOver = false;
     points = 0;

@@ -6,6 +6,7 @@
 #include "components/flappy_controller.h"
 #include "components/fps_counter.h"
 #include "components/point_counter.h"
+#include "components/intro.h"
 #include "managers/game_manager.h"
 
 using namespace pluto;
@@ -21,12 +22,14 @@ void OnSetup(ServiceCollection& serviceCollection)
     serviceCollection.EmplaceFactory<FlappyController>();
     serviceCollection.EmplaceFactory<FPSCounter>();
     serviceCollection.EmplaceFactory<PointCounter>();
+    serviceCollection.EmplaceFactory<Intro>();
     serviceCollection.AddService<GameManager>(GameManager::Factory(serviceCollection).Create());
 }
 
 void OnTeardown(ServiceCollection& serviceCollection)
 {
     serviceCollection.RemoveService<GameManager>();
+    serviceCollection.RemoveFactory<Intro>();
     serviceCollection.RemoveFactory<PointCounter>();
     serviceCollection.RemoveFactory<FPSCounter>();
     serviceCollection.RemoveFactory<FlappyController>();

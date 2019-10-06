@@ -84,6 +84,4 @@ void FlappyController::OnTrigger2DEnter(const Resource<Collider2D>& collider)
     {
         gameManager->IncreasePoint();
     }
-
-    std::cout << collider->GetName() << std::endl;
 }
