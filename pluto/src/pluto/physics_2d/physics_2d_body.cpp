@@ -16,6 +16,7 @@ namespace pluto
 {
     class Physics2DBody::Impl
     {
+        std::unique_ptr<Guid> gameObjectId;
         float density;
 
         b2Body* body;
@@ -31,9 +32,10 @@ namespace pluto
             body = nullptr;
         }
 
-        Impl(b2Body& body, Physics2DCircleShape::Factory& circleShapeFactory,
+        Impl(std::unique_ptr<Guid> gameObjectId, b2Body& body, Physics2DCircleShape::Factory& circleShapeFactory,
              Physics2DBoxShape::Factory& boxShapeFactory)
-            : density(1.0f),
+            : gameObjectId(std::move(gameObjectId)),
+              density(1.0f),
               body(&body),
               circleShapeFactory(&circleShapeFactory),
               boxShapeFactory(&boxShapeFactory),
@@ -196,16 +198,18 @@ namespace pluto
         auto& circleShapeFactory = serviceCollection.GetFactory<Physics2DCircleShape>();
         auto& boxShapeFactory = serviceCollection.GetFactory<Physics2DBoxShape>();
 
+        std::unique_ptr<Guid> gameObjectId = std::make_unique<Guid>(gameObject.GetObjectId());
+
         b2BodyDef bodyDef;
         bodyDef.position = {position.x, position.y};
         bodyDef.angle = angle;
-        bodyDef.userData = gameObject.Get();
+        bodyDef.userData = gameObjectId.get();
 
         auto* world = reinterpret_cast<b2World*>(physics2DManager.GetWorld());
         b2Body* body = world->CreateBody(&bodyDef);
 
         auto physics2DBody = std::make_unique<Physics2DBody>(
-            std::make_unique<Impl>(*body, circleShapeFactory, boxShapeFactory));
+            std::make_unique<Impl>(std::move(gameObjectId), *body, circleShapeFactory, boxShapeFactory));
         physics2DBody->impl->SetInstance(*physics2DBody);
         return physics2DBody;
     }

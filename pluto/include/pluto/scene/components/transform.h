@@ -36,7 +36,7 @@ namespace pluto
         Transform& operator=(const Transform& rhs) = delete;
         Transform& operator=(Transform&& rhs) noexcept;
 
-        bool IsRoot();
+        bool IsRoot() const;
         Resource<Transform> GetParent() const;
         void SetParent(const Resource<Transform>& value) const;
 

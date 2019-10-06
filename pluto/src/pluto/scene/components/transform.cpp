@@ -316,7 +316,7 @@ namespace pluto
 
     Transform& Transform::operator=(Transform&& rhs) noexcept = default;
 
-    bool Transform::IsRoot()
+    bool Transform::IsRoot() const
     {
         return impl->IsRoot();
     }

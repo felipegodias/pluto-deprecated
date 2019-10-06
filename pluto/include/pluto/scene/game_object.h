@@ -53,6 +53,10 @@ namespace pluto
         const std::string& GetName() const override;
         void SetName(const std::string& value) override;
 
+        bool IsGloballyActive() const;
+        bool IsActive() const;
+        void SetActive(bool value);
+
         Flags GetFlags() const;
         bool IsDestroyed() const;
 

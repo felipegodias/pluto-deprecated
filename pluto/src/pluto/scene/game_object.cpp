@@ -18,12 +18,12 @@ namespace pluto
     {
         Guid guid;
         std::string name;
+        bool isActive;
         Flags flags;
 
         Resource<Transform> transform;
 
         std::vector<Resource<Component>> components;
-
         bool isDestroyed;
 
         MemoryManager* memoryManager;
@@ -32,6 +32,7 @@ namespace pluto
     public:
         Impl(const Guid& guid, MemoryManager& memoryManager, ServiceCollection& serviceCollection)
             : guid(guid),
+              isActive(true),
               flags(Flags::None),
               transform(nullptr),
               isDestroyed(false),
@@ -61,6 +62,26 @@ namespace pluto
         void SetName(const std::string& value)
         {
             name = value;
+        }
+
+        bool IsGloballyActive() const
+        {
+            if (transform->IsRoot())
+            {
+                return isActive;
+            }
+
+            return isActive && transform->GetParent()->GetGameObject()->IsGloballyActive();
+        }
+
+        bool IsActive() const
+        {
+            return isActive;
+        }
+
+        void SetActive(const bool value)
+        {
+            isActive = value;
         }
 
         Flags GetFlags() const
@@ -127,6 +148,11 @@ namespace pluto
         Resource<Component> GetComponentInChildren(
             const std::function<bool(const Component& component)>& predicate) const
         {
+            if (!IsGloballyActive())
+            {
+                return nullptr;
+            }
+
             Resource<Component> result = GetComponent(predicate);
             if (result != nullptr)
             {
@@ -147,7 +173,13 @@ namespace pluto
         std::vector<Resource<Component>> GetComponentsInChildren(
             const std::function<bool(const Component& component)>& predicate) const
         {
-            std::vector<Resource<Component>> result = GetComponents(predicate);
+            std::vector<Resource<Component>> result;
+            if (!IsGloballyActive())
+            {
+                return result;
+            }
+
+            result = GetComponents(predicate);
             for (auto it : GetTransform()->GetChildren())
             {
                 auto componentsFromChild = it->GetGameObject()->GetComponentsInChildren(predicate);
@@ -248,7 +280,7 @@ namespace pluto
         template <typename ... Args>
         void EvaluateComponents(ComponentFunction<Args...>&& function, Args&& ... args)
         {
-            if (isDestroyed)
+            if (!IsGloballyActive() || isDestroyed)
             {
                 return;
             }
@@ -299,6 +331,21 @@ namespace pluto
     void GameObject::SetName(const std::string& value)
     {
         impl->SetName(value);
+    }
+
+    bool GameObject::IsGloballyActive() const
+    {
+        return impl->IsGloballyActive();
+    }
+
+    bool GameObject::IsActive() const
+    {
+        return impl->IsActive();
+    }
+
+    void GameObject::SetActive(const bool value)
+    {
+        impl->SetActive(value);
     }
 
     GameObject::Flags GameObject::GetFlags() const
