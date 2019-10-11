@@ -6,6 +6,7 @@
 #include "../components/fps_counter.h"
 #include "../components/point_counter.h"
 #include "../components/intro.h"
+#include "../components/game_over.h"
 
 #include "../events/on_game_over_event.h"
 #include "../events/on_game_start_event.h"
@@ -59,10 +60,29 @@ bool GameManager::IsGameOver()
     return isGameOver;
 }
 
+typedef GameOver GameObjectT;
+
 void GameManager::GameOver()
 {
+    if (isGameOver)
+    {
+        return;
+    }
+
     isGameOver = true;
     eventManager->Dispatch<OnGameOverEvent>();
+    
+    Resource<GameObject> gameOverGo = sceneManager->GetActiveScene().CreateGameObject("GameOver");
+    const Vector3F scale = ResolutionToScale({192, 42});
+    gameOverGo->GetTransform()->SetLocalScale(scale);
+    gameOverGo->GetTransform()->SetLocalPosition({0, 0, 4});
+
+    Resource<MeshRenderer> gameOverRenderer = gameOverGo->AddComponent<MeshRenderer>();
+    const Resource<MeshAsset> meshAsset = assetManager->Load<MeshAsset>("meshes/quad.obj");
+    gameOverRenderer->SetMesh(meshAsset);
+    const Resource<MaterialAsset> material = assetManager->Load<MaterialAsset>("materials/gameover.mat");
+    gameOverRenderer->SetMaterial(material);
+    gameOverGo->AddComponent<GameObjectT>();
 }
 
 int GameManager::GetPoints() const
@@ -215,7 +235,7 @@ void GameManager::CreatePointCounter()
 void GameManager::CreateIntroScreen()
 {
     Resource<GameObject> introGo = sceneManager->GetActiveScene().CreateGameObject("Intro");
-    const Vector3F scale = ResolutionToScale({ 184, 267});
+    const Vector3F scale = ResolutionToScale({184, 267});
     introGo->GetTransform()->SetLocalScale(scale);
     introGo->GetTransform()->SetLocalPosition({0, 0.25f, 4});
 

@@ -7,6 +7,7 @@
 #include "components/fps_counter.h"
 #include "components/point_counter.h"
 #include "components/intro.h"
+#include "components/game_over.h"
 #include "managers/game_manager.h"
 
 using namespace pluto;
@@ -23,12 +24,14 @@ void OnSetup(ServiceCollection& serviceCollection)
     serviceCollection.EmplaceFactory<FPSCounter>();
     serviceCollection.EmplaceFactory<PointCounter>();
     serviceCollection.EmplaceFactory<Intro>();
+    serviceCollection.EmplaceFactory<GameOver>();
     serviceCollection.AddService<GameManager>(GameManager::Factory(serviceCollection).Create());
 }
 
 void OnTeardown(ServiceCollection& serviceCollection)
 {
     serviceCollection.RemoveService<GameManager>();
+    serviceCollection.RemoveFactory<GameOver>();
     serviceCollection.RemoveFactory<Intro>();
     serviceCollection.RemoveFactory<PointCounter>();
     serviceCollection.RemoveFactory<FPSCounter>();
