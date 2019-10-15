@@ -10,6 +10,10 @@
 #include "components/game_over.h"
 #include "managers/game_manager.h"
 
+#if defined(WIN32) && defined(NDEBUG)
+#include <Windows.h>
+#endif
+
 using namespace pluto;
 
 void OnSetup(ServiceCollection& serviceCollection)
@@ -43,6 +47,10 @@ void OnTeardown(ServiceCollection& serviceCollection)
 
 int main(int argc, char* argv[])
 {
+#if defined(WIN32) && defined(NDEBUG)
+    ShowWindow(GetConsoleWindow(), SW_HIDE);
+#endif
+
     const Root pluto("config.yml", "sandbox.log", "C:/Users/felipe.dias/Repos/flappy_bird");
     const int exitCode = pluto.Run(&OnSetup, &OnTeardown);
     return exitCode;
