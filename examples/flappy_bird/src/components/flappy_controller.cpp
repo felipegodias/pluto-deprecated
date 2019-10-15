@@ -57,11 +57,6 @@ void FlappyController::OnUpdate()
         currentAngle += 0.05f * (velocity.y - currentAngle) * simulationManager->GetDeltaTime() * 100;
         GetGameObject()->GetTransform()->SetRotation(Quaternion::Euler({0, 0, currentAngle * 60}));
     }
-
-    if (inputManager->GetKeyDown(KeyCode::MouseButton1))
-    {
-        gameManager->Reload();
-    }
 }
 
 void FlappyController::OnCollision2DBegin(const Collision2D& collision)
