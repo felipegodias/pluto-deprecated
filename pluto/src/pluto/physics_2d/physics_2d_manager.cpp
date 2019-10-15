@@ -310,7 +310,9 @@ namespace pluto
 
         void OnPreRender(const OnPreRenderEvent& evt)
         {
+#ifndef NDEBUG
             world->DrawDebugData();
+#endif
         }
     };
 

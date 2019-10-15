@@ -36,6 +36,12 @@
 
 namespace pluto
 {
+    struct RenderData
+    {
+        Resource<Renderer> renderer;
+        float z;
+    };
+
     class Gizmo
     {
     public:
@@ -168,12 +174,16 @@ namespace pluto
 
         void DrawCircleGizmo(const Vector2F& position, float radius, const Color& color)
         {
+#ifndef NDEBUG
             gizmosToDraw.push_back(std::make_unique<CircleGizmo>(position, radius, color));
+#endif
         }
 
         void DrawPolygonGizmo(const std::vector<Vector2F>& points, const Color& color)
         {
+#ifndef NDEBUG
             gizmosToDraw.push_back(std::make_unique<PolygonGizmo>(points, color));
+#endif
         }
 
         void DrawLineGizmo(const Vector2F& from, const Vector2F& to, const Color& color)
@@ -195,30 +205,36 @@ namespace pluto
 
             std::vector<Resource<Renderer>> renderers = rootGameObject->GetComponentsInChildren<Renderer>();
 
-            // TODO: Optimize this... Use a heap or other approach.
-            auto compare = [&](Resource<Renderer>& lhs, Resource<Renderer>& rhs) -> bool
+            std::vector<RenderData> renderData;
+            const float cameraZ = camera->GetGameObject()->GetTransform()->GetPosition().z;
+            for (auto renderer : renderers)
             {
-                float d1 = (lhs->GetGameObject()->GetTransform()->GetPosition() - camera->GetGameObject()->GetTransform()->GetPosition()).z;
-                float d2 = (rhs->GetGameObject()->GetTransform()->GetPosition() - camera->GetGameObject()->GetTransform()->GetPosition()).z;
-                return d1 < d2;
+                renderData.push_back({renderer, renderer->GetGameObject()->GetTransform()->GetPosition().z - cameraZ});
+            }
+
+            const auto compare = [&](RenderData& lhs, RenderData& rhs) -> bool
+            {
+                return lhs.z > rhs.z;
             };
 
-            std::sort(renderers.begin(), renderers.end(), compare);
+            std::make_heap(renderData.begin(), renderData.end(), compare);
 
-            for (auto& it : renderers)
+            const Matrix4X4 mv = camera->GetProjectionMatrix() * camera->GetViewMatrix();
+            while (!renderData.empty())
             {
-                Renderer& renderer = *it.Get();
+                Renderer& renderer = *renderData.front().renderer.Get();
+                std::pop_heap(renderData.begin(), renderData.end(), compare);
+                renderData.pop_back();
                 if (!camera->IsVisible(renderer))
                 {
                     continue;
                 }
 
-                Draw(*camera.Get(), *renderer.GetGameObject()->GetTransform().Get(), *renderer.GetMesh().Get(),
+                Draw(mv * renderer.GetGameObject()->GetTransform()->GetWorldMatrix(), *renderer.GetMesh().Get(),
                      *renderer.GetMaterial().Get());
             }
 
-            //gizmosToDraw.clear();
-            
+#ifndef NDEBUG
             GL_CALL(glUseProgram(0));
             GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
 
@@ -235,34 +251,18 @@ namespace pluto
             glVertex2f(0, -1);
             glVertex2f(0, 1);
             glEnd();
-            
+#endif
 
             windowManager->SwapBuffers();
         }
 
-        void DrawQuadGizmo(const Matrix4X4& mvp, const Vector2F& offset, const Vector2F& size, const Color& color)
+        static void Draw(const Matrix4X4& mvp, MeshAsset& meshAsset, MaterialAsset& materialAsset)
         {
-            glColor3f(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f);
-            glBegin(GL_LINE_LOOP);
-            const Vector2F a = mvp.MultiplyPoint(offset - size / 2);
-            const Vector2F b = mvp.MultiplyPoint({offset.x + size.x / 2, offset.y - size.y / 2});
-            const Vector2F c = mvp.MultiplyPoint({offset.x - size.x / 2, offset.y + size.y / 2});
-            const Vector2F d = mvp.MultiplyPoint(offset + size / 2);
-            glVertex2f(a.x, a.y);
-            glVertex2f(b.x, b.y);
-            glVertex2f(d.x, d.y);
-            glVertex2f(c.x, c.y);
-            glEnd();
-        }
-
-        static void Draw(Camera& camera, Transform& transform, MeshAsset& meshAsset, MaterialAsset& materialAsset)
-        {
-            const Matrix4X4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * transform.GetWorldMatrix();
-
             auto& meshBuffer = dynamic_cast<GlMeshBuffer&>(meshAsset.GetMeshBuffer());
 
             Resource<ShaderAsset> shaderAsset = materialAsset.GetShader();
             auto& shaderProgram = dynamic_cast<GlShaderProgram&>(shaderAsset->GetShaderProgram());
+
             shaderProgram.Bind(mvp, materialAsset);
 
             meshBuffer.Bind();
