@@ -71,6 +71,11 @@ namespace pluto
 
         void SetText(const std::string& value)
         {
+            if (text == value)
+            {
+                return;
+            }
+
             text = value;
             isDirty = true;
         }
@@ -82,6 +87,11 @@ namespace pluto
 
         void SetFont(const Resource<FontAsset>& value)
         {
+            if (font == value)
+            {
+                return;
+            }
+
             font = value;
             isDirty = true;
         }
@@ -93,6 +103,11 @@ namespace pluto
 
         void SetAnchor(const Anchor value)
         {
+            if (anchor == value)
+            {
+                return;
+            }
+
             anchor = value;
             isDirty = true;
         }
