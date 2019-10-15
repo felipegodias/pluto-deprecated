@@ -20,11 +20,12 @@ private:
     bool shouldUpdate;
     pluto::Resource<pluto::Rigidbody2D> rigidbody;
     pluto::InputManager* inputManager;
+    pluto::SimulationManager* simulationManager;
     GameManager* gameManager;
 
 public:
     FlappyController(const pluto::Resource<pluto::GameObject>& gameObject, pluto::InputManager& inputManager,
-                     GameManager& gameManager);
+                     pluto::SimulationManager& simulationManager, GameManager& gameManager);
 
     void OnUpdate() override;
 

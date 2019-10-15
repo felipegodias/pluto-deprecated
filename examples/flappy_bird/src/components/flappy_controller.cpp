@@ -12,17 +12,19 @@ FlappyController::Factory::Factory(ServiceCollection& serviceCollection)
 std::unique_ptr<Component> FlappyController::Factory::Create(const Resource<GameObject>& gameObject) const
 {
     auto& inputManager = GetServiceCollection().GetService<InputManager>();
+    auto& simulationManager = GetServiceCollection().GetService<SimulationManager>();
     auto& gameManager = GetServiceCollection().GetService<GameManager>();
-    return std::make_unique<FlappyController>(gameObject, inputManager, gameManager);
+    return std::make_unique<FlappyController>(gameObject, inputManager, simulationManager, gameManager);
 }
 
 FlappyController::FlappyController(const Resource<GameObject>& gameObject, InputManager& inputManager,
-                                   GameManager& gameManager)
+                                   SimulationManager& simulationManager, GameManager& gameManager)
     : Behaviour(gameObject),
       currentAngle(0),
       shouldUpdate(true),
       rigidbody(gameObject->GetComponent<Rigidbody2D>()),
       inputManager(&inputManager),
+      simulationManager(&simulationManager),
       gameManager(&gameManager)
 {
     rigidbody->SetGravityScale(0);
@@ -52,7 +54,7 @@ void FlappyController::OnUpdate()
             velocity = rigidbody->GetVelocity().GetNormalized();
         }
 
-        currentAngle = currentAngle + 0.05f * (velocity.y - currentAngle);
+        currentAngle += 0.05f * (velocity.y - currentAngle) * simulationManager->GetDeltaTime() * 100;
         GetGameObject()->GetTransform()->SetRotation(Quaternion::Euler({0, 0, currentAngle * 60}));
     }
 
