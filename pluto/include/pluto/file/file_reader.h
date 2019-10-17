@@ -1,18 +1,18 @@
 #pragma once
 
-#include "pluto/api.h"
+#include "reader.h"
 
 #include <fstream>
 #include <vector>
 
 namespace pluto
 {
-    class PLUTO_API FileReader
+    class PLUTO_API FileReader final : Reader
     {
         std::ifstream ifs;
 
     public:
-        ~FileReader();
+        ~FileReader() override;
         explicit FileReader(std::ifstream ifs);
 
         FileReader(const FileReader& other) = delete;
@@ -21,10 +21,12 @@ namespace pluto
         FileReader& operator=(FileReader&& rhs) noexcept;
 
         std::ifstream& GetStream();
-        size_t GetSize();
-        size_t GetPosition();
-        void SetPosition(size_t position);
-        void Read(void* ptr, size_t size);
-        std::vector<uint8_t> ReadAllBytes();
+
+        size_t GetSize() override;
+        size_t GetPosition() override;
+        void SetPosition(size_t position) override;
+        void Read(void* ptr, size_t size) override;
+        std::vector<uint8_t> ReadAllBytes() override;
+        std::string ReadAllText() override;
     };
 }

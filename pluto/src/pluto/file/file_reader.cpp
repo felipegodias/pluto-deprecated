@@ -65,4 +65,16 @@ namespace pluto
         ifs.seekg(pos, std::ios::beg);
         return bytes;
     }
+
+    std::string FileReader::ReadAllText()
+    {
+        const size_t pos = ifs.tellg();
+        std::string str;
+        ifs.seekg(0, std::ios::end);
+        str.reserve(ifs.tellg());
+        ifs.seekg(0, std::ios::beg);
+        str.assign(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
+        ifs.seekg(pos, std::ios::beg);
+        return str;
+    }
 }

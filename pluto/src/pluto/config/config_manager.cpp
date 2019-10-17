@@ -23,7 +23,7 @@ namespace pluto
         {
             if (configFile != nullptr)
             {
-                YAML::Node configYaml = YAML::Load(configFile->GetStream());
+                YAML::Node configYaml = YAML::Load(configFile->ReadAllText());
                 for (YAML::const_iterator it = configYaml.begin(); it != configYaml.end(); ++it)
                 {
                     if (!it->second.IsScalar())

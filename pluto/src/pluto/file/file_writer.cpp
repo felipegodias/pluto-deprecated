@@ -54,6 +54,16 @@ namespace pluto
         ofs.write(reinterpret_cast<const char*>(ptr), size);
     }
 
+    void FileWriter::Write(const std::vector<uint8_t>& bytes)
+    {
+        Write(bytes.data(), bytes.size());
+    }
+
+    void FileWriter::Write(const std::string& str)
+    {
+        Write(str.data(), str.size());
+    }
+
     void FileWriter::Flush()
     {
         ofs.flush();
