@@ -5,7 +5,7 @@
 #include "pluto/service/service_collection.h"
 
 #include "pluto/file/file_writer.h"
-#include "pluto/file/file_reader.h"
+#include "pluto/file/reader.h"
 
 #include "pluto/math/color.h"
 #include "pluto/math/rect.h"
@@ -383,10 +383,10 @@ namespace pluto
         return textureAsset;
     }
 
-    std::unique_ptr<Asset> TextureAsset::Factory::Create(FileReader& fileReader) const
+    std::unique_ptr<Asset> TextureAsset::Factory::Create(Reader& reader) const
     {
         Guid signature;
-        fileReader.Read(&signature, sizeof(Guid));
+        reader.Read(&signature, sizeof(Guid));
 
         if (signature != Guid::PLUTO_IDENTIFIER)
         {
@@ -395,9 +395,9 @@ namespace pluto
         }
 
         uint8_t serializerVersion;
-        fileReader.Read(&serializerVersion, sizeof(uint8_t));
+        reader.Read(&serializerVersion, sizeof(uint8_t));
         uint8_t assetType;
-        fileReader.Read(&assetType, sizeof(uint8_t));
+        reader.Read(&assetType, sizeof(uint8_t));
 
         if (assetType != static_cast<uint8_t>(Type::Texture))
         {
@@ -406,39 +406,40 @@ namespace pluto
         }
 
         Guid assetId;
-        fileReader.Read(&assetId, sizeof(Guid));
+        reader.Read(&assetId, sizeof(Guid));
         uint8_t assetNameLength;
-        fileReader.Read(&assetNameLength, sizeof(uint8_t));
+        reader.Read(&assetNameLength, sizeof(uint8_t));
         std::string assetName(assetNameLength, ' ');
-        fileReader.Read(assetName.data(), assetNameLength);
+        reader.Read(assetName.data(), assetNameLength);
 
         uint16_t width;
-        fileReader.Read(&width, sizeof(uint16_t));
+        reader.Read(&width, sizeof(uint16_t));
 
         uint16_t height;
-        fileReader.Read(&height, sizeof(uint16_t));
+        reader.Read(&height, sizeof(uint16_t));
 
         uint8_t format;
-        fileReader.Read(&format, sizeof(uint8_t));
+        reader.Read(&format, sizeof(uint8_t));
 
         uint8_t wrap;
-        fileReader.Read(&wrap, sizeof(uint8_t));
+        reader.Read(&wrap, sizeof(uint8_t));
 
         uint8_t filter;
-        fileReader.Read(&filter, sizeof(uint8_t));
+        reader.Read(&filter, sizeof(uint8_t));
 
         uint32_t dataSize;
-        fileReader.Read(&dataSize, sizeof(uint32_t));
+        reader.Read(&dataSize, sizeof(uint32_t));
 
         std::vector<uint8_t> data(dataSize);
-        fileReader.Read(data.data(), dataSize);
+        reader.Read(data.data(), dataSize);
 
         ServiceCollection& serviceCollection = GetServiceCollection();
         const auto& textureBufferFactory = serviceCollection.GetFactory<TextureBuffer>();
         auto textureBuffer = textureBufferFactory.Create();
 
         auto textureAsset = std::make_unique<TextureAsset>(
-            std::make_unique<Impl>(assetId, width, height, static_cast<Format>(format), std::move(data), std::move(textureBuffer)));
+            std::make_unique<Impl>(assetId, width, height, static_cast<Format>(format), std::move(data),
+                                   std::move(textureBuffer)));
 
         textureAsset->impl->Init(*textureAsset);
         textureAsset->Apply();

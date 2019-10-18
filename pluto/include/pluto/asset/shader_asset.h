@@ -132,7 +132,7 @@ namespace pluto
                                                 const std::vector<Property>& uniforms, uint32_t binaryFormat,
                                                 const std::vector<uint8_t>& binaryData) const;
 
-            std::unique_ptr<Asset> Create(FileReader& fileReader) const override;
+            std::unique_ptr<Asset> Create(Reader& reader) const override;
         };
 
     private:

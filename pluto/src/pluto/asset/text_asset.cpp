@@ -1,5 +1,5 @@
 #include <pluto/asset/text_asset.h>
-#include <pluto/file/file_reader.h>
+#include <pluto/file/reader.h>
 #include <pluto/file/file_writer.h>
 #include <pluto/guid.h>
 
@@ -80,24 +80,24 @@ namespace pluto
         return textAsset;
     }
 
-    std::unique_ptr<Asset> TextAsset::Factory::Create(FileReader& fileReader) const
+    std::unique_ptr<Asset> TextAsset::Factory::Create(Reader& reader) const
     {
         Guid signature;
-        fileReader.Read(&signature, sizeof(Guid));
+        reader.Read(&signature, sizeof(Guid));
         uint8_t serializerVersion;
-        fileReader.Read(&serializerVersion, sizeof(uint8_t));
+        reader.Read(&serializerVersion, sizeof(uint8_t));
         uint8_t assetType;
-        fileReader.Read(&assetType, sizeof(uint8_t));
+        reader.Read(&assetType, sizeof(uint8_t));
         Guid assetId;
-        fileReader.Read(&assetId, sizeof(Guid));
+        reader.Read(&assetId, sizeof(Guid));
         uint8_t assetNameLength;
-        fileReader.Read(&assetNameLength, sizeof(uint8_t));
+        reader.Read(&assetNameLength, sizeof(uint8_t));
         std::string assetName(assetNameLength, ' ');
-        fileReader.Read(assetName.data(), assetNameLength);
+        reader.Read(assetName.data(), assetNameLength);
         int textLength;
-        fileReader.Read(&textLength, sizeof(int));
+        reader.Read(&textLength, sizeof(int));
         std::string text(textLength, ' ');
-        fileReader.Read(text.data(), textLength);
+        reader.Read(text.data(), textLength);
 
         auto textAsset = std::make_unique<TextAsset>(std::make_unique<Impl>(assetId));
         textAsset->SetName(assetName);

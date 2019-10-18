@@ -8,7 +8,7 @@
 
 #include "pluto/service/service_collection.h"
 
-#include "pluto/file/file_reader.h"
+#include "pluto/file/reader.h"
 #include "pluto/file/file_writer.h"
 
 #include <fmt/format.h>
@@ -130,10 +130,10 @@ namespace pluto
         return std::make_unique<FontAsset>(std::make_unique<Impl>(Guid(), fontSize, glyphsMap, material));
     }
 
-    std::unique_ptr<Asset> FontAsset::Factory::Create(FileReader& fileReader) const
+    std::unique_ptr<Asset> FontAsset::Factory::Create(Reader& reader) const
     {
         Guid signature;
-        fileReader.Read(&signature, sizeof(Guid));
+        reader.Read(&signature, sizeof(Guid));
 
         if (signature != Guid::PLUTO_IDENTIFIER)
         {
@@ -142,9 +142,9 @@ namespace pluto
         }
 
         uint8_t serializerVersion;
-        fileReader.Read(&serializerVersion, sizeof(uint8_t));
+        reader.Read(&serializerVersion, sizeof(uint8_t));
         uint8_t assetType;
-        fileReader.Read(&assetType, sizeof(uint8_t));
+        reader.Read(&assetType, sizeof(uint8_t));
 
         if (assetType != static_cast<uint8_t>(Type::Font))
         {
@@ -153,43 +153,43 @@ namespace pluto
         }
 
         Guid assetId;
-        fileReader.Read(&assetId, sizeof(Guid));
+        reader.Read(&assetId, sizeof(Guid));
         uint8_t assetNameLength;
-        fileReader.Read(&assetNameLength, sizeof(uint8_t));
+        reader.Read(&assetNameLength, sizeof(uint8_t));
         std::string assetName(assetNameLength, ' ');
-        fileReader.Read(assetName.data(), assetNameLength);
+        reader.Read(assetName.data(), assetNameLength);
 
         // Font asset from here!
 
         float size;
-        fileReader.Read(&size, sizeof(float));
+        reader.Read(&size, sizeof(float));
 
         uint8_t glyphsCount;
-        fileReader.Read(&glyphsCount, sizeof(uint8_t));
+        reader.Read(&glyphsCount, sizeof(uint8_t));
         std::unordered_map<char, Glyph> glyphsMap;
         for (uint8_t i = 0; i < glyphsCount; ++i)
         {
             char character;
-            fileReader.Read(&character, sizeof(char));
+            reader.Read(&character, sizeof(char));
             float xMin;
-            fileReader.Read(&xMin, sizeof(float));
+            reader.Read(&xMin, sizeof(float));
             float yMin;
-            fileReader.Read(&yMin, sizeof(float));
+            reader.Read(&yMin, sizeof(float));
             float xMax;
-            fileReader.Read(&xMax, sizeof(float));
+            reader.Read(&xMax, sizeof(float));
             float yMax;
-            fileReader.Read(&yMax, sizeof(float));
+            reader.Read(&yMax, sizeof(float));
             float xBearing;
-            fileReader.Read(&xBearing, sizeof(float));
+            reader.Read(&xBearing, sizeof(float));
             float yBearing;
-            fileReader.Read(&yBearing, sizeof(float));
+            reader.Read(&yBearing, sizeof(float));
             float advance;
-            fileReader.Read(&advance, sizeof(float));
+            reader.Read(&advance, sizeof(float));
             glyphsMap.emplace(character, Glyph{character, xMin, yMin, xMax, yMax, xBearing, yBearing, advance});
         }
 
         Guid materialGuid;
-        fileReader.Read(&materialGuid, sizeof(Guid));
+        reader.Read(&materialGuid, sizeof(Guid));
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& assetManager = serviceCollection.GetService<AssetManager>();
         Resource<MaterialAsset> material = assetManager.Load<MaterialAsset>(materialGuid);

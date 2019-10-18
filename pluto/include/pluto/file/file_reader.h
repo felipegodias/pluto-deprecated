@@ -7,7 +7,7 @@
 
 namespace pluto
 {
-    class PLUTO_API FileReader final : Reader
+    class PLUTO_API FileReader final : public Reader
     {
         std::ifstream ifs;
 

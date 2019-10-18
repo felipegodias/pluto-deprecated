@@ -6,7 +6,7 @@
 
 namespace pluto
 {
-    class PLUTO_API FileWriter final : Writer
+    class PLUTO_API FileWriter final : public Writer
     {
         std::ofstream ofs;
 

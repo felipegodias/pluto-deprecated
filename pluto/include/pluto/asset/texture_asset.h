@@ -76,7 +76,7 @@ namespace pluto
             std::unique_ptr<TextureAsset> Create(uint16_t width, uint16_t height, Format format,
                                                  std::vector<uint8_t> data) const;
             std::unique_ptr<TextureAsset> Create(const TextureAsset& original) const;
-            std::unique_ptr<Asset> Create(FileReader& fileReader) const override;
+            std::unique_ptr<Asset> Create(Reader& reader) const override;
         };
 
     private:

@@ -12,7 +12,7 @@ namespace pluto
 {
     class Guid;
     class FileWriter;
-    class FileReader;
+    class Reader;
 
     class PLUTO_API Asset : public Object
     {
@@ -21,7 +21,7 @@ namespace pluto
         {
         public:
             explicit Factory(ServiceCollection& serviceCollection);
-            virtual std::unique_ptr<Asset> Create(FileReader& fileReader) const = 0;
+            virtual std::unique_ptr<Asset> Create(Reader& reader) const = 0;
         };
 
         enum class Type

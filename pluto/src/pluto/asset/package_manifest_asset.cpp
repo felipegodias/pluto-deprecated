@@ -1,5 +1,5 @@
 #include <pluto/asset/package_manifest_asset.h>
-#include <pluto/file/file_reader.h>
+#include <pluto/file/reader.h>
 #include <pluto/file/file_writer.h>
 #include <pluto/guid.h>
 
@@ -143,38 +143,38 @@ namespace pluto
         return instance;
     }
 
-    std::unique_ptr<Asset> PackageManifestAsset::Factory::Create(FileReader& fileReader) const
+    std::unique_ptr<Asset> PackageManifestAsset::Factory::Create(Reader& reader) const
     {
         Guid signature;
-        fileReader.Read(&signature, sizeof(Guid));
+        reader.Read(&signature, sizeof(Guid));
         uint8_t serializerVersion;
-        fileReader.Read(&serializerVersion, sizeof(uint8_t));
+        reader.Read(&serializerVersion, sizeof(uint8_t));
         uint8_t assetType;
-        fileReader.Read(&assetType, sizeof(uint8_t));
+        reader.Read(&assetType, sizeof(uint8_t));
 
         Guid assetId;
-        fileReader.Read(&assetId, sizeof(Guid));
+        reader.Read(&assetId, sizeof(Guid));
 
         auto instance = std::make_unique<PackageManifestAsset>(std::make_unique<Impl>(assetId));
 
         uint8_t assetNameLength;
-        fileReader.Read(&assetNameLength, sizeof(uint8_t));
+        reader.Read(&assetNameLength, sizeof(uint8_t));
         std::string assetName(assetNameLength, ' ');
-        fileReader.Read(assetName.data(), assetNameLength);
+        reader.Read(assetName.data(), assetNameLength);
         instance->SetName(assetName);
 
         uint16_t assetsListCount;
-        fileReader.Read(&assetsListCount, sizeof(uint16_t));
+        reader.Read(&assetsListCount, sizeof(uint16_t));
 
         for (uint16_t i = 0; i < assetsListCount; ++i)
         {
             Guid assetListGuid;
-            fileReader.Read(&assetListGuid, sizeof(Guid));
+            reader.Read(&assetListGuid, sizeof(Guid));
 
             uint16_t assetVirtualPathLength;
-            fileReader.Read(&assetVirtualPathLength, sizeof(uint16_t));
+            reader.Read(&assetVirtualPathLength, sizeof(uint16_t));
             std::string assetVirtualPath(assetVirtualPathLength, ' ');
-            fileReader.Read(assetVirtualPath.data(), assetVirtualPathLength);
+            reader.Read(assetVirtualPath.data(), assetVirtualPathLength);
             instance->AddAsset(std::move(assetVirtualPath), assetListGuid);
         }
 

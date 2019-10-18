@@ -7,7 +7,7 @@
 #include <pluto/math/vector2f.h>
 #include <pluto/math/vector3f.h>
 #include <pluto/math/vector3i.h>
-#include <pluto/file/file_reader.h>
+#include <pluto/file/reader.h>
 #include <pluto/file/file_writer.h>
 
 namespace pluto
@@ -163,16 +163,16 @@ namespace pluto
         return instance;
     }
 
-    std::unique_ptr<Asset> MeshAsset::Factory::Create(FileReader& fileReader) const
+    std::unique_ptr<Asset> MeshAsset::Factory::Create(Reader& reader) const
     {
         Guid signature;
-        fileReader.Read(&signature, sizeof(Guid));
+        reader.Read(&signature, sizeof(Guid));
         uint8_t serializerVersion;
-        fileReader.Read(&serializerVersion, sizeof(uint8_t));
+        reader.Read(&serializerVersion, sizeof(uint8_t));
         uint8_t assetType;
-        fileReader.Read(&assetType, sizeof(uint8_t));
+        reader.Read(&assetType, sizeof(uint8_t));
         Guid assetId;
-        fileReader.Read(&assetId, sizeof(Guid));
+        reader.Read(&assetId, sizeof(Guid));
 
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& meshBufferFactory = serviceCollection.GetFactory<MeshBuffer>();
@@ -180,28 +180,28 @@ namespace pluto
         meshAsset->impl->SetInstance(*meshAsset);
 
         uint8_t assetNameLength;
-        fileReader.Read(&assetNameLength, sizeof(uint8_t));
+        reader.Read(&assetNameLength, sizeof(uint8_t));
         std::string assetName(assetNameLength, ' ');
-        fileReader.Read(assetName.data(), assetNameLength);
+        reader.Read(assetName.data(), assetNameLength);
         meshAsset->SetName(assetName);
 
         uint16_t positionsCount;
-        fileReader.Read(&positionsCount, sizeof(uint16_t));
+        reader.Read(&positionsCount, sizeof(uint16_t));
 
         std::vector<Vector3F> positions(positionsCount);
-        fileReader.Read(positions.data(), sizeof(Vector3F) * positionsCount);
+        reader.Read(positions.data(), sizeof(Vector3F) * positionsCount);
         meshAsset->SetPositions(std::move(positions));
 
         uint16_t uvsCount;
-        fileReader.Read(&uvsCount, sizeof(uint16_t));
+        reader.Read(&uvsCount, sizeof(uint16_t));
         std::vector<Vector2F> uvs(uvsCount);
-        fileReader.Read(uvs.data(), sizeof(Vector2F) * uvsCount);
+        reader.Read(uvs.data(), sizeof(Vector2F) * uvsCount);
         meshAsset->SetUVs(std::move(uvs));
 
         uint16_t trianglesCount;
-        fileReader.Read(&trianglesCount, sizeof(uint16_t));
+        reader.Read(&trianglesCount, sizeof(uint16_t));
         std::vector<Vector3I> triangles(trianglesCount);
-        fileReader.Read(triangles.data(), sizeof(Vector3I) * trianglesCount);
+        reader.Read(triangles.data(), sizeof(Vector3I) * trianglesCount);
         meshAsset->SetTriangles(std::move(triangles));
 
         return meshAsset;

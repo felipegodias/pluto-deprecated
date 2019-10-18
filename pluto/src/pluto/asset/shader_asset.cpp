@@ -1,7 +1,7 @@
 #include <pluto/asset/shader_asset.h>
 #include <pluto/render/shader_program.h>
 #include <pluto/service/service_collection.h>
-#include <pluto/file/file_reader.h>
+#include <pluto/file/reader.h>
 #include <pluto/file/file_writer.h>
 #include <pluto/guid.h>
 #include <utility>
@@ -240,84 +240,84 @@ namespace pluto
         return shaderAsset;
     }
 
-    std::unique_ptr<Asset> ShaderAsset::Factory::Create(FileReader& fileReader) const
+    std::unique_ptr<Asset> ShaderAsset::Factory::Create(Reader& reader) const
     {
         Guid signature;
-        fileReader.Read(&signature, sizeof(Guid));
+        reader.Read(&signature, sizeof(Guid));
         uint8_t serializerVersion;
-        fileReader.Read(&serializerVersion, sizeof(uint8_t));
+        reader.Read(&serializerVersion, sizeof(uint8_t));
         uint8_t assetType;
-        fileReader.Read(&assetType, sizeof(uint8_t));
+        reader.Read(&assetType, sizeof(uint8_t));
 
         Guid assetId;
-        fileReader.Read(&assetId, sizeof(Guid));
+        reader.Read(&assetId, sizeof(Guid));
 
         uint8_t assetNameLength;
-        fileReader.Read(&assetNameLength, sizeof(uint8_t));
+        reader.Read(&assetNameLength, sizeof(uint8_t));
         std::string assetName(assetNameLength, ' ');
-        fileReader.Read(assetName.data(), assetNameLength);
+        reader.Read(assetName.data(), assetNameLength);
 
         uint8_t blendEquation;
-        fileReader.Read(&blendEquation, sizeof(uint8_t));
+        reader.Read(&blendEquation, sizeof(uint8_t));
 
         uint8_t blendAlphaEquation;
-        fileReader.Read(&blendAlphaEquation, sizeof(uint8_t));
+        reader.Read(&blendAlphaEquation, sizeof(uint8_t));
 
         uint8_t blendSrcFactor;
-        fileReader.Read(&blendSrcFactor, sizeof(uint8_t));
+        reader.Read(&blendSrcFactor, sizeof(uint8_t));
 
         uint8_t blendDstFactor;
-        fileReader.Read(&blendDstFactor, sizeof(uint8_t));
+        reader.Read(&blendDstFactor, sizeof(uint8_t));
 
         uint8_t blendSrcAlphaFactor;
-        fileReader.Read(&blendSrcAlphaFactor, sizeof(uint8_t));
+        reader.Read(&blendSrcAlphaFactor, sizeof(uint8_t));
 
         uint8_t blendDstAlphaFactor;
-        fileReader.Read(&blendDstAlphaFactor, sizeof(uint8_t));
+        reader.Read(&blendDstAlphaFactor, sizeof(uint8_t));
 
         uint8_t depthTest;
-        fileReader.Read(&depthTest, sizeof(uint8_t));
+        reader.Read(&depthTest, sizeof(uint8_t));
 
         uint8_t cullFace;
-        fileReader.Read(&cullFace, sizeof(uint8_t));
+        reader.Read(&cullFace, sizeof(uint8_t));
 
         uint8_t attributesCount;
-        fileReader.Read(&attributesCount, sizeof(uint8_t));
+        reader.Read(&attributesCount, sizeof(uint8_t));
         std::vector<Property> attributes(attributesCount);
         for (int i = 0; i < attributesCount; ++i)
         {
-            fileReader.Read(&attributes[i].id, sizeof(uint8_t));
+            reader.Read(&attributes[i].id, sizeof(uint8_t));
             uint8_t attributeNameSize;
-            fileReader.Read(&attributeNameSize, sizeof(uint8_t));
+            reader.Read(&attributeNameSize, sizeof(uint8_t));
             attributes[i].name = std::string(attributeNameSize, ' ');
-            fileReader.Read(attributes[i].name.data(), attributeNameSize);
+            reader.Read(attributes[i].name.data(), attributeNameSize);
             uint8_t attributeType;
-            fileReader.Read(&attributeType, sizeof(uint8_t));
+            reader.Read(&attributeType, sizeof(uint8_t));
             attributes[i].type = static_cast<Property::Type>(attributeType);
         }
 
         uint8_t uniformsCount;
-        fileReader.Read(&uniformsCount, sizeof(uint8_t));
+        reader.Read(&uniformsCount, sizeof(uint8_t));
         std::vector<Property> uniforms(uniformsCount);
         for (int i = 0; i < uniformsCount; ++i)
         {
-            fileReader.Read(&uniforms[i].id, sizeof(uint8_t));
+            reader.Read(&uniforms[i].id, sizeof(uint8_t));
             uint8_t uniformNameSize;
-            fileReader.Read(&uniformNameSize, sizeof(uint8_t));
+            reader.Read(&uniformNameSize, sizeof(uint8_t));
             uniforms[i].name = std::string(uniformNameSize, ' ');
-            fileReader.Read(uniforms[i].name.data(), uniformNameSize);
+            reader.Read(uniforms[i].name.data(), uniformNameSize);
             uint8_t uniformType;
-            fileReader.Read(&uniformType, sizeof(uint8_t));
+            reader.Read(&uniformType, sizeof(uint8_t));
             uniforms[i].type = static_cast<Property::Type>(uniformType);
         }
 
         uint32_t binaryFormat;
-        fileReader.Read(&binaryFormat, sizeof(uint32_t));
+        reader.Read(&binaryFormat, sizeof(uint32_t));
 
         uint32_t binarySize;
-        fileReader.Read(&binarySize, sizeof(uint32_t));
+        reader.Read(&binarySize, sizeof(uint32_t));
         std::vector<uint8_t> binaryData(binarySize);
-        fileReader.Read(binaryData.data(), binarySize);
+        reader.Read(binaryData.data(), binarySize);
 
         auto shaderAsset = std::make_unique<ShaderAsset>(std::make_unique<Impl>(
             assetId, static_cast<BlendEquation>(blendEquation), static_cast<BlendEquation>(blendAlphaEquation),

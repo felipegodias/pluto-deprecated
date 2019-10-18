@@ -4,7 +4,7 @@
 #include <pluto/asset/asset_manager.h>
 #include <pluto/file/path.h>
 #include <pluto/file/file_writer.h>
-#include <pluto/file/file_reader.h>
+#include <pluto/file/reader.h>
 
 #include <pluto/service/service_collection.h>
 #include <pluto/memory/resource.h>
@@ -286,13 +286,13 @@ namespace pluto
         return materialAsset;
     }
 
-    std::unique_ptr<Asset> MaterialAsset::Factory::Create(FileReader& fileReader) const
+    std::unique_ptr<Asset> MaterialAsset::Factory::Create(Reader& reader) const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& assetManager = serviceCollection.GetService<AssetManager>();
 
         Guid signature;
-        fileReader.Read(&signature, sizeof(Guid));
+        reader.Read(&signature, sizeof(Guid));
 
         if (signature != Guid::PLUTO_IDENTIFIER)
         {
@@ -301,9 +301,9 @@ namespace pluto
         }
 
         uint8_t serializerVersion;
-        fileReader.Read(&serializerVersion, sizeof(uint8_t));
+        reader.Read(&serializerVersion, sizeof(uint8_t));
         uint8_t assetType;
-        fileReader.Read(&assetType, sizeof(uint8_t));
+        reader.Read(&assetType, sizeof(uint8_t));
 
         if (assetType != static_cast<uint8_t>(Type::Material))
         {
@@ -312,69 +312,69 @@ namespace pluto
         }
 
         Guid assetId;
-        fileReader.Read(&assetId, sizeof(Guid));
+        reader.Read(&assetId, sizeof(Guid));
         uint8_t assetNameLength;
-        fileReader.Read(&assetNameLength, sizeof(uint8_t));
+        reader.Read(&assetNameLength, sizeof(uint8_t));
         std::string assetName(assetNameLength, ' ');
-        fileReader.Read(assetName.data(), assetNameLength);
+        reader.Read(assetName.data(), assetNameLength);
 
         Guid shaderGuid;
-        fileReader.Read(&shaderGuid, sizeof(Guid));
+        reader.Read(&shaderGuid, sizeof(Guid));
         Resource<ShaderAsset> shader = assetManager.Load<ShaderAsset>(shaderGuid);
 
         auto materialAsset = std::make_unique<MaterialAsset>(std::make_unique<Impl>(assetId, shader));
         materialAsset->SetName(assetName);
 
         uint8_t floatsCount;
-        fileReader.Read(&floatsCount, sizeof(uint8_t));
+        reader.Read(&floatsCount, sizeof(uint8_t));
         for (uint8_t i = 0; i < floatsCount; ++i)
         {
             uint8_t uniformNameLength;
-            fileReader.Read(&uniformNameLength, sizeof(uint8_t));
+            reader.Read(&uniformNameLength, sizeof(uint8_t));
             std::string uniformName(uniformNameLength, ' ');
-            fileReader.Read(uniformName.data(), uniformNameLength);
+            reader.Read(uniformName.data(), uniformNameLength);
             float value;
-            fileReader.Read(&value, sizeof(float));
+            reader.Read(&value, sizeof(float));
             materialAsset->SetFloat("u_mat." + uniformName, value);
         }
 
         uint8_t vectorsCount;
-        fileReader.Read(&vectorsCount, sizeof(uint8_t));
+        reader.Read(&vectorsCount, sizeof(uint8_t));
         for (uint8_t i = 0; i < vectorsCount; ++i)
         {
             uint8_t uniformNameLength;
-            fileReader.Read(&uniformNameLength, sizeof(uint8_t));
+            reader.Read(&uniformNameLength, sizeof(uint8_t));
             std::string uniformName(uniformNameLength, ' ');
-            fileReader.Read(uniformName.data(), uniformNameLength);
+            reader.Read(uniformName.data(), uniformNameLength);
             Vector4F value;
-            fileReader.Read(&value, sizeof(Vector4F));
+            reader.Read(&value, sizeof(Vector4F));
             materialAsset->SetVector4F("u_mat." + uniformName, value);
         }
 
         uint8_t matricesCount;
-        fileReader.Read(&matricesCount, sizeof(uint8_t));
+        reader.Read(&matricesCount, sizeof(uint8_t));
         for (uint8_t i = 0; i < matricesCount; ++i)
         {
             uint8_t uniformNameLength;
-            fileReader.Read(&uniformNameLength, sizeof(uint8_t));
+            reader.Read(&uniformNameLength, sizeof(uint8_t));
             std::string uniformName(uniformNameLength, ' ');
-            fileReader.Read(uniformName.data(), uniformNameLength);
+            reader.Read(uniformName.data(), uniformNameLength);
             Matrix4X4 value;
-            fileReader.Read(&value, sizeof(Matrix4X4));
+            reader.Read(&value, sizeof(Matrix4X4));
             materialAsset->SetMatrix4X4("u_mat." + uniformName, value);
         }
 
         uint8_t texturesCount;
-        fileReader.Read(&texturesCount, sizeof(uint8_t));
+        reader.Read(&texturesCount, sizeof(uint8_t));
         for (uint8_t i = 0; i < texturesCount; ++i)
         {
             uint8_t uniformNameLength;
-            fileReader.Read(&uniformNameLength, sizeof(uint8_t));
+            reader.Read(&uniformNameLength, sizeof(uint8_t));
             std::string uniformName(uniformNameLength, ' ');
-            fileReader.Read(uniformName.data(), uniformNameLength);
+            reader.Read(uniformName.data(), uniformNameLength);
 
             Guid textureGuid;
-            fileReader.Read(&textureGuid, sizeof(Guid));
+            reader.Read(&textureGuid, sizeof(Guid));
             Resource<TextureAsset> texture = assetManager.Load<TextureAsset>(textureGuid);
             materialAsset->SetTexture("u_mat." + uniformName, texture);
         }

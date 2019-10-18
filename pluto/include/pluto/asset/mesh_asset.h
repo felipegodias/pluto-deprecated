@@ -43,7 +43,7 @@ namespace pluto
             explicit Factory(ServiceCollection& serviceCollection);
             std::unique_ptr<MeshAsset> Create() const;
             std::unique_ptr<MeshAsset> Create(const MeshAsset& original) const;
-            std::unique_ptr<Asset> Create(FileReader& fileReader) const override;
+            std::unique_ptr<Asset> Create(Reader& reader) const override;
         };
 
     private:
