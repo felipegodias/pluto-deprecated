@@ -52,6 +52,7 @@ namespace pluto
     public:
         explicit Impl(std::unique_ptr<FileWriter> logFile)
         {
+#ifndef NDEBUG
             spdlog::set_pattern("%^[%T] %n: %v%$");
 
             consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
@@ -68,7 +69,7 @@ namespace pluto
 
             logger = std::make_unique<spdlog::logger>("Pluto Engine", sinkList);
             logger->set_level(spdlog::level::trace);
-
+#endif
             LogInfo("LogManager Initialized!");
         }
 
@@ -79,22 +80,34 @@ namespace pluto
 
         void LogInfo(const std::string& message) const
         {
-            logger->info(fmt::format("{0}\n{1}", message, StackTrace(5)));
+            if (logger != nullptr)
+            {
+                logger->info(fmt::format("{0}\n{1}", message, StackTrace(5)));
+            }
         }
 
         void LogWarning(const std::string& message) const
         {
-            logger->warn(fmt::format("{0}\n{1}", message, StackTrace(5)));
+            if (logger != nullptr)
+            {
+                logger->warn(fmt::format("{0}\n{1}", message, StackTrace(5)));
+            }
         }
 
         void LogError(const std::string& message) const
         {
-            logger->error(fmt::format("{0}\n{1}", message, StackTrace(5)));
+            if (logger != nullptr)
+            {
+                logger->error(fmt::format("{0}\n{1}", message, StackTrace(5)));
+            }
         }
 
         void LogException(const Exception& exception)
         {
-            logger->error(fmt::format("{0}\n{1}", exception.what(), exception.GetStackTrace()));
+            if (logger != nullptr)
+            {
+                logger->error(fmt::format("{0}\n{1}", exception.what(), exception.GetStackTrace()));
+            }
         }
     };
 
