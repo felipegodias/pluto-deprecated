@@ -9,7 +9,7 @@
 #include "pluto/service/service_collection.h"
 
 #include "pluto/file/stream_reader.h"
-#include "pluto/file/file_writer.h"
+#include "pluto/file/file_stream_writer.h"
 
 #include <fmt/format.h>
 #include <unordered_map>
@@ -51,7 +51,7 @@ namespace pluto
             name = value;
         }
 
-        void Dump(FileWriter& fileWriter) const
+        void Dump(FileStreamWriter& fileWriter) const
         {
             fileWriter.Write(&Guid::PLUTO_IDENTIFIER, sizeof(Guid));
 
@@ -225,7 +225,7 @@ namespace pluto
         return impl->SetName(value);
     }
 
-    void FontAsset::Dump(FileWriter& fileWriter) const
+    void FontAsset::Dump(FileStreamWriter& fileWriter) const
     {
         impl->Dump(fileWriter);
     }

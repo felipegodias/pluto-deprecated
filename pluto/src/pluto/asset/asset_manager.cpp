@@ -1,7 +1,7 @@
 #include <pluto/asset/asset_manager.h>
 #include <pluto/file/file_manager.h>
 
-#include <pluto/file/file_reader.h>
+#include <pluto/file/file_stream_reader.h>
 #include <pluto/file/path.h>
 
 #include <pluto/service/service_collection.h>
@@ -150,7 +150,7 @@ namespace pluto
                     std::runtime_error(fmt::format("Asset at path {0} does not exists.", path)));
             }
 
-            FileReader file = FileManager::OpenRead(path);
+            FileStreamReader file = FileManager::OpenRead(path);
             const auto& factory = dynamic_cast<Asset::Factory&>(serviceCollection->GetFactory(type));
             return ResourceUtils::Cast<Asset>(Register(factory.Create(file)));
         }

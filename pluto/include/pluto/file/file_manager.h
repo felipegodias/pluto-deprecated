@@ -7,8 +7,8 @@
 
 namespace pluto
 {
-    class FileWriter;
-    class FileReader;
+    class FileStreamWriter;
+    class FileStreamReader;
     class Regex;
     class Path;
 
@@ -59,9 +59,9 @@ namespace pluto
 
         static void CreateDirectory(const std::string& path);
 
-        static FileReader OpenRead(const std::string& path);
+        static FileStreamReader OpenRead(const std::string& path);
 
-        static FileWriter OpenWrite(const std::string& path);
+        static FileStreamWriter OpenWrite(const std::string& path);
 
         static void Delete(const std::string& path);
     };

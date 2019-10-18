@@ -4,7 +4,7 @@
 
 namespace pluto
 {
-    void ConfigInstaller::Install(FileReader* configFile, ServiceCollection& serviceCollection)
+    void ConfigInstaller::Install(FileStreamReader* configFile, ServiceCollection& serviceCollection)
     {
         const ConfigManager::Factory factory(serviceCollection);
         serviceCollection.AddService(factory.Create(configFile));

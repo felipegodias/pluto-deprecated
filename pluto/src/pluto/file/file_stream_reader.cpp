@@ -1,20 +1,20 @@
-#include <pluto/file/file_reader.h>
+#include <pluto/file/file_stream_reader.h>
 
 namespace pluto
 {
-    FileReader::~FileReader() = default;
+    FileStreamReader::~FileStreamReader() = default;
 
-    FileReader::FileReader(std::ifstream ifs)
+    FileStreamReader::FileStreamReader(std::ifstream ifs)
         : ifs(std::move(ifs))
     {
     }
 
-    FileReader::FileReader(FileReader&& other) noexcept
+    FileStreamReader::FileStreamReader(FileStreamReader&& other) noexcept
         : ifs(std::move(other.ifs))
     {
     }
 
-    FileReader& FileReader::operator=(FileReader&& rhs) noexcept
+    FileStreamReader& FileStreamReader::operator=(FileStreamReader&& rhs) noexcept
     {
         if (this == &rhs)
         {
@@ -25,7 +25,7 @@ namespace pluto
         return *this;
     }
 
-    size_t FileReader::GetSize()
+    size_t FileStreamReader::GetSize()
     {
         const size_t pos = ifs.tellg();
         ifs.seekg(0, std::ios::end);
@@ -34,22 +34,22 @@ namespace pluto
         return size;
     }
 
-    size_t FileReader::GetPosition()
+    size_t FileStreamReader::GetPosition()
     {
         return ifs.tellg();
     }
 
-    void FileReader::SetPosition(const size_t position)
+    void FileStreamReader::SetPosition(const size_t position)
     {
         ifs.seekg(position, std::ios::beg);
     }
 
-    void FileReader::Read(void* ptr, const size_t size)
+    void FileStreamReader::Read(void* ptr, const size_t size)
     {
         ifs.read(reinterpret_cast<char*>(ptr), size);
     }
 
-    std::vector<uint8_t> FileReader::ReadAllBytes()
+    std::vector<uint8_t> FileStreamReader::ReadAllBytes()
     {
         const size_t pos = ifs.tellg();
         ifs.seekg(0, std::ios::end);
@@ -61,7 +61,7 @@ namespace pluto
         return bytes;
     }
 
-    std::string FileReader::ReadAllText()
+    std::string FileStreamReader::ReadAllText()
     {
         const size_t pos = ifs.tellg();
         std::string str;

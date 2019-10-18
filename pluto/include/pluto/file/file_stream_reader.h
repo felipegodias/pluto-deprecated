@@ -7,18 +7,18 @@
 
 namespace pluto
 {
-    class PLUTO_API FileReader final : public StreamReader
+    class PLUTO_API FileStreamReader final : public StreamReader
     {
         std::ifstream ifs;
 
     public:
-        ~FileReader() override;
-        explicit FileReader(std::ifstream ifs);
+        ~FileStreamReader() override;
+        explicit FileStreamReader(std::ifstream ifs);
 
-        FileReader(const FileReader& other) = delete;
-        FileReader(FileReader&& other) noexcept;
-        FileReader& operator=(const FileReader& rhs) = delete;
-        FileReader& operator=(FileReader&& rhs) noexcept;
+        FileStreamReader(const FileStreamReader& other) = delete;
+        FileStreamReader(FileStreamReader&& other) noexcept;
+        FileStreamReader& operator=(const FileStreamReader& rhs) = delete;
+        FileStreamReader& operator=(FileStreamReader&& rhs) noexcept;
 
         size_t GetSize() override;
         size_t GetPosition() override;

@@ -1,20 +1,20 @@
-#include "pluto/file/file_writer.h"
+#include "pluto/file/file_stream_writer.h"
 
 namespace pluto
 {
-    FileWriter::~FileWriter() = default;
+    FileStreamWriter::~FileStreamWriter() = default;
 
-    FileWriter::FileWriter(std::ofstream ofs)
+    FileStreamWriter::FileStreamWriter(std::ofstream ofs)
         : ofs(std::move(ofs))
     {
     }
 
-    FileWriter::FileWriter(FileWriter&& other) noexcept
+    FileStreamWriter::FileStreamWriter(FileStreamWriter&& other) noexcept
         : ofs(std::move(other.ofs))
     {
     }
 
-    FileWriter& FileWriter::operator=(FileWriter&& rhs) noexcept
+    FileStreamWriter& FileStreamWriter::operator=(FileStreamWriter&& rhs) noexcept
     {
         if (this == &rhs)
         {
@@ -25,7 +25,7 @@ namespace pluto
         return *this;
     }
 
-    size_t FileWriter::GetSize()
+    size_t FileStreamWriter::GetSize()
     {
         const size_t pos = ofs.tellp();
         ofs.seekp(0, std::ios::end);
@@ -34,32 +34,32 @@ namespace pluto
         return size;
     }
 
-    size_t FileWriter::GetPosition()
+    size_t FileStreamWriter::GetPosition()
     {
         return ofs.tellp();
     }
 
-    void FileWriter::SetPosition(const size_t position)
+    void FileStreamWriter::SetPosition(const size_t position)
     {
         ofs.seekp(position, std::ios::beg);
     }
 
-    void FileWriter::Write(const void* ptr, const size_t size)
+    void FileStreamWriter::Write(const void* ptr, const size_t size)
     {
         ofs.write(reinterpret_cast<const char*>(ptr), size);
     }
 
-    void FileWriter::Write(const std::vector<uint8_t>& bytes)
+    void FileStreamWriter::Write(const std::vector<uint8_t>& bytes)
     {
         Write(bytes.data(), bytes.size());
     }
 
-    void FileWriter::Write(const std::string& str)
+    void FileStreamWriter::Write(const std::string& str)
     {
         Write(str.data(), str.size());
     }
 
-    void FileWriter::Flush()
+    void FileStreamWriter::Flush()
     {
         ofs.flush();
     }

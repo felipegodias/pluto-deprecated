@@ -3,8 +3,8 @@
 #include <pluto/guid.h>
 #include <pluto/service/service_collection.h>
 #include <pluto/asset/shader_asset.h>
-#include <pluto/file/file_reader.h>
-#include <pluto/file/file_writer.h>
+#include <pluto/file/file_stream_reader.h>
+#include <pluto/file/file_stream_writer.h>
 #include <pluto/file/file_manager.h>
 #include <pluto/file/path.h>
 
@@ -376,7 +376,7 @@ namespace pluto::compiler
         YAML::Node plutoFile = YAML::LoadFile(plutoFilePath);
         const Guid guid(plutoFile["guid"].as<std::string>());
 
-        FileReader fr = FileManager::OpenRead(input);
+        FileStreamReader fr = FileManager::OpenRead(input);
         const ShaderFileData shaderData = ParseShader(fr.GetStream());
 
         const GLuint programId = CreateShader(shaderData.vertexSrc, shaderData.fragSrc);
@@ -412,7 +412,7 @@ namespace pluto::compiler
 
         shaderAsset->SetName(Path::GetFileNameWithoutExtension(input));
 
-        FileWriter fileWriter = FileManager::OpenWrite(Path::Combine({outputDir, shaderAsset->GetId().Str()}));
+        FileStreamWriter fileWriter = FileManager::OpenWrite(Path::Combine({outputDir, shaderAsset->GetId().Str()}));
         shaderAsset->Dump(fileWriter);
 
         std::vector<CompiledAsset> assets;

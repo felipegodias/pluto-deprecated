@@ -21,8 +21,8 @@
 #include <pluto/asset/asset_manager.h>
 
 #include <pluto/file/file_manager.h>
-#include <pluto/file/file_reader.h>
-#include <pluto/file/file_writer.h>
+#include <pluto/file/file_stream_reader.h>
+#include <pluto/file/file_stream_writer.h>
 #include <pluto/file/path.h>
 
 #include <regex>
@@ -42,12 +42,12 @@ namespace pluto
             serviceCollection = std::make_unique<ServiceCollection>();
 
             FileManager::SetRootPath(dataDirectoryName);
-            FileWriter logFile = FileManager::OpenWrite(logFileName);
-            LogInstaller::Install(std::make_unique<FileWriter>(std::move(logFile)), *serviceCollection);
+            FileStreamWriter logFile = FileManager::OpenWrite(logFileName);
+            LogInstaller::Install(std::make_unique<FileStreamWriter>(std::move(logFile)), *serviceCollection);
 
             if (FileManager::Exists(configFileName))
             {
-                FileReader configFile = FileManager::OpenRead(configFileName);
+                FileStreamReader configFile = FileManager::OpenRead(configFileName);
                 ConfigInstaller::Install(&configFile, *serviceCollection);
             }
             else

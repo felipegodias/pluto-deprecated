@@ -9,7 +9,7 @@
 namespace pluto
 {
     class ServiceCollection;
-    class FileReader;
+    class FileStreamReader;
 
     class PLUTO_API ConfigManager final : public BaseService
     {
@@ -18,7 +18,7 @@ namespace pluto
         {
         public:
             explicit Factory(ServiceCollection& serviceCollection);
-            std::unique_ptr<ConfigManager> Create(FileReader* configFile) const;
+            std::unique_ptr<ConfigManager> Create(FileStreamReader* configFile) const;
         };
 
     private:

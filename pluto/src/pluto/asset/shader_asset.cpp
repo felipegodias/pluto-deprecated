@@ -2,7 +2,7 @@
 #include <pluto/render/shader_program.h>
 #include <pluto/service/service_collection.h>
 #include <pluto/file/stream_reader.h>
-#include <pluto/file/file_writer.h>
+#include <pluto/file/file_stream_writer.h>
 #include <pluto/guid.h>
 #include <utility>
 #include <vector>
@@ -70,7 +70,7 @@ namespace pluto
             name = value;
         }
 
-        void Dump(FileWriter& fileWriter) const
+        void Dump(FileStreamWriter& fileWriter) const
         {
             fileWriter.Write(&guid, sizeof(Guid));
             uint8_t serializerVersion = 1;
@@ -360,7 +360,7 @@ namespace pluto
         impl->SetName(value);
     }
 
-    void ShaderAsset::Dump(FileWriter& fileWriter) const
+    void ShaderAsset::Dump(FileStreamWriter& fileWriter) const
     {
         impl->Dump(fileWriter);
     }

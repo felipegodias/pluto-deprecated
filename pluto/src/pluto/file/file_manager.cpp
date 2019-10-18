@@ -1,6 +1,6 @@
 #include "pluto/file/file_manager.h"
-#include "pluto/file/file_reader.h"
-#include "pluto/file/file_writer.h"
+#include "pluto/file/file_stream_reader.h"
+#include "pluto/file/file_stream_writer.h"
 #include "pluto/regex.h"
 
 #include <filesystem>
@@ -127,14 +127,14 @@ namespace pluto
         std::filesystem::create_directory(path);
     }
 
-    FileReader FileManager::OpenRead(const std::string& path)
+    FileStreamReader FileManager::OpenRead(const std::string& path)
     {
-        return FileReader(std::ifstream(path, std::ios::binary));
+        return FileStreamReader(std::ifstream(path, std::ios::binary));
     }
 
-    FileWriter FileManager::OpenWrite(const std::string& path)
+    FileStreamWriter FileManager::OpenWrite(const std::string& path)
     {
-        return FileWriter(std::ofstream(path, std::ios::binary));
+        return FileStreamWriter(std::ofstream(path, std::ios::binary));
     }
 
     void FileManager::Delete(const std::string& path)

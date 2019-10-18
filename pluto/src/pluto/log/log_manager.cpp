@@ -1,5 +1,5 @@
 #include <pluto/log/log_manager.h>
-#include <pluto/file/file_writer.h>
+#include <pluto/file/file_stream_writer.h>
 #include <pluto/service/service_collection.h>
 #include <pluto/exception.h>
 #include <pluto/stack_trace.h>
@@ -13,12 +13,12 @@ namespace pluto
 {
     class FileWriterSink final : public spdlog::sinks::base_sink<std::mutex>
     {
-        std::unique_ptr<FileWriter> fileWriter;
+        std::unique_ptr<FileStreamWriter> fileWriter;
 
     public:
         ~FileWriterSink() = default;
 
-        explicit FileWriterSink(std::unique_ptr<FileWriter> writer)
+        explicit FileWriterSink(std::unique_ptr<FileStreamWriter> writer)
             : fileWriter(std::move(writer))
         {
         }
@@ -50,7 +50,7 @@ namespace pluto
         std::shared_ptr<FileWriterSink> fileSink;
 
     public:
-        explicit Impl(std::unique_ptr<FileWriter> logFile)
+        explicit Impl(std::unique_ptr<FileStreamWriter> logFile)
         {
 #ifndef NDEBUG
             spdlog::set_pattern("%^[%T] %n: %v%$");
@@ -116,7 +116,7 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<LogManager> LogManager::Factory::Create(std::unique_ptr<FileWriter> logFile) const
+    std::unique_ptr<LogManager> LogManager::Factory::Create(std::unique_ptr<FileStreamWriter> logFile) const
     {
         return std::make_unique<LogManager>(std::make_unique<Impl>(std::move(logFile)));
     }

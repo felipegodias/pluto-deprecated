@@ -8,7 +8,7 @@
 
 namespace pluto
 {
-    class FileWriter;
+    class FileStreamWriter;
     class Exception;
 
     class PLUTO_API LogManager final : public BaseService
@@ -18,7 +18,7 @@ namespace pluto
         {
         public:
             explicit Factory(ServiceCollection& serviceCollection);
-            std::unique_ptr<LogManager> Create(std::unique_ptr<FileWriter> logFile) const;
+            std::unique_ptr<LogManager> Create(std::unique_ptr<FileStreamWriter> logFile) const;
         };
 
     private:

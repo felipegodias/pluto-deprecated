@@ -1,6 +1,6 @@
 #include <pluto/config/config_manager.h>
 #include <pluto/file/file_manager.h>
-#include <pluto/file/file_reader.h>
+#include <pluto/file/file_stream_reader.h>
 #include <pluto/log/log_manager.h>
 #include <pluto/service/service_collection.h>
 
@@ -17,7 +17,7 @@ namespace pluto
         std::unordered_map<std::string, std::string> config;
 
     public:
-        Impl(FileReader* configFile, LogManager& logManager)
+        Impl(FileStreamReader* configFile, LogManager& logManager)
             : logManager(
                 logManager)
         {
@@ -93,7 +93,7 @@ namespace pluto
     {
     }
 
-    std::unique_ptr<ConfigManager> ConfigManager::Factory::Create(FileReader* configFile) const
+    std::unique_ptr<ConfigManager> ConfigManager::Factory::Create(FileStreamReader* configFile) const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& logManager = serviceCollection.GetService<LogManager>();

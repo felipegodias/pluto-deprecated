@@ -4,7 +4,7 @@
 #include "pluto/asset/material_asset.h"
 #include "pluto/asset/shader_asset.h"
 #include "pluto/asset/texture_asset.h"
-#include "pluto/file/file_writer.h"
+#include "pluto/file/file_stream_writer.h"
 #include "pluto/file/file_manager.h"
 #include "pluto/file/path.h"
 
@@ -105,7 +105,7 @@ namespace pluto::compiler
             materialAsset->SetTexture(it->first.as<std::string>(), texture);
         }
 
-        FileWriter fileWriter = FileManager::OpenWrite(Path::Combine({outputDir, materialAsset->GetId().Str()}));
+        FileStreamWriter fileWriter = FileManager::OpenWrite(Path::Combine({outputDir, materialAsset->GetId().Str()}));
         materialAsset->Dump(fileWriter);
 
         assets.push_back({materialAsset->GetId(), input});

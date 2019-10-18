@@ -55,7 +55,7 @@ namespace pluto
         const Guid& GetId() const override;
         const std::string& GetName() const override;
         void SetName(const std::string& value) override;
-        void Dump(FileWriter& fileWriter) const override;
+        void Dump(FileStreamWriter& fileWriter) const override;
 
         float Size() const;
 

@@ -8,7 +8,7 @@
 
 namespace pluto
 {
-    class FileReader;
+    class FileStreamReader;
 
     /*
      * File layout in disk. (Version 1)
@@ -55,7 +55,7 @@ namespace pluto
         const std::string& GetName() const override;
         void SetName(const std::string& value) override;
 
-        void Dump(FileWriter& fileWriter) const override;
+        void Dump(FileStreamWriter& fileWriter) const override;
 
         const std::string& GetText() const;
         void SetText(const std::string& value);

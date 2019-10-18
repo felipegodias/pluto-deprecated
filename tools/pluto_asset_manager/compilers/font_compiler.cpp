@@ -1,7 +1,7 @@
 #include "font_compiler.h"
 
-#include <pluto/file/file_reader.h>
-#include <pluto/file/file_writer.h>
+#include <pluto/file/file_stream_reader.h>
+#include <pluto/file/file_stream_writer.h>
 #include <pluto/file/file_manager.h>
 #include <pluto/file/path.h>
 
@@ -106,7 +106,7 @@ namespace pluto::compiler
         fontAsset->SetName(Path::GetFileNameWithoutExtension(input));
         const_cast<Guid&>(fontAsset->GetId()) = guid;
 
-        FileWriter fileWriter = FileManager::OpenWrite(Path::Combine({outputDir, fontAsset->GetId().Str()}));
+        FileStreamWriter fileWriter = FileManager::OpenWrite(Path::Combine({outputDir, fontAsset->GetId().Str()}));
         fontAsset->Dump(fileWriter);
 
         fileWriter = FileManager::OpenWrite(Path::Combine({outputDir, materialAsset->GetId().Str()}));

@@ -9,7 +9,7 @@
 
 namespace pluto
 {
-    class FileReader;
+    class FileStreamReader;
     class ShaderProgram;
 
     /*
@@ -152,7 +152,7 @@ namespace pluto
         const std::string& GetName() const override;
         void SetName(const std::string& value) override;
 
-        void Dump(FileWriter& fileWriter) const override;
+        void Dump(FileStreamWriter& fileWriter) const override;
 
         BlendEquation GetBlendEquation() const;
 

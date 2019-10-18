@@ -3,8 +3,8 @@
 #include <pluto/guid.h>
 #include <pluto/service/service_collection.h>
 #include <pluto/asset/mesh_asset.h>
-#include <pluto/file/file_reader.h>
-#include <pluto/file/file_writer.h>
+#include <pluto/file/file_stream_reader.h>
+#include <pluto/file/file_stream_writer.h>
 #include <pluto/file/file_manager.h>
 #include <pluto/file/path.h>
 
@@ -44,7 +44,7 @@ namespace pluto::compiler
         YAML::Node plutoFile = YAML::LoadFile(plutoFilePath);
         const Guid guid(plutoFile["guid"].as<std::string>());
 
-        FileReader fr = FileManager::OpenRead(input);
+        FileStreamReader fr = FileManager::OpenRead(input);
 
         std::vector<Vector3F> filePositions;
         std::vector<Vector2F> fileUVs;
@@ -122,7 +122,7 @@ namespace pluto::compiler
         meshAsset->SetUVs(std::move(uvs));
         meshAsset->SetTriangles(std::move(triangles));
 
-        FileWriter fileWriter = FileManager::OpenWrite(Path::Combine({outputDir, meshAsset->GetId().Str()}));
+        FileStreamWriter fileWriter = FileManager::OpenWrite(Path::Combine({outputDir, meshAsset->GetId().Str()}));
         meshAsset->Dump(fileWriter);
 
         std::vector<CompiledAsset> assets;

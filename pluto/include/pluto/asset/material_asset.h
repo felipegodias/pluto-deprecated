@@ -13,7 +13,7 @@ namespace pluto
 
     class ShaderAsset;
     class TextureAsset;
-    class FileReader;
+    class FileStreamReader;
     class Vector2I;
     class Vector2F;
     class Vector3I;
@@ -66,7 +66,7 @@ namespace pluto
         const std::string& GetName() const override;
         void SetName(const std::string& value) override;
 
-        void Dump(FileWriter& fileWriter) const override;
+        void Dump(FileStreamWriter& fileWriter) const override;
 
         Resource<ShaderAsset> GetShader() const;
         void SetShader(const Resource<ShaderAsset>& value);

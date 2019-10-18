@@ -6,18 +6,18 @@
 
 namespace pluto
 {
-    class PLUTO_API FileWriter final : public StreamWriter
+    class PLUTO_API FileStreamWriter final : public StreamWriter
     {
         std::ofstream ofs;
 
     public:
-        ~FileWriter() override;
-        explicit FileWriter(std::ofstream ofs);
+        ~FileStreamWriter() override;
+        explicit FileStreamWriter(std::ofstream ofs);
 
-        FileWriter(const FileWriter& other) = delete;
-        FileWriter(FileWriter&& other) noexcept;
-        FileWriter& operator=(const FileWriter& rhs) = delete;
-        FileWriter& operator=(FileWriter&& rhs) noexcept;
+        FileStreamWriter(const FileStreamWriter& other) = delete;
+        FileStreamWriter(FileStreamWriter&& other) noexcept;
+        FileStreamWriter& operator=(const FileStreamWriter& rhs) = delete;
+        FileStreamWriter& operator=(FileStreamWriter&& rhs) noexcept;
 
         uint64_t GetSize() override;
         uint64_t GetPosition() override;

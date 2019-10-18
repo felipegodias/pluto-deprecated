@@ -16,8 +16,8 @@
 #include "pluto/event/event_manager.h"
 
 #include "pluto/file/file_manager.h"
-#include "pluto/file/file_reader.h"
-#include "pluto/file/file_writer.h"
+#include "pluto/file/file_stream_reader.h"
+#include "pluto/file/file_stream_writer.h"
 #include "pluto/file/path.h"
 
 #include "pluto/input/input_manager.h"

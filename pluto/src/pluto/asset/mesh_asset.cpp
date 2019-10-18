@@ -8,7 +8,7 @@
 #include <pluto/math/vector3f.h>
 #include <pluto/math/vector3i.h>
 #include <pluto/file/stream_reader.h>
-#include <pluto/file/file_writer.h>
+#include <pluto/file/file_stream_writer.h>
 
 namespace pluto
 {
@@ -59,7 +59,7 @@ namespace pluto
             name = value;
         }
 
-        void Dump(FileWriter& fileWriter) const
+        void Dump(FileStreamWriter& fileWriter) const
         {
             fileWriter.Write(&guid, sizeof(Guid));
             uint8_t serializerVersion = 1;
@@ -233,7 +233,7 @@ namespace pluto
         impl->SetName(value);
     }
 
-    void MeshAsset::Dump(FileWriter& fileWriter) const
+    void MeshAsset::Dump(FileStreamWriter& fileWriter) const
     {
         impl->Dump(fileWriter);
     }

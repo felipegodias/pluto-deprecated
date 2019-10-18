@@ -11,7 +11,7 @@ namespace pluto
     class Vector2F;
     class Vector3F;
     class Vector3I;
-    class FileReader;
+    class FileStreamReader;
     class MeshBuffer;
 
     /*
@@ -63,7 +63,7 @@ namespace pluto
         const std::string& GetName() const override;
         void SetName(const std::string& value) override;
 
-        void Dump(FileWriter& fileWriter) const override;
+        void Dump(FileStreamWriter& fileWriter) const override;
 
         const std::vector<Vector3F>& GetPositions() const;
         void SetPositions(std::vector<Vector3F> value);

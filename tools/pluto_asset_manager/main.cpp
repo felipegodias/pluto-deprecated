@@ -25,8 +25,8 @@
 
 #include <pluto/file/path.h>
 #include <pluto/file/file_manager.h>
-#include <pluto/file/file_reader.h>
-#include <pluto/file/file_writer.h>
+#include <pluto/file/file_stream_reader.h>
+#include <pluto/file/file_stream_writer.h>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>

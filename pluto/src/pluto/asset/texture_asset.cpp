@@ -4,7 +4,7 @@
 
 #include "pluto/service/service_collection.h"
 
-#include "pluto/file/file_writer.h"
+#include "pluto/file/file_stream_writer.h"
 #include "pluto/file/stream_reader.h"
 
 #include "pluto/math/color.h"
@@ -77,7 +77,7 @@ namespace pluto
             name = value;
         }
 
-        void Dump(FileWriter& fileWriter) const
+        void Dump(FileStreamWriter& fileWriter) const
         {
             fileWriter.Write(&Guid::PLUTO_IDENTIFIER, sizeof(Guid));
             uint8_t serializerVersion = 1;
@@ -477,7 +477,7 @@ namespace pluto
         impl->SetName(value);
     }
 
-    void TextureAsset::Dump(FileWriter& fileWriter) const
+    void TextureAsset::Dump(FileStreamWriter& fileWriter) const
     {
         impl->Dump(fileWriter);
     }

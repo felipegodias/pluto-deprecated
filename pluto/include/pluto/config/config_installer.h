@@ -5,12 +5,12 @@
 namespace pluto
 {
     class ServiceCollection;
-    class FileReader;
+    class FileStreamReader;
 
     class PLUTO_API ConfigInstaller
     {
     public:
-        static void Install(FileReader* configFile, ServiceCollection& serviceCollection);
+        static void Install(FileStreamReader* configFile, ServiceCollection& serviceCollection);
         static void Uninstall(ServiceCollection& serviceCollection);
     };
 }

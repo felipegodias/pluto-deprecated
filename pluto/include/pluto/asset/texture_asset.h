@@ -14,7 +14,7 @@ namespace pluto
     class Rect;
     class Color;
     class TextureBuffer;
-    class FileReader;
+    class FileStreamReader;
 
     /*
      * File layout in disk. (Version 1)
@@ -96,7 +96,7 @@ namespace pluto
         const std::string& GetName() const override;
         void SetName(const std::string& value) override;
 
-        void Dump(FileWriter& fileWriter) const override;
+        void Dump(FileStreamWriter& fileWriter) const override;
 
         std::vector<uint8_t> Data();
 

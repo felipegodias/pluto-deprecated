@@ -4,7 +4,7 @@
 #include <pluto/regex.h>
 
 #include <pluto/file/file_manager.h>
-#include <pluto/file/file_writer.h>
+#include <pluto/file/file_stream_writer.h>
 #include <pluto/file/path.h>
 
 #include <vector>
@@ -64,7 +64,7 @@ namespace pluto::compiler
             }
         }
 
-        FileWriter fileWriter = FileManager::OpenWrite(Path::Combine({
+        FileStreamWriter fileWriter = FileManager::OpenWrite(Path::Combine({
             packageManifest->GetName(), packageManifest->GetName()
         }));
 

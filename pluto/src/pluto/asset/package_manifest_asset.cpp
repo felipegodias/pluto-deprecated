@@ -1,6 +1,6 @@
 #include <pluto/asset/package_manifest_asset.h>
 #include <pluto/file/stream_reader.h>
-#include <pluto/file/file_writer.h>
+#include <pluto/file/file_stream_writer.h>
 #include <pluto/guid.h>
 
 #include <string>
@@ -38,7 +38,7 @@ namespace pluto
             name = value;
         }
 
-        void Dump(FileWriter& fileWriter) const
+        void Dump(FileStreamWriter& fileWriter) const
         {
             fileWriter.Write(&guid, sizeof(Guid));
             uint8_t serializerVersion = 1;
@@ -207,7 +207,7 @@ namespace pluto
         impl->SetName(value);
     }
 
-    void PackageManifestAsset::Dump(FileWriter& fileWriter) const
+    void PackageManifestAsset::Dump(FileStreamWriter& fileWriter) const
     {
         impl->Dump(fileWriter);
     }

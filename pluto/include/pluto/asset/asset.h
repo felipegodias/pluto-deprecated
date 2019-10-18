@@ -11,7 +11,7 @@
 namespace pluto
 {
     class Guid;
-    class FileWriter;
+    class FileStreamWriter;
     class StreamReader;
 
     class PLUTO_API Asset : public Object
@@ -44,6 +44,6 @@ namespace pluto
         Asset& operator=(const Asset& rhs) = delete;
         Asset& operator=(Asset&& rhs) noexcept;
 
-        virtual void Dump(FileWriter& fileWriter) const = 0;
+        virtual void Dump(FileStreamWriter& fileWriter) const = 0;
     };
 }
