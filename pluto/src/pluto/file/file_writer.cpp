@@ -25,11 +25,6 @@ namespace pluto
         return *this;
     }
 
-    std::ofstream& FileWriter::GetStream()
-    {
-        return ofs;
-    }
-
     size_t FileWriter::GetSize()
     {
         const size_t pos = ofs.tellp();

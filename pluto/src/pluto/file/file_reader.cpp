@@ -25,11 +25,6 @@ namespace pluto
         return *this;
     }
 
-    std::ifstream& FileReader::GetStream()
-    {
-        return ifs;
-    }
-
     size_t FileReader::GetSize()
     {
         const size_t pos = ifs.tellg();

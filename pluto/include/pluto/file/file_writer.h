@@ -19,8 +19,6 @@ namespace pluto
         FileWriter& operator=(const FileWriter& rhs) = delete;
         FileWriter& operator=(FileWriter&& rhs) noexcept;
 
-        std::ofstream& GetStream();
-
         uint64_t GetSize() override;
         uint64_t GetPosition() override;
         void SetPosition(size_t position) override;

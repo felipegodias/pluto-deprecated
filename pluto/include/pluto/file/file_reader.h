@@ -20,8 +20,6 @@ namespace pluto
         FileReader& operator=(const FileReader& rhs) = delete;
         FileReader& operator=(FileReader&& rhs) noexcept;
 
-        std::ifstream& GetStream();
-
         size_t GetSize() override;
         size_t GetPosition() override;
         void SetPosition(size_t position) override;
