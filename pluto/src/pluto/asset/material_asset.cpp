@@ -4,7 +4,7 @@
 #include <pluto/asset/asset_manager.h>
 #include <pluto/file/path.h>
 #include <pluto/file/file_writer.h>
-#include <pluto/file/reader.h>
+#include <pluto/file/stream_reader.h>
 
 #include <pluto/service/service_collection.h>
 #include <pluto/memory/resource.h>
@@ -286,7 +286,7 @@ namespace pluto
         return materialAsset;
     }
 
-    std::unique_ptr<Asset> MaterialAsset::Factory::Create(Reader& reader) const
+    std::unique_ptr<Asset> MaterialAsset::Factory::Create(StreamReader& reader) const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& assetManager = serviceCollection.GetService<AssetManager>();

@@ -7,7 +7,7 @@
 #include <pluto/math/vector2f.h>
 #include <pluto/math/vector3f.h>
 #include <pluto/math/vector3i.h>
-#include <pluto/file/reader.h>
+#include <pluto/file/stream_reader.h>
 #include <pluto/file/file_writer.h>
 
 namespace pluto
@@ -163,7 +163,7 @@ namespace pluto
         return instance;
     }
 
-    std::unique_ptr<Asset> MeshAsset::Factory::Create(Reader& reader) const
+    std::unique_ptr<Asset> MeshAsset::Factory::Create(StreamReader& reader) const
     {
         Guid signature;
         reader.Read(&signature, sizeof(Guid));

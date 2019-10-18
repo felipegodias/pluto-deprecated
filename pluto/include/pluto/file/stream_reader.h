@@ -7,15 +7,15 @@
 
 namespace pluto
 {
-    class PLUTO_API Reader
+    class PLUTO_API StreamReader
     {
     public:
-        virtual ~Reader() = 0;
+        virtual ~StreamReader() = 0;
 
-        Reader(const Reader& other) = delete;
-        Reader(Reader&& other) noexcept;
-        Reader& operator=(const Reader& rhs) = delete;
-        Reader& operator=(Reader&& rhs) noexcept;
+        StreamReader(const StreamReader& other) = delete;
+        StreamReader(StreamReader&& other) noexcept;
+        StreamReader& operator=(const StreamReader& rhs) = delete;
+        StreamReader& operator=(StreamReader&& rhs) noexcept;
 
         virtual size_t GetSize() = 0;
         virtual size_t GetPosition() = 0;
@@ -25,6 +25,6 @@ namespace pluto
         virtual std::string ReadAllText() = 0;
 
     protected:
-        Reader();
+        StreamReader();
     };
 }

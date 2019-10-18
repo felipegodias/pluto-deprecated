@@ -39,7 +39,7 @@ namespace pluto
             explicit Factory(ServiceCollection& serviceCollection);
             std::unique_ptr<PackageManifestAsset> Create() const;
             std::unique_ptr<PackageManifestAsset> Create(const PackageManifestAsset& original) const;
-            std::unique_ptr<Asset> Create(Reader& reader) const override;
+            std::unique_ptr<Asset> Create(StreamReader& reader) const override;
         };
 
     private:

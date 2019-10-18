@@ -1,5 +1,5 @@
 #include <pluto/asset/package_manifest_asset.h>
-#include <pluto/file/reader.h>
+#include <pluto/file/stream_reader.h>
 #include <pluto/file/file_writer.h>
 #include <pluto/guid.h>
 
@@ -143,7 +143,7 @@ namespace pluto
         return instance;
     }
 
-    std::unique_ptr<Asset> PackageManifestAsset::Factory::Create(Reader& reader) const
+    std::unique_ptr<Asset> PackageManifestAsset::Factory::Create(StreamReader& reader) const
     {
         Guid signature;
         reader.Read(&signature, sizeof(Guid));

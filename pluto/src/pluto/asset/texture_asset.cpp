@@ -5,7 +5,7 @@
 #include "pluto/service/service_collection.h"
 
 #include "pluto/file/file_writer.h"
-#include "pluto/file/reader.h"
+#include "pluto/file/stream_reader.h"
 
 #include "pluto/math/color.h"
 #include "pluto/math/rect.h"
@@ -383,7 +383,7 @@ namespace pluto
         return textureAsset;
     }
 
-    std::unique_ptr<Asset> TextureAsset::Factory::Create(Reader& reader) const
+    std::unique_ptr<Asset> TextureAsset::Factory::Create(StreamReader& reader) const
     {
         Guid signature;
         reader.Read(&signature, sizeof(Guid));

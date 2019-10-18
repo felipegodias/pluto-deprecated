@@ -35,7 +35,7 @@ namespace pluto
             std::unique_ptr<FontAsset> Create(float fontSize, const std::vector<Glyph>& glyphs,
                                               Resource<MaterialAsset>& material) const;
 
-            std::unique_ptr<Asset> Create(Reader& reader) const override;
+            std::unique_ptr<Asset> Create(StreamReader& reader) const override;
         };
 
     private:

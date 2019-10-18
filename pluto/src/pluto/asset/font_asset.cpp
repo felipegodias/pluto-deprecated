@@ -8,7 +8,7 @@
 
 #include "pluto/service/service_collection.h"
 
-#include "pluto/file/reader.h"
+#include "pluto/file/stream_reader.h"
 #include "pluto/file/file_writer.h"
 
 #include <fmt/format.h>
@@ -130,7 +130,7 @@ namespace pluto
         return std::make_unique<FontAsset>(std::make_unique<Impl>(Guid(), fontSize, glyphsMap, material));
     }
 
-    std::unique_ptr<Asset> FontAsset::Factory::Create(Reader& reader) const
+    std::unique_ptr<Asset> FontAsset::Factory::Create(StreamReader& reader) const
     {
         Guid signature;
         reader.Read(&signature, sizeof(Guid));

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "reader.h"
+#include "stream_reader.h"
 
 #include <fstream>
 #include <vector>
 
 namespace pluto
 {
-    class PLUTO_API FileReader final : public Reader
+    class PLUTO_API FileReader final : public StreamReader
     {
         std::ifstream ifs;
 

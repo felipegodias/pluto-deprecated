@@ -1,12 +1,12 @@
 #pragma once
 
-#include "writer.h"
+#include "stream_writer.h"
 
 #include <fstream>
 
 namespace pluto
 {
-    class PLUTO_API FileWriter final : public Writer
+    class PLUTO_API FileWriter final : public StreamWriter
     {
         std::ofstream ofs;
 
