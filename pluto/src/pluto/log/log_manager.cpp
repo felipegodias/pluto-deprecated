@@ -1,5 +1,4 @@
 #include <pluto/log/log_manager.h>
-#include <pluto/file/file_manager.h>
 #include <pluto/file/file_writer.h>
 #include <pluto/service/service_collection.h>
 #include <pluto/exception.h>
@@ -12,12 +11,43 @@
 
 namespace pluto
 {
-    class LogManager::Impl
+    class FileWriterSink final : public spdlog::sinks::base_sink<std::mutex>
     {
-        std::unique_ptr<FileWriter> logFile;
+        std::unique_ptr<FileWriter> fileWriter;
+
+    public:
+        ~FileWriterSink() = default;
+
+        explicit FileWriterSink(std::unique_ptr<FileWriter> writer)
+            : fileWriter(std::move(writer))
+        {
+        }
+
+        FileWriterSink(const FileWriterSink& other) = delete;
+        FileWriterSink(FileWriterSink&& other) noexcept = default;
+        FileWriterSink& operator=(const FileWriterSink& rhs) = delete;
+        FileWriterSink& operator=(FileWriterSink&& rhs) noexcept = default;
+
+    protected:
+        void sink_it_(const spdlog::details::log_msg& msg) override
+        {
+            fmt::memory_buffer formatted;
+            formatter_->format(msg, formatted);
+            fileWriter->Write(formatted.data(), static_cast<std::streamsize>(formatted.size()));
+            fileWriter->Flush();
+        }
+
+        void flush_() override
+        {
+            fileWriter->Flush();
+        }
+    };
+
+    class LogManager::Impl final
+    {
         std::unique_ptr<spdlog::logger> logger;
         std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> consoleSink;
-        std::shared_ptr<spdlog::sinks::ostream_sink_mt> fileSink;
+        std::shared_ptr<FileWriterSink> fileSink;
 
     public:
         explicit Impl(std::unique_ptr<FileWriter> logFile)
@@ -32,10 +62,8 @@ namespace pluto
             }
             else
             {
-                std::ofstream& ofs = logFile->GetStream();
-                fileSink = std::make_shared<spdlog::sinks::ostream_sink_mt>(ofs);
+                fileSink = std::make_shared<FileWriterSink>(std::move(logFile));
                 sinkList = spdlog::sinks_init_list{consoleSink, fileSink};
-                this->logFile = std::move(logFile);
             }
 
             logger = std::make_unique<spdlog::logger>("Pluto Engine", sinkList);
