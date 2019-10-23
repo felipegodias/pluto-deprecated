@@ -1,18 +1,30 @@
 #pragma once
 
 #include "stream_writer.h"
+#include "pluto/service/base_factory.h"
 
-#include <fstream>
+#include <string>
+#include <memory>
 
 namespace pluto
 {
     class PLUTO_API FileStreamWriter final : public StreamWriter
     {
-        std::ofstream ofs;
+    public:
+        class PLUTO_API Factory final : public BaseFactory
+        {
+        public:
+            explicit Factory(ServiceCollection& serviceCollection);
+            std::unique_ptr<FileStreamWriter> Create(const std::string& path) const;
+        };
+
+    private:
+        class Impl;
+        std::unique_ptr<Impl> impl;
 
     public:
         ~FileStreamWriter() override;
-        explicit FileStreamWriter(std::ofstream ofs);
+        explicit FileStreamWriter(std::unique_ptr<Impl> impl);
 
         FileStreamWriter(const FileStreamWriter& other) = delete;
         FileStreamWriter(FileStreamWriter&& other) noexcept;

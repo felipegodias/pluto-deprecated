@@ -32,13 +32,15 @@ namespace pluto
 
         MemoryManager* memoryManager;
         EventManager* eventManager;
+        FileManager* fileManager;
         ServiceCollection* serviceCollection;
 
     public:
-        Impl(MemoryManager& memoryManager, EventManager& eventManager,
+        Impl(MemoryManager& memoryManager, EventManager& eventManager, FileManager& fileManager,
              ServiceCollection& serviceCollection)
             : memoryManager(&memoryManager),
               eventManager(&eventManager),
+              fileManager(&fileManager),
               serviceCollection(&serviceCollection)
         {
         }
@@ -144,15 +146,15 @@ namespace pluto
     private:
         Resource<Asset> LoadFromFile(const std::type_info& type, const std::string& path)
         {
-            if (!FileManager::Exists(path))
+            if (!fileManager->Exists(path))
             {
                 Exception::Throw(
                     std::runtime_error(fmt::format("Asset at path {0} does not exists.", path)));
             }
 
-            FileStreamReader file = FileManager::OpenRead(path);
+            const std::unique_ptr<FileStreamReader> file = fileManager->OpenRead(path);
             const auto& factory = dynamic_cast<Asset::Factory&>(serviceCollection->GetFactory(type));
-            return ResourceUtils::Cast<Asset>(Register(factory.Create(file)));
+            return ResourceUtils::Cast<Asset>(Register(factory.Create(*file)));
         }
     };
 
@@ -166,8 +168,10 @@ namespace pluto
         ServiceCollection& serviceCollection = GetServiceCollection();
         auto& memoryManager = serviceCollection.GetService<MemoryManager>();
         auto& eventManager = serviceCollection.GetService<EventManager>();
+        auto& fileManager = serviceCollection.GetService<FileManager>();
 
-        return std::make_unique<AssetManager>(std::make_unique<Impl>(memoryManager, eventManager, serviceCollection));
+        return std::make_unique<AssetManager>(
+            std::make_unique<Impl>(memoryManager, eventManager, fileManager, serviceCollection));
     }
 
     AssetManager::~AssetManager() = default;

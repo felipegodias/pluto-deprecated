@@ -1,6 +1,7 @@
 #include <pluto/root.h>
 #include <pluto/service/service_collection.h>
 
+#include <pluto/file/file_installer.h>
 #include <pluto/log/log_installer.h>
 #include <pluto/config/config_installer.h>
 #include <pluto/event/event_installer.h>
@@ -23,11 +24,9 @@
 #include <pluto/file/file_manager.h>
 #include <pluto/file/file_stream_reader.h>
 #include <pluto/file/file_stream_writer.h>
-#include <pluto/file/path.h>
 
 #include <regex>
 #include <pluto/exception.h>
-#include "pluto/scene/scene_manager.h"
 
 namespace pluto
 {
@@ -41,14 +40,17 @@ namespace pluto
         {
             serviceCollection = std::make_unique<ServiceCollection>();
 
-            FileManager::SetRootPath(dataDirectoryName);
-            FileStreamWriter logFile = FileManager::OpenWrite(logFileName);
-            LogInstaller::Install(std::make_unique<FileStreamWriter>(std::move(logFile)), *serviceCollection);
+            FileInstaller::Install(*serviceCollection);
+            auto& fileManager = serviceCollection->GetService<FileManager>();
 
-            if (FileManager::Exists(configFileName))
+            fileManager.SetRootPath(dataDirectoryName);
+            std::unique_ptr<FileStreamWriter> logFile = fileManager.OpenWrite(logFileName);
+            LogInstaller::Install(std::move(logFile), *serviceCollection);
+
+            if (fileManager.IsFile(configFileName))
             {
-                FileStreamReader configFile = FileManager::OpenRead(configFileName);
-                ConfigInstaller::Install(&configFile, *serviceCollection);
+                const std::unique_ptr<FileStreamReader> configFile = fileManager.OpenRead(configFileName);
+                ConfigInstaller::Install(configFile.get(), *serviceCollection);
             }
             else
             {

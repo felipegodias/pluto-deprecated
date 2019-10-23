@@ -1,19 +1,141 @@
 #include "pluto/file/file_manager.h"
 #include "pluto/file/file_stream_reader.h"
 #include "pluto/file/file_stream_writer.h"
+#include "pluto/service/service_collection.h"
 #include "pluto/regex.h"
+#include "pluto/debug/assert.h"
 
 #include <filesystem>
 
 namespace pluto
 {
-    namespace file_manager_cpp
+    class FileManager::Impl
     {
-        template <typename TFilter>
-        std::vector<std::string> GetEntries(const std::string& path, const FileManager::SearchOptions searchOptions,
-                                            TFilter filter)
+        FileStreamReader::Factory* fileStreamReaderFactory;
+        FileStreamWriter::Factory* fileStreamWriterFactory;
+
+    public:
+        Impl(FileStreamReader::Factory& fileStreamReaderFactory, FileStreamWriter::Factory& fileStreamWriterFactory)
+            : fileStreamReaderFactory(&fileStreamReaderFactory),
+              fileStreamWriterFactory(&fileStreamWriterFactory)
         {
-            if (searchOptions == FileManager::SearchOptions::TopDirectoryOnly)
+        }
+
+        std::string GetRootPath() const
+        {
+            return std::filesystem::current_path().string();
+        }
+
+        void SetRootPath(const std::string& path) const
+        {
+            std::filesystem::current_path(path);
+        }
+
+        bool Exists(const std::string& path) const
+        {
+            return std::filesystem::exists(path);
+        }
+
+        bool IsFile(const std::string& path) const
+        {
+            return std::filesystem::is_regular_file(path);
+        }
+
+        bool IsDirectory(const std::string& path) const
+        {
+            return std::filesystem::is_directory(path);
+        }
+
+        std::vector<std::string> GetDirectories(const std::string& path) const
+        {
+            return GetDirectories(path, TopDirectoryOnly);
+        }
+
+        std::vector<std::string> GetDirectories(const std::string& path, SearchOptions searchOptions) const
+        {
+            const auto filter = [](const std::filesystem::directory_entry& e)-> bool
+            {
+                return e.is_directory();
+            };
+
+            return GetEntries(path, searchOptions, filter);
+        }
+
+        std::vector<std::string> GetDirectories(const std::string& path, const Regex& regex) const
+        {
+            return GetDirectories(path, regex, TopDirectoryOnly);
+        }
+
+        std::vector<std::string> GetDirectories(const std::string& path, const Regex& regex,
+                                                const SearchOptions searchOptions) const
+        {
+            const auto filter = [&regex](const std::filesystem::directory_entry& e)-> bool
+            {
+                return e.is_directory() && regex.Match(e.path().string());
+            };
+
+            return GetEntries(path, searchOptions, filter);
+        }
+
+        std::vector<std::string> GetFiles(const std::string& path) const
+        {
+            return GetFiles(path, TopDirectoryOnly);
+        }
+
+        std::vector<std::string> GetFiles(const std::string& path, const SearchOptions searchOptions) const
+        {
+            const auto filter = [](const std::filesystem::directory_entry& e)-> bool
+            {
+                return e.is_regular_file();
+            };
+
+            return GetEntries(path, searchOptions, filter);
+        }
+
+        std::vector<std::string> GetFiles(const std::string& path, const Regex& regex) const
+        {
+            return GetFiles(path, regex, TopDirectoryOnly);
+        }
+
+        std::vector<std::string> GetFiles(const std::string& path, const Regex& regex,
+                                          const SearchOptions searchOptions) const
+        {
+            const auto filter = [&regex](const std::filesystem::directory_entry& e)-> bool
+            {
+                return e.is_regular_file() && regex.Match(e.path().string());
+            };
+
+            return GetEntries(path, searchOptions, filter);
+        }
+
+        void CreateDirectory(const std::string& path) const
+        {
+            std::filesystem::create_directory(path);
+        }
+
+        std::unique_ptr<FileStreamReader> OpenRead(const std::string& path) const
+        {
+            ASSERT_THAT_IS_TRUE(IsFile(path));
+            return fileStreamReaderFactory->Create(path);
+        }
+
+        std::unique_ptr<FileStreamWriter> OpenWrite(const std::string& path) const
+        {
+            ASSERT_THAT_IS_TRUE(IsFile(path));
+            return fileStreamWriterFactory->Create(path);
+        }
+
+        void Delete(const std::string& path) const
+        {
+            std::filesystem::remove_all(path);
+        }
+
+    private:
+        template <typename TFilter>
+        std::vector<std::string> GetEntries(const std::string& path, const SearchOptions searchOptions,
+                                            TFilter filter) const
+        {
+            if (searchOptions == TopDirectoryOnly)
             {
                 return FilterEntries(std::filesystem::directory_iterator(path), filter);
             }
@@ -21,7 +143,7 @@ namespace pluto
         }
 
         template <typename TIterator, typename TFilter>
-        std::vector<std::string> FilterEntries(TIterator iterator, TFilter filter)
+        std::vector<std::string> FilterEntries(TIterator iterator, TFilter filter) const
         {
             std::vector<std::string> result;
             for (auto& it : iterator)
@@ -33,112 +155,116 @@ namespace pluto
             }
             return result;
         }
+    };
+
+    FileManager::Factory::Factory(ServiceCollection& serviceCollection)
+        : BaseFactory(serviceCollection)
+    {
     }
 
-    std::string FileManager::GetRootPath()
+    std::unique_ptr<FileManager> FileManager::Factory::Create() const
     {
-        return std::filesystem::current_path().string();
+        ServiceCollection& serviceCollection = GetServiceCollection();
+        FileStreamReader::Factory& fileStreamReaderFactory = serviceCollection.GetFactory<FileStreamReader>();
+        FileStreamWriter::Factory& fileStreamWriterFactory = serviceCollection.GetFactory<FileStreamWriter>();
+        return std::make_unique<FileManager>(std::make_unique<Impl>(fileStreamReaderFactory, fileStreamWriterFactory));
     }
 
-    void FileManager::SetRootPath(const std::string& path)
+    FileManager::~FileManager() = default;
+
+    FileManager::FileManager(std::unique_ptr<Impl> impl)
+        : impl(std::move(impl))
     {
-        std::filesystem::current_path(path);
     }
 
-    bool FileManager::Exists(const std::string& path)
+    FileManager::FileManager(FileManager&& other) noexcept = default;
+
+    FileManager& FileManager::operator=(FileManager&& rhs) noexcept = default;
+
+    std::string FileManager::GetRootPath() const
     {
-        return std::filesystem::exists(path);
+        return impl->GetRootPath();
     }
 
-    bool FileManager::IsFile(const std::string& path)
+    void FileManager::SetRootPath(const std::string& path) const
     {
-        return std::filesystem::is_regular_file(path);
+        impl->SetRootPath(path);
     }
 
-    bool FileManager::IsDirectory(const std::string& path)
+    bool FileManager::Exists(const std::string& path) const
     {
-        return std::filesystem::is_directory(path);
+        return impl->Exists(path);
     }
 
-    std::vector<std::string> FileManager::GetDirectories(const std::string& path)
+    bool FileManager::IsFile(const std::string& path) const
     {
-        return GetDirectories(path, TopDirectoryOnly);
+        return impl->IsFile(path);
     }
 
-    std::vector<std::string> FileManager::GetDirectories(const std::string& path, SearchOptions searchOptions)
+    bool FileManager::IsDirectory(const std::string& path) const
     {
-        const auto filter = [](const std::filesystem::directory_entry& e)-> bool
-        {
-            return e.is_directory();
-        };
-
-        return file_manager_cpp::GetEntries(path, searchOptions, filter);
+        return impl->IsDirectory(path);
     }
 
-    std::vector<std::string> FileManager::GetDirectories(const std::string& path, const Regex& regex)
+    std::vector<std::string> FileManager::GetDirectories(const std::string& path) const
     {
-        return GetDirectories(path, regex, TopDirectoryOnly);
+        return impl->GetDirectories(path);
+    }
+
+    std::vector<std::string> FileManager::GetDirectories(const std::string& path, SearchOptions searchOptions) const
+    {
+        return impl->GetDirectories(path, searchOptions);
+    }
+
+    std::vector<std::string> FileManager::GetDirectories(const std::string& path, const Regex& regex) const
+    {
+        return impl->GetDirectories(path, regex);
     }
 
     std::vector<std::string> FileManager::GetDirectories(const std::string& path, const Regex& regex,
-                                                         const SearchOptions searchOptions)
+                                                         const SearchOptions searchOptions) const
     {
-        const auto filter = [&regex](const std::filesystem::directory_entry& e)-> bool
-        {
-            return e.is_directory() && regex.Match(e.path().string());
-        };
-
-        return file_manager_cpp::GetEntries(path, searchOptions, filter);
+        return impl->GetDirectories(path, regex, searchOptions);
     }
 
-    std::vector<std::string> FileManager::GetFiles(const std::string& path)
+    std::vector<std::string> FileManager::GetFiles(const std::string& path) const
     {
-        return GetFiles(path, TopDirectoryOnly);
+        return impl->GetFiles(path);
     }
 
-    std::vector<std::string> FileManager::GetFiles(const std::string& path, const SearchOptions searchOptions)
+    std::vector<std::string> FileManager::GetFiles(const std::string& path, const SearchOptions searchOptions) const
     {
-        const auto filter = [](const std::filesystem::directory_entry& e)-> bool
-        {
-            return e.is_regular_file();
-        };
-
-        return file_manager_cpp::GetEntries(path, searchOptions, filter);
+        return impl->GetFiles(path, searchOptions);
     }
 
-    std::vector<std::string> FileManager::GetFiles(const std::string& path, const Regex& regex)
+    std::vector<std::string> FileManager::GetFiles(const std::string& path, const Regex& regex) const
     {
-        return GetFiles(path, regex, TopDirectoryOnly);
+        return impl->GetFiles(path, regex);
     }
 
     std::vector<std::string> FileManager::GetFiles(const std::string& path, const Regex& regex,
-                                                   const SearchOptions searchOptions)
+                                                   const SearchOptions searchOptions) const
     {
-        const auto filter = [&regex](const std::filesystem::directory_entry& e)-> bool
-        {
-            return e.is_regular_file() && regex.Match(e.path().string());
-        };
-
-        return file_manager_cpp::GetEntries(path, searchOptions, filter);
+        return impl->GetFiles(path, regex, searchOptions);
     }
 
-    void FileManager::CreateDirectory(const std::string& path)
+    void FileManager::CreateDirectory(const std::string& path) const
     {
-        std::filesystem::create_directory(path);
+        impl->CreateDirectory(path);
     }
 
-    FileStreamReader FileManager::OpenRead(const std::string& path)
+    std::unique_ptr<FileStreamReader> FileManager::OpenRead(const std::string& path) const
     {
-        return FileStreamReader(std::ifstream(path, std::ios::binary));
+        return impl->OpenRead(path);
     }
 
-    FileStreamWriter FileManager::OpenWrite(const std::string& path)
+    std::unique_ptr<FileStreamWriter> FileManager::OpenWrite(const std::string& path) const
     {
-        return FileStreamWriter(std::ofstream(path, std::ios::binary));
+        return impl->OpenWrite(path);
     }
 
-    void FileManager::Delete(const std::string& path)
+    void FileManager::Delete(const std::string& path) const
     {
-        std::filesystem::remove_all(path);
+        impl->Delete(path);
     }
 }

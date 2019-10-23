@@ -1,7 +1,9 @@
 #pragma once
 
-#include "pluto/api.h"
+#include "pluto/service/base_service.h"
+#include "pluto/service/base_factory.h"
 
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -10,9 +12,8 @@ namespace pluto
     class FileStreamWriter;
     class FileStreamReader;
     class Regex;
-    class Path;
 
-    class PLUTO_API FileManager
+    class PLUTO_API FileManager final : public BaseService
     {
     public:
         enum SearchOptions
@@ -21,48 +22,61 @@ namespace pluto
             AllDirectories = 1,
         };
 
-        ~FileManager() = delete;
-        FileManager() = delete;
+        class PLUTO_API Factory final : public BaseFactory
+        {
+        public:
+            explicit Factory(ServiceCollection& serviceCollection);
+            std::unique_ptr<FileManager> Create() const;
+        };
+
+    private:
+        class Impl;
+        std::unique_ptr<Impl> impl;
+
+    public:
+        ~FileManager();
+
+        explicit FileManager(std::unique_ptr<Impl> impl);
 
         FileManager(const FileManager& other) = delete;
-        FileManager(FileManager&& other) noexcept = delete;
+        FileManager(FileManager&& other) noexcept;
         FileManager& operator=(const FileManager& rhs) = delete;
-        FileManager& operator=(FileManager&& rhs) noexcept = delete;
+        FileManager& operator=(FileManager&& rhs) noexcept;
 
-        static std::string GetRootPath();
+        std::string GetRootPath() const;
 
-        static void SetRootPath(const std::string& path);
+        void SetRootPath(const std::string& path) const;
 
-        static bool Exists(const std::string& path);
+        bool Exists(const std::string& path) const;
 
-        static bool IsFile(const std::string& path);
+        bool IsFile(const std::string& path) const;
 
-        static bool IsDirectory(const std::string& path);
+        bool IsDirectory(const std::string& path) const;
 
-        static std::vector<std::string> GetDirectories(const std::string& path);
+        std::vector<std::string> GetDirectories(const std::string& path) const;
 
-        static std::vector<std::string> GetDirectories(const std::string& path, SearchOptions searchOptions);
+        std::vector<std::string> GetDirectories(const std::string& path, SearchOptions searchOptions) const;
 
-        static std::vector<std::string> GetDirectories(const std::string& path, const Regex& regex);
+        std::vector<std::string> GetDirectories(const std::string& path, const Regex& regex) const;
 
-        static std::vector<std::string> GetDirectories(const std::string& path, const Regex& regex,
-                                                       SearchOptions searchOptions);
+        std::vector<std::string> GetDirectories(const std::string& path, const Regex& regex,
+                                                SearchOptions searchOptions) const;
 
-        static std::vector<std::string> GetFiles(const std::string& path);
+        std::vector<std::string> GetFiles(const std::string& path) const;
 
-        static std::vector<std::string> GetFiles(const std::string& path, SearchOptions searchOptions);
+        std::vector<std::string> GetFiles(const std::string& path, SearchOptions searchOptions) const;
 
-        static std::vector<std::string> GetFiles(const std::string& path, const Regex& regex);
+        std::vector<std::string> GetFiles(const std::string& path, const Regex& regex) const;
 
-        static std::vector<std::string> GetFiles(const std::string& path, const Regex& regex,
-                                                 SearchOptions searchOptions);
+        std::vector<std::string> GetFiles(const std::string& path, const Regex& regex,
+                                          SearchOptions searchOptions) const;
 
-        static void CreateDirectory(const std::string& path);
+        void CreateDirectory(const std::string& path) const;
 
-        static FileStreamReader OpenRead(const std::string& path);
+        std::unique_ptr<FileStreamReader> OpenRead(const std::string& path) const;
 
-        static FileStreamWriter OpenWrite(const std::string& path);
+        std::unique_ptr<FileStreamWriter> OpenWrite(const std::string& path) const;
 
-        static void Delete(const std::string& path);
+        void Delete(const std::string& path) const;
     };
 }
