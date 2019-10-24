@@ -1,4 +1,5 @@
 #include "pluto/file/file_manager.h"
+#include "pluto/file/file_stream.h"
 #include "pluto/file/file_stream_reader.h"
 #include "pluto/file/file_stream_writer.h"
 #include "pluto/service/service_collection.h"
@@ -11,12 +12,15 @@ namespace pluto
 {
     class FileManager::Impl
     {
+        FileStream::Factory* fileStreamFactory;
         FileStreamReader::Factory* fileStreamReaderFactory;
         FileStreamWriter::Factory* fileStreamWriterFactory;
 
     public:
-        Impl(FileStreamReader::Factory& fileStreamReaderFactory, FileStreamWriter::Factory& fileStreamWriterFactory)
-            : fileStreamReaderFactory(&fileStreamReaderFactory),
+        Impl(FileStream::Factory& fileStreamFactory, FileStreamReader::Factory& fileStreamReaderFactory,
+             FileStreamWriter::Factory& fileStreamWriterFactory)
+            : fileStreamFactory(&fileStreamFactory),
+              fileStreamReaderFactory(&fileStreamReaderFactory),
               fileStreamWriterFactory(&fileStreamWriterFactory)
         {
         }
@@ -113,6 +117,11 @@ namespace pluto
             std::filesystem::create_directory(path);
         }
 
+        std::unique_ptr<FileStream> Open(const std::string& path) const
+        {
+            return fileStreamFactory->Create(path);
+        }
+
         std::unique_ptr<FileStreamReader> OpenRead(const std::string& path) const
         {
             ASSERT_THAT_IS_TRUE(IsFile(path));
@@ -121,7 +130,6 @@ namespace pluto
 
         std::unique_ptr<FileStreamWriter> OpenWrite(const std::string& path) const
         {
-            ASSERT_THAT_IS_TRUE(IsFile(path));
             return fileStreamWriterFactory->Create(path);
         }
 
@@ -165,9 +173,11 @@ namespace pluto
     std::unique_ptr<FileManager> FileManager::Factory::Create() const
     {
         ServiceCollection& serviceCollection = GetServiceCollection();
+        FileStream::Factory& fileStreamFactory = serviceCollection.GetFactory<FileStream>();
         FileStreamReader::Factory& fileStreamReaderFactory = serviceCollection.GetFactory<FileStreamReader>();
         FileStreamWriter::Factory& fileStreamWriterFactory = serviceCollection.GetFactory<FileStreamWriter>();
-        return std::make_unique<FileManager>(std::make_unique<Impl>(fileStreamReaderFactory, fileStreamWriterFactory));
+        return std::make_unique<FileManager>(
+            std::make_unique<Impl>(fileStreamFactory, fileStreamReaderFactory, fileStreamWriterFactory));
     }
 
     FileManager::~FileManager() = default;
@@ -251,6 +261,11 @@ namespace pluto
     void FileManager::CreateDirectory(const std::string& path) const
     {
         impl->CreateDirectory(path);
+    }
+
+    std::unique_ptr<FileStream> FileManager::Open(const std::string& path) const
+    {
+        return impl->Open(path);
     }
 
     std::unique_ptr<FileStreamReader> FileManager::OpenRead(const std::string& path) const

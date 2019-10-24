@@ -29,9 +29,11 @@ list(APPEND PLUTO_SOURCE_FILES
     # ./file
     ${CMAKE_CURRENT_SOURCE_DIR}/file/file_installer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/file/file_manager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/file/file_stream.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/file/file_stream_reader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/file/file_stream_writer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/file/path.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/file/stream.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/file/stream_reader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/file/stream_writer.cpp
     # ./input

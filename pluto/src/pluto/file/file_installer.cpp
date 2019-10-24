@@ -1,5 +1,6 @@
 #include "pluto/file/file_installer.h"
 #include "pluto/file/file_manager.h"
+#include "pluto/file/file_stream.h"
 #include "pluto/file/file_stream_reader.h"
 #include "pluto/file/file_stream_writer.h"
 #include "pluto/service/service_collection.h"
@@ -10,12 +11,14 @@ namespace pluto
     {
         serviceCollection.EmplaceFactory<FileStreamReader>();
         serviceCollection.EmplaceFactory<FileStreamWriter>();
+        serviceCollection.EmplaceFactory<FileStream>();
         serviceCollection.AddService(FileManager::Factory(serviceCollection).Create());
     }
 
     void FileInstaller::Uninstall(ServiceCollection& serviceCollection)
     {
         serviceCollection.RemoveService<FileManager>();
+        serviceCollection.RemoveFactory<FileStream>();
         serviceCollection.RemoveFactory<FileStreamWriter>();
         serviceCollection.RemoveFactory<FileStreamReader>();
     }

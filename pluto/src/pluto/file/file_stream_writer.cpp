@@ -22,12 +22,12 @@ namespace pluto
             return size;
         }
 
-        size_t GetPosition()
+        size_t GetWritePosition()
         {
             return ofs.tellp();
         }
 
-        void SetPosition(const size_t position)
+        void SetWritePosition(const size_t position)
         {
             ofs.seekp(position, std::ios::beg);
         }
@@ -79,14 +79,14 @@ namespace pluto
         return impl->GetSize();
     }
 
-    size_t FileStreamWriter::GetPosition()
+    size_t FileStreamWriter::GetWritePosition()
     {
-        return impl->GetPosition();
+        return impl->GetWritePosition();
     }
 
-    void FileStreamWriter::SetPosition(const size_t position)
+    void FileStreamWriter::SetWritePosition(const size_t position)
     {
-        impl->SetPosition(position);
+        impl->SetWritePosition(position);
     }
 
     void FileStreamWriter::Write(const void* ptr, const size_t size)

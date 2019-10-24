@@ -18,8 +18,8 @@ namespace pluto
         StreamReader& operator=(StreamReader&& rhs) noexcept;
 
         virtual size_t GetSize() = 0;
-        virtual size_t GetPosition() = 0;
-        virtual void SetPosition(size_t position) = 0;
+        virtual size_t GetReadPosition() = 0;
+        virtual void SetReadPosition(size_t position) = 0;
         virtual void Read(void* ptr, size_t size) = 0;
         virtual std::vector<uint8_t> ReadAllBytes() = 0;
         virtual std::string ReadAllText() = 0;

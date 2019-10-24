@@ -9,6 +9,7 @@
 
 namespace pluto
 {
+    class FileStream;
     class FileStreamWriter;
     class FileStreamReader;
     class Regex;
@@ -72,6 +73,8 @@ namespace pluto
                                           SearchOptions searchOptions) const;
 
         void CreateDirectory(const std::string& path) const;
+
+        std::unique_ptr<FileStream> Open(const std::string& path) const;
 
         std::unique_ptr<FileStreamReader> OpenRead(const std::string& path) const;
 

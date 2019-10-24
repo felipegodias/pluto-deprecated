@@ -32,8 +32,8 @@ namespace pluto
         FileStreamWriter& operator=(FileStreamWriter&& rhs) noexcept;
 
         uint64_t GetSize() override;
-        uint64_t GetPosition() override;
-        void SetPosition(size_t position) override;
+        uint64_t GetWritePosition() override;
+        void SetWritePosition(size_t position) override;
         void Write(const void* ptr, size_t size) override;
         void Write(const std::vector<uint8_t>& bytes) override;
         void Write(const std::string& str) override;

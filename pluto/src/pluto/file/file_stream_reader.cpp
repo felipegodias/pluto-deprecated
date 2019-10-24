@@ -22,12 +22,12 @@ namespace pluto
             return size;
         }
 
-        size_t GetPosition()
+        size_t GetReadPosition()
         {
             return ifs.tellg();
         }
 
-        void SetPosition(const size_t position)
+        void SetReadPosition(const size_t position)
         {
             ifs.seekg(position, std::ios::beg);
         }
@@ -88,14 +88,14 @@ namespace pluto
         return impl->GetSize();
     }
 
-    size_t FileStreamReader::GetPosition()
+    size_t FileStreamReader::GetReadPosition()
     {
-        return impl->GetPosition();
+        return impl->GetReadPosition();
     }
 
-    void FileStreamReader::SetPosition(const size_t position)
+    void FileStreamReader::SetReadPosition(const size_t position)
     {
-        impl->SetPosition(position);
+        impl->SetReadPosition(position);
     }
 
     void FileStreamReader::Read(void* ptr, const size_t size)
